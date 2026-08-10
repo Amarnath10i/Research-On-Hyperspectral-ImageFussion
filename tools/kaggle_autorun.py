@@ -17,6 +17,16 @@ rotate it at https://www.kaggle.com/settings once you are done.
 
 Every attempt is archived under --state-dir: the notebook as pushed, the log,
 and the diff of what was repaired, so the run is auditable afterwards.
+
+IMPORTANT - accelerator selection. kernel-metadata carries `enable_gpu`, and
+Kaggle resolves that to whatever its current default GPU is. The `accelerator`
+field is accepted by the API and then ignored, so a push cannot request a
+specific GPU - and worse, it RESETS a choice made in the web UI back to the
+default. Since torch >= 2.6 ships no sm_60 kernels, a push can silently turn a
+working T4 setup into a broken P100 one.
+
+  To run on a T4: choose it in the UI (Settings -> Accelerator -> "GPU T4 x2"),
+  start the run from the UI, and watch it from here with --watch-only.
 """
 
 from __future__ import annotations
@@ -431,11 +441,15 @@ def run(args) -> int:
         with open(pushed, "w", encoding="utf-8") as f:
             json.dump(nb, f, indent=1, ensure_ascii=False)
 
-        print("  pushing ...")
-        push(api, pushed, slug, os.path.join(state, "_push"),
-             args.dataset or [], args.model or [], gpu=not args.no_gpu,
-             private=not args.public, internet=not args.no_internet,
-             accelerator=ctx.get("accelerator"))
+        if args.watch_only:
+            print("  watch-only: NOT pushing (a push resets the accelerator "
+                  "to Kaggle's default, which is currently a P100)")
+        else:
+            print("  pushing ...")
+            push(api, pushed, slug, os.path.join(state, "_push"),
+                 args.dataset or [], args.model or [], gpu=not args.no_gpu,
+                 private=not args.public, internet=not args.no_internet,
+                 accelerator=ctx.get("accelerator"))
 
         print("  waiting ...")
         st = wait_for_finish(api, slug, args.poll, args.timeout,
@@ -477,6 +491,14 @@ def run(args) -> int:
         entry["result"] = f"repaired-{rule.name}"
         entry["matched"] = match.group(0)[:200]
         history.append(entry)
+        if args.watch_only:
+            fixed = os.path.join(att_dir, "repaired-" + os.path.basename(nb_path))
+            with open(fixed, "w", encoding="utf-8") as f:
+                json.dump(nb, f, indent=1, ensure_ascii=False)
+            print(f"  watch-only: repair written to {fixed}")
+            print("  upload it yourself and re-run - pushing from here would "
+                  "reset the accelerator")
+            break
         print("  repaired; retrying")
     else:
         print(f"\n[stop] gave up after {args.max_attempts} attempts")
@@ -508,6 +530,12 @@ def main() -> int:
                         "fails on every CUDA op regardless of the code.")
     p.add_argument("--public", action="store_true")
     p.add_argument("--no-internet", action="store_true")
+    p.add_argument("--watch-only", action="store_true",
+                   help="Do not push; only poll an existing kernel run, fetch "
+                        "its log and diagnose. Use this when the accelerator "
+                        "was chosen in the Kaggle UI: a push sends "
+                        "enable_gpu=true, which Kaggle resolves to its default "
+                        "GPU and silently overrides that choice.")
     p.add_argument("--write-back", action="store_true",
                    help="overwrite the source notebook with the repaired version")
     return run(p.parse_args())
