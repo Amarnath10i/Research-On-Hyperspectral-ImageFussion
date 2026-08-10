@@ -1,163 +1,172 @@
-# Hyper-Spectral Fusion: Benchmarking HSI-MSI Fusion Methods
+# Hyperspectral-Multispectral Image Fusion
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://python.org)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-ee4c2c.svg)](https://pytorch.org)
-[![Kaggle](https://img.shields.io/badge/Kaggle-Notebooks-20BEFF.svg)](https://kaggle.com)
-
-## Overview
-
-This repository provides a comprehensive benchmarking study of **10 state-of-the-art Hyperspectral Image (HSI) – Multispectral Image (MSI) fusion methods** evaluated on the **CAVE** and **Harvard** datasets. It accompanies an IEEE 2026 literature survey on HSI fusion and super-resolution.
-
-The project includes:
-- **20 Kaggle notebooks** (10 methods × 2 datasets) for reproducible evaluation
-- **Literature survey tools** that harvest, filter, and compile IEEE 2026 papers on HSI fusion
-- **Quantitative metrics**: PSNR, SSIM, SAM, ERGAS
-
-## Benchmarked Methods
-
-| # | Method | Architecture | Paper |
-|---|--------|-------------|-------|
-| 1 | **AMGSGAN** | Adversarial / GAN | [PDF](papers/) |
-| 2 | **DBIN** | Deep Blind Image Network (TensorFlow) | [PDF](papers/) |
-| 3 | **DHIF-Net** | Deep Hyperspectral Image Fusion Network | [PDF](papers/) |
-| 4 | **Fusformer** | Transformer-based Fusion | [PDF](papers/) |
-| 5 | **IFCASformer** | Iterative Fusion Cascade Transformer (CASSI) | [PDF](papers/) |
-| 6 | **LRU** | Low-Rank Unfolding | [PDF](papers/) |
-| 7 | **MOGDCN** | Model-Guided Deep CNN | [PDF](papers/) |
-| 8 | **PSRT** | Progressive Spatial-Spectral Reconstruction Transformer | [PDF](papers/) |
-| 9 | **TSFN** | Two-Stream Fusion Network | [PDF](papers/) |
-| 10 | **UTAL** | Unfolding Total variation and Low-rank | [PDF](papers/) |
-
-## Results Summary
-
-### CAVE Dataset (12 test scenes, 512×512, 31 bands)
-
-| Method | PSNR ↑ | SSIM ↑ | SAM ↓ | ERGAS ↓ |
-|--------|--------|--------|-------|---------|
-| Fusformer | 50.20 | 0.9996 | 2.35 | 0.85 |
-| DBIN | 47.14 | 0.9939 | 2.97 | 0.33 |
-| TSFN | 46.40 | 0.9943 | 2.75 | 0.63 |
-| IFCASformer | 35.98 | 0.9602 | 5.15 | 3.55 |
-| *More results in notebooks* | | | | |
-
-### Harvard Dataset (20 test scenes, 31 bands)
-
-| Method | PSNR ↑ | SSIM ↑ | SAM ↓ | ERGAS ↓ |
-|--------|--------|--------|-------|---------|
-| Fusformer | 25.80 | 0.3059 | 58.89 | 302.39 |
-| *More results in notebooks* | | | | |
-
-> **Note**: The significant performance drop on Harvard demonstrates the **domain shift problem** — models trained on CAVE's synthetic scenes struggle with Harvard's real-world images. This motivates our research on robust fusion methods.
-
-## Repository Structure
+Two things live here: a **benchmark** of ten published HSI-MSI fusion methods,
+and **DAETF-Net**, a new method built to fix the failure that benchmark exposed.
 
 ```
-hyper-spectral-fusion/
-├── README.md                          # This file
-├── .gitignore
-├── literature_survey/                 # Literature survey pipeline
-│   ├── lit_search.py                  # Crossref API harvest
-│   ├── check_oa.py                    # Unpaywall open-access check
-│   ├── lit_multimodal.py              # Track 2: HSI+LiDAR papers
-│   ├── build_lit_excel.py             # Main Excel workbook builder
-│   ├── create_excel.py                # Simple Excel creator
-│   ├── create_excel_fusion.py         # Fusion-only Excel creator
-│   ├── lit_raw.json                   # Raw Crossref results
-│   ├── lit_candidates.json            # Filtered candidates with OA status
-│   └── lit_multimodal.json            # Multimodal paper candidates
-├── notebooks/
-│   ├── cave/                          # CAVE dataset notebooks
-│   │   ├── amgsgan-test-cave.ipynb
-│   │   ├── dbin-test-cave.ipynb
-│   │   ├── dhifnet-test-cave.ipynb
-│   │   ├── fusformer-test-cave.ipynb
-│   │   ├── ifcasformer-test-cave.ipynb
-│   │   ├── lru-test-cave.ipynb
-│   │   ├── mogdcn-test-cave.ipynb
-│   │   ├── psrt-test-cave.ipynb
-│   │   ├── tsfn-test-cave.ipynb
-│   │   └── utal-test-cave.ipynb
-│   └── harvard/                       # Harvard dataset notebooks
-│       ├── amgsgan-test-harvard.ipynb
-│       ├── dbin-test-harvard.ipynb
-│       ├── dhifnet-test-harvard.ipynb
-│       ├── fusformer-test-harvard.ipynb
-│       ├── ifcasformer-test-harvard.ipynb
-│       ├── lru-test-harvard.ipynb
-│       ├── mogdcn-test-harvard.ipynb
-│       ├── psrt-test-harvard.ipynb
-│       ├── tsfn-test-harvard.ipynb
-│       └── utal-test-harvard.ipynb
-└── papers/                            # Reference papers (not tracked)
+existing/            the ten benchmarked methods
+  notebooks/         one notebook per method per dataset, named for the method
+  papers/            paper PDFs (untracked) + INDEX.md mapping paper -> notebook
+  results/           BENCHMARK.md - what was measured, and why it is not comparable
+proposal1/           DAETF-Net
+  daetf/             the implementation (installable package)
+  notebooks/         DAETF_Net_Kaggle_P100.ipynb - self-contained, runs on Kaggle
+  docs/              ARCHITECTURE.md, GAP_ANALYSIS.md
+  results/           run outputs
+literature_survey/   Crossref -> Unpaywall -> annotated Excel pipeline
+tools/               notebook generator, Kaggle push/repair/re-run automation
 ```
 
-## Datasets
+---
 
-| Dataset | Spatial Size | Spectral Bands | Train/Test Split |
-|---------|-------------|----------------|-----------------|
-| **CAVE** | 512 × 512 | 31 (400–700 nm) | 20 / 12 scenes |
-| **Harvard** | ~1040 × 1392 | 31 (420–720 nm) | 30 / 20 scenes |
+## The finding that drives this work
 
-Datasets are hosted on Kaggle:
-- [CAVE Dataset](https://kaggle.com/datasets/nikeshreddypatlolla/cave-dataset-2)
-- [Harvard Dataset](https://kaggle.com/datasets/nikeshreddypatlolla/harvard-hsi-2)
+Re-running ten fusion methods across CAVE and Harvard shows that the usual
+headline metric points the wrong way.
 
-## Evaluation Metrics
+Five of nine methods score **higher PSNR** on the harder dataset — per-image
+maximum normalisation inflates it on dark scenes. What actually breaks is
+**spectral fidelity**: seven of nine lose 4-57 degrees of SAM, and ERGAS rises by
+up to two orders of magnitude.
 
-- **PSNR** (Peak Signal-to-Noise Ratio) — higher is better
-- **SSIM** (Structural Similarity Index) — higher is better  
-- **SAM** (Spectral Angle Mapper, in degrees) — lower is better
-- **ERGAS** (Erreur Relative Globale Adimensionnelle de Synthèse) — lower is better
+| Method | SAM CAVE → Harvard | ERGAS CAVE → Harvard |
+|---|---|---|
+| Fusformer | 2.35 → **58.89** | 0.85 → **302.39** |
+| UTAL | 4.62 → **36.46** | 0.27 → 16.60 |
+| IFCASformer | 5.15 → **26.86** | 3.55 → **85.41** |
+| PSRT | 7.55 → 15.87 | 0.39 → 1.81 |
+| DHIF-Net | 2.16 → 2.62 | 0.51 → 0.93 |
 
-## Running Notebooks
+Full table and the protocol caveats: [`existing/results/BENCHMARK.md`](existing/results/BENCHMARK.md).
 
-All notebooks are designed to run on **Kaggle** with GPU (T4) acceleration:
+**Caveat, stated up front:** those ten notebooks each used their own protocol —
+scale factors of ×4, ×8, ×16 and ×32, different normalisations, mismatched ERGAS
+scale arguments, and one method evaluated on a different dataset and task. The
+numbers are real but **not comparable across methods**, and no cross-method
+ranking here should be treated as settled until every baseline is re-run under
+one protocol.
 
-1. Upload the notebook to Kaggle
-2. Attach the required dataset and model checkpoint (see notebook metadata)
-3. Enable GPU accelerator (NVIDIA Tesla T4)
-4. Enable Internet access
-5. Run all cells
+---
 
-## Literature Survey
+## DAETF-Net
 
-The survey pipeline discovers IEEE 2026 papers on HSI fusion:
+Targets spectral fidelity under domain shift rather than another decimal of
+in-domain PSNR.
+
+| Component | Mechanism | Verified by |
+|---|---|---|
+| EFE | p4 group-equivariant convolutions | `max|rot90(f(x)) − f(rot90(x))| = 7.6e-06` |
+| TSSE | Tucker contraction against a learned core | gradient reaches the core |
+| AF-MoE | per-pixel top-k routing + load balancing | routing maps |
+| FDRM | Haar DWT, learnable shrinkage, exact IDWT | `max|IDWT(DWT(x)) − x| = 2.4e-07` |
+| DAE | degradation code conditioning via FiLM | auxiliary regression head |
+| BPU | back-projection upsampler replacing bicubic | ablation |
+
+**The central idea.** The loss carries two physics terms, `‖Down(ŷ) − LR‖` and
+`‖SRF(ŷ) − MSI‖`, that need no ground truth. They hold on any scene from any
+sensor, so the objective that trains the model can also **adapt it at test time
+on an unlabelled dataset**. The SRF is recovered from the data by least squares
+rather than hand-picked (recovery error 2.3e-08 on synthetic data with a known
+response).
+
+2.06 M parameters. Runs on a single P100 (16 GB).
+
+Design and honest limitations: [`proposal1/docs/ARCHITECTURE.md`](proposal1/docs/ARCHITECTURE.md).
+
+---
+
+## Running it
+
+### On Kaggle (intended path)
+
+1. Upload [`proposal1/notebooks/DAETF_Net_Kaggle_P100.ipynb`](proposal1/notebooks/DAETF_Net_Kaggle_P100.ipynb)
+2. Attach the CAVE and Harvard datasets, enable the GPU
+3. Run all — the notebook is self-contained (no clone, no internet needed)
+
+Set `QUICK = True` in the config cell to validate the whole pipeline in a few
+minutes before committing to a full run.
+
+### Locally
 
 ```bash
-# 1. Harvest papers from Crossref
-python literature_survey/lit_search.py
+pip install -r requirements.txt
+cd proposal1
 
-# 2. Check open-access status via Unpaywall
-python literature_survey/check_oa.py
+python -c "import daetf; daetf.selfcheck.run_all()"      # verify the mechanisms
 
-# 3. Harvest multimodal (HSI+LiDAR) papers
-python literature_survey/lit_multimodal.py
-
-# 4. Build the Excel workbook
-python literature_survey/build_lit_excel.py
+python - <<'PY'
+import daetf
+cfg = daetf.Config().resolve()          # discovers datasets, infers band counts
+model, hist = daetf.train(cfg)
+daetf.evaluate_dataset(model, cfg.source_root, cfg)
+PY
 ```
 
-### Requirements
-```
-openpyxl
-```
+Datasets are found automatically under `/kaggle/input/*`, `./data/*` or the
+current directory. Override with `DAETF_DATA_ROOTS` (os.pathsep separated) or
+`Config(source_root=...)`. Nothing is hardcoded — band counts are read from the
+files.
 
-## Related Work
+### Automating Kaggle runs
 
-This benchmarking study references the [hif-benchmarking](https://github.com/Nikesh0907/hif-benchmarking) repository for method implementations and pretrained weights.
-
-## Citation
-
-If you use this benchmarking suite, please cite:
-
-```bibtex
-@misc{hyper-spectral-fusion-2026,
-  title={Hyper-Spectral Fusion: Benchmarking HSI-MSI Fusion Methods on CAVE and Harvard},
-  year={2026},
-  url={https://github.com/YOUR_USERNAME/hyper-spectral-fusion}
-}
+```bash
+python tools/kaggle_autorun.py \
+  --notebook proposal1/notebooks/DAETF_Net_Kaggle_P100.ipynb \
+  --dataset nikeshreddypatlolla/cave-dataset-2 \
+  --dataset nikeshreddypatlolla/harvard-hsi-2
 ```
 
-## License
+Pushes, polls, and on failure pulls the log, matches it to a repair rule
+(missing module, CUDA OOM, fp16 overflow, DataLoader worker crash, dataset not
+found, run-time limit), patches the notebook and re-runs. Every attempt is
+archived for auditing.
 
-This project is for academic research purposes. Individual method implementations retain their original licenses.
+Credentials come from `KAGGLE_USERNAME`/`KAGGLE_KEY` or `~/.kaggle/kaggle.json`
+— never from a file in this repo.
+
+### Regenerating the notebook
+
+```bash
+python tools/build_notebook.py
+```
+
+The notebook is generated from `proposal1/daetf/`, so edit the package and
+regenerate rather than editing cells.
+
+---
+
+## Reproducibility
+
+- Every architectural claim has a numerical self-check that runs in seconds
+  before training starts (`daetf/selfcheck.py`)
+- One metric implementation for all methods and datasets, fixed `data_range=1.0`
+  (`daetf/metrics.py`)
+- Per-scene results are retained, so comparisons are paired: Wilcoxon
+  signed-rank + Cohen's *d*, bootstrap 95% CIs (`daetf/experiments.py`)
+- Ablations use matched control arms, not deletions, so they measure mechanisms
+  rather than lost capacity
+- Config, seed, environment and cost (params/GFLOPs/latency/peak memory) are
+  written into every results file
+
+---
+
+## Literature survey
+
+```bash
+python literature_survey/lit_search.py       # Crossref harvest -> lit_raw.json
+python literature_survey/check_oa.py         # Unpaywall OA check -> lit_candidates.json
+python literature_survey/lit_multimodal.py   # HSI+LiDAR track
+python literature_survey/build_lit_excel.py  # annotated 4-sheet workbook
+```
+
+Filters to six high-impact IEEE journals, verifies open-access status per DOI,
+and annotates ~43 papers with method family, core mechanism and relevance.
+Requires `openpyxl`.
+
+---
+
+## Status
+
+The implementation, evaluation harness and automation are done and tested. The
+full training run and the like-for-like baseline re-runs are not — until those
+land, this repository makes no claim about beating the state of the art.

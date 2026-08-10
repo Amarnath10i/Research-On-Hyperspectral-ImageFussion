@@ -1,0 +1,16 @@
+# DAETF-Net runtime. All of these are preinstalled on a Kaggle GPU image;
+# the pinned lower bounds are what the code was developed and tested against.
+torch>=2.0
+numpy>=1.24
+scipy>=1.10
+matplotlib>=3.6
+
+# literature_survey/build_lit_excel.py only
+openpyxl>=3.1
+
+# tools/kaggle_autorun.py only
+kaggle>=1.6
+
+# tools/build_notebook.py validation and local notebook execution only
+nbformat>=5.9
+nbclient>=0.8
