@@ -65,7 +65,7 @@ def _looks_like_dataset(path: str) -> bool:
 
 
 def search_roots() -> List[str]:
-    """Candidate locations, most specific first.
+    """Base locations to search under, most specific first.
 
     DAETF_DATA_ROOTS (os.pathsep separated) always takes priority, so discovery
     can be overridden without editing any code.
@@ -73,34 +73,77 @@ def search_roots() -> List[str]:
     roots: List[str] = []
     env = os.environ.get("DAETF_DATA_ROOTS", "")
     roots += [p for p in env.split(os.pathsep) if p]
-    roots += sorted(glob.glob("/kaggle/input/*"))
-    roots += sorted(glob.glob(os.path.join(os.getcwd(), "data", "*")))
+    roots += ["/kaggle/input"]
     roots += [os.path.join(os.getcwd(), "data"), os.getcwd()]
     return [r for r in roots if os.path.isdir(r)]
+
+
+def find_dataset_roots(base: str, max_depth: int = 5) -> List[str]:
+    """Breadth-first search under `base` for directories exposing <split>/HSI.
+
+    Kaggle does not mount datasets at a predictable depth: attaching
+    `owner/cave-dataset-2` can appear as /kaggle/input/cave-dataset-2/Data or
+    as /kaggle/input/datasets/owner/cave-dataset-2/Data depending on how the
+    kernel was configured. Searching a fixed depth silently fails on the
+    second layout, so walk until a dataset is found.
+
+    Only directories are visited, HSI/RGB leaves are never descended into, and
+    the search stops descending as soon as a root matches - so this stays cheap
+    even when the tree holds thousands of .mat files.
+    """
+    found: List[str] = []
+    queue: List[Tuple[str, int]] = [(base, 0)]
+    seen = set()
+    while queue:
+        path, depth = queue.pop(0)
+        real = os.path.realpath(path)
+        if real in seen:
+            continue
+        seen.add(real)
+        if _looks_like_dataset(path):
+            found.append(path)
+            continue                      # do not descend into a match
+        if depth >= max_depth:
+            continue
+        try:
+            for entry in sorted(os.scandir(path), key=lambda e: e.name):
+                if entry.is_dir(follow_symlinks=False) and \
+                        entry.name not in ("HSI", "hsi", "RGB", "rgb"):
+                    queue.append((entry.path, depth + 1))
+        except OSError:
+            continue
+    return found
 
 
 def discover_dataset(hints: Sequence[str] = (), required: bool = True,
                      verbose: bool = True) -> Optional[str]:
     """Locate a dataset root whose path matches one of `hints`.
 
-    Handles both `<root>/Data/Train/HSI` and `<root>/Train/HSI` packaging.
+    Handles `<root>/Data/Train/HSI`, `<root>/Train/HSI` and arbitrarily nested
+    Kaggle mount points.
     """
     found: List[str] = []
     for root in search_roots():
-        for cand in (os.path.join(root, "Data"), root):
-            if _looks_like_dataset(cand):
+        for cand in find_dataset_roots(root):
+            if cand not in found:
                 found.append(cand)
-                break
     if hints:
         lowered = [h.lower() for h in hints]
         ranked = [f for f in found if any(h in f.lower() for h in lowered)]
         found = ranked or found
     if not found:
         if required:
+            listing = []
+            for r in search_roots():
+                try:
+                    listing.append(f"{r} -> {sorted(os.listdir(r))[:8]}")
+                except OSError:
+                    pass
             raise FileNotFoundError(
-                f"no dataset matching {list(hints)} found. Looked under: "
-                f"{search_roots()}. Set DAETF_DATA_ROOTS or pass the root "
-                f"explicitly via Config(source_root=...)."
+                f"no dataset matching {list(hints)} found.\n"
+                f"Searched (depth 5) under:\n  " + "\n  ".join(listing) +
+                "\nA dataset root must contain <split>/HSI, e.g. Data/Train/HSI.\n"
+                "Set DAETF_DATA_ROOTS or pass Config(source_root=...) explicitly."
             )
         if verbose:
             print(f"[config] optional dataset {list(hints)} not found - skipping")

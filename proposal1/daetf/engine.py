@@ -262,7 +262,13 @@ def evaluate_with_tta(model: DAETFNet, root: str, cfg: Config, srf: np.ndarray,
                       split: str = "Test", device: str = "cuda",
                       steps: int = 30, limit: Optional[int] = None,
                       tile_hr: int = 256, verbose: bool = True):
-    """Cross-domain evaluation where each scene is adapted before scoring."""
+    """Cross-domain evaluation where each scene is adapted before scoring.
+
+    Every scene starts from the same trained weights. Adapting cumulatively
+    across scenes would make the result depend on the order the scenes happen
+    to be listed in, and would quietly let information leak from one test scene
+    into the next.
+    """
     crit = SPCLoss(cfg, torch.from_numpy(srf)).to(device)
     pairs = find_pairs(root, split)
     if limit:
@@ -270,8 +276,10 @@ def evaluate_with_tta(model: DAETFNet, root: str, cfg: Config, srf: np.ndarray,
     cache = SceneCache(cfg.bands, cfg.msi_bands, limit=2)
     degrade = FixedDegradation.from_config(cfg).to(device)
     rows, agg = [], {"psnr": [], "ssim": [], "sam": [], "ergas": []}
+    base_state = _clone_state(model)          # restored before every scene
 
     for stem, hp, rp in pairs:
+        model.load_state_dict(base_state)
         hsi, rgb = cache.get(stem, hp, rp)
         h = (hsi.shape[1] // cfg.scale) * cfg.scale
         w = (hsi.shape[2] // cfg.scale) * cfg.scale
@@ -299,6 +307,7 @@ def evaluate_with_tta(model: DAETFNet, root: str, cfg: Config, srf: np.ndarray,
         if device == "cuda":
             torch.cuda.empty_cache()
 
+    model.load_state_dict(base_state)         # leave the caller's model untouched
     mean = {k: float(np.mean(v)) for k, v in agg.items()}
     if verbose:
         print(f"  {'MEAN (TTA)':<24} PSNR={mean['psnr']:7.3f}  SSIM={mean['ssim']:.4f}  "

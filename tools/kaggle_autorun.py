@@ -103,12 +103,41 @@ def _set_cell(cell: dict, text: str) -> None:
     cell["source"] = text.splitlines(keepends=True)
 
 
+def _is_magic_cell(cell: dict) -> bool:
+    """True when the cell opens with a cell magic such as %%writefile.
+
+    A cell magic is only recognised on the very first line, so prepending
+    anything to such a cell silently turns it into an unknown *line* magic and
+    the cell fails with 'Line magic function `%%writefile` not found'. Repairs
+    must insert a separate cell instead of editing these.
+    """
+    src = cell.get("source") or [""]
+    return src[0].lstrip().startswith("%%")
+
+
+def _new_code_cell(text: str) -> dict:
+    return {"cell_type": "code", "execution_count": None, "metadata": {},
+            "outputs": [], "source": text.splitlines(keepends=True)}
+
+
+def _insert_cell_before(nb: dict, target: dict, text: str) -> bool:
+    """Insert a new code cell immediately before `target`."""
+    cells = nb.setdefault("cells", [])
+    for idx, cell in enumerate(cells):
+        if cell is target:
+            cells.insert(idx, _new_code_cell(text))
+            return True
+    return False
+
+
 def _prepend_install(nb: dict, package: str) -> bool:
-    """Add a pip install for a missing module to the first code cell."""
+    """Add a pip install for a missing module as the first code cell."""
     line = f"!pip install -q {package}\n"
+    if line in "".join(_cell_text(c) for c in _iter_code_cells(nb)):
+        return False
     for cell in _iter_code_cells(nb):
-        if line in _cell_text(cell):
-            return False
+        if _is_magic_cell(cell):
+            return _insert_cell_before(nb, cell, line)
         _set_cell(cell, line + _cell_text(cell))
         return True
     return False
@@ -121,75 +150,76 @@ def _fix_missing_module(nb: dict, m: "re.Match") -> bool:
     return _prepend_install(nb, alias.get(mod, mod))
 
 
-def _halve_batch(nb: dict, _m: "re.Match") -> bool:
-    """CUDA OOM: halve the batch size and shrink the inference tile."""
+def _sub_in_plain_cells(nb: dict, fn: Callable[[str], str]) -> bool:
+    """Apply a text transform to ordinary code cells only.
+
+    Cell-magic cells hold the embedded package source; rewriting them would
+    edit library defaults as a side effect of tuning a run parameter, so the
+    repairs deliberately touch only the notebook's own configuration.
+    """
     changed = False
     for cell in _iter_code_cells(nb):
+        if _is_magic_cell(cell):
+            continue
         text = _cell_text(cell)
-        new = re.sub(r"\bbatch=(\d+)",
-                     lambda x: f"batch={max(1, int(x.group(1)) // 2)}", text)
-        new = re.sub(r"\btile_hr=(\d+)",
-                     lambda x: f"tile_hr={max(64, int(x.group(1)) // 2)}", new)
+        new = fn(text)
         if new != text:
             _set_cell(cell, new)
             changed = True
     return changed
+
+
+def _halve_batch(nb: dict, _m: "re.Match") -> bool:
+    """CUDA OOM: halve the batch size and shrink the inference tile."""
+    def fn(text: str) -> str:
+        text = re.sub(r"\bbatch=(\d+)",
+                      lambda x: f"batch={max(1, int(x.group(1)) // 2)}", text)
+        return re.sub(r"\btile_hr=(\d+)",
+                      lambda x: f"tile_hr={max(64, int(x.group(1)) // 2)}", text)
+    return _sub_in_plain_cells(nb, fn)
 
 
 def _disable_amp(nb: dict, _m: "re.Match") -> bool:
     """fp16 overflow/NaN: fall back to fp32."""
-    changed = False
-    for cell in _iter_code_cells(nb):
-        text = _cell_text(cell)
-        new = text.replace("amp=True", "amp=False")
-        if new != text:
-            _set_cell(cell, new)
-            changed = True
-    return changed
+    return _sub_in_plain_cells(nb, lambda t: t.replace("amp=True", "amp=False"))
 
 
 def _drop_workers(nb: dict, _m: "re.Match") -> bool:
     """DataLoader worker crash / shared-memory exhaustion: run in-process."""
-    changed = False
-    for cell in _iter_code_cells(nb):
-        text = _cell_text(cell)
-        new = re.sub(r"\bworkers=\d+", "workers=0", text)
-        if new != text:
-            _set_cell(cell, new)
-            changed = True
-    return changed
+    return _sub_in_plain_cells(nb, lambda t: re.sub(r"\bworkers=\d+", "workers=0", t))
 
 
 def _relax_dataset_discovery(nb: dict, _m: "re.Match") -> bool:
     """Dataset not found: print what IS attached so the next run can be fixed,
     and let discovery search every attached input."""
     probe = (
-        "import os, glob\n"
+        "# injected by kaggle_autorun: show how the inputs are actually mounted\n"
+        "import os\n"
         "print('attached inputs:')\n"
-        "for p in sorted(glob.glob('/kaggle/input/*')):\n"
-        "    print('  ', p, os.listdir(p)[:6])\n"
+        "for base, dirs, files in os.walk('/kaggle/input'):\n"
+        "    depth = base.rstrip('/').count('/') - 2\n"
+        "    if depth > 3:\n"
+        "        dirs[:] = []\n"
+        "        continue\n"
+        "    print('  ' * depth, base, sorted(dirs)[:6], len(files), 'files')\n"
     )
     for cell in _iter_code_cells(nb):
         if "attached inputs:" in _cell_text(cell):
             return False
+    # target the cell that resolves the config, but never a cell-magic cell
     for cell in _iter_code_cells(nb):
-        if "cfg.resolve()" in _cell_text(cell):
-            _set_cell(cell, probe + _cell_text(cell))
-            return True
+        if _is_magic_cell(cell):
+            continue
+        if "cfg.resolve(" in _cell_text(cell):
+            return _insert_cell_before(nb, cell, probe)
     return False
 
 
 def _shrink_run(nb: dict, _m: "re.Match") -> bool:
     """Kernel exceeded its time limit: cut the iteration budget in half."""
-    changed = False
-    for cell in _iter_code_cells(nb):
-        text = _cell_text(cell)
-        new = re.sub(r"\biters=(\d+)",
-                     lambda x: f"iters={max(500, int(x.group(1)) // 2)}", text)
-        if new != text:
-            _set_cell(cell, new)
-            changed = True
-    return changed
+    return _sub_in_plain_cells(
+        nb, lambda t: re.sub(r"\biters=(\d+)",
+                             lambda x: f"iters={max(500, int(x.group(1)) // 2)}", t))
 
 
 REPAIRS: List[Repair] = [

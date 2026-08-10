@@ -12,7 +12,7 @@ import torch
 
 from .config import Config
 from .degrade import blur_downsample, gaussian_kernel2d
-from .engine import tiled_inference
+from .engine import test_time_adapt, tiled_inference
 from .losses import SPCLoss
 from .metrics import evaluate_arrays
 from .model import DAETFNet
@@ -65,6 +65,34 @@ def check_observation_model(tol: float = 1e-5) -> bool:
     ok = err < tol and lr_a.shape[-1] == 16
     print(f"[check] observation model consistent, shape {tuple(lr_a.shape)}, "
           f"max|err| {err:.2e} ({'PASS' if ok else 'FAIL'})")
+    return ok
+
+
+def check_tta_isolation(device: str = "cpu", tol: float = 1e-6) -> bool:
+    """Test-time adaptation must not leak between scenes.
+
+    With restore=True the weights must come back exactly, so adapting scene B
+    cannot inherit scene A's adaptation. Otherwise the reported cross-domain
+    numbers would depend on the order the test scenes happen to be listed in.
+    """
+    torch.manual_seed(0)
+    cfg = Config(patch=32, width=16, equi_width=4, rank=4, bands=31, msi_bands=3)
+    model = DAETFNet(cfg).to(device)
+    crit = SPCLoss(cfg, torch.rand(cfg.bands, cfg.msi_bands)).to(device)
+    gt = torch.rand(1, cfg.bands, 32, 32, device=device)
+    lr = blur_downsample(gt, gaussian_kernel2d(9, 1.2, 1.2, 0.0), cfg.scale)
+    msi = torch.rand(1, cfg.msi_bands, 32, 32, device=device)
+
+    before = {k: v.detach().clone() for k, v in model.state_dict().items()}
+    first = test_time_adapt(model, lr, msi, crit, steps=3, restore=True)
+    drift = max((v - before[k]).abs().max().item()
+                for k, v in model.state_dict().items() if v.is_floating_point())
+    second = test_time_adapt(model, lr, msi, crit, steps=3, restore=True)
+    repeat = (first - second).abs().max().item()
+
+    ok = drift < tol and repeat < tol
+    print(f"[check] TTA isolation: weight drift {drift:.2e}, "
+          f"repeat difference {repeat:.2e} ({'PASS' if ok else 'FAIL'})")
     return ok
 
 
@@ -122,6 +150,7 @@ def run_all(device: str = "cpu") -> bool:
     ok &= check_wavelet() < 1e-5
     ok &= check_core_used()
     ok &= check_observation_model()
+    ok &= check_tta_isolation(device)
     smoke_test(device)
     print(f"\n[selfcheck] {'ALL PASS' if ok else 'FAILURES PRESENT'}")
     return bool(ok)
