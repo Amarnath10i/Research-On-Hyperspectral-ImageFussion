@@ -51,6 +51,12 @@ class Config:
     amp: bool = True                     # fp16: halves memory, faster on sm_70+
     workers: int = 2
     seed: int = 42
+    # Scenes held in RAM per loader. Each DataLoader worker builds its own
+    # cache, so this is multiplied by `workers`. Harvard scenes are
+    # 1040x1392x31 (~86 MB each in float16), so caching all 30 across 2 workers
+    # would cost ~7.7 GB; patches are drawn from a random scene each step, so a
+    # bounded LRU window gives the same coverage for a fraction of the memory.
+    cache_limit: int = 12
 
     # --- loss weights --------------------------------------------------------
     w_char: float = 1.0

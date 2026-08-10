@@ -438,9 +438,122 @@ for n, ss, ts, d, es, et in rows:
           f'{(et if et is not None else float("nan")):11.2f}')
 """))
 
+    # ------------------------------------------------------- reverse direction
+    cells.append(md("""
+## 10. Reverse direction - Harvard in-domain, and Harvard to CAVE
+
+Everything above trains on CAVE. That answers two of the three questions a
+reviewer will ask, but not the third: *is the method any good on Harvard when
+it is allowed to train there*, and *does it only work in the easy direction?*
+
+This block trains a second model with the roles swapped and produces:
+
+* **Table 3** - Harvard to Harvard (in-domain), against the same-protocol
+  classical baselines already computed on Harvard in section 8
+* **reverse transfer** - Harvard to CAVE, zero-shot and with test-time
+  adaptation
+
+A method that transfers well in one direction and collapses in the other has
+not solved domain shift, it has got lucky with which dataset was the source.
+
+**Cost: this trains a second model, so it roughly doubles the session.** Set
+`RUN_REVERSE = False` to skip it.
+"""))
+    cells.append(code("""
+RUN_REVERSE = True     # Table 3 + reverse transfer. Doubles the session.
+
+rev = {}
+if RUN_REVERSE and cfg.target_root:
+    rev_cfg = daetf.Config(**cfg.to_dict())
+    rev_cfg.source_root, rev_cfg.target_root = cfg.target_root, cfg.source_root
+    rev_cfg.out_dir = os.path.join(os.getcwd(), 'daetf_out_reverse')
+    print(f'source (train): {rev_cfg.source_root}')
+    print(f'target (unseen): {rev_cfg.target_root}')
+
+    t0 = time.time()
+    rev_model, rev_hist = daetf.train(rev_cfg, device=DEVICE)
+    print(f'\\nreverse model trained in {(time.time() - t0) / 60:.1f} min')
+
+    print('\\n=== Table 3: Harvard -> Harvard (in-domain) ===')
+    rev_src_mean, rev_src_rows = daetf.evaluate_dataset(
+        rev_model, rev_cfg.source_root, rev_cfg, 'Test', DEVICE, return_rows=True)
+
+    print('\\n=== reverse transfer: Harvard -> CAVE (zero-shot) ===')
+    rev_tgt_mean, rev_tgt_rows = daetf.evaluate_dataset(
+        rev_model, rev_cfg.target_root, rev_cfg, 'Test', DEVICE, return_rows=True)
+
+    rev_srf = torch.load(os.path.join(rev_cfg.out_dir, 'daetf_final.pth'),
+                         map_location='cpu', weights_only=False)['srf']
+    print('\\n=== reverse transfer + test-time adaptation ===')
+    rev_tta_mean, rev_tta_rows = daetf.evaluate_with_tta(
+        rev_model, rev_cfg.target_root, rev_cfg, rev_srf, 'Test', DEVICE, steps=30)
+
+    rev = {'cfg': rev_cfg.to_dict(),
+           'in_domain': {'mean': rev_src_mean, 'rows': rev_src_rows},
+           'transfer': {'mean': rev_tgt_mean, 'rows': rev_tgt_rows},
+           'transfer_tta': {'mean': rev_tta_mean, 'rows': rev_tta_rows}}
+else:
+    print('reverse direction skipped (RUN_REVERSE=False or no target dataset)')
+"""))
+
+    cells.append(code("""
+if rev:
+    print('=== TABLE 3: Harvard -> Harvard (in-domain), same protocol ===')
+    t3 = {k: v['mean'] for k, v in (base_tgt or {}).items()}
+    t3['DAETF-Net (Harvard-trained)'] = rev['in_domain']['mean']
+    print(comparison_table(t3))
+
+    if base_tgt:
+        print('\\n--- paired significance, Table 3 (SAM) ---')
+        t3_cmp = [compare_methods(rev['in_domain']['rows'], r['rows'],
+                                  'DAETF-Net (Harvard-trained)', name)
+                  for name, r in base_tgt.items()]
+        print(significance_table(t3_cmp, metric='sam'))
+    else:
+        t3_cmp = []
+
+    print('\\n=== reverse transfer: Harvard -> CAVE, same protocol ===')
+    rt = {k: v['mean'] for k, v in base_src.items()}
+    rt['DAETF-Net (Harvard-trained, zero-shot)'] = rev['transfer']['mean']
+    rt['DAETF-Net (Harvard-trained, +TTA)'] = rev['transfer_tta']['mean']
+    print(comparison_table(rt))
+else:
+    t3_cmp = []
+"""))
+
+    cells.append(md("""
+### Is the method symmetric?
+
+The number that matters for the domain-shift claim: how much spectral fidelity
+is lost in **each** direction. A large gap between the two rows means the result
+depends on which dataset happened to be the source.
+"""))
+    cells.append(code("""
+if rev and tgt_mean:
+    print(f"{'direction':<26}{'SAM in':>9}{'SAM out':>9}{'delta':>9}"
+          f"{'ERGAS in':>11}{'ERGAS out':>11}")
+    print('-' * 75)
+    rows = [('CAVE -> Harvard', src_mean, tgt_mean),
+            ('CAVE -> Harvard (+TTA)', src_mean, tta_mean),
+            ('Harvard -> CAVE', rev['in_domain']['mean'], rev['transfer']['mean']),
+            ('Harvard -> CAVE (+TTA)', rev['in_domain']['mean'],
+             rev['transfer_tta']['mean'])]
+    for name, a, b in rows:
+        if not a or not b:
+            continue
+        print(f"{name:<26}{a['sam']:9.3f}{b['sam']:9.3f}"
+              f"{b['sam'] - a['sam']:+9.3f}{a['ergas']:11.3f}{b['ergas']:11.3f}")
+    fwd = tgt_mean['sam'] - src_mean['sam']
+    bwd = rev['transfer']['mean']['sam'] - rev['in_domain']['mean']['sam']
+    print(f"\\nforward degradation  {fwd:+.3f} deg SAM")
+    print(f"reverse degradation  {bwd:+.3f} deg SAM")
+    print(f"asymmetry            {abs(fwd - bwd):.3f} deg "
+          f"(small = the method does not depend on the direction)")
+"""))
+
     # ------------------------------------------------------------ efficiency
     cells.append(md("""
-## 10. Cost
+## 11. Cost
 
 Parameters, GFLOPs, latency and peak memory for one full scene. The earlier
 benchmark reported none of these, so nothing could be judged per unit of compute.
@@ -453,7 +566,7 @@ for k, v in prof.items():
 
     # ------------------------------------------------------------- ablation
     cells.append(md("""
-## 11. Component ablation
+## 12. Component ablation
 
 Each variant is retrained from scratch with an identical budget, seed and data
 order, and each disabled module is replaced by a **matched control arm** (plain
@@ -478,7 +591,7 @@ else:
 
     # --------------------------------------------------------- interpretability
     cells.append(md("""
-## 12. What the model learned
+## 13. What the model learned
 
 The MoE gate is a per-pixel distribution over experts, so it can be shown as a
 map: this is the interpretability the design document claimed and v1 could not
@@ -521,7 +634,7 @@ if getattr(model, 'moe', None) is not None:
 
     # --------------------------------------------------------------- outputs
     cells.append(md("""
-## 13. Save everything
+## 14. Save everything
 
 Results, per-scene tables, the environment report and the checkpoints are
 written to `/kaggle/working` so the run is reproducible and the numbers can be
@@ -549,7 +662,9 @@ payload['baselines_same_protocol'] = {
     'source': {k: v['mean'] for k, v in base_src.items()},
     'target': ({k: v['mean'] for k, v in base_tgt.items()} if base_tgt else None),
 }
-payload['significance_vs_same_protocol'] = comparisons + tgt_cmp
+payload['significance_vs_same_protocol'] = comparisons + tgt_cmp + t3_cmp
+if rev:
+    payload['reverse_direction'] = rev          # Table 3 + Harvard -> CAVE
 if ablation:
     payload['ablation'] = [{k: v for k, v in r.items()
                             if not k.endswith('_rows')} for r in ablation]
@@ -563,6 +678,10 @@ if tgt_mean: entries['DAETF-Net (zero-shot)'] = tgt_mean
 if tta_mean: entries['DAETF-Net (+TTA)'] = tta_mean
 sections.append(('Results', comparison_table(entries)))
 sections.append(('Cost', '\\n'.join(f'- **{k}**: {v}' for k, v in prof.items())))
+if rev:
+    t3 = {k: v['mean'] for k, v in (base_tgt or {}).items()}
+    t3['DAETF-Net (Harvard-trained)'] = rev['in_domain']['mean']
+    sections.append(('Table 3: Harvard in-domain', comparison_table(t3)))
 if ablation:
     sections.append(('Ablation', daetf.experiments.ablation_table(ablation)))
 write_report('RESULTS.md', 'DAETF-Net run report', sections)

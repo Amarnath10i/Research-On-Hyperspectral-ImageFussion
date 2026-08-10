@@ -65,8 +65,9 @@ class FusionPatchDataset(Dataset):
                  srf: Optional[np.ndarray] = None, length: int = 8000):
         self.cfg, self.train, self.length = cfg, train, length
         self.pairs = find_pairs(root, split)
-        self.cache = SceneCache(cfg.bands, cfg.msi_bands,
-                                limit=len(self.pairs) if train else 4)
+        self.cache = SceneCache(
+            cfg.bands, cfg.msi_bands,
+            limit=min(len(self.pairs), cfg.cache_limit) if train else 4)
         self.srf = srf
 
     def __len__(self) -> int:
