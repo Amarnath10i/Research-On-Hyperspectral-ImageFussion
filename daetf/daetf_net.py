@@ -63,11 +63,11 @@ except ImportError:  # pragma: no cover
 # ---------------------------------------------------------------------------
 @dataclass
 class Config:
-    # data
-    cave_root: str = "/kaggle/input/cave-dataset-2/Data"
-    harvard_root: str = "/kaggle/input/harvard-hsi-2/Data"
-    bands: int = 31
-    msi_bands: int = 3
+    # data - leave the roots as None to auto-discover them at runtime
+    source_root: Optional[str] = None    # domain the model trains on
+    target_root: Optional[str] = None    # unseen domain used for transfer tests
+    bands: Optional[int] = None          # inferred from the data if None
+    msi_bands: Optional[int] = None      # inferred from the data if None
     scale: int = 4              # super-resolution factor
     patch: int = 64             # HR training patch (must be a multiple of scale)
 
@@ -79,12 +79,24 @@ class Config:
     experts: int = 4
     topk: int = 2
     bp_iters: int = 2           # back-projection refinement steps
+    code_dim: int = 128         # degradation code width
+    blur_ksize: int = 9         # support of the simulated blur kernels
 
     # degradation simulation (domain randomisation)
     sigma_range: Tuple[float, float] = (0.6, 2.4)
     aniso: float = 0.5          # probability of an anisotropic kernel
     noise_range: Tuple[float, float] = (0.0, 0.03)
     srf_jitter: float = 0.35    # probability of using a jittered synthetic MSI
+    eval_sigma: float = 1.2     # fixed kernel used to build the evaluation LR input
+
+    # ablation switches (all modules on by default)
+    use_equivariant: bool = True
+    use_tsse: bool = True
+    use_moe: bool = True
+    use_fdrm: bool = True
+    use_backprojection: bool = True
+    use_physics: bool = True
+    use_degradation_code: bool = True
 
     # optimisation
     iters: int = 20000
@@ -113,9 +125,121 @@ class Config:
     out_dir: str = "./daetf_out"
     val_every: int = 1000
     log_every: int = 100
+    val_scenes: int = 4         # scenes used for the periodic in-training check
 
     def __post_init__(self) -> None:
         assert self.patch % self.scale == 0, "patch must be divisible by scale"
+        assert self.topk <= self.experts, "topk cannot exceed the number of experts"
+
+    def resolve(self, source_hints: Sequence[str] = ("cave",),
+                target_hints: Sequence[str] = ("harvard",),
+                verbose: bool = True) -> "Config":
+        """Fill in any field left as None by inspecting the filesystem."""
+        if self.source_root is None:
+            self.source_root = discover_dataset(source_hints, verbose=verbose)
+        if self.target_root is None:
+            self.target_root = discover_dataset(target_hints, required=False,
+                                                verbose=verbose)
+        if self.bands is None or self.msi_bands is None:
+            b, m = infer_channels(self.source_root)
+            self.bands = self.bands or b
+            self.msi_bands = self.msi_bands or m
+            if verbose:
+                print(f"[config] inferred bands={self.bands} msi_bands={self.msi_bands}")
+        return self
+
+
+# ---------------------------------------------------------------------------
+# Dataset discovery - no hardcoded paths anywhere
+# ---------------------------------------------------------------------------
+SPLIT_NAMES = ("Train", "train", "TRAIN")
+TEST_NAMES = ("Test", "test", "TEST", "Val", "val")
+
+
+def _looks_like_dataset(path: str) -> bool:
+    """A dataset root is any directory holding <split>/HSI and <split>/RGB."""
+    for split in SPLIT_NAMES + TEST_NAMES:
+        d = os.path.join(path, split)
+        if os.path.isdir(d) and any(
+            os.path.isdir(os.path.join(d, h)) for h in ("HSI", "hsi")
+        ):
+            return True
+    return False
+
+
+def search_roots() -> List[str]:
+    """Candidate places to look, most specific first. Honours DAETF_DATA_ROOTS
+    (os.pathsep separated) so the caller can always override discovery."""
+    roots: List[str] = []
+    env = os.environ.get("DAETF_DATA_ROOTS", "")
+    roots += [p for p in env.split(os.pathsep) if p]
+    roots += sorted(glob.glob("/kaggle/input/*"))
+    roots += sorted(glob.glob(os.path.join(os.getcwd(), "data", "*")))
+    roots += [os.path.join(os.getcwd(), "data"), os.getcwd()]
+    return [r for r in roots if os.path.isdir(r)]
+
+
+def discover_dataset(hints: Sequence[str] = (), required: bool = True,
+                     verbose: bool = True) -> Optional[str]:
+    """Locate a dataset root whose path matches one of `hints`.
+
+    Handles both `<root>/Data/Train/HSI` and `<root>/Train/HSI` layouts, so it
+    works regardless of how a Kaggle dataset was packaged.
+    """
+    found: List[str] = []
+    for root in search_roots():
+        for cand in (os.path.join(root, "Data"), root):
+            if _looks_like_dataset(cand):
+                found.append(cand)
+                break
+    if hints:
+        lowered = [h.lower() for h in hints]
+        ranked = [f for f in found if any(h in f.lower() for h in lowered)]
+        found = ranked or found
+    if not found:
+        if required:
+            raise FileNotFoundError(
+                f"no dataset matching {list(hints)} found. Looked under: "
+                f"{search_roots()}. Set DAETF_DATA_ROOTS or pass the root "
+                f"explicitly via Config(source_root=...)."
+            )
+        if verbose:
+            print(f"[config] optional dataset {list(hints)} not found - skipping")
+        return None
+    if verbose:
+        print(f"[config] using dataset root: {found[0]}")
+    return found[0]
+
+
+def available_splits(root: str) -> Dict[str, str]:
+    """Map canonical split name -> actual directory name present on disk."""
+    out = {}
+    for canonical, names in (("Train", SPLIT_NAMES), ("Test", TEST_NAMES)):
+        for n in names:
+            if os.path.isdir(os.path.join(root, n)):
+                out[canonical] = n
+                break
+    return out
+
+
+def infer_channels(root: str) -> Tuple[int, int]:
+    """Read one HSI/RGB pair and report their channel counts."""
+    splits = available_splits(root)
+    split = splits.get("Train") or splits.get("Test")
+    if split is None:
+        raise FileNotFoundError(f"no usable split under {root}")
+    base = os.path.join(root, split)
+    hsi_dir = next(os.path.join(base, d) for d in ("HSI", "hsi")
+                   if os.path.isdir(os.path.join(base, d)))
+    rgb_dir = next((os.path.join(base, d) for d in ("RGB", "rgb")
+                    if os.path.isdir(os.path.join(base, d))), None)
+    hsi = np.squeeze(load_mat(sorted(glob.glob(os.path.join(hsi_dir, "*.mat")))[0]))
+    bands = int(min(hsi.shape))
+    msi_bands = 3
+    if rgb_dir:
+        rgb = np.squeeze(load_mat(sorted(glob.glob(os.path.join(rgb_dir, "*.mat")))[0]))
+        msi_bands = int(min(rgb.shape))
+    return bands, msi_bands
 
 
 # ---------------------------------------------------------------------------
@@ -153,12 +277,17 @@ def blur_downsample(x: torch.Tensor, kernel: torch.Tensor, scale: int) -> torch.
 
 
 class FixedDegradation(nn.Module):
-    """Non-learnable blur+decimate used by the spatial-consistency loss."""
+    """Non-learnable blur+decimate used by the spatial-consistency loss and to
+    build the evaluation LR input."""
 
     def __init__(self, scale: int, ksize: int = 9, sigma: float = 1.2):
         super().__init__()
         self.scale = scale
         self.register_buffer("kernel", gaussian_kernel2d(ksize, sigma, sigma, 0.0))
+
+    @classmethod
+    def from_config(cls, cfg: "Config") -> "FixedDegradation":
+        return cls(cfg.scale, ksize=cfg.blur_ksize, sigma=cfg.eval_sigma)
 
     def forward(self, x: torch.Tensor, kernel: Optional[torch.Tensor] = None) -> torch.Tensor:
         k = self.kernel if kernel is None else kernel
@@ -486,44 +615,100 @@ class BackProjectionUpsampler(nn.Module):
 # ---------------------------------------------------------------------------
 # The network
 # ---------------------------------------------------------------------------
+class PlainFeatureExtractor(nn.Module):
+    """Non-equivariant control arm for the EFE ablation: same depth and width,
+    ordinary convolutions."""
+
+    def __init__(self, in_ch: int, width: int, out_ch: int, depth: int = 2):
+        super().__init__()
+        layers = [nn.Conv2d(in_ch, width * 4, 3, 1, 1), nn.ReLU(inplace=True)]
+        for _ in range(depth):
+            layers += [nn.Conv2d(width * 4, width * 4, 3, 1, 1), nn.ReLU(inplace=True)]
+        layers += [nn.Conv2d(width * 4, out_ch, 1)]
+        self.body = nn.Sequential(*layers)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.body(x)
+
+
+class BicubicUpsampler(nn.Module):
+    """Control arm for the back-projection ablation: plain bicubic + a conv."""
+
+    def __init__(self, bands: int, scale: int, width: int = 64):
+        super().__init__()
+        self.scale = scale
+        self.refine = nn.Sequential(
+            nn.Conv2d(bands, width, 3, 1, 1), nn.LeakyReLU(0.1, True),
+            nn.Conv2d(width, bands, 3, 1, 1),
+        )
+
+    def forward(self, lr: torch.Tensor) -> torch.Tensor:
+        y = F.interpolate(lr, scale_factor=self.scale, mode="bicubic",
+                          align_corners=False)
+        return y + self.refine(y)
+
+
 class DAETFNet(nn.Module):
     def __init__(self, cfg: Config):
         super().__init__()
+        if cfg.bands is None or cfg.msi_bands is None:
+            raise ValueError("Config.bands/msi_bands are unset - call cfg.resolve() "
+                             "or pass them explicitly before building the model")
         self.cfg = cfg
         c, b, m = cfg.width, cfg.bands, cfg.msi_bands
 
-        self.upsampler = BackProjectionUpsampler(b, cfg.scale, width=c, iters=cfg.bp_iters)
-        self.deg = DegradationEncoder(b, m)
-        self.efe = EquivariantFeatureExtractor(b, cfg.equi_width, c, depth=cfg.equi_depth)
+        self.upsampler = (
+            BackProjectionUpsampler(b, cfg.scale, width=c, iters=cfg.bp_iters)
+            if cfg.use_backprojection else BicubicUpsampler(b, cfg.scale, width=c)
+        )
+        self.deg = DegradationEncoder(b, m, code=cfg.code_dim)
+        self.efe = (
+            EquivariantFeatureExtractor(b, cfg.equi_width, c, depth=cfg.equi_depth)
+            if cfg.use_equivariant
+            else PlainFeatureExtractor(b, cfg.equi_width, c, depth=cfg.equi_depth)
+        )
         self.msi_enc = nn.Sequential(
             nn.Conv2d(m, c, 3, 1, 1), nn.LeakyReLU(0.1, True),
             nn.Conv2d(c, c, 3, 1, 1),
         )
-        self.film_h = FiLM(128, c)
-        self.film_m = FiLM(128, c)
-        self.tsse = TensorSpectralSpatialEncoder(c, c, c, rank=cfg.rank)
-        self.moe = RegionAwareMoE(c, experts=cfg.experts, topk=cfg.topk)
-        self.fdrm = FrequencyDomainRefinement(c)
+        self.film_h = FiLM(cfg.code_dim, c)
+        self.film_m = FiLM(cfg.code_dim, c)
+        self.tsse = (TensorSpectralSpatialEncoder(c, c, c, rank=cfg.rank)
+                     if cfg.use_tsse else None)
+        self.concat_fuse = None if cfg.use_tsse else nn.Sequential(
+            nn.Conv2d(c * 2, c, 1), nn.LeakyReLU(0.1, True), nn.Conv2d(c, c, 3, 1, 1)
+        )
+        self.moe = (RegionAwareMoE(c, experts=cfg.experts, topk=cfg.topk)
+                    if cfg.use_moe else None)
+        self.plain_block = None if cfg.use_moe else nn.Sequential(
+            nn.Conv2d(c, c, 3, 1, 1), nn.LeakyReLU(0.1, True), nn.Conv2d(c, c, 3, 1, 1)
+        )
+        self.fdrm = FrequencyDomainRefinement(c) if cfg.use_fdrm else None
         self.recon = nn.Sequential(
             nn.Conv2d(c, c, 3, 1, 1), nn.LeakyReLU(0.1, True), nn.Conv2d(c, b, 3, 1, 1)
         )
 
-    def features(self, lr_hsi: torch.Tensor, msi: torch.Tensor) -> torch.Tensor:
-        """Pooled bottleneck features - used by the MMD domain-alignment term."""
-        code, _ = self.deg(lr_hsi, msi)
+    def _trunk(self, lr_hsi: torch.Tensor, msi: torch.Tensor
+               ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        code, deg_params = self.deg(lr_hsi, msi)
+        if not self.cfg.use_degradation_code:
+            code = torch.zeros_like(code)
         y0 = self.upsampler(lr_hsi)
         fh = self.film_h(self.efe(y0), code)
         fm = self.film_m(self.msi_enc(msi), code)
-        return self.tsse(fh, fm).mean(dim=(2, 3))
+        z = (self.tsse(fh, fm) if self.tsse is not None
+             else self.concat_fuse(torch.cat([fh, fm], dim=1)))
+        return y0, z, deg_params
+
+    def features(self, lr_hsi: torch.Tensor, msi: torch.Tensor) -> torch.Tensor:
+        """Pooled bottleneck features - used by the MMD domain-alignment term."""
+        return self._trunk(lr_hsi, msi)[1].mean(dim=(2, 3))
 
     def forward(self, lr_hsi: torch.Tensor, msi: torch.Tensor) -> Dict[str, torch.Tensor]:
-        code, deg_params = self.deg(lr_hsi, msi)
-        y0 = self.upsampler(lr_hsi)                       # coarse HR estimate
-        fh = self.film_h(self.efe(y0), code)
-        fm = self.film_m(self.msi_enc(msi), code)
-        z = self.tsse(fh, fm)
-        z = self.moe(z)
-        z = self.fdrm(z)
+        y0, z, deg_params = self._trunk(lr_hsi, msi)
+        z = self.moe(z) if self.moe is not None else self.plain_block(z)
+        if self.fdrm is not None:
+            z = self.fdrm(z)
         out = y0 + self.recon(z)
         return {"out": out, "coarse": y0, "deg": deg_params, "feat": z.mean(dim=(2, 3))}
 
@@ -624,20 +809,23 @@ class SPCLoss(nn.Module):
                         grad=l_grad.item(), ssim=l_ssim.item())
 
         # --- physics: hold on any domain, with or without ground truth --------
-        l_spat = charbonnier(self.degrade(pred, kernel), lr_hsi)
-        l_spec = charbonnier(self.apply_srf(pred), msi)
-        total = total + cfg.w_spat * l_spat + cfg.w_spec * l_spec
-        logs.update(spat=l_spat.item(), spec=l_spec.item())
+        if cfg.use_physics or not supervised:
+            l_spat = charbonnier(self.degrade(pred, kernel), lr_hsi)
+            l_spec = charbonnier(self.apply_srf(pred), msi)
+            total = total + cfg.w_spat * l_spat + cfg.w_spec * l_spec
+            logs.update(spat=l_spat.item(), spec=l_spec.item())
 
         # --- regularisers ------------------------------------------------------
-        l_bal = model.moe.balance_loss()
-        total = total + cfg.w_bal * l_bal
-        logs["bal"] = l_bal.item()
+        if model.moe is not None:
+            l_bal = model.moe.balance_loss()
+            total = total + cfg.w_bal * l_bal
+            logs["bal"] = l_bal.item()
 
         if supervised:
-            l_rank = model.tsse.rank_penalty()
-            total = total + cfg.w_rank * l_rank
-            logs["rank"] = l_rank.item()
+            if model.tsse is not None:
+                l_rank = model.tsse.rank_penalty()
+                total = total + cfg.w_rank * l_rank
+                logs["rank"] = l_rank.item()
             if deg_gt is not None:
                 l_deg = F.smooth_l1_loss(out["deg"].float(), deg_gt.float())
                 total = total + cfg.w_deg * l_deg
@@ -722,7 +910,10 @@ def to_chw01(arr: np.ndarray, channels: int) -> np.ndarray:
 
 
 def find_pairs(root: str, split: str) -> List[Tuple[str, str, str]]:
-    base = os.path.join(root, split)
+    """Locate matched HSI/RGB .mat pairs. `split` is canonical ("Train"/"Test")
+    and is mapped to whatever casing the dataset actually uses."""
+    actual = available_splits(root).get(split, split)
+    base = os.path.join(root, actual)
     hsi_dir = next((os.path.join(base, d) for d in ("HSI", "hsi")
                     if os.path.isdir(os.path.join(base, d))), None)
     rgb_dir = next((os.path.join(base, d) for d in ("RGB", "rgb")
@@ -789,7 +980,8 @@ class FusionPatchDataset(Dataset):
         sx = random.uniform(*cfg.sigma_range)
         sy = sx if random.random() > cfg.aniso else random.uniform(*cfg.sigma_range)
         th = random.uniform(0, math.pi)
-        return gaussian_kernel2d(9, sx, sy, th), [sx, sy, math.sin(2 * th), math.cos(2 * th)]
+        return (gaussian_kernel2d(cfg.blur_ksize, sx, sy, th),
+                [sx, sy, math.sin(2 * th), math.cos(2 * th)])
 
     def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
         cfg = self.cfg
@@ -813,8 +1005,9 @@ class FusionPatchDataset(Dataset):
             gt = torch.from_numpy(hsi[:, :p, :p].astype(np.float32))
             msi = torch.from_numpy(rgb[:, :p, :p].astype(np.float32))
 
+        es = cfg.eval_sigma
         kernel, deg = self._sample_kernel() if self.train else \
-            (gaussian_kernel2d(9, 1.2, 1.2, 0.0), [1.2, 1.2, 0.0, 1.0])
+            (gaussian_kernel2d(cfg.blur_ksize, es, es, 0.0), [es, es, 0.0, 1.0])
 
         lr = blur_downsample(gt[None], kernel, cfg.scale)[0]
         noise = random.uniform(*cfg.noise_range) if self.train else 0.0
@@ -930,7 +1123,7 @@ def evaluate_dataset(model: DAETFNet, root: str, cfg: Config, split: str = "Test
     if limit:
         pairs = pairs[:limit]
     cache = SceneCache(cfg.bands, cfg.msi_bands, limit=2)
-    degrade = FixedDegradation(cfg.scale).to(device)
+    degrade = FixedDegradation.from_config(cfg).to(device)
     rows, agg = [], {"psnr": [], "ssim": [], "sam": [], "ergas": []}
 
     for stem, hp, rp in pairs:
@@ -960,30 +1153,33 @@ def evaluate_dataset(model: DAETFNet, root: str, cfg: Config, split: str = "Test
     return mean
 
 
-def train(cfg: Config, device: str = "cuda", target_root: Optional[str] = None,
+def train(cfg: Config, device: str = "cuda", align_target: bool = True,
           log_fn=print) -> Tuple[DAETFNet, Dict]:
-    """Train on the source domain. If `target_root` is given, unlabelled target
-    patches are drawn in parallel and aligned with an MMD penalty."""
+    """Train on the source domain. When `align_target` is set and a target root
+    is configured, unlabelled target patches are drawn in parallel and aligned
+    with an MMD penalty. No ground truth from the target domain is ever used."""
+    cfg.resolve(verbose=False)          # idempotent: only fills what is still None
     set_seed(cfg.seed)
     os.makedirs(cfg.out_dir, exist_ok=True)
 
     log_fn("estimating SRF from the training pairs ...")
-    srf = estimate_srf(cfg.cave_root, "Train", cfg)
+    srf = estimate_srf(cfg.source_root, "Train", cfg)
     log_fn(f"SRF shape {srf.shape}, column sums {srf.sum(0).round(3).tolist()}")
 
-    train_set = FusionPatchDataset(cfg.cave_root, "Train", cfg, train=True, srf=srf,
+    train_set = FusionPatchDataset(cfg.source_root, "Train", cfg, train=True, srf=srf,
                                    length=cfg.iters * cfg.batch)
     loader = DataLoader(train_set, batch_size=cfg.batch, shuffle=False,
                         num_workers=cfg.workers, pin_memory=(device == "cuda"),
                         drop_last=True, persistent_workers=cfg.workers > 0)
 
     tgt_loader = None
-    if target_root:
-        tgt_set = FusionPatchDataset(target_root, "Train", cfg, train=True, srf=srf,
+    if align_target and cfg.target_root:
+        tgt_set = FusionPatchDataset(cfg.target_root, "Train", cfg, train=True, srf=srf,
                                      length=cfg.iters * cfg.batch)
         tgt_loader = iter(DataLoader(tgt_set, batch_size=cfg.batch, shuffle=False,
                                      num_workers=max(1, cfg.workers // 2),
                                      drop_last=True))
+        log_fn(f"domain alignment enabled against {cfg.target_root} (unlabelled)")
 
     model = DAETFNet(cfg).to(device)
     crit = SPCLoss(cfg, torch.from_numpy(srf)).to(device)
@@ -1038,8 +1234,8 @@ def train(cfg: Config, device: str = "cuda", target_root: Optional[str] = None,
             history["loss"].append(logs["total"])
 
         if step % cfg.val_every == 0 or step == cfg.iters:
-            m = evaluate_dataset(model, cfg.cave_root, cfg, "Test", device,
-                                 limit=4, verbose=False)
+            m = evaluate_dataset(model, cfg.source_root, cfg, "Test", device,
+                                 limit=cfg.val_scenes, verbose=False)
             log_fn(f"  [val@{step}] PSNR {m['psnr']:.3f}  SAM {m['sam']:.3f}  "
                    f"ERGAS {m['ergas']:.3f}")
             history["val"].append({"iter": step, **m})
@@ -1050,7 +1246,8 @@ def train(cfg: Config, device: str = "cuda", target_root: Optional[str] = None,
                            os.path.join(cfg.out_dir, "daetf_best.pth"))
             model.train()
 
-    torch.save({"model": model.state_dict(), "cfg": cfg.__dict__, "srf": srf},
+    torch.save({"model": model.state_dict(), "cfg": cfg.__dict__, "srf": srf,
+                "params": n_params},
                os.path.join(cfg.out_dir, "daetf_final.pth"))
     with open(os.path.join(cfg.out_dir, "history.json"), "w") as f:
         json.dump(history, f, indent=1)
@@ -1128,7 +1325,8 @@ def check_core_used() -> bool:
 
 def smoke_test(device: str = "cpu") -> None:
     """End-to-end shape/gradient check with synthetic tensors."""
-    cfg = Config(patch=32, width=32, equi_width=8, rank=8, batch=2, bands=31)
+    cfg = Config(patch=32, width=32, equi_width=8, rank=8, batch=2,
+                 bands=31, msi_bands=3)
     model = DAETFNet(cfg).to(device)
     srf = torch.rand(cfg.bands, cfg.msi_bands)
     crit = SPCLoss(cfg, srf).to(device)
@@ -1157,6 +1355,20 @@ def smoke_test(device: str = "cpu") -> None:
                         big_gt[0].cpu().numpy().transpose(1, 2, 0), cfg.scale)
     print(f"[check] tiled inference {tuple(pred.shape)} PASS; "
           f"metrics { {k: round(v, 3) for k, v in m.items()} }")
+
+    # every ablation variant must also build and run
+    for switch in ("use_equivariant", "use_tsse", "use_moe", "use_fdrm",
+                   "use_backprojection", "use_degradation_code"):
+        acfg = Config(patch=32, width=32, equi_width=8, rank=8, batch=2,
+                      bands=31, msi_bands=3, **{switch: False})
+        am = DAETFNet(acfg).to(device)
+        ao = am(lr, msi)
+        assert ao["out"].shape == gt.shape
+        acrit = SPCLoss(acfg, srf).to(device)
+        aloss, _ = acrit(ao, gt, lr, msi, am, deg_gt=torch.rand(2, 5, device=device))
+        aloss.backward()
+        n_a = sum(p.numel() for p in am.parameters())
+        print(f"[check] ablation {switch}=False OK ({n_a / 1e6:.2f}M params)")
 
 
 if __name__ == "__main__":
