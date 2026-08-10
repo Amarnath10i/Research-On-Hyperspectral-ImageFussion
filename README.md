@@ -84,8 +84,11 @@ Design and honest limitations: [`proposal1/docs/ARCHITECTURE.md`](proposal1/docs
 ### On Kaggle (intended path)
 
 1. Upload [`proposal1/notebooks/DAETF_Net_Kaggle_GPU.ipynb`](proposal1/notebooks/DAETF_Net_Kaggle_GPU.ipynb)
-2. Attach the CAVE and Harvard datasets, set Accelerator to **GPU T4 x2**
-3. Run all — the notebook is self-contained (no clone, no internet needed)
+2. Attach the CAVE and Harvard datasets
+3. **Settings → Accelerator → "GPU T4 x2"** — this must be set in the Kaggle UI.
+   The push API accepts an `accelerator` field but Kaggle was observed to ignore
+   it and assign a P100, which cannot run current PyTorch (see below).
+4. Run all — the notebook is self-contained (no clone, no internet needed)
 
 Set `QUICK = True` in the config cell to validate the whole pipeline in a few
 minutes before committing to a full run.

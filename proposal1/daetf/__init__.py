@@ -10,7 +10,9 @@ dataset it was trained on to one it has never seen.
     daetf.evaluate_dataset(model, cfg.source_root, cfg)
 """
 
-from . import experiments, selfcheck
+from . import baselines, experiments, selfcheck
+from .baselines import (BASELINES, evaluate_all_baselines,
+                        evaluate_baseline)
 from .config import Config
 from .data import FusionPatchDataset, SceneCache, estimate_srf
 from .degrade import FixedDegradation, blur_downsample, gaussian_kernel2d
@@ -46,5 +48,6 @@ __all__ = [
     "PlainFeatureExtractor", "DegradationEncoder", "FiLM",
     "TensorSpectralSpatialEncoder", "RegionAwareMoE", "HaarDWT",
     "FrequencyDomainRefinement", "BackProjectionUpsampler", "BicubicUpsampler",
-    "experiments", "selfcheck", "__version__",
+    "baselines", "experiments", "selfcheck", "__version__",
+    "BASELINES", "evaluate_baseline", "evaluate_all_baselines",
 ]

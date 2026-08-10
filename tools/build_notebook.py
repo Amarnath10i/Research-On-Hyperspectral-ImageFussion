@@ -19,7 +19,8 @@ OUT = os.path.join(REPO, "proposal1", "notebooks", "DAETF_Net_Kaggle_GPU.ipynb")
 
 # order matters only for readability; Python resolves imports at import time
 MODULES = ["io_utils", "config", "degrade", "metrics", "modules", "model",
-           "losses", "data", "engine", "experiments", "selfcheck", "__init__"]
+           "losses", "data", "engine", "baselines", "experiments",
+           "selfcheck", "__init__"]
 
 
 def _lines(text: str) -> list:
@@ -301,7 +302,66 @@ for name, rows in (('in-domain', src_rows), ('transfer', tgt_rows),
 
     # -------------------------------------------------------------- baselines
     cells.append(md("""
-## 8. Comparison against the published baselines
+## 8. Same-protocol reference methods
+
+These classical methods need no checkpoints, so they run through the **identical**
+pipeline as our model: same degradation, same scale factor, same scenes, same
+metric code. They are the only rows in this notebook that are strictly
+comparable to ours, and they set the floor a learned method has to clear.
+"""))
+    cells.append(code("""
+srf_np = torch.load(os.path.join(cfg.out_dir, 'daetf_final.pth'),
+                    map_location='cpu', weights_only=False)['srf']
+
+print('=== classical baselines, source domain ===')
+base_src = daetf.evaluate_all_baselines(cfg.source_root, cfg, srf_np, 'Test',
+                                        DEVICE, verbose=False)
+for name, r in base_src.items():
+    m = r['mean']
+    print(f"  {name:<14} PSNR={m['psnr']:7.3f}  SSIM={m['ssim']:.4f}  "
+          f"SAM={m['sam']:6.3f}  ERGAS={m['ergas']:8.3f}")
+
+base_tgt = None
+if cfg.target_root:
+    print('\\n=== classical baselines, target domain ===')
+    base_tgt = daetf.evaluate_all_baselines(cfg.target_root, cfg, srf_np, 'Test',
+                                            DEVICE, verbose=False)
+    for name, r in base_tgt.items():
+        m = r['mean']
+        print(f"  {name:<14} PSNR={m['psnr']:7.3f}  SSIM={m['ssim']:.4f}  "
+              f"SAM={m['sam']:6.3f}  ERGAS={m['ergas']:8.3f}")
+"""))
+
+    cells.append(md("""
+### Paired significance against the same-protocol baselines
+
+Scored on the same scenes, so the comparison is paired: a Wilcoxon signed-rank
+test on the per-scene values plus a paired Cohen's *d*. With 10-20 scenes this
+is far more sensitive than comparing two means.
+"""))
+    cells.append(code("""
+from daetf.experiments import compare_methods, significance_table
+
+comparisons = [compare_methods(src_rows, r['rows'], 'DAETF-Net', name)
+               for name, r in base_src.items()]
+for metric in ('psnr', 'sam'):
+    print(f'--- source domain, {metric.upper()} ---')
+    print(significance_table(comparisons, metric=metric))
+    print()
+
+if base_tgt and tgt_rows:
+    tgt_cmp = [compare_methods(tgt_rows, r['rows'], 'DAETF-Net (zero-shot)', name)
+               for name, r in base_tgt.items()]
+    for metric in ('psnr', 'sam'):
+        print(f'--- target domain, {metric.upper()} ---')
+        print(significance_table(tgt_cmp, metric=metric))
+        print()
+else:
+    tgt_cmp = []
+"""))
+
+    cells.append(md("""
+## 9. Comparison against the published baselines
 
 The numbers below were recorded by the ten baseline notebooks in `existing/`.
 
@@ -380,7 +440,7 @@ for n, ss, ts, d, es, et in rows:
 
     # ------------------------------------------------------------ efficiency
     cells.append(md("""
-## 9. Cost
+## 10. Cost
 
 Parameters, GFLOPs, latency and peak memory for one full scene. The earlier
 benchmark reported none of these, so nothing could be judged per unit of compute.
@@ -393,7 +453,7 @@ for k, v in prof.items():
 
     # ------------------------------------------------------------- ablation
     cells.append(md("""
-## 10. Component ablation
+## 11. Component ablation
 
 Each variant is retrained from scratch with an identical budget, seed and data
 order, and each disabled module is replaced by a **matched control arm** (plain
@@ -418,7 +478,7 @@ else:
 
     # --------------------------------------------------------- interpretability
     cells.append(md("""
-## 11. What the model learned
+## 12. What the model learned
 
 The MoE gate is a per-pixel distribution over experts, so it can be shown as a
 map: this is the interpretability the design document claimed and v1 could not
@@ -461,7 +521,7 @@ if getattr(model, 'moe', None) is not None:
 
     # --------------------------------------------------------------- outputs
     cells.append(md("""
-## 12. Save everything
+## 13. Save everything
 
 Results, per-scene tables, the environment report and the checkpoints are
 written to `/kaggle/working` so the run is reproducible and the numbers can be
@@ -485,6 +545,11 @@ if tgt_rows:
 if tta_rows:
     payload['target_tta'] = {'mean': tta_mean, 'rows': tta_rows,
                              'summary': summarise_rows(tta_rows)}
+payload['baselines_same_protocol'] = {
+    'source': {k: v['mean'] for k, v in base_src.items()},
+    'target': ({k: v['mean'] for k, v in base_tgt.items()} if base_tgt else None),
+}
+payload['significance_vs_same_protocol'] = comparisons + tgt_cmp
 if ablation:
     payload['ablation'] = [{k: v for k, v in r.items()
                             if not k.endswith('_rows')} for r in ablation]

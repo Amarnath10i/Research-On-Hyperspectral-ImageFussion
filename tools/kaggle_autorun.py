@@ -100,6 +100,13 @@ class Repair:
 # still ships kernels for. Pascal (P100, sm_60) was dropped by torch >= 2.6,
 # so P100 escalates to T4 (sm_75); a T4 failure has nowhere better to go and
 # the loop stops rather than churning.
+#
+# MEASURED CAVEAT: pushing "accelerator": "nvidiaTeslaT4" in kernel-metadata
+# is accepted by the API but Kaggle assigned a P100 regardless. The accelerator
+# appears to be a per-kernel UI setting that the push API does not override, so
+# this escalation is best-effort. If it does not take, set it once by hand:
+#   open the kernel -> Settings -> Accelerator -> "GPU T4 x2" -> Save,
+# after which subsequent pushes reuse that setting.
 ACCELERATOR_FALLBACK = ["nvidiaTeslaP100", "nvidiaTeslaT4"]
 ACCELERATOR_CHOICES = ["nvidiaTeslaT4", "nvidiaTeslaP100", "none", ""]
 
@@ -181,6 +188,11 @@ def _switch_accelerator(nb: dict, _m: "re.Match", ctx: dict) -> bool:
         return False
     ctx["accelerator"] = nxt
     print(f"  escalating accelerator: {current} -> {nxt}")
+    print("  NOTE: Kaggle has been observed to ignore this field and assign "
+          "hardware of its own choosing.\n"
+          "        If the next attempt reports the same GPU, set it by hand: "
+          "open the kernel ->\n"
+          "        Settings -> Accelerator -> 'GPU T4 x2' -> Save, then re-run.")
     return True
 
 
