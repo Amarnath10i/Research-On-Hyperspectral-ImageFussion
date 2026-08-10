@@ -15,7 +15,7 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PKG = os.path.join(REPO, "proposal1", "daetf")
-OUT = os.path.join(REPO, "proposal1", "notebooks", "DAETF_Net_Kaggle_P100.ipynb")
+OUT = os.path.join(REPO, "proposal1", "notebooks", "DAETF_Net_Kaggle_GPU.ipynb")
 
 # order matters only for readability; Python resolves imports at import time
 MODULES = ["io_utils", "config", "degrade", "metrics", "modules", "model",
@@ -70,8 +70,13 @@ earlier benchmark was misleading.
 from any sensor, so the same objective that trains the model also *adapts* it at
 test time on a dataset with no labels.
 
-Runs on a single **P100 (16 GB)**. Set `QUICK` below to smoke-test the whole
-pipeline in a few minutes before committing to a full run.
+**Hardware.** Fits a single 16 GB GPU. Choose **GPU T4 x2** as the accelerator:
+PyTorch >= 2.6 ships no kernels for the P100's `sm_60`, so a P100 raises
+"no kernel image is available" on the first CUDA op regardless of the code. The
+environment cell below checks this and tells you if the accelerator is wrong.
+
+Set `QUICK` below to smoke-test the whole pipeline in a few minutes before
+committing to a full run.
 """.strip()))
 
     # ---------------------------------------------------------------- setup
@@ -85,12 +90,36 @@ print('python  ', sys.version.split()[0])
 print('torch   ', torch.__version__)
 print('numpy   ', np.__version__)
 print('cuda    ', torch.cuda.is_available())
+
+GPU_OK = False
 if torch.cuda.is_available():
     p = torch.cuda.get_device_properties(0)
-    print('gpu     ', p.name, f'{p.total_memory / 2**30:.1f} GB',
-          f'sm_{p.major}{p.minor}')
-    # P100 is sm_60: real fp16 throughput, but no tensor cores
-    print('amp     ', 'fp16 useful' if p.major >= 6 else 'disable amp')
+    arch = f'sm_{p.major}{p.minor}'
+    built = list(torch.cuda.get_arch_list())
+    print('gpu     ', p.name, f'{p.total_memory / 2**30:.1f} GB', arch)
+    print('built   ', ' '.join(built))
+    GPU_OK = arch in built
+    if not GPU_OK:
+        # PyTorch >= 2.6 dropped Pascal (sm_60/sm_61), so a P100 cannot run
+        # the current Kaggle image no matter what the code does. Catch it here
+        # rather than 50 seconds later inside a forward pass.
+        print()
+        print('*' * 74)
+        print(f'INCOMPATIBLE GPU: this torch build ships no kernels for {arch}.')
+        print(f'  {p.name} is {arch}; this build targets: {" ".join(built)}')
+        print('  Any CUDA op will raise "no kernel image is available".')
+        print()
+        print('  FIX: Notebook menu -> Settings -> Accelerator -> "GPU T4 x2"')
+        print('       (T4 is sm_75 and is supported). Then re-run all.')
+        print('*' * 74)
+    else:
+        # fp16 is worth enabling on any supported card here; tensor cores
+        # (sm_70+) make it faster still, Pascal only saves memory.
+        print('amp     ', 'fp16 with tensor cores' if p.major >= 7
+              else 'fp16 (memory only, no tensor cores)')
+else:
+    print('no GPU detected - training will be extremely slow on CPU')
+
 WORK = '/kaggle/working' if os.path.isdir('/kaggle/working') else '.'
 os.chdir(WORK)
 print('workdir ', os.getcwd())
@@ -141,7 +170,12 @@ If discovery misses, set `DAETF_DATA_ROOTS` or pass `source_root=` explicitly.
 """))
     cells.append(code("""
 QUICK = False          # True -> a few minutes end-to-end, for validating the pipeline
-DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+DEVICE = 'cuda' if (torch.cuda.is_available() and GPU_OK) else 'cpu'
+if DEVICE == 'cpu' and torch.cuda.is_available():
+    raise RuntimeError(
+        'The attached GPU is not supported by this torch build (see the '
+        'environment cell). Switch the accelerator to "GPU T4 x2" and re-run. '
+        'Set DEVICE = "cpu" manually only if you intend a CPU run.')
 
 cfg = daetf.Config(
     scale=4,                # fixed for every method, unlike the v1 benchmark
@@ -149,7 +183,7 @@ cfg = daetf.Config(
     batch=16,
     iters=20000,
     width=64,
-    amp=True,               # halves memory on P100
+    amp=True,               # fp16: halves memory, faster on T4
     workers=2,
     out_dir=os.path.join(os.getcwd(), 'daetf_out'),
     val_every=1000,

@@ -82,11 +82,26 @@ def kaggle_api():
 # ------------------------------------------------------------- repair rules
 @dataclass
 class Repair:
-    """One known failure mode and how to fix the notebook that hit it."""
+    """One known failure mode and how to fix the run that hit it.
+
+    `apply(nb, match, ctx)` may edit the notebook, mutate `ctx` (which carries
+    push settings such as the accelerator), or both. It returns True when it
+    actually changed something - returning False stops the loop rather than
+    re-pushing an identical run.
+    """
     name: str
     pattern: str
-    apply: Callable[[dict, "re.Match"], bool]
+    apply: Callable[[dict, "re.Match", dict], bool]
     note: str = ""
+
+
+# Escalation order, oldest architecture first. On an "unsupported GPU" failure
+# we move to the NEXT entry, i.e. toward newer hardware that current PyTorch
+# still ships kernels for. Pascal (P100, sm_60) was dropped by torch >= 2.6,
+# so P100 escalates to T4 (sm_75); a T4 failure has nowhere better to go and
+# the loop stops rather than churning.
+ACCELERATOR_FALLBACK = ["nvidiaTeslaP100", "nvidiaTeslaT4"]
+ACCELERATOR_CHOICES = ["nvidiaTeslaT4", "nvidiaTeslaP100", "none", ""]
 
 
 def _iter_code_cells(nb: dict):
@@ -143,11 +158,30 @@ def _prepend_install(nb: dict, package: str) -> bool:
     return False
 
 
-def _fix_missing_module(nb: dict, m: "re.Match") -> bool:
+def _fix_missing_module(nb: dict, m: "re.Match", ctx: dict) -> bool:
     mod = m.group(1)
     alias = {"cv2": "opencv-python-headless", "skimage": "scikit-image",
              "PIL": "pillow", "sklearn": "scikit-learn", "yaml": "pyyaml"}
     return _prepend_install(nb, alias.get(mod, mod))
+
+
+def _switch_accelerator(nb: dict, _m: "re.Match", ctx: dict) -> bool:
+    """The GPU is not supported by the installed torch build.
+
+    torch >= 2.6 dropped Pascal, so a P100 raises 'no kernel image is available'
+    on every CUDA op. No notebook change can fix that - the run needs different
+    hardware, so move to the next accelerator in the fallback order.
+    """
+    current = ctx.get("accelerator") or ACCELERATOR_FALLBACK[0]
+    try:
+        nxt = ACCELERATOR_FALLBACK[ACCELERATOR_FALLBACK.index(current) + 1]
+    except (ValueError, IndexError):
+        print(f"  no newer accelerator to escalate to from {current!r}; "
+              f"this needs different hardware, not a code change")
+        return False
+    ctx["accelerator"] = nxt
+    print(f"  escalating accelerator: {current} -> {nxt}")
+    return True
 
 
 def _sub_in_plain_cells(nb: dict, fn: Callable[[str], str]) -> bool:
@@ -169,7 +203,7 @@ def _sub_in_plain_cells(nb: dict, fn: Callable[[str], str]) -> bool:
     return changed
 
 
-def _halve_batch(nb: dict, _m: "re.Match") -> bool:
+def _halve_batch(nb: dict, _m: "re.Match", ctx: dict) -> bool:
     """CUDA OOM: halve the batch size and shrink the inference tile."""
     def fn(text: str) -> str:
         text = re.sub(r"\bbatch=(\d+)",
@@ -179,17 +213,17 @@ def _halve_batch(nb: dict, _m: "re.Match") -> bool:
     return _sub_in_plain_cells(nb, fn)
 
 
-def _disable_amp(nb: dict, _m: "re.Match") -> bool:
+def _disable_amp(nb: dict, _m: "re.Match", ctx: dict) -> bool:
     """fp16 overflow/NaN: fall back to fp32."""
     return _sub_in_plain_cells(nb, lambda t: t.replace("amp=True", "amp=False"))
 
 
-def _drop_workers(nb: dict, _m: "re.Match") -> bool:
+def _drop_workers(nb: dict, _m: "re.Match", ctx: dict) -> bool:
     """DataLoader worker crash / shared-memory exhaustion: run in-process."""
     return _sub_in_plain_cells(nb, lambda t: re.sub(r"\bworkers=\d+", "workers=0", t))
 
 
-def _relax_dataset_discovery(nb: dict, _m: "re.Match") -> bool:
+def _relax_dataset_discovery(nb: dict, _m: "re.Match", ctx: dict) -> bool:
     """Dataset not found: print what IS attached so the next run can be fixed,
     and let discovery search every attached input."""
     probe = (
@@ -215,7 +249,7 @@ def _relax_dataset_discovery(nb: dict, _m: "re.Match") -> bool:
     return False
 
 
-def _shrink_run(nb: dict, _m: "re.Match") -> bool:
+def _shrink_run(nb: dict, _m: "re.Match", ctx: dict) -> bool:
     """Kernel exceeded its time limit: cut the iteration budget in half."""
     return _sub_in_plain_cells(
         nb, lambda t: re.sub(r"\biters=(\d+)",
@@ -225,6 +259,11 @@ def _shrink_run(nb: dict, _m: "re.Match") -> bool:
 REPAIRS: List[Repair] = [
     Repair("missing-module", r"ModuleNotFoundError: No module named '([\w\.]+)'",
            _fix_missing_module, "pip install the missing package"),
+    Repair("gpu-unsupported",
+           r"(no kernel image is available for execution|"
+           r"CUDA capability sm_\d+ is not compatible|"
+           r"AcceleratorError: CUDA error: no kernel image)",
+           _switch_accelerator, "switch to a supported accelerator"),
     Repair("cuda-oom", r"(CUDA out of memory|CUDA error: out of memory)",
            _halve_batch, "halve batch size and inference tile"),
     Repair("amp-nan", r"(Attempting to unscale FP16 gradients|found (inf|nan)|"
@@ -261,7 +300,8 @@ def slug_for(username: str, notebook_path: str, explicit: Optional[str]) -> str:
 
 def push(api, notebook_path: str, slug: str, work_dir: str,
          datasets: List[str], models: List[str], gpu: bool = True,
-         private: bool = True, internet: bool = True) -> None:
+         private: bool = True, internet: bool = True,
+         accelerator: Optional[str] = None) -> None:
     """Push one notebook from an isolated directory, so the Kaggle client
     cannot pick up any other file."""
     shutil.rmtree(work_dir, ignore_errors=True)
@@ -282,9 +322,23 @@ def push(api, notebook_path: str, slug: str, work_dir: str,
         "kernel_sources": [],
         "model_sources": models,
     }
+    if accelerator:
+        # only emitted when asked for: older Kaggle clients reject the field
+        meta["accelerator"] = accelerator
     with open(os.path.join(work_dir, "kernel-metadata.json"), "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2)
-    api.kernels_push(work_dir)
+    try:
+        api.kernels_push(work_dir)
+    except TypeError:
+        if not accelerator:
+            raise
+        print("  (this kaggle client rejects the accelerator field; retrying "
+              "without it - set the accelerator in the notebook UI instead)")
+        meta.pop("accelerator", None)
+        with open(os.path.join(work_dir, "kernel-metadata.json"), "w",
+                  encoding="utf-8") as f:
+            json.dump(meta, f, indent=2)
+        api.kernels_push(work_dir)
 
 
 def status_of(api, slug: str) -> str:
@@ -351,6 +405,11 @@ def run(args) -> int:
     with open(nb_path, "r", encoding="utf-8") as f:
         nb = json.load(f)
 
+    # settings a repair may change between attempts
+    ctx: Dict[str, object] = {"accelerator": args.accelerator}
+    if args.accelerator:
+        print(f"[run] accelerator {args.accelerator}")
+
     history = []
     for attempt in range(1, args.max_attempts + 1):
         print(f"\n=== attempt {attempt}/{args.max_attempts} ===")
@@ -363,12 +422,14 @@ def run(args) -> int:
         print("  pushing ...")
         push(api, pushed, slug, os.path.join(state, "_push"),
              args.dataset or [], args.model or [], gpu=not args.no_gpu,
-             private=not args.public, internet=not args.no_internet)
+             private=not args.public, internet=not args.no_internet,
+             accelerator=ctx.get("accelerator"))
 
         print("  waiting ...")
         st = wait_for_finish(api, slug, args.poll, args.timeout,
                              log_fn=lambda s: print("  " + s))
-        entry = {"attempt": attempt, "status": st}
+        entry = {"attempt": attempt, "status": st,
+                 "accelerator": ctx.get("accelerator")}
         print(f"  finished: {st}")
 
         log = fetch_log(api, slug, os.path.join(att_dir, "output"))
@@ -396,7 +457,7 @@ def run(args) -> int:
 
         rule, match = found
         print(f"  diagnosed: {rule.name} -> {rule.note}")
-        if not rule.apply(nb, match):
+        if not rule.apply(nb, match, ctx):
             entry["result"] = f"repair-{rule.name}-noop"
             history.append(entry)
             print("[stop] the repair changed nothing; stopping to avoid a loop.")
@@ -428,6 +489,11 @@ def main() -> int:
     p.add_argument("--timeout", type=int, default=540, help="minutes to wait per run")
     p.add_argument("--state-dir", default="kaggle_runs")
     p.add_argument("--no-gpu", action="store_true")
+    p.add_argument("--accelerator", default="nvidiaTeslaT4",
+                   choices=ACCELERATOR_CHOICES,
+                   help="Kaggle accelerator. Defaults to a T4: torch >= 2.6 "
+                        "ships no kernels for the P100 (sm_60), so a P100 run "
+                        "fails on every CUDA op regardless of the code.")
     p.add_argument("--public", action="store_true")
     p.add_argument("--no-internet", action="store_true")
     p.add_argument("--write-back", action="store_true",

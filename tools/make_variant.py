@@ -14,7 +14,7 @@ import os
 import re
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC = os.path.join(REPO, "proposal1", "notebooks", "DAETF_Net_Kaggle_P100.ipynb")
+SRC = os.path.join(REPO, "proposal1", "notebooks", "DAETF_Net_Kaggle_GPU.ipynb")
 
 
 def patch(nb: dict, quick: bool, ablation: bool) -> int:

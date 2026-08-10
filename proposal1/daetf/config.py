@@ -48,7 +48,7 @@ class Config:
     min_lr: float = 1e-6
     warmup: int = 500
     grad_clip: float = 1.0
-    amp: bool = True                     # P100 has real fp16 throughput
+    amp: bool = True                     # fp16: halves memory, faster on sm_70+
     workers: int = 2
     seed: int = 42
 

@@ -10,7 +10,7 @@ existing/            the ten benchmarked methods
   results/           BENCHMARK.md - what was measured, and why it is not comparable
 proposal1/           DAETF-Net
   daetf/             the implementation (installable package)
-  notebooks/         DAETF_Net_Kaggle_P100.ipynb - self-contained, runs on Kaggle
+  notebooks/         DAETF_Net_Kaggle_GPU.ipynb - self-contained, runs on Kaggle
   docs/              ARCHITECTURE.md, GAP_ANALYSIS.md
   results/           run outputs
 literature_survey/   Crossref -> Unpaywall -> annotated Excel pipeline
@@ -69,7 +69,11 @@ on an unlabelled dataset**. The SRF is recovered from the data by least squares
 rather than hand-picked (recovery error 2.3e-08 on synthetic data with a known
 response).
 
-2.06 M parameters. Runs on a single P100 (16 GB).
+2.06 M parameters. Fits a single 16 GB GPU.
+
+> **Accelerator: use T4, not P100.** PyTorch >= 2.6 dropped Pascal, so the
+> P100 (`sm_60`) fails on every CUDA op with "no kernel image is available".
+> The notebook detects this in its first cell and says so.
 
 Design and honest limitations: [`proposal1/docs/ARCHITECTURE.md`](proposal1/docs/ARCHITECTURE.md).
 
@@ -79,8 +83,8 @@ Design and honest limitations: [`proposal1/docs/ARCHITECTURE.md`](proposal1/docs
 
 ### On Kaggle (intended path)
 
-1. Upload [`proposal1/notebooks/DAETF_Net_Kaggle_P100.ipynb`](proposal1/notebooks/DAETF_Net_Kaggle_P100.ipynb)
-2. Attach the CAVE and Harvard datasets, enable the GPU
+1. Upload [`proposal1/notebooks/DAETF_Net_Kaggle_GPU.ipynb`](proposal1/notebooks/DAETF_Net_Kaggle_GPU.ipynb)
+2. Attach the CAVE and Harvard datasets, set Accelerator to **GPU T4 x2**
 3. Run all — the notebook is self-contained (no clone, no internet needed)
 
 Set `QUICK = True` in the config cell to validate the whole pipeline in a few
@@ -111,7 +115,7 @@ files.
 
 ```bash
 python tools/kaggle_autorun.py \
-  --notebook proposal1/notebooks/DAETF_Net_Kaggle_P100.ipynb \
+  --notebook proposal1/notebooks/DAETF_Net_Kaggle_GPU.ipynb \
   --dataset nikeshreddypatlolla/cave-dataset-2 \
   --dataset nikeshreddypatlolla/harvard-hsi-2
 ```
