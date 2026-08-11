@@ -42,6 +42,144 @@ def code(source: str) -> dict:
 
 # --------------------------------------------------------------- proposals
 PROPOSALS = {
+    "proposal1": {
+        "pkg": "daetf",
+        "title": "DAETF-Net v3 — Adaptive Spectral-Causal Routing Network",
+        "modules": ["modules", "model", "config", "losses", "engine",
+                     "data", "degrade", "io_utils", "metrics",
+                     "baselines", "experiments", "selfcheck", "__init__"],
+        "blurb": """
+Proposal 1 of four. DAETF-Net v3 (Adaptive Spectral-Causal Routing Network)
+addresses the core question:
+
+> *Can the network explicitly determine which modality, spectral region, spatial
+> structure, and frequency component should be trusted at each location — and
+> route information accordingly?*
+
+Three mechanisms work together:
+
+* **Spectral Disagreement Field** `D(p) = [|Δ|, ∇Δ, ∇²Δ]` — detects *where*
+  the HSI and MSI features disagree, and how rapidly that disagreement varies
+  spatially. This is the input to the routing decision.
+* **Degradation-conditioned Expert Routing** — four semantically specialised
+  experts (spectral-preservation, edge-reconstruction, texture/smooth, cross-modal
+  correction) are selected per pixel by a gate that sees both the disagreement
+  field and the estimated degradation code. Under strong blur the edge expert
+  dominates; under spectral noise the spectral expert does.
+* **Equivariant Feature Extraction** — p4 group convolutions ensure the routing
+  policy itself is rotation-equivariant: `π(T_g p) = T_g π(p)`.
+
+All three are ablated independently, so each contribution can be verified against
+a like-for-like baseline.
+""",
+        "extra_title": "SOTA gap analysis and expert usage diagnostics",
+        "extra_md": """
+The disagreement field and degradation-conditioned routing are the architectural
+claims. This section verifies them with two diagnostics:
+
+1. **SOTA gap table** — how far our same-protocol numbers fall from published
+   deep-learning SOTA (different protocol, cited for context only) and from the
+   classical methods we run under the identical pipeline.
+2. **Expert usage** — which expert is selected where, and whether the routing
+   actually varies with content (flat → smooth expert, edges → edge expert).
+""",
+        "extra_code": """
+import json
+import matplotlib.pyplot as plt
+from daetf.experiments import gap_analysis, SOTA_REFERENCE, expert_conflict_matrix
+
+# ---- SOTA gap: CAVE ---
+print('=== SOTA gap analysis: CAVE (in-domain) ===')
+print('NOTE: deep-learning rows are published numbers under DIFFERENT protocols.')
+print('      Classical rows (Bicubic, GSA, Hysure, CNMF) run under SAME protocol.')
+print()
+print(gap_analysis(src_mean, 'cave'))
+
+# ---- SOTA gap: Harvard ---
+if tgt_mean:
+    print('\n=== SOTA gap analysis: Harvard (zero-shot cross-domain) ===')
+    print(gap_analysis(tgt_mean, 'harvard'))
+
+# ---- cross-domain comparison table ---
+if tgt_mean:
+    cross = {
+        'Zero-shot (no TTA)': tgt_mean,
+    }
+    if tta_mean:
+        cross['+TTA (50 steps)'] = tta_mean
+    print('\n=== Cross-domain summary: CAVE -> Harvard ===')
+    from daetf.experiments import comparison_table
+    print(comparison_table(cross))
+
+# ---- expert usage diagnostic ---
+if hasattr(model, 'expert_usage_summary'):
+    usage = model.expert_usage_summary()
+    if usage:
+        print('\n=== Expert activation after training ===')
+        names  = list(usage.keys())
+        values = list(usage.values())
+        fig, ax = plt.subplots(figsize=(7, 3))
+        bars = ax.bar(names, values, color=['#4C72B0','#DD8452','#55A868','#C44E52'])
+        ax.bar_label(bars, fmt='%.3f', padding=3)
+        ax.set_ylabel('Mean gate weight'); ax.set_ylim(0, 0.55)
+        ax.set_title('Expert activation (uniform = 0.25 each)')
+        ax.axhline(0.25, ls='--', color='grey', alpha=0.6, label='uniform')
+        ax.legend(); plt.tight_layout()
+        plt.savefig('expert_usage.png', dpi=140); plt.show()
+        print('  spectral   :', f"{usage.get('spectral', 0):.4f}")
+        print('  edge       :', f"{usage.get('edge', 0):.4f}")
+        print('  texture    :', f"{usage.get('texture', 0):.4f}")
+        print('  correction :', f"{usage.get('correction', 0):.4f}")
+
+# ---- disagreement field visualisation ---
+print('\n=== Visualising spectral disagreement field on one test scene ===')
+try:
+    import torch
+    from daetf.data import SceneCache
+    from daetf.degrade import FixedDegradation
+    from daetf.io_utils import find_pairs
+    import numpy as np
+
+    pairs = find_pairs(cfg.source_root, 'Test')
+    cache = SceneCache(cfg.bands, cfg.msi_bands, limit=1)
+    hsi, rgb = cache.get(*pairs[0])
+    h = (hsi.shape[1] // cfg.scale) * cfg.scale
+    w = (hsi.shape[2] // cfg.scale) * cfg.scale
+    gt = torch.from_numpy(hsi[:, :h, :w].astype('float32'))[None].to(DEVICE)
+    msi_t = torch.from_numpy(rgb[:, :h, :w].astype('float32'))[None].to(DEVICE)
+    deg = FixedDegradation.from_config(cfg).to(DEVICE)
+    lr_t = deg(gt)
+    model.eval()
+    with torch.no_grad():
+        out = model(lr_t, msi_t)
+    D = out.get('disagree')           # [1, 3, H, W]
+    G = out.get('expert_gate')        # [1, 4, H, W]
+    if D is not None and G is not None:
+        fig, axes = plt.subplots(2, 4, figsize=(16, 7))
+        D_np = D[0].cpu().float().numpy()  # [3, H, W]
+        G_np = G[0].cpu().float().numpy()  # [4, H, W]
+        for i, (ax, title) in enumerate(zip(axes[0],
+                ['|Δ| (magnitude)', '|∇Δ| (grad)', '|∇²Δ| (laplacian)', 'MSI false colour'])):
+            if i < 3:
+                im = ax.imshow(D_np[i], cmap='viridis')
+                plt.colorbar(im, ax=ax, shrink=0.8)
+            else:
+                ax.imshow(msi_t[0, :3].permute(1,2,0).cpu().numpy().clip(0,1))
+            ax.set_title(title); ax.axis('off')
+        expert_names = ['Spectral', 'Edge', 'Texture', 'Correction']
+        colors = ['Blues', 'Oranges', 'Greens', 'Reds']
+        for i, (ax, name, cmap) in enumerate(zip(axes[1], expert_names, colors)):
+            im = ax.imshow(G_np[i], cmap=cmap, vmin=0, vmax=1)
+            plt.colorbar(im, ax=ax, shrink=0.8)
+            ax.set_title(f'Gate: {name}'); ax.axis('off')
+        plt.suptitle(f'Disagreement field and expert routing — {pairs[0][0]}', fontsize=13)
+        plt.tight_layout()
+        plt.savefig('disagreement_and_routing.png', dpi=140); plt.show()
+        print('  saved: disagreement_and_routing.png')
+except Exception as e:
+    print(f'  visualisation skipped: {e}')
+""",
+    },
     "proposal2": {
         "pkg": "unfoldfusion",
         "title": "UnfoldFusion - deep-unfolded variational solver",
@@ -294,6 +432,17 @@ import hsifusion
 import {pkg}
 print('hsifusion', hsifusion.__version__, '|', '{pkg}', {pkg}.__version__)
 """))
+    # proposal1 (daetf) is self-contained: it ships its own engine, data, metrics
+    # and baselines. It does NOT import from hsifusion at all.
+    if key == 'proposal1':
+        cells[-1] = code(f"""
+import sys
+for m in [k for k in list(sys.modules) if k.startswith('{pkg}')]:
+    del sys.modules[m]
+sys.path.insert(0, os.getcwd())
+import {pkg}
+print('{pkg}', {pkg}.__version__)
+""")
 
     # ---- config ---------------------------------------------------------
     cells.append(md("""
@@ -310,9 +459,16 @@ DEVICE = 'cuda' if (torch.cuda.is_available() and GPU_OK) else 'cpu'
 if DEVICE == 'cpu' and torch.cuda.is_available():
     raise RuntimeError('Unsupported GPU - switch the accelerator to "GPU T4 x2".')
 
+# Auto-tune batch/patch based on GPU memory
+_gpu_mem_gb = (torch.cuda.get_device_properties(0).total_memory / 2**30
+               if torch.cuda.is_available() else 0)
+_use_dp = torch.cuda.device_count() >= 2  # T4x2 DataParallel
+print(f'GPU memory: {{_gpu_mem_gb:.1f}} GB | Devices: {{torch.cuda.device_count()}}')
+
 cfg = {pkg}.Config(
     scale=4,          # identical across all four proposals
-    patch=64,
+    patch=96 if _gpu_mem_gb >= 14 else 64,   # P100 -> 64, T4x2 -> 96
+    batch=16 if _use_dp else 12,             # T4x2 -> 16, P100 -> 12
     out_dir=os.path.join(os.getcwd(), '{pkg}_out'),
 )
 if QUICK:
@@ -320,8 +476,12 @@ if QUICK:
 
 cfg.resolve()
 print(json.dumps({{k: v for k, v in cfg.to_dict().items()
-                  if k in ('name','source_root','target_root','bands',
+                  if k in ('source_root','target_root','bands',
                            'msi_bands','scale','patch','batch','iters')}}, indent=1))
+
+# Wrap in DataParallel on T4x2
+if _use_dp:
+    print('T4x2 detected: will wrap model in DataParallel after training')
 """))
 
     # ---- train / fit ----------------------------------------------------
@@ -369,8 +529,16 @@ t0 = time.time()
 model, history = {pkg}.train(cfg, device=DEVICE)
 print(f'\\ntrained in {{(time.time() - t0) / 60:.1f}} min')
 
-srf = torch.load(os.path.join(cfg.out_dir, f'{{cfg.name}}_final.pth'),
-                 map_location='cpu', weights_only=False)['srf']
+# Wrap in DataParallel on T4x2 for faster evaluation
+if _use_dp and torch.cuda.device_count() >= 2:
+    import torch.nn as nn
+    model = nn.DataParallel(model)
+    print('Model wrapped in DataParallel for T4x2 evaluation')
+
+# Load SRF from checkpoint (daetf saves as 'daetf_final.pth')
+_ckpt_name = 'daetf_final.pth' if '{pkg}' == 'daetf' else f'{{getattr(cfg, "name", "{pkg}")}}_final.pth'
+_ckpt_path = os.path.join(cfg.out_dir, _ckpt_name)
+srf = torch.load(_ckpt_path, map_location='cpu', weights_only=False)['srf']
 """))
         cells.append(code("""
 import matplotlib.pyplot as plt
@@ -396,20 +564,25 @@ module with a fixed `data_range=1.0` - never the per-image maximum, which is
 what inflated several numbers in the original benchmark.
 """))
         cells.append(code(f"""
+_eval_ns = '{pkg}' if '{pkg}' == 'daetf' else 'hsifusion'
 print('=== in-domain (source Test) ===')
-src_mean, src_rows = hsifusion.evaluate_dataset(
+src_mean, src_rows = {pkg}.evaluate_dataset(
     model, cfg.source_root, cfg, 'Test', DEVICE, return_rows=True)
 
 tgt_mean = tgt_rows = tta_mean = tta_rows = None
 if cfg.target_root:
     print('\\n=== zero-shot cross-domain (target Test) ===')
-    tgt_mean, tgt_rows = hsifusion.evaluate_dataset(
+    tgt_mean, tgt_rows = {pkg}.evaluate_dataset(
         model, cfg.target_root, cfg, 'Test', DEVICE, return_rows=True)
 
     print('\\n=== cross-domain + physics-only test-time adaptation ===')
     crit = {pkg}.build_loss(cfg, srf).to(DEVICE)
-    tta_mean, tta_rows = hsifusion.evaluate_with_tta(
-        model, cfg.target_root, cfg, crit, 'Test', DEVICE, steps=30)
+    _eval_fn = getattr({pkg}, 'evaluate_with_tta', None)
+    if _eval_fn is None:
+        import hsifusion
+        _eval_fn = hsifusion.evaluate_with_tta
+    tta_mean, tta_rows = _eval_fn(
+        model, cfg.target_root, cfg, crit, 'Test', DEVICE, steps=50)
 """))
 
     # ---- baselines + significance ---------------------------------------
@@ -422,42 +595,47 @@ floor any learned method must clear.
 """))
     cells.append(code("""
 print('=== classical baselines, source domain ===')
-base_src = hsifusion.evaluate_all_baselines(cfg.source_root, cfg, srf, 'Test',
-                                            DEVICE, verbose=False)
+_bl_fn = getattr({pkg}, 'evaluate_all_baselines', None)
+if _bl_fn is None:
+    import hsifusion as _hsi; _bl_fn = _hsi.evaluate_all_baselines
+base_src = _bl_fn(cfg.source_root, cfg, srf, 'Test', DEVICE, verbose=False)
 for name, r in base_src.items():
     m = r['mean']
-    print(f'  {name:<14} PSNR={m["psnr"]:7.3f}  SSIM={m["ssim"]:.4f}  '
-          f'SAM={m["sam"]:6.3f}  ERGAS={m["ergas"]:8.3f}')
+    print(f'  {{name:<14}} PSNR={{m["psnr"]:7.3f}}  SSIM={{m["ssim"]:.4f}}  '
+          f'SAM={{m["sam"]:6.3f}}  ERGAS={{m["ergas"]:8.3f}}')
 
 base_tgt = None
 if cfg.target_root:
     print('\\n=== classical baselines, target domain ===')
-    base_tgt = hsifusion.evaluate_all_baselines(cfg.target_root, cfg, srf,
-                                                'Test', DEVICE, verbose=False)
+    base_tgt = _bl_fn(cfg.target_root, cfg, srf, 'Test', DEVICE, verbose=False)
     for name, r in base_tgt.items():
         m = r['mean']
-        print(f'  {name:<14} PSNR={m["psnr"]:7.3f}  SSIM={m["ssim"]:.4f}  '
-              f'SAM={m["sam"]:6.3f}  ERGAS={m["ergas"]:8.3f}')
+        print(f'  {{name:<14}} PSNR={{m["psnr"]:7.3f}}  SSIM={{m["ssim"]:.4f}}  '
+              f'SAM={{m["sam"]:6.3f}}  ERGAS={{m["ergas"]:8.3f}}')
 """))
     cells.append(code("""
-from hsifusion.experiments import (comparison_table, compare_methods,
-                                   significance_table, summarise_rows)
+_exp_mod = getattr({pkg}, 'experiments', None)
+if _exp_mod is None:
+    from hsifusion import experiments as _exp_mod
+from {pkg}.experiments import (comparison_table, compare_methods,
+                                significance_table, summarise_rows)
 
-entries = {k: v['mean'] for k, v in base_src.items()}
-entries[f'{cfg.name} (in-domain)'] = src_mean
+_model_name = 'DAETF-Net v3'
+entries = {{k: v['mean'] for k, v in base_src.items()}}
+entries[f'{{_model_name}} (in-domain)'] = src_mean
 print('=== SOURCE DOMAIN, same protocol ===')
 print(comparison_table(entries))
 
 if tgt_mean and base_tgt:
-    t = {k: v['mean'] for k, v in base_tgt.items()}
-    t[f'{cfg.name} (zero-shot)'] = tgt_mean
+    t = {{k: v['mean'] for k, v in base_tgt.items()}}
+    t[f'{{_model_name}} (zero-shot)'] = tgt_mean
     if tta_mean:
-        t[f'{cfg.name} (+TTA)'] = tta_mean
+        t[f'{{_model_name}} (+TTA)'] = tta_mean
     print('\\n=== TARGET DOMAIN, same protocol ===')
     print(comparison_table(t))
 
 print('\\n=== paired significance vs same-protocol baselines (SAM) ===')
-cmps = [compare_methods(src_rows, r['rows'], cfg.name, name)
+cmps = [compare_methods(src_rows, r['rows'], _model_name, name)
         for name, r in base_src.items()]
 print(significance_table(cmps, metric='sam'))
 """))
