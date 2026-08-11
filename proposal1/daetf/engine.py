@@ -14,6 +14,8 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
+import copy
+
 from .config import Config
 from .data import FusionPatchDataset, SceneCache, estimate_srf
 from .degrade import FixedDegradation
@@ -178,7 +180,7 @@ def train(cfg: Config, device: str = "cuda", align_target: bool = True,
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
 
     n_params = model.n_params()
-    log_fn(f"DAETF-Net v2: {n_params / 1e6:.2f} M parameters")
+    log_fn(f"DAETF-Net v3 (ASCR): {n_params / 1e6:.2f} M parameters")
 
     ema_model = copy.deepcopy(model)
     for p in ema_model.parameters():
@@ -231,10 +233,20 @@ def train(cfg: Config, device: str = "cuda", align_target: bool = True,
         if step % cfg.log_every == 0:
             rate = step / (time.time() - t0)
             eta = (cfg.iters - step) / max(rate, 1e-6) / 60
+            # Log expert usage if available (v3 diagnostic)
+            usage_str = ""
+            if hasattr(model, 'expert_usage_summary'):
+                usage = model.expert_usage_summary()
+                if usage:
+                    usage_str = (f"  exp=[sp:{usage.get('spectral', 0):.2f}"
+                                 f" ed:{usage.get('edge', 0):.2f}"
+                                 f" tx:{usage.get('texture', 0):.2f}"
+                                 f" co:{usage.get('correction', 0):.2f}]")
             log_fn(f"it {step:6d}/{cfg.iters}  loss {logs['total']:.4f}  "
                    f"char {logs.get('char', 0):.4f}  sam {logs.get('sam', 0):.4f}  "
                    f"spat {logs.get('spat', 0):.4f}  spec {logs.get('spec', 0):.4f}  "
-                   f"lr {opt.param_groups[0]['lr']:.2e}  {rate:.2f} it/s  eta {eta:.0f}m")
+                   f"lr {opt.param_groups[0]['lr']:.2e}  {rate:.2f} it/s  eta {eta:.0f}m"
+                   f"{usage_str}")
             history["iter"].append(step)
             history["loss"].append(logs["total"])
 
@@ -282,8 +294,10 @@ def test_time_adapt(model: DAETFNet, lr: torch.Tensor, msi: torch.Tensor,
     """
     state = _clone_state(model) if restore else None
     model.train()
+    # v3: also adapt disagreement projection and new MoE gate
     params = [p for n, p in model.named_parameters()
-              if any(k in n for k in ("deg", "film", "moe.gate", "fdrm"))]
+              if any(k in n for k in ("deg", "film", "moe.gate", "moe.deg_proj",
+                                      "disagree", "fdrm"))]
     opt = torch.optim.Adam(params, lr=lr_rate)
     for _ in range(steps):
         opt.zero_grad(set_to_none=True)

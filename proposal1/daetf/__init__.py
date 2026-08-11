@@ -1,7 +1,9 @@
-"""DAETF-Net: Domain-Adaptive Equivariant Tensor Fusion Network.
+"""DAETF-Net v3: Adaptive Spectral-Causal Routing Network.
 
-Hyperspectral-multispectral image fusion built to survive the transfer from the
-dataset it was trained on to one it has never seen.
+Domain-Adaptive Equivariant Tensor Fusion Network — v3 (ASCR).
+
+Hyperspectral-multispectral image fusion built around degradation-conditioned
+expert routing rather than a uniform fusion strategy.
 
     import daetf
     cfg = daetf.Config().resolve()          # finds the datasets, infers bands
@@ -26,15 +28,32 @@ from .metrics import (evaluate_arrays, metric_ergas, metric_psnr, metric_sam,
                       metric_ssim, ssim_torch)
 from .model import DAETFNet
 from .modules import (BackProjectionUpsampler, BicubicUpsampler,
+                      ChannelAttention, DegradationConditionedMoE,
                       DegradationEncoder, EquivariantFeatureExtractor, FiLM,
-                      FrequencyDomainRefinement, HaarDWT, P4ConvP4, P4ConvZ2,
-                      PlainFeatureExtractor, RegionAwareMoE,
+                      FrequencyDomainRefinement, GeometricSelfEnsemble,
+                      HaarDWT, P4ConvP4, P4ConvZ2,
+                      PlainFeatureExtractor, ResidualDenseBlock,
+                      SpectralDisagreementField,
                       TensorSpectralSpatialEncoder)
 
-__version__ = "2.0.0"
+# Build the SPCLoss for use in TTA outside the engine
+from .losses import SPCLoss as _SPCLoss
+
+
+def build_loss(cfg: Config, srf) -> _SPCLoss:
+    """Convenience: build the composite loss from a Config and SRF array."""
+    import torch
+    import numpy as np
+    if isinstance(srf, np.ndarray):
+        srf = torch.from_numpy(srf)
+    return _SPCLoss(cfg, srf)
+
+
+__version__ = "3.0.0"
+name = "daetf"
 
 __all__ = [
-    "Config", "DAETFNet", "SPCLoss",
+    "Config", "DAETFNet", "SPCLoss", "build_loss",
     "train", "evaluate_dataset", "evaluate_with_tta", "test_time_adapt",
     "tiled_inference", "load_checkpoint", "set_seed", "cosine_lr",
     "FusionPatchDataset", "SceneCache", "estimate_srf",
@@ -46,8 +65,10 @@ __all__ = [
     "metric_ergas", "ssim_torch",
     "P4ConvZ2", "P4ConvP4", "EquivariantFeatureExtractor",
     "PlainFeatureExtractor", "DegradationEncoder", "FiLM",
-    "TensorSpectralSpatialEncoder", "RegionAwareMoE", "HaarDWT",
-    "FrequencyDomainRefinement", "BackProjectionUpsampler", "BicubicUpsampler",
-    "baselines", "experiments", "selfcheck", "__version__",
+    "TensorSpectralSpatialEncoder", "DegradationConditionedMoE",
+    "SpectralDisagreementField", "ChannelAttention", "ResidualDenseBlock",
+    "HaarDWT", "FrequencyDomainRefinement",
+    "BackProjectionUpsampler", "BicubicUpsampler", "GeometricSelfEnsemble",
+    "baselines", "experiments", "selfcheck", "__version__", "name",
     "BASELINES", "evaluate_baseline", "evaluate_all_baselines",
 ]
