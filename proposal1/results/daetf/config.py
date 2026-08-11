@@ -21,17 +21,16 @@ class Config:
     bands: Optional[int] = None
     msi_bands: Optional[int] = None
     scale: int = 4                       # super-resolution factor
-    patch: int = 96                      # HR training patch (multiple of scale)
+    patch: int = 64                      # HR training patch (multiple of scale)
 
     # --- model --------------------------------------------------------------
     width: int = 64                      # main feature width
     equi_width: int = 16                 # per-orientation width in the p4 stem
     equi_depth: int = 2                  # number of p4 -> p4 group convolutions
     rank: int = 16                       # Tucker ranks (R1 = R2 = R3)
-    bp_iters_default: int = 3             # back-projection refinement steps (increased from 2)
     experts: int = 4
     topk: int = 2
-    bp_iters: int = 3                    # back-projection refinement steps
+    bp_iters: int = 2                    # back-projection refinement steps
     code_dim: int = 128                  # degradation code width
     blur_ksize: int = 9                  # support of the simulated blur kernels
 
@@ -50,9 +49,6 @@ class Config:
     warmup: int = 500
     grad_clip: float = 1.0
     amp: bool = True                     # fp16: halves memory, faster on sm_70+
-    grad_accum: int = 2                  # gradient accumulation steps
-    ema_decay: float = 0.999             # EMA decay rate for model weights
-    n_restarts: int = 2                  # number of cosine warm restarts
     workers: int = 2
     seed: int = 42
     # Scenes held in RAM per loader. Each DataLoader worker builds its own
@@ -64,16 +60,15 @@ class Config:
 
     # --- loss weights --------------------------------------------------------
     w_char: float = 1.0
-    w_sam: float = 0.50
-    w_grad: float = 0.30
-    w_ssim: float = 0.25
+    w_sam: float = 0.30
+    w_grad: float = 0.20
+    w_ssim: float = 0.15
     w_spat: float = 0.50                 # || Down(Y) - LR ||
     w_spec: float = 0.50                 # || SRF(Y)  - MSI ||
     w_bal: float = 0.01
     w_rank: float = 1e-4
     w_deg: float = 0.05
     w_mmd: float = 0.10
-    w_specgrad: float = 0.15             # spectral gradient loss weight
 
     # --- ablation switches (all modules on by default) ----------------------
     use_equivariant: bool = True
@@ -86,9 +81,9 @@ class Config:
 
     # --- bookkeeping ---------------------------------------------------------
     out_dir: str = "./daetf_out"
-    val_every: int = 500
+    val_every: int = 1000
     log_every: int = 100
-    val_scenes: int = 8
+    val_scenes: int = 4
 
     def __post_init__(self) -> None:
         assert self.patch % self.scale == 0, "patch must be divisible by scale"

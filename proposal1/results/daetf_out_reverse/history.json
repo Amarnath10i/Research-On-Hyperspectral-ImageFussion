@@ -1,0 +1,93 @@
+{
+ "iter": [
+  50,
+  100,
+  150,
+  200,
+  250,
+  300
+ ],
+ "loss": [
+  1.932334542274475,
+  1.293361783027649,
+  1.17252516746521,
+  0.9402166604995728,
+  0.9196217060089111,
+  0.7764232158660889
+ ],
+ "val": [
+  {
+   "iter": 150,
+   "psnr": 21.940534288414987,
+   "ssim": 0.19776685908436775,
+   "sam": 45.691338539123535,
+   "ergas": 518.4091148376465
+  },
+  {
+   "iter": 300,
+   "psnr": 25.003046414180716,
+   "ssim": 0.3757334053516388,
+   "sam": 40.46751594543457,
+   "ergas": 308.18247985839844
+  }
+ ],
+ "cfg": {
+  "source_root": "/kaggle/input/datasets/nikeshreddypatlolla/harvard-hsi-2/Data",
+  "target_root": "/kaggle/input/datasets/nikeshreddypatlolla/cave-dataset-2/Data",
+  "bands": 31,
+  "msi_bands": 3,
+  "scale": 4,
+  "patch": 64,
+  "width": 64,
+  "equi_width": 16,
+  "equi_depth": 2,
+  "rank": 16,
+  "experts": 4,
+  "topk": 2,
+  "bp_iters": 2,
+  "code_dim": 128,
+  "blur_ksize": 9,
+  "sigma_range": [
+   0.6,
+   2.4
+  ],
+  "aniso": 0.5,
+  "noise_range": [
+   0.0,
+   0.03
+  ],
+  "srf_jitter": 0.35,
+  "eval_sigma": 1.2,
+  "iters": 300,
+  "batch": 8,
+  "lr": 0.0002,
+  "min_lr": 1e-06,
+  "warmup": 500,
+  "grad_clip": 1.0,
+  "amp": true,
+  "workers": 2,
+  "seed": 42,
+  "cache_limit": 12,
+  "w_char": 1.0,
+  "w_sam": 0.3,
+  "w_grad": 0.2,
+  "w_ssim": 0.15,
+  "w_spat": 0.5,
+  "w_spec": 0.5,
+  "w_bal": 0.01,
+  "w_rank": 0.0001,
+  "w_deg": 0.05,
+  "w_mmd": 0.1,
+  "use_equivariant": true,
+  "use_tsse": true,
+  "use_moe": true,
+  "use_fdrm": true,
+  "use_backprojection": true,
+  "use_physics": true,
+  "use_degradation_code": true,
+  "out_dir": "/kaggle/working/daetf_out_reverse",
+  "val_every": 150,
+  "log_every": 50,
+  "val_scenes": 4
+ }
+}

@@ -5,8 +5,8 @@ Flow:
     LR-HSI -> back-projection upsampler -> coarse HR estimate y0   |
     y0  -> equivariant feature extractor -> FiLM <-----------------+
     MSI -> encoder ----------------------> FiLM <------------------+
-    (f_hsi, f_msi) -> Tucker interaction -> SE attention -> region-aware MoE
-    -> wavelet refinement -> RDB reconstruction, added to y0
+    (f_hsi, f_msi) -> Tucker interaction -> region-aware MoE -> wavelet refinement
+    -> residual reconstruction, added to y0
 
 Every module can be swapped for a matched control arm through the Config
 ablation switches, so each contribution is measured against a like-for-like
@@ -21,12 +21,9 @@ import torch
 import torch.nn as nn
 
 from .config import Config
-from .modules import (BackProjectionUpsampler, BicubicUpsampler,
-                      ChannelAttention, DegradationEncoder,
-                      EquivariantFeatureExtractor, FiLM,
-                      FrequencyDomainRefinement,
+from .modules import (BackProjectionUpsampler, BicubicUpsampler, DegradationEncoder,
+                      EquivariantFeatureExtractor, FiLM, FrequencyDomainRefinement,
                       PlainFeatureExtractor, RegionAwareMoE,
-                      ResidualDenseBlock,
                       TensorSpectralSpatialEncoder)
 
 
@@ -60,17 +57,15 @@ class DAETFNet(nn.Module):
         self.concat_fuse = None if cfg.use_tsse else nn.Sequential(
             nn.Conv2d(c * 2, c, 1), nn.LeakyReLU(0.1, True), nn.Conv2d(c, c, 3, 1, 1)
         )
-        # Channel attention (SE) after fusion — adaptively re-weights channels
-        self.channel_attn = ChannelAttention(c, reduction=8) if cfg.use_tsse else None
         self.moe = (RegionAwareMoE(c, experts=cfg.experts, topk=cfg.topk)
                     if cfg.use_moe else None)
         self.plain_block = None if cfg.use_moe else nn.Sequential(
             nn.Conv2d(c, c, 3, 1, 1), nn.LeakyReLU(0.1, True), nn.Conv2d(c, c, 3, 1, 1)
         )
         self.fdrm = FrequencyDomainRefinement(c) if cfg.use_fdrm else None
-        # Reconstruction head: RDB for deeper feature extraction + final conv
-        self.rdb = ResidualDenseBlock(c, growth=32, n_layers=3)
-        self.recon = nn.Conv2d(c, b, 3, 1, 1)
+        self.recon = nn.Sequential(
+            nn.Conv2d(c, c, 3, 1, 1), nn.LeakyReLU(0.1, True), nn.Conv2d(c, b, 3, 1, 1)
+        )
 
     def _trunk(self, lr_hsi: torch.Tensor, msi: torch.Tensor
                ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
@@ -82,9 +77,6 @@ class DAETFNet(nn.Module):
         fm = self.film_m(self.msi_enc(msi), code)
         z = (self.tsse(fh, fm) if self.tsse is not None
              else self.concat_fuse(torch.cat([fh, fm], dim=1)))
-        # Apply channel attention after fusion
-        if self.channel_attn is not None:
-            z = self.channel_attn(z)
         return y0, z, deg_params
 
     def features(self, lr_hsi: torch.Tensor, msi: torch.Tensor) -> torch.Tensor:
@@ -96,8 +88,6 @@ class DAETFNet(nn.Module):
         z = self.moe(z) if self.moe is not None else self.plain_block(z)
         if self.fdrm is not None:
             z = self.fdrm(z)
-        # Deep reconstruction head: RDB + final conv
-        z = self.rdb(z)
         out = y0 + self.recon(z)
         return {"out": out, "coarse": y0, "deg": deg_params, "feat": z.mean(dim=(2, 3))}
 

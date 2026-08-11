@@ -51,20 +51,6 @@ def gradient_loss(pred: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
     return F.l1_loss(dx_p, dx_t) + F.l1_loss(dy_p, dy_t)
 
 
-def spectral_gradient_loss(pred: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-    """Spectral gradient loss: penalises differences in adjacent-band derivatives.
-
-    While SAM loss measures spectral angle globally, this loss ensures that the
-    *shape* of the spectral curve (band-to-band transitions) is preserved. This
-    directly combats the spectral distortion that was the worst metric (SAM > 14°).
-    """
-    # Compute spectral derivatives: difference between adjacent bands
-    # pred/target shape: [B, C, H, W] where C is the number of spectral bands
-    spec_grad_p = pred[:, 1:, :, :] - pred[:, :-1, :, :]
-    spec_grad_t = target[:, 1:, :, :] - target[:, :-1, :, :]
-    return F.l1_loss(spec_grad_p, spec_grad_t)
-
-
 def mmd_rbf(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     """Multi-bandwidth RBF maximum mean discrepancy, with the bandwidth set from
     the median pairwise distance so it adapts to the feature scale."""
@@ -104,13 +90,10 @@ class SPCLoss(nn.Module):
             l_sam = sam_loss(pred, target)
             l_grad = gradient_loss(pred, target)
             l_ssim = 1.0 - ssim_torch(pred.clamp(0, 1).float(), target.float())
-            l_specgrad = spectral_gradient_loss(pred, target)
             total = (total + cfg.w_char * l_char + cfg.w_sam * l_sam
-                     + cfg.w_grad * l_grad + cfg.w_ssim * l_ssim
-                     + cfg.w_specgrad * l_specgrad)
+                     + cfg.w_grad * l_grad + cfg.w_ssim * l_ssim)
             logs.update(char=l_char.item(), sam=l_sam.item(),
-                        grad=l_grad.item(), ssim=l_ssim.item(),
-                        specgrad=l_specgrad.item())
+                        grad=l_grad.item(), ssim=l_ssim.item())
 
         # --- physics: valid on any domain, with or without ground truth -------
         if cfg.use_physics or not supervised:
