@@ -1,4 +1,4 @@
-"""Experiment configuration.
+"""Experiment configuration — DAETF-Net v3.
 
 Every path and channel count defaults to None and is resolved by inspecting the
 filesystem, so nothing about a particular machine or Kaggle dataset slug is
@@ -28,10 +28,9 @@ class Config:
     equi_width: int = 16                 # per-orientation width in the p4 stem
     equi_depth: int = 2                  # number of p4 -> p4 group convolutions
     rank: int = 16                       # Tucker ranks (R1 = R2 = R3)
-    bp_iters_default: int = 3             # back-projection refinement steps (increased from 2)
-    experts: int = 4
-    topk: int = 2
     bp_iters: int = 3                    # back-projection refinement steps
+    experts: int = 4                     # number of semantic experts (fixed: 4)
+    topk: int = 2                        # top-k sparse routing per pixel
     code_dim: int = 128                  # degradation code width
     blur_ksize: int = 9                  # support of the simulated blur kernels
 
@@ -43,24 +42,19 @@ class Config:
     eval_sigma: float = 1.2              # fixed kernel used to build the eval LR
 
     # --- optimisation --------------------------------------------------------
-    iters: int = 20000
-    batch: int = 16
+    iters: int = 90000                   # ~9h on P100 @ 2.8 it/s (batch=12)
+    batch: int = 12                      # safe for P100 16GB; T4x2 can use 16
     lr: float = 2e-4
     min_lr: float = 1e-6
-    warmup: int = 500
+    warmup: int = 2000                   # longer warmup for 90k run
     grad_clip: float = 1.0
     amp: bool = True                     # fp16: halves memory, faster on sm_70+
-    grad_accum: int = 2                  # gradient accumulation steps
+    grad_accum: int = 2                  # effective batch = batch * grad_accum
     ema_decay: float = 0.999             # EMA decay rate for model weights
-    n_restarts: int = 2                  # number of cosine warm restarts
+    n_restarts: int = 3                  # cosine warm restarts over 90k iters
     workers: int = 2
     seed: int = 42
-    # Scenes held in RAM per loader. Each DataLoader worker builds its own
-    # cache, so this is multiplied by `workers`. Harvard scenes are
-    # 1040x1392x31 (~86 MB each in float16), so caching all 30 across 2 workers
-    # would cost ~7.7 GB; patches are drawn from a random scene each step, so a
-    # bounded LRU window gives the same coverage for a fraction of the memory.
-    cache_limit: int = 12
+    cache_limit: int = 12                # scenes held in RAM per loader worker
 
     # --- loss weights --------------------------------------------------------
     w_char: float = 1.0
@@ -69,11 +63,11 @@ class Config:
     w_ssim: float = 0.25
     w_spat: float = 0.50                 # || Down(Y) - LR ||
     w_spec: float = 0.50                 # || SRF(Y)  - MSI ||
-    w_bal: float = 0.01
-    w_rank: float = 1e-4
-    w_deg: float = 0.05
-    w_mmd: float = 0.10
-    w_specgrad: float = 0.15             # spectral gradient loss weight
+    w_bal: float = 0.01                  # MoE balance loss
+    w_rank: float = 1e-4                 # Tucker nuclear norm
+    w_deg: float = 0.05                  # degradation regression
+    w_mmd: float = 0.10                  # MMD domain alignment
+    w_specgrad: float = 0.15             # spectral gradient loss
 
     # --- ablation switches (all modules on by default) ----------------------
     use_equivariant: bool = True
@@ -83,11 +77,12 @@ class Config:
     use_backprojection: bool = True
     use_physics: bool = True
     use_degradation_code: bool = True
+    use_disagreement: bool = True        # NEW v3: spectral disagreement field
 
     # --- bookkeeping ---------------------------------------------------------
     out_dir: str = "./daetf_out"
-    val_every: int = 500
-    log_every: int = 100
+    val_every: int = 2000
+    log_every: int = 200
     val_scenes: int = 8
 
     def __post_init__(self) -> None:

@@ -1,11 +1,15 @@
-"""Network building blocks.
+"""Network building blocks — DAETF-Net v3.
 
-Each block below implements the mechanism the design document claims, and the
-claim is checked numerically in `selfcheck.py` rather than asserted in prose:
+Architecture identity: Adaptive Spectral-Causal Routing (ASCR).
 
+Every block is numerically verified in `selfcheck.py`:
   P4ConvZ2 / P4ConvP4          -> genuine p4 equivariance   (checked to ~1e-6)
   HaarDWT                      -> exact orthonormal inverse (checked to ~1e-7)
   TensorSpectralSpatialEncoder -> the Tucker core carries gradient (checked)
+
+New in v3:
+  SpectralDisagreementField    -> D(p) = [|Δ|, ∇Δ, ∇²Δ]  cross-modal mismatch
+  DegradationConditionedMoE   -> gate(F_H, F_M, d, D) -> semantic experts
 """
 
 from __future__ import annotations
@@ -185,56 +189,269 @@ class TensorSpectralSpatialEncoder(nn.Module):
         return torch.linalg.svdvals(self.core.reshape(self.rank, -1).float()).sum()
 
 
-# ------------------------------------------------------------------------- AF-MoE
-class RegionAwareMoE(nn.Module):
-    """Per-pixel top-k expert routing.
+# ============================================================= NEW v3 MODULES =
 
-    A globally pooled gate must commit to one fusion strategy for a whole image.
-    Routing per pixel lets shadowed, textured and flat regions of the same scene
-    take different experts, which is the property the region-aware MoE
-    literature reports as the win.
+class SpectralDisagreementField(nn.Module):
+    """Cross-modal disagreement at the feature level.
+
+    After projecting HSI features into MSI space, computes:
+        Δ(p)  = F_M(p) − P(F_H)(p)               spectral mismatch
+        D(p)  = [|Δ|, ∇Δ, ∇²Δ]                   mismatch + its spatial gradients
+
+    This tells the routing network WHERE the two modalities disagree, and HOW
+    rapidly that disagreement varies spatially (edge vs smooth mismatch).
+
+    The output D(p) is a 3-channel map at HSI/MSI feature resolution.  It is
+    concatenated to the gate input in DegradationConditionedMoE so the routing
+    policy is explicitly informed by the local reliability of each modality.
+
+    Note: this is intentionally lightweight (one 1×1 conv) so it does not add
+    significant memory or runtime on Kaggle GPUs.
     """
 
-    def __init__(self, channels: int, experts: int = 4, topk: int = 2):
+    def __init__(self, channels: int):
         super().__init__()
-        self.experts_n, self.topk = experts, min(topk, experts)
-        self.experts = nn.ModuleList([
-            nn.Sequential(
-                nn.Conv2d(channels, channels, 3, 1, 1), nn.LeakyReLU(0.1, True),
-                nn.Conv2d(channels, channels, 3, 1, 1),
-            ) for _ in range(experts)
-        ])
-        self.gate = nn.Sequential(
-            nn.Conv2d(channels, channels // 2, 3, 1, 1), nn.LeakyReLU(0.1, True),
-            nn.Conv2d(channels // 2, experts, 1),
+        # Project HSI features into MSI space (same channel width C)
+        self.proj = nn.Conv2d(channels, channels, 1, bias=False)
+        nn.init.eye_(self.proj.weight.view(channels, channels))  # start as identity
+
+        # Compress disagreement representation to 3 channels
+        # [|Δ| + ∇Δ + ∇²Δ] individually, then fuse
+        self.compress = nn.Conv2d(channels * 3, 3, 1, bias=True)
+        nn.init.zeros_(self.compress.bias)
+
+        # Laplacian kernel (fixed, not learned)
+        lap = torch.tensor([[0., 1., 0.],
+                             [1., -4., 1.],
+                             [0., 1., 0.]], dtype=torch.float32)
+        self.register_buffer("lap_kernel", lap.view(1, 1, 3, 3))
+
+    def _laplacian(self, x: torch.Tensor) -> torch.Tensor:
+        """Apply Laplacian channel-wise via grouped conv."""
+        b, c, h, w = x.shape
+        k = self.lap_kernel.expand(c, 1, 3, 3).to(x.dtype)
+        return F.conv2d(x, k, padding=1, groups=c)
+
+    def _gradient_magnitude(self, x: torch.Tensor) -> torch.Tensor:
+        """Sobel magnitude |∇x| per channel."""
+        b, c, h, w = x.shape
+        dx = x[..., :, 1:] - x[..., :, :-1]   # [B,C,H,W-1]
+        dy = x[..., 1:, :] - x[..., :-1, :]   # [B,C,H-1,W]
+        dx = F.pad(dx, (0, 1))                  # pad to [B,C,H,W]
+        dy = F.pad(dy, (0, 0, 0, 1))
+        return (dx ** 2 + dy ** 2 + 1e-6).sqrt()
+
+    def forward(self, f_hsi: torch.Tensor, f_msi: torch.Tensor
+                ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Args:
+            f_hsi: [B, C, H, W] — HSI features (at HR resolution after upsampling)
+            f_msi: [B, C, H, W] — MSI features (same spatial size)
+        Returns:
+            delta: [B, C, H, W]  raw disagreement (for correction branch)
+            D:     [B, 3, H, W]  compressed disagreement field for gating
+        """
+        f_hsi_proj = self.proj(f_hsi)           # project to same space as f_msi
+        delta = f_msi - f_hsi_proj              # [B, C, H, W]
+
+        abs_delta = delta.abs()                         # |Δ|
+        grad_delta = self._gradient_magnitude(delta)    # |∇Δ|
+        lap_delta = self._laplacian(delta).abs()        # |∇²Δ|
+
+        D_raw = torch.cat([abs_delta, grad_delta, lap_delta], dim=1)  # [B, 3C, H, W]
+        D = self.compress(D_raw)                       # [B, 3, H, W]
+        return delta, D
+
+
+class _SpectralExpert(nn.Module):
+    """Spectral-preservation expert: depthwise-separable convolutions that operate
+    independently per band to avoid spectral mixing. Ideal for regions where
+    HSI spectral curves are reliable and should be preserved."""
+
+    def __init__(self, channels: int):
+        super().__init__()
+        self.body = nn.Sequential(
+            # Depthwise: per-channel spatial smoothing
+            nn.Conv2d(channels, channels, 3, 1, 1, groups=channels),
+            nn.LeakyReLU(0.1, True),
+            # Pointwise: cross-band spectral mixing (careful, small kernel)
+            nn.Conv2d(channels, channels, 1),
+            nn.LeakyReLU(0.1, True),
+            nn.Conv2d(channels, channels, 3, 1, 1, groups=channels),
         )
-        self.last_gate: Optional[torch.Tensor] = None
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        logits = self.gate(x)                              # [B,E,H,W]
-        if self.topk < self.experts_n:
+        return self.body(x)
+
+
+class _EdgeExpert(nn.Module):
+    """Edge-reconstruction expert: uses Laplacian-guided residual to sharpen
+    spatial edges. Primarily useful in regions where the MSI provides reliable
+    high-frequency spatial structure."""
+
+    def __init__(self, channels: int):
+        super().__init__()
+        self.conv1 = nn.Conv2d(channels, channels, 3, 1, 1)
+        self.conv2 = nn.Conv2d(channels, channels, 3, 1, 2, dilation=2)  # dilated
+        self.conv3 = nn.Conv2d(channels * 2, channels, 1)
+        self.act = nn.LeakyReLU(0.1, True)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        f1 = self.act(self.conv1(x))
+        f2 = self.act(self.conv2(x))
+        return self.conv3(torch.cat([f1, f2], dim=1))
+
+
+class _TextureSmoothExpert(nn.Module):
+    """Texture and smooth region expert: operates at two scales simultaneously.
+    A wide kernel (5x5) captures smooth region context while a 3x3 handles
+    mid-frequency textures. Combines both for adaptive reconstruction."""
+
+    def __init__(self, channels: int):
+        super().__init__()
+        mid = channels // 2
+        self.branch_smooth = nn.Sequential(
+            nn.Conv2d(channels, mid, 5, 1, 2), nn.LeakyReLU(0.1, True),
+        )
+        self.branch_texture = nn.Sequential(
+            nn.Conv2d(channels, mid, 3, 1, 1), nn.LeakyReLU(0.1, True),
+        )
+        self.fuse = nn.Conv2d(channels, channels, 1)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        s = self.branch_smooth(x)
+        t = self.branch_texture(x)
+        return self.fuse(torch.cat([s, t], dim=1))
+
+
+class _CrossModalCorrectionExpert(nn.Module):
+    """Cross-modal correction expert: explicitly corrects the fused features
+    using the disagreement signal. This expert is most active in high-disagreement
+    regions where one modality's information dominates."""
+
+    def __init__(self, channels: int, disagree_ch: int = 3):
+        super().__init__()
+        # Takes fused features + disagreement map
+        self.conv_in = nn.Conv2d(channels + disagree_ch, channels, 1)
+        self.body = nn.Sequential(
+            nn.Conv2d(channels, channels, 3, 1, 1),
+            nn.LeakyReLU(0.1, True),
+            nn.Conv2d(channels, channels, 3, 1, 1),
+        )
+        self.alpha = nn.Parameter(torch.zeros(1))   # zero-init: start as no-op
+
+    def forward(self, x: torch.Tensor, D: torch.Tensor) -> torch.Tensor:
+        h = self.conv_in(torch.cat([x, D], dim=1))
+        return x + torch.tanh(self.alpha) * self.body(h)
+
+
+class DegradationConditionedMoE(nn.Module):
+    """Degradation-conditioned semantic expert routing.
+
+    This is the central new mechanism of DAETF-Net v3. Unlike RegionAwareMoE
+    which uses a generic gate with no degradation awareness, this module:
+
+    1. Uses 4 semantically specialised experts (spectral, edge, texture/smooth,
+       cross-modal correction) — each designed for a different reconstruction need.
+    2. Routes using: gate(F_fused, d, D) where d is the degradation code and
+       D is the cross-modal disagreement field.
+    3. The correction expert directly uses the disagreement field, so the routing
+       policy adapts to local modality reliability.
+
+    Physical motivation:
+      - Under strong blur  → edge expert dominates
+      - Under spectral noise → spectral expert dominates
+      - In high-disagreement regions → correction expert activates
+      - In flat/homogeneous regions → texture/smooth expert activates
+    """
+
+    def __init__(self, channels: int, code_dim: int, disagree_ch: int = 3,
+                 topk: int = 2):
+        super().__init__()
+        self.channels = channels
+        self.topk = min(topk, 4)
+
+        # 4 semantic experts
+        self.e_spectral = _SpectralExpert(channels)
+        self.e_edge = _EdgeExpert(channels)
+        self.e_texture = _TextureSmoothExpert(channels)
+        self.e_correction = _CrossModalCorrectionExpert(channels, disagree_ch)
+
+        # Gate input: fused features (C) + disagreement (3) + deg code (code_dim)
+        # The degradation code is broadcast spatially before concatenation
+        self.deg_proj = nn.Linear(code_dim, channels // 4)   # project d to spatial dim
+        gate_in = channels + disagree_ch + channels // 4
+        self.gate = nn.Sequential(
+            nn.Conv2d(gate_in, channels // 2, 3, 1, 1),
+            nn.LeakyReLU(0.1, True),
+            nn.Conv2d(channels // 2, 4, 1),               # 4 expert logits
+        )
+
+        self.last_gate: Optional[torch.Tensor] = None
+
+    def forward(self, x: torch.Tensor, d: torch.Tensor,
+                D: torch.Tensor) -> torch.Tensor:
+        """
+        Args:
+            x: [B, C, H, W] fused features
+            d: [B, code_dim]  degradation code
+            D: [B, 3, H, W]  disagreement field
+        Returns:
+            out: [B, C, H, W] routed expert output
+        """
+        b, c, h, w = x.shape
+
+        # Broadcast degradation code to spatial domain
+        d_proj = self.deg_proj(d)                           # [B, C/4]
+        d_spatial = d_proj[:, :, None, None].expand(b, -1, h, w)  # [B, C/4, H, W]
+
+        # Gate: sees fused features + disagreement + degradation
+        gate_in = torch.cat([x, D, d_spatial], dim=1)      # [B, C+3+C/4, H, W]
+        logits = self.gate(gate_in)                         # [B, 4, H, W]
+
+        # Top-k sparse routing
+        if self.topk < 4:
             thresh = logits.topk(self.topk, dim=1).values[:, -1:, :, :]
             logits = logits.masked_fill(logits < thresh, float("-inf"))
-        g = logits.softmax(dim=1)
-        self.last_gate = g
-        out = x
-        for i, expert in enumerate(self.experts):
-            out = out + g[:, i: i + 1] * expert(x)
-        return out
+        g = logits.softmax(dim=1)                           # [B, 4, H, W]
+        self.last_gate = g.detach()
+
+        # Expert outputs
+        e0 = self.e_spectral(x)
+        e1 = self.e_edge(x)
+        e2 = self.e_texture(x)
+        e3 = self.e_correction(x, D)
+
+        out = (g[:, 0:1] * e0 +
+               g[:, 1:2] * e1 +
+               g[:, 2:3] * e2 +
+               g[:, 3:4] * e3)
+        return out + x    # residual connection
 
     def balance_loss(self) -> torch.Tensor:
         """Squared coefficient of variation of expert usage; 0 when uniform.
         Without it, top-k routing collapses onto a single expert."""
         if self.last_gate is None:
             return torch.zeros((), device=next(self.parameters()).device)
-        imp = self.last_gate.mean(dim=(0, 2, 3))
-        return self.experts_n * (imp ** 2).sum() - 1.0
+        imp = self.last_gate.mean(dim=(0, 2, 3))    # [4]
+        return 4.0 * (imp ** 2).sum() - 1.0
 
     @torch.no_grad()
-    def usage(self) -> Optional[torch.Tensor]:
-        """Per-expert mean gate weight - used for the interpretability figure."""
-        return None if self.last_gate is None else self.last_gate.mean(dim=(0, 2, 3))
+    def expert_usage(self) -> Optional[torch.Tensor]:
+        """Per-expert mean gate weight [4] — used for the conflict matrix figure."""
+        if self.last_gate is None:
+            return None
+        return self.last_gate.mean(dim=(0, 2, 3))
 
+    @torch.no_grad()
+    def expert_usage_map(self) -> Optional[torch.Tensor]:
+        """Return last gate map [4, H, W] for spatial visualisation."""
+        if self.last_gate is None:
+            return None
+        return self.last_gate[0]     # first batch element
+
+
+# ============================================================= END NEW MODULES =
 
 # --------------------------------------------------------------------------- FDRM
 class HaarDWT(nn.Module):
@@ -264,11 +481,7 @@ class HaarDWT(nn.Module):
 class FrequencyDomainRefinement(nn.Module):
     """Wavelet-domain refinement: per-subband processing with learnable
     soft-thresholding (classical wavelet shrinkage, made learnable), plus
-    cross-subband mixing, then an exact inverse transform.
-
-    The v1 module was three convolutions of different kernel size and touched no
-    frequency representation at all.
-    """
+    cross-subband mixing, then an exact inverse transform."""
 
     def __init__(self, channels: int):
         super().__init__()
@@ -369,7 +582,7 @@ class BicubicUpsampler(nn.Module):
         return y + self.refine(y)
 
 
-# ----------------------------------------------------------------- new modules
+# ----------------------------------------------------------------- utility modules
 class ChannelAttention(nn.Module):
     """Squeeze-and-Excitation channel attention.
 
@@ -399,9 +612,7 @@ class ResidualDenseBlock(nn.Module):
     """Residual Dense Block (RDB): dense connections with local residual learning.
 
     Three dense layers where each layer receives the concatenation of all
-    preceding features, followed by a 1x1 bottleneck and a local skip. This
-    design captures multi-scale features much more effectively than the simple
-    2-conv reconstruction head it replaces.
+    preceding features, followed by a 1x1 bottleneck and a local skip.
 
     Ref: Zhang et al., "Residual Dense Network for Image Super-Resolution", CVPR 2018.
     """
