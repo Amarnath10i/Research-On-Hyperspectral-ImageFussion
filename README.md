@@ -1,33 +1,33 @@
 # Hyperspectral-Multispectral Image Fusion
 
-Two things live here: a **benchmark** of ten published HSI-MSI fusion methods,
-and **DAETF-Net**, a new method built to fix the failure that benchmark exposed.
+A benchmark of ten published HSI-MSI fusion methods, and **four new
+architectures** attacking the failure that benchmark exposed by four genuinely
+different mechanisms.
 
 ```
-existing/            the ten benchmarked methods
-  notebooks/         one notebook per method per dataset, named for the method
-  papers/            paper PDFs (untracked) + INDEX.md mapping paper -> notebook
-  results/           BENCHMARK.md - what was measured, and why it is not comparable
-proposal1/           DAETF-Net
-  daetf/             the implementation (installable package)
-  notebooks/         DAETF_Net_Kaggle_GPU.ipynb - self-contained, runs on Kaggle
-  docs/              ARCHITECTURE.md, GAP_ANALYSIS.md
-  results/           run outputs
+common/hsifusion/    shared protocol, data, metrics, engine, classical baselines
+existing/            the ten benchmarked methods (notebooks, papers, results)
+proposal1/  DAETF-Net        equivariant tensor + MoE, physics in the LOSS
+proposal2/  UnfoldFusion     unrolled variational solver, physics in the ARCHITECTURE
+proposal3/  ContinuumFusion  implicit representation, ARBITRARY SCALE FACTOR
+proposal4/  ZeroFusion       self-supervised per-scene, NO TRAINING SET
 literature_survey/   Crossref -> Unpaywall -> annotated Excel pipeline
-tools/               notebook generator, Kaggle push/repair/re-run automation
+tools/               notebook generators, Kaggle push/repair/re-run automation
 ```
+
+Each `proposalN/` contains `<package>/`, `notebooks/`, `docs/`, `results/`.
 
 ---
 
-## The finding that drives this work
+## The finding that drives all of this
 
-Re-running ten fusion methods across CAVE and Harvard shows that the usual
-headline metric points the wrong way.
+Re-running ten fusion methods across CAVE and Harvard shows the usual headline
+metric points the wrong way.
 
 Five of nine methods score **higher PSNR** on the harder dataset — per-image
 maximum normalisation inflates it on dark scenes. What actually breaks is
-**spectral fidelity**: seven of nine lose 4-57 degrees of SAM, and ERGAS rises by
-up to two orders of magnitude.
+**spectral fidelity**: seven of nine lose 4–57 degrees of SAM, and ERGAS rises
+by up to two orders of magnitude.
 
 | Method | SAM CAVE → Harvard | ERGAS CAVE → Harvard |
 |---|---|---|
@@ -37,143 +37,124 @@ up to two orders of magnitude.
 | PSRT | 7.55 → 15.87 | 0.39 → 1.81 |
 | DHIF-Net | 2.16 → 2.62 | 0.51 → 0.93 |
 
-Full table and the protocol caveats: [`existing/results/BENCHMARK.md`](existing/results/BENCHMARK.md).
+Full table and caveats: [`existing/results/BENCHMARK.md`](existing/results/BENCHMARK.md).
 
-**Caveat, stated up front:** those ten notebooks each used their own protocol —
-scale factors of ×4, ×8, ×16 and ×32, different normalisations, mismatched ERGAS
-scale arguments, and one method evaluated on a different dataset and task. The
-numbers are real but **not comparable across methods**, and no cross-method
-ranking here should be treated as settled until every baseline is re-run under
-one protocol.
+**Stated up front:** those ten notebooks each used their own protocol — scale
+factors of ×4, ×8, ×16 and ×32, different normalisations, and one method on a
+different dataset and task. The numbers are real but **not comparable across
+methods**. No cross-method ranking here is settled until every baseline is
+re-run under one protocol.
 
 ---
 
-## DAETF-Net
+## The four proposals
 
-Targets spectral fidelity under domain shift rather than another decimal of
-in-domain PSNR.
+All target spectral fidelity under domain shift, by different mechanisms.
 
-| Component | Mechanism | Verified by |
+| | Mechanism | Owns which gap | Params |
+|---|---|---|---|
+| **P1** [DAETF-Net](proposal1/docs/ARCHITECTURE.md) | p4-equivariant CNN + Tucker + per-pixel MoE + wavelet; physics in the loss | geometric robustness, interpretable routing | 2.06 M |
+| **P2** [UnfoldFusion](proposal2/docs/ARCHITECTURE.md) | half-quadratic splitting unrolled; CG data step in a low-rank spectral subspace | interpretability; smallest overfitting surface | 0.09 M |
+| **P3** [ContinuumFusion](proposal3/docs/ARCHITECTURE.md) | continuous field `f(x,y,λ)`, decoded per queried coordinate | **arbitrary scale factor** from one model | ~0.1 M |
+| **P4** [ZeroFusion](proposal4/docs/ARCHITECTURE.md) | per-scene unmixing fitted from the observations alone | **immune to domain shift by construction** | 0.03 M |
+
+**P4 is the control arm.** It never trains on a source domain, so it cannot
+suffer domain shift. If P1–P3 cannot beat it cross-domain, what they learned on
+the source was worth less than nothing on the target — and per-scene
+optimisation is simply the better method. Few fusion papers include this test.
+
+### Every claim is checked numerically, not asserted
+
+| Claim | Check | Result |
 |---|---|---|
-| EFE | p4 group-equivariant convolutions | `max|rot90(f(x)) − f(rot90(x))| = 7.6e-06` |
-| TSSE | Tucker contraction against a learned core | gradient reaches the core |
-| AF-MoE | per-pixel top-k routing + load balancing | routing maps |
-| FDRM | Haar DWT, learnable shrinkage, exact IDWT | `max|IDWT(DWT(x)) − x| = 2.4e-07` |
-| DAE | degradation code conditioning via FiLM | auxiliary regression head |
-| BPU | back-projection upsampler replacing bicubic | ablation |
+| P1 EFE is p4-equivariant | `‖rot90(f(x)) − f(rot90(x))‖` | 7.6e-06 |
+| P1 wavelet is invertible | `‖IDWT(DWT(x)) − x‖` | 2.4e-07 |
+| P1 Tucker core is used | gradient reaches the core | pass |
+| P2 `Bᵀ` is the true adjoint | `⟨Bx,y⟩ = ⟨x,Bᵀy⟩` | 1.0e-06 |
+| P2 CG solves the data step | residual over 16 steps | 1.3e+02 → 1.4e-05 |
+| P3 scale is a query parameter | ×2/×3/×4/×5/×8, one model | pass |
+| P4 uses no ground truth | loss term audit | pass |
+| SRF recovered from data | vs known synthetic response | 2.3e-08 |
 
-**The central idea.** The loss carries two physics terms, `‖Down(ŷ) − LR‖` and
-`‖SRF(ŷ) − MSI‖`, that need no ground truth. They hold on any scene from any
-sensor, so the objective that trains the model can also **adapt it at test time
-on an unlabelled dataset**. The SRF is recovered from the data by least squares
-rather than hand-picked (recovery error 2.3e-08 on synthetic data with a known
-response).
-
-2.06 M parameters. Fits a single 16 GB GPU.
-
-> **Accelerator: use T4, not P100.** PyTorch >= 2.6 dropped Pascal, so the
-> P100 (`sm_60`) fails on every CUDA op with "no kernel image is available".
-> The notebook detects this in its first cell and says so.
-
-Design and honest limitations: [`proposal1/docs/ARCHITECTURE.md`](proposal1/docs/ARCHITECTURE.md).
+Testing caught bugs that would have invalidated results while still training
+happily — a padding mismatch that broke P2's adjoint and would have reduced the
+solver to a stack of denoisers, and a forward-pass `clamp` that froze P4's
+optimisation entirely. Both are documented in the respective architecture docs.
 
 ---
 
 ## Running it
 
-### On Kaggle (intended path)
+### On Kaggle
 
-1. Upload [`proposal1/notebooks/DAETF_Net_Kaggle_GPU.ipynb`](proposal1/notebooks/DAETF_Net_Kaggle_GPU.ipynb)
+1. Upload the proposal's notebook from `proposalN/notebooks/`
 2. Attach the CAVE and Harvard datasets
-3. **Settings → Accelerator → "GPU T4 x2"** — this must be set in the Kaggle UI.
-   The push API accepts an `accelerator` field but Kaggle was observed to ignore
-   it and assign a P100, which cannot run current PyTorch (see below).
-4. Run all — the notebook is self-contained (no clone, no internet needed)
+3. **Settings → Accelerator → "GPU T4 x2"** — set this in the UI. PyTorch ≥ 2.6
+   ships no kernels for the P100's `sm_60`, so a P100 fails on the first CUDA op.
+   The push API accepts an `accelerator` field but Kaggle ignores it and will
+   silently reset your choice, so do not push to a kernel between setting it and
+   running.
+4. Set `QUICK = True` first (a few minutes) to validate, then `False`
 
-Set `QUICK = True` in the config cell to validate the whole pipeline in a few
-minutes before committing to a full run.
+Notebooks are self-contained — no clone, no internet.
 
 ### Locally
 
 ```bash
 pip install -r requirements.txt
-cd proposal1
+export PYTHONPATH=common:proposal1:proposal2:proposal3:proposal4
 
-python -c "import daetf; daetf.selfcheck.run_all()"      # verify the mechanisms
+python -c "import daetf; daetf.selfcheck.run_all()"     # verify P1's mechanisms
 
 python - <<'PY'
-import daetf
-cfg = daetf.Config().resolve()          # discovers datasets, infers band counts
-model, hist = daetf.train(cfg)
-daetf.evaluate_dataset(model, cfg.source_root, cfg)
+import hsifusion, unfoldfusion
+cfg = unfoldfusion.Config().resolve()      # discovers datasets, infers bands
+model, hist = unfoldfusion.train(cfg)
+hsifusion.evaluate_dataset(model, cfg.source_root, cfg)
 PY
 ```
 
-Datasets are found automatically under `/kaggle/input/*`, `./data/*` or the
-current directory. Override with `DAETF_DATA_ROOTS` (os.pathsep separated) or
-`Config(source_root=...)`. Nothing is hardcoded — band counts are read from the
-files.
+Datasets are discovered under `/kaggle/input`, `./data` or the cwd, at any
+nesting depth. Override with `DAETF_DATA_ROOTS` or `Config(source_root=...)`.
+Nothing is hardcoded — band counts are read from the files.
 
-### Automating Kaggle runs
-
-```bash
-python tools/kaggle_autorun.py \
-  --notebook proposal1/notebooks/DAETF_Net_Kaggle_GPU.ipynb \
-  --dataset nikeshreddypatlolla/cave-dataset-2 \
-  --dataset nikeshreddypatlolla/harvard-hsi-2
-```
-
-Pushes, polls, and on failure pulls the log, matches it to a repair rule
-(missing module, CUDA OOM, fp16 overflow, DataLoader worker crash, dataset not
-found, run-time limit), patches the notebook and re-runs. Every attempt is
-archived for auditing.
-
-Credentials come from `KAGGLE_USERNAME`/`KAGGLE_KEY` or `~/.kaggle/kaggle.json`
-— never from a file in this repo.
-
-### Regenerating the notebook
+### Regenerating notebooks
 
 ```bash
-python tools/build_notebook.py
+python tools/build_notebook.py                  # proposal 1
+python tools/build_proposal_notebook.py         # proposals 2-4
 ```
 
-The notebook is generated from `proposal1/daetf/`, so edit the package and
-regenerate rather than editing cells.
+Edit the packages and regenerate; never edit notebook cells directly.
 
 ---
 
-## Reproducibility
+## Why one shared library
 
-- Every architectural claim has a numerical self-check that runs in seconds
-  before training starts (`daetf/selfcheck.py`)
-- One metric implementation for all methods and datasets, fixed `data_range=1.0`
-  (`daetf/metrics.py`)
-- Per-scene results are retained, so comparisons are paired: Wilcoxon
-  signed-rank + Cohen's *d*, bootstrap 95% CIs (`daetf/experiments.py`)
-- Ablations use matched control arms, not deletions, so they measure mechanisms
-  rather than lost capacity
-- Config, seed, environment and cost (params/GFLOPs/latency/peak memory) are
-  written into every results file
+`common/hsifusion` holds the protocol, data pipeline, metric implementation,
+degradation model, classical baselines and a model-agnostic engine. Any model
+following `forward(lr_hsi, msi) -> {"out": tensor}` trains and scores
+identically.
 
----
+`BaseConfig` carries the protocol fields; each proposal subclasses it and adds
+only its architecture. So a difference between two proposals is attributable to
+the architecture — not to one of them evaluating at a different scale factor.
+That is precisely how the ten published baselines became incomparable, and the
+structure exists to stop it happening again.
 
-## Literature survey
-
-```bash
-python literature_survey/lit_search.py       # Crossref harvest -> lit_raw.json
-python literature_survey/check_oa.py         # Unpaywall OA check -> lit_candidates.json
-python literature_survey/lit_multimodal.py   # HSI+LiDAR track
-python literature_survey/build_lit_excel.py  # annotated 4-sheet workbook
-```
-
-Filters to six high-impact IEEE journals, verifies open-access status per DOI,
-and annotates ~43 papers with method family, core mechanism and relevance.
-Requires `openpyxl`.
+Every proposal is also scored against the same three classical baselines
+(bicubic, GSA, a coupled subspace estimator) which need no checkpoints and so
+run through the identical pipeline. They are the only strictly comparable rows
+available today, and the floor any learned method must clear.
 
 ---
 
 ## Status
 
-The implementation, evaluation harness and automation are done and tested. The
-full training run and the like-for-like baseline re-runs are not — until those
-land, this repository makes no claim about beating the state of the art.
+Implementations, evaluation harness, and automation are complete and tested.
+
+**No results on real CAVE or Harvard data exist yet.** Every number in this
+repository from the four proposals comes from a synthetic test harness used to
+verify correctness. Until the training runs complete and the ten baselines are
+re-run under one protocol, this repository makes **no claim** about beating the
+state of the art.
