@@ -151,9 +151,58 @@ def run_all(device: str = "cpu") -> bool:
     ok &= check_core_used()
     ok &= check_observation_model()
     ok &= check_tta_isolation(device)
+
+    # v4: the range/null decomposition. These verify the central claim - that
+    # D(Y_hat) = X is an algebraic identity rather than something the loss
+    # negotiates - before any training time is spent.
+    from . import nullspace as _ns
+    ok &= _ns.check_adjoint() < 1e-5
+    ok &= _ns.check_consistency() < 1e-3
+    ok &= _ns.check_null_annihilation() < 1e-3
+    ok &= _ns.check_idempotent() < 1e-3
+    ok &= check_network_consistency(device)
+
     smoke_test(device)
     print(f"\n[selfcheck] {'ALL PASS' if ok else 'FAILURES PRESENT'}")
     return bool(ok)
+
+
+def check_network_consistency(device: str = "cpu", tol: float = 1e-2) -> bool:
+    """D(Y_hat) = X through the whole assembled network, then again after the
+    reconstruction head is deliberately wrecked.
+
+    The second half is the point. A physics *loss* degrades when the network
+    misbehaves; an identity cannot. If this ever starts failing under the
+    stress case, the decomposition has been bypassed somewhere.
+    """
+    from .config import Config
+    from .model import DAETFNet
+    from .nullspace import RangeNullProjector
+
+    torch.manual_seed(0)
+    cfg = Config(bands=31, msi_bands=3, scale=4, width=32, equi_width=8,
+                 rank=8, code_dim=64)
+    if not cfg.use_nullspace:
+        print("[check] network consistency SKIPPED (use_nullspace=False)")
+        return True
+    m = DAETFNet(cfg).to(device).eval()
+    lr = torch.rand(2, 31, 16, 16, device=device)
+    msi = torch.rand(2, 3, 64, 64, device=device)
+    P = RangeNullProjector(cfg.scale, ksize=cfg.blur_ksize, sigma=cfg.eval_sigma,
+                           cg_steps=cfg.cg_steps, ridge=cfg.ridge).to(device)
+    with torch.no_grad():
+        out = m(lr, msi)
+        e_norm = ((P.D(out["out"], out["kernel"]) - lr).abs().max()
+                  / lr.abs().max().clamp_min(1e-12)).item()
+        for p in m.recon.parameters():
+            p.mul_(50.0)
+        out2 = m(lr, msi)
+        e_stress = ((P.D(out2["out"], out2["kernel"]) - lr).abs().max()
+                    / lr.abs().max().clamp_min(1e-12)).item()
+    ok = e_norm < tol and e_stress < tol
+    print(f"[check] network D(Y)=X: {e_norm:.2e} normal, {e_stress:.2e} with the "
+          f"recon head x50 ({'PASS' if ok else 'FAIL'})")
+    return ok
 
 
 if __name__ == "__main__":

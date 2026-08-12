@@ -18,9 +18,28 @@ PKG = os.path.join(REPO, "proposal1", "daetf")
 OUT = os.path.join(REPO, "proposal1", "notebooks", "DAETF_Net_Kaggle_GPU.ipynb")
 
 # order matters only for readability; Python resolves imports at import time
-MODULES = ["io_utils", "config", "degrade", "metrics", "modules", "model",
-           "losses", "data", "engine", "baselines", "experiments",
+# Every .py in the package must appear here: a module that is imported but not
+# written out fails on Kaggle with an ImportError only at run time. The check
+# below turns that into a build-time error instead.
+MODULES = ["io_utils", "config", "degrade", "metrics", "nullspace", "modules",
+           "model", "losses", "data", "engine", "baselines", "experiments",
            "selfcheck", "__init__"]
+
+
+def _assert_modules_complete() -> None:
+    import glob
+    on_disk = {os.path.splitext(os.path.basename(p))[0]
+               for p in glob.glob(os.path.join(PKG, "*.py"))}
+    missing = on_disk - set(MODULES)
+    if missing:
+        raise SystemExit(
+            f"build_notebook: {sorted(missing)} exist in {PKG} but are not in "
+            f"MODULES, so the notebook would not write them and would fail at "
+            f"import time on Kaggle. Add them to MODULES.")
+    absent = set(MODULES) - on_disk
+    if absent:
+        raise SystemExit(f"build_notebook: MODULES lists {sorted(absent)} "
+                         f"which do not exist in {PKG}.")
 
 
 def _lines(text: str) -> list:
@@ -705,6 +724,7 @@ print('checkpoints:', os.listdir(cfg.out_dir))
 
 
 if __name__ == "__main__":
+    _assert_modules_complete()
     nb = build()
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:

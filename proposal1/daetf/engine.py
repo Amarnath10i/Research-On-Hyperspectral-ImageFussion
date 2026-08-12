@@ -294,6 +294,16 @@ def test_time_adapt(model: DAETFNet, lr: torch.Tensor, msi: torch.Tensor,
     """
     state = _clone_state(model) if restore else None
     model.train()
+    # Routing noise is a TRAINING-time exploration device: it exists so no
+    # expert is starved at initialisation. Leaving it on during adaptation
+    # makes TTA stochastic, so adapting the same scene twice gives different
+    # answers and the reported cross-domain numbers stop being reproducible.
+    # Suppressed here and restored afterwards.
+    noise_state = None
+    if getattr(model, "moe", None) is not None and hasattr(model.moe, "gate_noise"):
+        noise_state = (model.moe.gate_noise, model.moe.gate_floor)
+        model.moe.gate_noise = 0.0
+        model.moe.gate_floor = 0.0
     # v3: also adapt disagreement projection and new MoE gate
     params = [p for n, p in model.named_parameters()
               if any(k in n for k in ("deg", "film", "moe.gate", "moe.deg_proj",
@@ -308,6 +318,8 @@ def test_time_adapt(model: DAETFNet, lr: torch.Tensor, msi: torch.Tensor,
     model.eval()
     with torch.no_grad():
         pred = model(lr, msi)["out"].clamp(0, 1)
+    if noise_state is not None:
+        model.moe.gate_noise, model.moe.gate_floor = noise_state
     if state is not None:
         model.load_state_dict(state)
     return pred
