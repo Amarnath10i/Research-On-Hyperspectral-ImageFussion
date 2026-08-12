@@ -77,7 +77,15 @@ class Config:
     use_backprojection: bool = True
     use_physics: bool = True
     use_degradation_code: bool = True
-    use_disagreement: bool = True        # NEW v3: spectral disagreement field
+    use_disagreement: bool = True        # v3: spectral disagreement field
+    use_nullspace: bool = True           # v4: range/null decomposition
+
+    # --- range/null decomposition (v4) --------------------------------------
+    # Defaults measured in nullspace.py, not chosen by taste:
+    #   cg_steps 1/2/4/8/32 -> consistency 5.8e-1 / 2.0e-1 / 8.5e-3 / 6.2e-6 / 1.9e-6
+    #   ridge 0/1e-6/1e-4/1e-2 -> 1.9e-6 / 5.3e-5 / 5.1e-3 / 4.3e-1
+    cg_steps: int = 8                    # CG iterations for the pseudo-inverse
+    ridge: float = 1e-6                  # conditioning of (D D^T + ridge I)
 
     # --- bookkeeping ---------------------------------------------------------
     out_dir: str = "./daetf_out"

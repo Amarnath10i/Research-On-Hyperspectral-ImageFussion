@@ -201,6 +201,42 @@ class RangeNullProjector(nn.Module):
                 "range": range_part, "null": null_part}
 
 
+def kernel_from_params(params: torch.Tensor, ksize: int = 9,
+                       min_sigma: float = 0.3) -> torch.Tensor:
+    """Build a differentiable anisotropic Gaussian kernel from predicted
+    degradation parameters (sx, sy, sin2t, cos2t, ...).
+
+    This is what makes the degradation encoder load-bearing rather than
+    decorative. D_pinv depends on D, so if the estimated blur is wrong the
+    range component is wrong, and the consistency identity - while still exact
+    with respect to the *estimated* operator - no longer matches the true
+    sensor. Estimating the kernel and using it here couples the two: gradients
+    from the reconstruction reach the kernel predictor.
+
+    The doubled angle (sin 2t, cos 2t) is deliberate. An ellipse is invariant
+    under a half turn, so parameterising t directly makes t and t+pi distinct
+    predictions of the same kernel and leaves a discontinuity for the network
+    to trip over.
+    """
+    sx = F.softplus(params[:, 0]) + min_sigma
+    sy = F.softplus(params[:, 1]) + min_sigma
+    s2, c2 = params[:, 2], params[:, 3]
+    norm = torch.sqrt(s2 ** 2 + c2 ** 2).clamp_min(1e-6)
+    theta = 0.5 * torch.atan2(s2 / norm, c2 / norm)
+
+    ax = torch.arange(ksize, device=params.device, dtype=params.dtype)
+    ax = ax - (ksize - 1) / 2
+    yy, xx = torch.meshgrid(ax, ax, indexing="ij")
+    xx, yy = xx[None], yy[None]                      # [1,k,k]
+    cos_t = torch.cos(theta)[:, None, None]
+    sin_t = torch.sin(theta)[:, None, None]
+    xr = xx * cos_t + yy * sin_t
+    yr = -xx * sin_t + yy * cos_t
+    k = torch.exp(-0.5 * ((xr / sx[:, None, None]) ** 2
+                          + (yr / sy[:, None, None]) ** 2))
+    return k / k.sum(dim=(-2, -1), keepdim=True).clamp_min(1e-12)
+
+
 # ------------------------------------------------------------- verification
 @torch.no_grad()
 def check_adjoint(scale: int = 4, ksize: int = 9, size: int = 32,

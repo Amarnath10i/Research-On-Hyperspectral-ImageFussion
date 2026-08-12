@@ -40,6 +40,7 @@ from .modules import (BackProjectionUpsampler, BicubicUpsampler,
                       ResidualDenseBlock,
                       SpectralDisagreementField,
                       TensorSpectralSpatialEncoder)
+from .nullspace import RangeNullProjector, kernel_from_params
 
 
 class DAETFNet(nn.Module):
@@ -51,8 +52,20 @@ class DAETFNet(nn.Module):
         self.cfg = cfg
         c, b, m = cfg.width, cfg.bands, cfg.msi_bands
 
-        # --- upsampler ---
-        self.upsampler = (
+        # --- range/null decomposition (v4) --------------------------------
+        # When enabled this REPLACES the upsampler on the output path: the
+        # pseudo-inverse is already the data-optimal estimate, so a learned
+        # upsampler would only be re-deriving what the projector gives exactly.
+        self.projector = (
+            RangeNullProjector(cfg.scale, ksize=cfg.blur_ksize,
+                               sigma=cfg.eval_sigma, cg_steps=cfg.cg_steps,
+                               ridge=cfg.ridge)
+            if cfg.use_nullspace else None
+        )
+        # Only built when the projector is off, otherwise its weights would sit
+        # in the parameter count receiving no gradient - inflating the reported
+        # model size and making the ablation compare unequal budgets.
+        self.upsampler = None if cfg.use_nullspace else (
             BackProjectionUpsampler(b, cfg.scale, width=c, iters=cfg.bp_iters)
             if cfg.use_backprojection else BicubicUpsampler(b, cfg.scale, width=c)
         )
@@ -120,8 +133,16 @@ class DAETFNet(nn.Module):
         if not self.cfg.use_degradation_code:
             code = torch.zeros_like(code)
 
-        # Coarse upsampled estimate
-        y0 = self.upsampler(lr_hsi)
+        # Coarse estimate. With the decomposition on, this is the range
+        # component D_pinv(X) - the part of the solution the observation
+        # determines - computed in closed form rather than learned.
+        if self.projector is not None:
+            hw = (msi.shape[-2], msi.shape[-1])
+            kernel = kernel_from_params(deg_params, self.cfg.blur_ksize)
+            y0 = self.projector.pinv(lr_hsi, hw, kernel)
+        else:
+            kernel = None
+            y0 = self.upsampler(lr_hsi)
 
         # Feature extraction with degradation conditioning
         fh = self.film_h(self.efe(y0), code)      # [B, C, H, W]
@@ -142,15 +163,14 @@ class DAETFNet(nn.Module):
         if self.channel_attn is not None:
             z = self.channel_attn(z)
 
-        return y0, z, deg_params, code, D
+        return y0, z, deg_params, code, D, kernel
 
     def features(self, lr_hsi: torch.Tensor, msi: torch.Tensor) -> torch.Tensor:
         """Pooled bottleneck features for MMD domain-alignment term."""
-        _, z, _, _, _ = self._trunk(lr_hsi, msi)
-        return z.mean(dim=(2, 3))
+        return self._trunk(lr_hsi, msi)[1].mean(dim=(2, 3))
 
     def forward(self, lr_hsi: torch.Tensor, msi: torch.Tensor) -> Dict[str, torch.Tensor]:
-        y0, z, deg_params, code, D = self._trunk(lr_hsi, msi)
+        y0, z, deg_params, code, D, kernel = self._trunk(lr_hsi, msi)
 
         # Degradation-conditioned expert routing (v3 new)
         if self.moe is not None:
@@ -164,12 +184,27 @@ class DAETFNet(nn.Module):
 
         # Dense reconstruction head
         z = self.rdb(z)
-        out = y0 + self.recon(z)
+        residual = self.recon(z)
+
+        if self.projector is not None:
+            # Y_hat = D_pinv(X) + P_perp(F_theta(X, M)).
+            # Projecting the residual onto the null space of D means the
+            # network literally cannot alter the data-determined component:
+            # D(Y_hat) = X holds for whatever the network produces, so the
+            # observation is satisfied by construction rather than by penalty.
+            null_part = self.projector.project_null(residual, kernel)
+            out = y0 + null_part
+        else:
+            null_part = residual
+            out = y0 + residual
 
         result = {
             "out": out,
             "coarse": y0,
+            "range": y0,           # data-determined component
+            "null": null_part,     # learned component, invisible to D
             "deg": deg_params,
+            "kernel": kernel,
             "feat": z.mean(dim=(2, 3)),
         }
         # Attach disagreement field and expert usage for diagnostics/visualisation

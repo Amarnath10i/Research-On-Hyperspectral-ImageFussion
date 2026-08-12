@@ -388,6 +388,9 @@ class DegradationConditionedMoE(nn.Module):
         )
 
         self.last_gate: Optional[torch.Tensor] = None
+        self._gate: Optional[torch.Tensor] = None
+        self.gate_noise = 1.0      # logit noise during training (exploration)
+        self.gate_floor = 0.01     # uniform floor so no expert is ever starved
 
     def forward(self, x: torch.Tensor, d: torch.Tensor,
                 D: torch.Tensor) -> torch.Tensor:
@@ -409,11 +412,32 @@ class DegradationConditionedMoE(nn.Module):
         gate_in = torch.cat([x, D, d_spatial], dim=1)      # [B, C+3+C/4, H, W]
         logits = self.gate(gate_in)                         # [B, 4, H, W]
 
-        # Top-k sparse routing
+        # --- Top-k sparse routing -----------------------------------------
+        # Noisy top-k during training (Shazeer et al.): without exploration the
+        # ranking at initialisation is self-fulfilling - an expert outside the
+        # top-k has its output multiplied by exactly zero, receives no gradient,
+        # never improves, and so is never selected again. Measured across three
+        # seeds, 1-2 of the 4 semantic experts were dead from initialisation,
+        # which would have made the 'experts specialise' claim unsupportable.
+        if self.training and self.gate_noise > 0:
+            logits = logits + torch.randn_like(logits) * self.gate_noise
         if self.topk < 4:
             thresh = logits.topk(self.topk, dim=1).values[:, -1:, :, :]
             logits = logits.masked_fill(logits < thresh, float("-inf"))
         g = logits.softmax(dim=1)                           # [B, 4, H, W]
+
+        # Uniform floor so every expert keeps a gradient path even when not
+        # selected. eps is tiny, so routing stays effectively sparse; at
+        # evaluation it is dropped entirely and the routing is exactly top-k.
+        if self.training and self.gate_floor > 0:
+            g = (1.0 - self.gate_floor) * g + self.gate_floor / 4.0
+
+        # Keep BOTH: the differentiable gate for the balance loss, and a
+        # detached copy for diagnostics. Previously only the detached copy was
+        # stored, so balance_loss() had no path to the gating network and the
+        # load-balancing term contributed exactly zero gradient - the mechanism
+        # meant to prevent collapse was itself inert.
+        self._gate = g
         self.last_gate = g.detach()
 
         # Expert outputs
@@ -430,10 +454,14 @@ class DegradationConditionedMoE(nn.Module):
 
     def balance_loss(self) -> torch.Tensor:
         """Squared coefficient of variation of expert usage; 0 when uniform.
-        Without it, top-k routing collapses onto a single expert."""
-        if self.last_gate is None:
+
+        Computed from the DIFFERENTIABLE gate. Using the detached diagnostic
+        copy - as this did previously - makes the term a constant and the
+        anti-collapse mechanism a no-op.
+        """
+        if self._gate is None:
             return torch.zeros((), device=next(self.parameters()).device)
-        imp = self.last_gate.mean(dim=(0, 2, 3))    # [4]
+        imp = self._gate.mean(dim=(0, 2, 3))        # [4]
         return 4.0 * (imp ** 2).sum() - 1.0
 
     @torch.no_grad()
