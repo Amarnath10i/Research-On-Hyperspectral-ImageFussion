@@ -1,0 +1,197 @@
+[{"stream_name":"stderr","time":6.184482755,"data":"/usr/local/lib/python3.12/dist-packages/nbformat/__init__.py:96: MissingIDFieldWarning: Cell is missing an id field, this will become a hard error in future nbformat versions. You may want to use `normalize()` on your notebooks before validations (available since nbformat 5.1.4). Previous versions of nbformat are fixing this issue transparently, and will stop doing so in the future.\n"}
+,{"stream_name":"stderr","time":6.185149635,"data":"  validate(nb)\n"}
+,{"stream_name":"stderr","time":7.048459403,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.048507146,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.048512972,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.048517015,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":7.639367807,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.63942337,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.639432596,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.639437552,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":13.580595965,"data":"python   3.12.13\n"}
+,{"stream_name":"stdout","time":13.580651944,"data":"torch    2.10.0+cu128\n"}
+,{"stream_name":"stdout","time":13.580655842,"data":"numpy    2.0.2\n"}
+,{"stream_name":"stdout","time":13.580658312,"data":"cuda     True\n"}
+,{"stream_name":"stdout","time":13.580660542,"data":"gpu      Tesla T4 14.6 GB sm_75\n"}
+,{"stream_name":"stdout","time":13.580662894,"data":"built    sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120\n"}
+,{"stream_name":"stdout","time":13.580665207,"data":"amp      fp16 with tensor cores\n"}
+,{"stream_name":"stdout","time":13.580667517,"data":"workdir  /kaggle/working\n"}
+,{"stream_name":"stdout","time":13.643607393,"data":"Writing daetf/io_utils.py\n"}
+,{"stream_name":"stdout","time":13.668222659,"data":"Writing daetf/config.py\n"}
+,{"stream_name":"stdout","time":13.692315558,"data":"Writing daetf/degrade.py\n"}
+,{"stream_name":"stdout","time":13.716368007,"data":"Writing daetf/metrics.py\n"}
+,{"stream_name":"stdout","time":13.745402206,"data":"Writing daetf/nullspace.py\n"}
+,{"stream_name":"stdout","time":13.781697647,"data":"Writing daetf/modules.py\n"}
+,{"stream_name":"stdout","time":13.808456007,"data":"Writing daetf/model.py\n"}
+,{"stream_name":"stdout","time":13.833331465,"data":"Writing daetf/losses.py\n"}
+,{"stream_name":"stdout","time":13.858979448,"data":"Writing daetf/data.py\n"}
+,{"stream_name":"stdout","time":13.889252874,"data":"Writing daetf/engine.py\n"}
+,{"stream_name":"stdout","time":13.915781837,"data":"Writing daetf/baselines.py\n"}
+,{"stream_name":"stdout","time":13.949969739,"data":"Writing daetf/experiments.py\n"}
+,{"stream_name":"stdout","time":13.977096313,"data":"Writing daetf/selfcheck.py\n"}
+,{"stream_name":"stdout","time":14.001976383,"data":"Writing daetf/__init__.py\n"}
+,{"stream_name":"stdout","time":14.380632181,"data":"daetf 3.0.0 loaded from /kaggle/working/daetf\n"}
+,{"stream_name":"stdout","time":14.847446681,"data":"[check] p4 equivariance max|err| = 7.629e-06 (PASS)\n"}
+,{"stream_name":"stdout","time":14.847477584,"data":"[check] Haar DWT reconstruction max|err| = 2.384e-07 (PASS)\n"}
+,{"stream_name":"stdout","time":14.847491093,"data":"[check] Tucker core receives gradient (PASS)\n"}
+,{"stream_name":"stdout","time":14.847494176,"data":"[check] observation model consistent, shape (1, 5, 16, 16), max|err| 0.00e+00 (PASS)\n"}
+,{"stream_name":"stdout","time":21.300463939,"data":"[check] TTA isolation: weight drift 0.00e+00, repeat difference 0.00e+00 (PASS)\n"}
+,{"stream_name":"stdout","time":21.300490198,"data":"[check] adjoint \u003cDy,x\u003e vs \u003cy,D^Tx\u003e: rel err 8.25e-07 (PASS)\n"}
+,{"stream_name":"stdout","time":21.300495602,"data":"[check] data consistency  max|D(Y_hat) - X| / max|X| = 1.97e-06 (PASS)\n"}
+,{"stream_name":"stdout","time":21.300499424,"data":"[check] null annihilation max|D(P_perp v)| = 1.56e-06 (PASS)\n"}
+,{"stream_name":"stdout","time":21.300502854,"data":"[check] idempotence |P(Pv) - Pv| = 1.59e-07 (PASS)\n"}
+,{"stream_name":"stdout","time":21.768708158,"data":"[check] network D(Y)=X: 2.20e-05 normal, 7.03e-04 with the recon head x50 (PASS)\n"}
+,{"stream_name":"stdout","time":22.208444928,"data":"[check] forward (2, 31, 32, 32)  loss 3.9307  params 0.52M  tensors with grad 110/116\n"}
+,{"stream_name":"stdout","time":22.208480478,"data":"[check] loss terms: {'char': 0.4093, 'sam': 0.9406, 'grad': 0.9447, 'ssim': 0.8864, 'specgrad': 0.4919, 'spat': 0.0768, 'spec': 4.8451, 'bal': 0.0512, 'rank': 12.9366, 'deg': 0.1904, 'total': 3.9307}\n"}
+,{"stream_name":"stdout","time":27.255792,"data":"[check] tiled inference (1, 31, 96, 96) PASS; metrics {'psnr': 8.509, 'ssim': 0.054, 'sam': 37.401, 'ergas': 18.8}\n"}
+,{"stream_name":"stdout","time":27.61787321,"data":"[check] ablation use_equivariant=False OK (0.54M params)\n"}
+,{"stream_name":"stdout","time":27.965920262,"data":"[check] ablation use_tsse=False OK (0.52M params)\n"}
+,{"stream_name":"stdout","time":28.296706359,"data":"[check] ablation use_moe=False OK (0.47M params)\n"}
+,{"stream_name":"stdout","time":28.63179947,"data":"[check] ablation use_fdrm=False OK (0.42M params)\n"}
+,{"stream_name":"stdout","time":28.980958259,"data":"[check] ablation use_backprojection=False OK (0.52M params)\n"}
+,{"stream_name":"stdout","time":29.138959456,"data":"[check] ablation use_degradation_code=False OK (0.52M params)\n"}
+,{"stream_name":"stdout","time":29.138993221,"data":"\n"}
+,{"stream_name":"stdout","time":29.138998222,"data":"[selfcheck] ALL PASS\n"}
+,{"stream_name":"stdout","time":29.333894865,"data":"[config] using dataset root: /kaggle/input/cave-dataset-2/Data\n"}
+,{"stream_name":"stdout","time":29.333924054,"data":"[config] using dataset root: /kaggle/input/cave-dataset-2/Data\n"}
+,{"stream_name":"stdout","time":30.20088326,"data":"[config] inferred bands=31 msi_bands=3\n"}
+,{"stream_name":"stdout","time":30.20091763,"data":"{\n"}
+,{"stream_name":"stdout","time":30.20092292,"data":" \"source_root\": \"/kaggle/input/cave-dataset-2/Data\",\n"}
+,{"stream_name":"stdout","time":30.200926975,"data":" \"target_root\": \"/kaggle/input/cave-dataset-2/Data\",\n"}
+,{"stream_name":"stdout","time":30.200931195,"data":" \"bands\": 31,\n"}
+,{"stream_name":"stdout","time":30.200934629,"data":" \"msi_bands\": 3,\n"}
+,{"stream_name":"stdout","time":30.20093798,"data":" \"scale\": 4,\n"}
+,{"stream_name":"stdout","time":30.200941216,"data":" \"patch\": 64,\n"}
+,{"stream_name":"stdout","time":30.200944688,"data":" \"iters\": 20000,\n"}
+,{"stream_name":"stdout","time":30.200948032,"data":" \"batch\": 16\n"}
+,{"stream_name":"stdout","time":30.20095137,"data":"}\n"}
+,{"stream_name":"stdout","time":30.24978515,"data":"source: /kaggle/input/cave-dataset-2/Data  Train=20 scenes  Test=12 scenes\n"}
+,{"stream_name":"stdout","time":30.249823723,"data":"target: /kaggle/input/cave-dataset-2/Data  Train=20 scenes  Test=12 scenes\n"}
+,{"stream_name":"stdout","time":30.401718704,"data":"estimating SRF from the training pairs ...\n"}
+,{"stream_name":"stdout","time":35.593549805,"data":"SRF shape (31, 3), column sums [1.0, 1.0, 1.0]\n"}
+,{"stream_name":"stdout","time":35.784748343,"data":"domain alignment enabled against /kaggle/input/cave-dataset-2/Data (unlabelled)\n"}
+,{"stream_name":"stdout","time":35.941112624,"data":"DAETF-Net v3 (ASCR): 1.17 M parameters\n"}
+,{"stream_name":"stdout","time":465.463273452,"data":"it    100/20000  loss 1.3557  char 0.1548  sam 1.2585  spat 0.0510  spec 0.0580  lr 1.00e-05  0.23 it/s  eta 1424m  exp=[sp:0.29 ed:0.28 tx:0.24 co:0.19]\n"}
+,{"stream_name":"stdout","time":866.833706732,"data":"it    200/20000  loss 0.9381  char 0.1075  sam 0.7977  spat 0.0284  spec 0.0497  lr 2.00e-05  0.24 it/s  eta 1371m  exp=[sp:0.31 ed:0.36 tx:0.22 co:0.11]\n"}
+,{"stream_name":"stdout","time":1259.715687396,"data":"it    300/20000  loss 0.7014  char 0.0610  sam 0.6133  spat 0.0242  spec 0.0360  lr 3.00e-05  0.25 it/s  eta 1339m  exp=[sp:0.23 ed:0.55 tx:0.19 co:0.03]\n"}
+,{"stream_name":"stdout","time":1640.312214759,"data":"it    400/20000  loss 0.5163  char 0.0335  sam 0.5634  spat 0.0105  spec 0.0201  lr 4.00e-05  0.25 it/s  eta 1310m  exp=[sp:0.08 ed:0.76 tx:0.15 co:0.01]\n"}
+,{"stream_name":"stdout","time":2042.300496141,"data":"it    500/20000  loss 0.4661  char 0.0306  sam 0.4269  spat 0.0105  spec 0.0200  lr 5.00e-05  0.25 it/s  eta 1304m  exp=[sp:0.02 ed:0.85 tx:0.12 co:0.01]\n"}
+,{"stream_name":"stdout","time":2415.443272715,"data":"it    600/20000  loss 0.3862  char 0.0353  sam 0.2958  spat 0.0170  spec 0.0269  lr 6.00e-05  0.25 it/s  eta 1282m  exp=[sp:0.00 ed:0.89 tx:0.10 co:0.00]\n"}
+,{"stream_name":"stdout","time":2805.316720249,"data":"it    700/20000  loss 0.4103  char 0.0270  sam 0.3368  spat 0.0116  spec 0.0206  lr 7.00e-05  0.25 it/s  eta 1272m  exp=[sp:0.00 ed:0.80 tx:0.19 co:0.00]\n"}
+,{"stream_name":"stdout","time":3205.608252796,"data":"it    800/20000  loss 0.4147  char 0.0268  sam 0.3887  spat 0.0114  spec 0.0193  lr 8.00e-05  0.25 it/s  eta 1268m  exp=[sp:0.00 ed:0.66 tx:0.34 co:0.00]\n"}
+,{"stream_name":"stdout","time":3598.679959992,"data":"it    900/20000  loss 0.4047  char 0.0348  sam 0.2862  spat 0.0187  spec 0.0283  lr 9.00e-05  0.25 it/s  eta 1260m  exp=[sp:0.00 ed:0.54 tx:0.46 co:0.00]\n"}
+,{"stream_name":"stdout","time":4003.284928584,"data":"it   1000/20000  loss 0.4038  char 0.0311  sam 0.2892  spat 0.0143  spec 0.0250  lr 1.00e-04  0.25 it/s  eta 1256m  exp=[sp:0.00 ed:0.53 tx:0.46 co:0.00]\n"}
+,{"stream_name":"stdout","time":4060.927223887,"data":"  [val@1000] PSNR 21.441  SAM 34.443  ERGAS 20.548\n"}
+,{"stream_name":"stdout","time":4117.460711554,"data":"  [tgt@1000] PSNR 21.441  SAM 34.443  ERGAS 20.548\n"}
+,{"stream_name":"stdout","time":4486.124515452,"data":"it   1100/20000  loss 0.3879  char 0.0286  sam 0.3406  spat 0.0146  spec 0.0228  lr 1.10e-04  0.25 it/s  eta 1274m  exp=[sp:0.00 ed:0.56 tx:0.44 co:0.00]\n"}
+,{"stream_name":"stdout","time":4887.805505104,"data":"it   1200/20000  loss 0.3910  char 0.0230  sam 0.3278  spat 0.0097  spec 0.0193  lr 1.20e-04  0.25 it/s  eta 1267m  exp=[sp:0.00 ed:0.57 tx:0.43 co:0.00]\n"}
+,{"stream_name":"stdout","time":5301.054341224,"data":"it   1300/20000  loss 0.4026  char 0.0263  sam 0.3547  spat 0.0127  spec 0.0197  lr 1.30e-04  0.25 it/s  eta 1262m  exp=[sp:0.00 ed:0.54 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":5706.881589732,"data":"it   1400/20000  loss 0.3749  char 0.0327  sam 0.3052  spat 0.0152  spec 0.0260  lr 1.40e-04  0.25 it/s  eta 1256m  exp=[sp:0.00 ed:0.51 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":6078.23161855,"data":"it   1500/20000  loss 0.4273  char 0.0290  sam 0.3961  spat 0.0106  spec 0.0222  lr 1.50e-04  0.25 it/s  eta 1242m  exp=[sp:0.00 ed:0.55 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":6474.078463102,"data":"it   1600/20000  loss 0.3441  char 0.0267  sam 0.2888  spat 0.0125  spec 0.0218  lr 1.60e-04  0.25 it/s  eta 1234m  exp=[sp:0.00 ed:0.54 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":6862.310526945,"data":"it   1700/20000  loss 0.3731  char 0.0293  sam 0.3405  spat 0.0134  spec 0.0222  lr 1.70e-04  0.25 it/s  eta 1225m  exp=[sp:0.00 ed:0.56 tx:0.44 co:0.00]\n"}
+,{"stream_name":"stdout","time":7264.007698279,"data":"it   1800/20000  loss 0.4059  char 0.0243  sam 0.3602  spat 0.0102  spec 0.0170  lr 1.80e-04  0.25 it/s  eta 1218m  exp=[sp:0.00 ed:0.55 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":7658.78758884,"data":"it   1900/20000  loss 0.3420  char 0.0326  sam 0.2282  spat 0.0140  spec 0.0246  lr 1.90e-04  0.25 it/s  eta 1210m  exp=[sp:0.00 ed:0.51 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":8055.168334611,"data":"it   2000/20000  loss 0.3509  char 0.0350  sam 0.2603  spat 0.0243  spec 0.0292  lr 2.00e-04  0.25 it/s  eta 1203m  exp=[sp:0.00 ed:0.52 tx:0.48 co:0.00]\n"}
+,{"stream_name":"stdout","time":8111.935092402,"data":"  [val@2000] PSNR 25.060  SAM 20.148  ERGAS 13.583\n"}
+,{"stream_name":"stdout","time":8168.397404393,"data":"  [tgt@2000] PSNR 25.060  SAM 20.148  ERGAS 13.583\n"}
+,{"stream_name":"stdout","time":8545.061998584,"data":"it   2100/20000  loss 0.3953  char 0.0352  sam 0.3185  spat 0.0158  spec 0.0269  lr 2.00e-04  0.25 it/s  eta 1209m  exp=[sp:0.00 ed:0.44 tx:0.55 co:0.00]\n"}
+,{"stream_name":"stdout","time":8937.980297255,"data":"it   2200/20000  loss 0.3288  char 0.0285  sam 0.2672  spat 0.0146  spec 0.0229  lr 1.99e-04  0.25 it/s  eta 1200m  exp=[sp:0.00 ed:0.50 tx:0.50 co:0.00]\n"}
+,{"stream_name":"stdout","time":9338.412362376,"data":"it   2300/20000  loss 0.3411  char 0.0250  sam 0.3089  spat 0.0155  spec 0.0191  lr 1.99e-04  0.25 it/s  eta 1193m  exp=[sp:0.00 ed:0.56 tx:0.44 co:0.00]\n"}
+,{"stream_name":"stdout","time":9748.220585738,"data":"it   2400/20000  loss 0.3688  char 0.0197  sam 0.3595  spat 0.0090  spec 0.0140  lr 1.98e-04  0.25 it/s  eta 1187m  exp=[sp:0.00 ed:0.57 tx:0.42 co:0.00]\n"}
+,{"stream_name":"stdout","time":10152.581838948,"data":"it   2500/20000  loss 0.3364  char 0.0226  sam 0.3066  spat 0.0111  spec 0.0161  lr 1.97e-04  0.25 it/s  eta 1180m  exp=[sp:0.00 ed:0.53 tx:0.46 co:0.00]\n"}
+,{"stream_name":"stdout","time":10543.029234084,"data":"it   2600/20000  loss 0.3547  char 0.0316  sam 0.2655  spat 0.0152  spec 0.0253  lr 1.95e-04  0.25 it/s  eta 1172m  exp=[sp:0.00 ed:0.51 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":10954.935043886,"data":"it   2700/20000  loss 0.3053  char 0.0247  sam 0.2387  spat 0.0130  spec 0.0186  lr 1.93e-04  0.25 it/s  eta 1166m  exp=[sp:0.00 ed:0.54 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":11345.432210466,"data":"it   2800/20000  loss 0.3230  char 0.0259  sam 0.2761  spat 0.0144  spec 0.0194  lr 1.91e-04  0.25 it/s  eta 1158m  exp=[sp:0.00 ed:0.53 tx:0.46 co:0.00]\n"}
+,{"stream_name":"stdout","time":11770.12183294,"data":"it   2900/20000  loss 0.3403  char 0.0264  sam 0.3029  spat 0.0164  spec 0.0198  lr 1.89e-04  0.25 it/s  eta 1153m  exp=[sp:0.00 ed:0.52 tx:0.48 co:0.00]\n"}
+,{"stream_name":"stdout","time":12191.882085143,"data":"it   3000/20000  loss 0.2876  char 0.0243  sam 0.2214  spat 0.0132  spec 0.0193  lr 1.87e-04  0.25 it/s  eta 1148m  exp=[sp:0.00 ed:0.53 tx:0.47 co:0.00]\n"}
+,{"stream_name":"stdout","time":12249.285460039,"data":"  [val@3000] PSNR 27.892  SAM 12.926  ERGAS 10.179\n"}
+,{"stream_name":"stdout","time":12305.82382989,"data":"  [tgt@3000] PSNR 27.892  SAM 12.926  ERGAS 10.179\n"}
+,{"stream_name":"stdout","time":12688.57351104,"data":"it   3100/20000  loss 0.3275  char 0.0213  sam 0.3253  spat 0.0119  spec 0.0141  lr 1.84e-04  0.25 it/s  eta 1150m  exp=[sp:0.00 ed:0.55 tx:0.44 co:0.00]\n"}
+,{"stream_name":"stdout","time":13085.298782973,"data":"it   3200/20000  loss 0.3064  char 0.0245  sam 0.2333  spat 0.0148  spec 0.0183  lr 1.81e-04  0.25 it/s  eta 1142m  exp=[sp:0.00 ed:0.56 tx:0.44 co:0.00]\n"}
+,{"stream_name":"stdout","time":13502.712505605,"data":"it   3300/20000  loss 0.3340  char 0.0277  sam 0.2630  spat 0.0132  spec 0.0204  lr 1.78e-04  0.25 it/s  eta 1136m  exp=[sp:0.00 ed:0.55 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":13919.218572116,"data":"it   3400/20000  loss 0.3187  char 0.0186  sam 0.2934  spat 0.0110  spec 0.0114  lr 1.74e-04  0.24 it/s  eta 1130m  exp=[sp:0.00 ed:0.55 tx:0.44 co:0.00]\n"}
+,{"stream_name":"stdout","time":14333.438128437,"data":"it   3500/20000  loss 0.3021  char 0.0192  sam 0.2628  spat 0.0114  spec 0.0139  lr 1.71e-04  0.24 it/s  eta 1123m  exp=[sp:0.00 ed:0.54 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":14725.983825288,"data":"it   3600/20000  loss 0.2996  char 0.0241  sam 0.2318  spat 0.0134  spec 0.0170  lr 1.67e-04  0.25 it/s  eta 1115m  exp=[sp:0.00 ed:0.51 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":15144.537662865,"data":"it   3700/20000  loss 0.3118  char 0.0228  sam 0.2907  spat 0.0160  spec 0.0177  lr 1.63e-04  0.24 it/s  eta 1109m  exp=[sp:0.00 ed:0.55 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":15556.652068839,"data":"it   3800/20000  loss 0.2909  char 0.0284  sam 0.1947  spat 0.0158  spec 0.0213  lr 1.59e-04  0.24 it/s  eta 1103m  exp=[sp:0.00 ed:0.53 tx:0.46 co:0.00]\n"}
+,{"stream_name":"stdout","time":15965.679450214,"data":"it   3900/20000  loss 0.2858  char 0.0191  sam 0.2483  spat 0.0118  spec 0.0130  lr 1.55e-04  0.24 it/s  eta 1096m  exp=[sp:0.00 ed:0.54 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":16350.491693917,"data":"it   4000/20000  loss 0.2843  char 0.0268  sam 0.2008  spat 0.0171  spec 0.0192  lr 1.50e-04  0.25 it/s  eta 1088m  exp=[sp:0.00 ed:0.49 tx:0.51 co:0.00]\n"}
+,{"stream_name":"stdout","time":16407.78893719,"data":"  [val@4000] PSNR 28.995  SAM 10.222  ERGAS 9.095\n"}
+,{"stream_name":"stdout","time":16464.381023944,"data":"  [tgt@4000] PSNR 28.995  SAM 10.222  ERGAS 9.095\n"}
+,{"stream_name":"stdout","time":16876.553706684,"data":"it   4100/20000  loss 0.3275  char 0.0220  sam 0.2847  spat 0.0149  spec 0.0159  lr 1.46e-04  0.24 it/s  eta 1088m  exp=[sp:0.00 ed:0.55 tx:0.44 co:0.00]\n"}
+,{"stream_name":"stdout","time":17312.443140284,"data":"it   4200/20000  loss 0.3118  char 0.0223  sam 0.2609  spat 0.0183  spec 0.0166  lr 1.41e-04  0.24 it/s  eta 1083m  exp=[sp:0.00 ed:0.56 tx:0.44 co:0.00]\n"}
+,{"stream_name":"stdout","time":17700.274445767,"data":"it   4300/20000  loss 0.2613  char 0.0179  sam 0.2283  spat 0.0131  spec 0.0128  lr 1.36e-04  0.24 it/s  eta 1075m  exp=[sp:0.00 ed:0.53 tx:0.46 co:0.00]\n"}
+,{"stream_name":"stdout","time":18081.207318476,"data":"it   4400/20000  loss 0.3033  char 0.0242  sam 0.2400  spat 0.0142  spec 0.0169  lr 1.31e-04  0.24 it/s  eta 1066m  exp=[sp:0.00 ed:0.51 tx:0.48 co:0.00]\n"}
+,{"stream_name":"stdout","time":18487.348124817,"data":"it   4500/20000  loss 0.2809  char 0.0247  sam 0.2232  spat 0.0143  spec 0.0191  lr 1.26e-04  0.24 it/s  eta 1059m  exp=[sp:0.00 ed:0.53 tx:0.46 co:0.00]\n"}
+,{"stream_name":"stdout","time":18920.448939395,"data":"it   4600/20000  loss 0.2771  char 0.0167  sam 0.2505  spat 0.0095  spec 0.0113  lr 1.21e-04  0.24 it/s  eta 1054m  exp=[sp:0.00 ed:0.54 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":19365.509850787,"data":"it   4700/20000  loss 0.2792  char 0.0200  sam 0.2376  spat 0.0124  spec 0.0138  lr 1.16e-04  0.24 it/s  eta 1049m  exp=[sp:0.00 ed:0.51 tx:0.48 co:0.00]\n"}
+,{"stream_name":"stdout","time":19782.999157706,"data":"it   4800/20000  loss 0.2845  char 0.0218  sam 0.2291  spat 0.0123  spec 0.0141  lr 1.11e-04  0.24 it/s  eta 1042m  exp=[sp:0.00 ed:0.53 tx:0.46 co:0.00]\n"}
+,{"stream_name":"stdout","time":20176.752254543,"data":"it   4900/20000  loss 0.2935  char 0.0225  sam 0.2205  spat 0.0125  spec 0.0159  lr 1.06e-04  0.24 it/s  eta 1034m  exp=[sp:0.00 ed:0.53 tx:0.46 co:0.00]\n"}
+,{"stream_name":"stdout","time":20583.164895236,"data":"it   5000/20000  loss 0.3062  char 0.0203  sam 0.2797  spat 0.0124  spec 0.0151  lr 1.01e-04  0.24 it/s  eta 1027m  exp=[sp:0.00 ed:0.54 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":20640.400805822,"data":"  [val@5000] PSNR 29.410  SAM 8.548  ERGAS 8.700\n"}
+,{"stream_name":"stdout","time":20697.260753432,"data":"  [tgt@5000] PSNR 29.410  SAM 8.548  ERGAS 8.700\n"}
+,{"stream_name":"stdout","time":21090.870827771,"data":"it   5100/20000  loss 0.2719  char 0.0252  sam 0.1892  spat 0.0147  spec 0.0174  lr 9.53e-05  0.24 it/s  eta 1025m  exp=[sp:0.00 ed:0.52 tx:0.48 co:0.00]\n"}
+,{"stream_name":"stdout","time":21494.304485244,"data":"it   5200/20000  loss 0.2708  char 0.0236  sam 0.2009  spat 0.0137  spec 0.0181  lr 9.01e-05  0.24 it/s  eta 1018m  exp=[sp:0.00 ed:0.48 tx:0.52 co:0.00]\n"}
+,{"stream_name":"stdout","time":21913.23626456,"data":"it   5300/20000  loss 0.2666  char 0.0149  sam 0.2407  spat 0.0139  spec 0.0104  lr 8.49e-05  0.24 it/s  eta 1011m  exp=[sp:0.00 ed:0.54 tx:0.46 co:0.00]\n"}
+,{"stream_name":"stdout","time":22340.398216005,"data":"it   5400/20000  loss 0.2933  char 0.0210  sam 0.2495  spat 0.0140  spec 0.0144  lr 7.98e-05  0.24 it/s  eta 1005m  exp=[sp:0.00 ed:0.53 tx:0.46 co:0.00]\n"}
+,{"stream_name":"stdout","time":22745.860259661,"data":"it   5500/20000  loss 0.2706  char 0.0142  sam 0.2556  spat 0.0100  spec 0.0092  lr 7.47e-05  0.24 it/s  eta 998m  exp=[sp:0.00 ed:0.54 tx:0.46 co:0.00]\n"}
+,{"stream_name":"stdout","time":23172.458592834,"data":"it   5600/20000  loss 0.2964  char 0.0196  sam 0.2517  spat 0.0121  spec 0.0138  lr 6.98e-05  0.24 it/s  eta 992m  exp=[sp:0.00 ed:0.53 tx:0.46 co:0.00]\n"}
+,{"stream_name":"stdout","time":23571.150077955,"data":"it   5700/20000  loss 0.2657  char 0.0216  sam 0.2234  spat 0.0128  spec 0.0165  lr 6.48e-05  0.24 it/s  eta 984m  exp=[sp:0.00 ed:0.52 tx:0.48 co:0.00]\n"}
+,{"stream_name":"stdout","time":23982.17857938,"data":"it   5800/20000  loss 0.2632  char 0.0156  sam 0.2120  spat 0.0134  spec 0.0116  lr 6.00e-05  0.24 it/s  eta 977m  exp=[sp:0.00 ed:0.53 tx:0.47 co:0.00]\n"}
+,{"stream_name":"stdout","time":24383.578921888,"data":"it   5900/20000  loss 0.2903  char 0.0229  sam 0.2246  spat 0.0183  spec 0.0175  lr 5.53e-05  0.24 it/s  eta 970m  exp=[sp:0.00 ed:0.51 tx:0.48 co:0.00]\n"}
+,{"stream_name":"stdout","time":24790.105875496,"data":"it   6000/20000  loss 0.2871  char 0.0156  sam 0.2747  spat 0.0095  spec 0.0109  lr 5.08e-05  0.24 it/s  eta 963m  exp=[sp:0.00 ed:0.52 tx:0.47 co:0.00]\n"}
+,{"stream_name":"stdout","time":24846.953651578,"data":"  [val@6000] PSNR 29.507  SAM 7.394  ERGAS 8.634\n"}
+,{"stream_name":"stdout","time":24903.616674885,"data":"  [tgt@6000] PSNR 29.507  SAM 7.394  ERGAS 8.634\n"}
+,{"stream_name":"stdout","time":25296.513645685,"data":"it   6100/20000  loss 0.2495  char 0.0139  sam 0.2183  spat 0.0140  spec 0.0105  lr 4.63e-05  0.24 it/s  eta 959m  exp=[sp:0.00 ed:0.52 tx:0.47 co:0.00]\n"}
+,{"stream_name":"stdout","time":25709.41789182,"data":"it   6200/20000  loss 0.3294  char 0.0196  sam 0.3158  spat 0.0119  spec 0.0139  lr 4.20e-05  0.24 it/s  eta 952m  exp=[sp:0.00 ed:0.51 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":26116.614643519,"data":"it   6300/20000  loss 0.2564  char 0.0217  sam 0.1879  spat 0.0146  spec 0.0157  lr 3.79e-05  0.24 it/s  eta 945m  exp=[sp:0.00 ed:0.51 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":26528.832700081,"data":"it   6400/20000  loss 0.2864  char 0.0140  sam 0.2291  spat 0.0107  spec 0.0103  lr 3.39e-05  0.24 it/s  eta 938m  exp=[sp:0.00 ed:0.52 tx:0.48 co:0.00]\n"}
+,{"stream_name":"stdout","time":26918.435935301,"data":"it   6500/20000  loss 0.2649  char 0.0156  sam 0.2446  spat 0.0103  spec 0.0104  lr 3.01e-05  0.24 it/s  eta 931m  exp=[sp:0.00 ed:0.51 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":27323.190267599,"data":"it   6600/20000  loss 0.2777  char 0.0186  sam 0.2331  spat 0.0134  spec 0.0135  lr 2.66e-05  0.24 it/s  eta 923m  exp=[sp:0.00 ed:0.51 tx:0.48 co:0.00]\n"}
+,{"stream_name":"stdout","time":27719.831355254,"data":"it   6700/20000  loss 0.2539  char 0.0223  sam 0.1838  spat 0.0134  spec 0.0161  lr 2.32e-05  0.24 it/s  eta 916m  exp=[sp:0.00 ed:0.51 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":28134.252905431,"data":"it   6800/20000  loss 0.2631  char 0.0174  sam 0.2196  spat 0.0122  spec 0.0131  lr 2.00e-05  0.24 it/s  eta 909m  exp=[sp:0.00 ed:0.52 tx:0.48 co:0.00]\n"}
+,{"stream_name":"stdout","time":28544.043791681,"data":"it   6900/20000  loss 0.2559  char 0.0234  sam 0.1853  spat 0.0157  spec 0.0174  lr 1.71e-05  0.24 it/s  eta 902m  exp=[sp:0.00 ed:0.50 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":28960.885215851,"data":"it   7000/20000  loss 0.2296  char 0.0202  sam 0.1555  spat 0.0126  spec 0.0163  lr 1.43e-05  0.24 it/s  eta 895m  exp=[sp:0.00 ed:0.50 tx:0.50 co:0.00]\n"}
+,{"stream_name":"stdout","time":29018.314236733,"data":"  [val@7000] PSNR 29.533  SAM 6.772  ERGAS 8.634\n"}
+,{"stream_name":"stdout","time":29074.802148181,"data":"  [tgt@7000] PSNR 29.533  SAM 6.772  ERGAS 8.634\n"}
+,{"stream_name":"stdout","time":29492.430584836,"data":"it   7100/20000  loss 0.3063  char 0.0248  sam 0.2409  spat 0.0196  spec 0.0191  lr 1.18e-05  0.24 it/s  eta 892m  exp=[sp:0.00 ed:0.51 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":29892.900991174,"data":"it   7200/20000  loss 0.2561  char 0.0270  sam 0.1613  spat 0.0154  spec 0.0229  lr 9.60e-06  0.24 it/s  eta 885m  exp=[sp:0.00 ed:0.50 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":30285.655818717,"data":"it   7300/20000  loss 0.3102  char 0.0204  sam 0.2868  spat 0.0109  spec 0.0144  lr 7.61e-06  0.24 it/s  eta 877m  exp=[sp:0.00 ed:0.50 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":30680.344480015,"data":"it   7400/20000  loss 0.2588  char 0.0180  sam 0.2205  spat 0.0113  spec 0.0126  lr 5.87e-06  0.24 it/s  eta 870m  exp=[sp:0.00 ed:0.50 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":31082.839760687,"data":"it   7500/20000  loss 0.2372  char 0.0175  sam 0.2003  spat 0.0125  spec 0.0131  lr 4.39e-06  0.24 it/s  eta 862m  exp=[sp:0.00 ed:0.50 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":31505.328902868,"data":"it   7600/20000  loss 0.3042  char 0.0348  sam 0.1920  spat 0.0209  spec 0.0292  lr 3.17e-06  0.24 it/s  eta 856m  exp=[sp:0.00 ed:0.49 tx:0.51 co:0.00]\n"}
+,{"stream_name":"stdout","time":31924.392776464,"data":"it   7700/20000  loss 0.2549  char 0.0188  sam 0.2090  spat 0.0120  spec 0.0133  lr 2.23e-06  0.24 it/s  eta 849m  exp=[sp:0.00 ed:0.51 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":32345.440494861,"data":"it   7800/20000  loss 0.2747  char 0.0156  sam 0.2390  spat 0.0106  spec 0.0112  lr 1.55e-06  0.24 it/s  eta 842m  exp=[sp:0.00 ed:0.51 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":32756.421117808,"data":"it   7900/20000  loss 0.2539  char 0.0194  sam 0.2020  spat 0.0134  spec 0.0141  lr 1.14e-06  0.24 it/s  eta 835m  exp=[sp:0.00 ed:0.50 tx:0.49 co:0.00]\n"}
+,{"stream_name":"stdout","time":33166.187551343,"data":"it   8000/20000  loss 0.2859  char 0.0237  sam 0.2303  spat 0.0147  spec 0.0182  lr 2.00e-04  0.24 it/s  eta 828m  exp=[sp:0.00 ed:0.50 tx:0.50 co:0.00]\n"}
+,{"stream_name":"stdout","time":33223.745491738,"data":"  [val@8000] PSNR 29.483  SAM 6.480  ERGAS 8.701\n"}
+,{"stream_name":"stdout","time":33280.417507088,"data":"  [tgt@8000] PSNR 29.483  SAM 6.480  ERGAS 8.701\n"}
+,{"stream_name":"stdout","time":33670.943208436,"data":"it   8100/20000  loss 0.3422  char 0.0248  sam 0.2843  spat 0.0136  spec 0.0161  lr 2.00e-04  0.24 it/s  eta 824m  exp=[sp:0.00 ed:0.52 tx:0.47 co:0.00]\n"}
+,{"stream_name":"stdout","time":34078.603544042,"data":"it   8200/20000  loss 0.2864  char 0.0209  sam 0.2030  spat 0.0117  spec 0.0161  lr 1.99e-04  0.24 it/s  eta 816m  exp=[sp:0.00 ed:0.54 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":34490.263917691,"data":"it   8300/20000  loss 0.3078  char 0.0184  sam 0.2726  spat 0.0112  spec 0.0124  lr 1.99e-04  0.24 it/s  eta 809m  exp=[sp:0.00 ed:0.51 tx:0.48 co:0.00]\n"}
+,{"stream_name":"stdout","time":34937.596496224,"data":"it   8400/20000  loss 0.3221  char 0.0190  sam 0.2515  spat 0.0120  spec 0.0125  lr 1.98e-04  0.24 it/s  eta 803m  exp=[sp:0.00 ed:0.55 tx:0.44 co:0.00]\n"}
+,{"stream_name":"stdout","time":35348.898369555,"data":"it   8500/20000  loss 0.2899  char 0.0191  sam 0.2551  spat 0.0105  spec 0.0136  lr 1.97e-04  0.24 it/s  eta 796m  exp=[sp:0.00 ed:0.59 tx:0.41 co:0.00]\n"}
+,{"stream_name":"stdout","time":35751.235819801,"data":"it   8600/20000  loss 0.2874  char 0.0197  sam 0.2410  spat 0.0118  spec 0.0140  lr 1.95e-04  0.24 it/s  eta 789m  exp=[sp:0.00 ed:0.53 tx:0.47 co:0.00]\n"}
+,{"stream_name":"stdout","time":36167.813476964,"data":"it   8700/20000  loss 0.3446  char 0.0199  sam 0.3052  spat 0.0132  spec 0.0154  lr 1.93e-04  0.24 it/s  eta 782m  exp=[sp:0.00 ed:0.57 tx:0.42 co:0.00]\n"}
+,{"stream_name":"stdout","time":36580.490178016,"data":"it   8800/20000  loss 0.2416  char 0.0190  sam 0.1896  spat 0.0120  spec 0.0142  lr 1.91e-04  0.24 it/s  eta 775m  exp=[sp:0.00 ed:0.53 tx:0.47 co:0.00]\n"}
+,{"stream_name":"stdout","time":36992.803963013,"data":"it   8900/20000  loss 0.3069  char 0.0159  sam 0.2602  spat 0.0120  spec 0.0112  lr 1.89e-04  0.24 it/s  eta 768m  exp=[sp:0.00 ed:0.55 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":37384.936504118,"data":"it   9000/20000  loss 0.3138  char 0.0146  sam 0.2900  spat 0.0107  spec 0.0105  lr 1.87e-04  0.24 it/s  eta 761m  exp=[sp:0.00 ed:0.57 tx:0.43 co:0.00]\n"}
+,{"stream_name":"stdout","time":37442.492223428,"data":"  [val@9000] PSNR 29.669  SAM 6.615  ERGAS 8.524\n"}
+,{"stream_name":"stdout","time":37499.022978269,"data":"  [tgt@9000] PSNR 29.669  SAM 6.615  ERGAS 8.524\n"}
+,{"stream_name":"stdout","time":37894.015468575,"data":"it   9100/20000  loss 0.2794  char 0.0169  sam 0.2349  spat 0.0108  spec 0.0119  lr 1.84e-04  0.24 it/s  eta 756m  exp=[sp:0.00 ed:0.51 tx:0.48 co:0.00]\n"}
+,{"stream_name":"stdout","time":38306.557993155,"data":"it   9200/20000  loss 0.2923  char 0.0188  sam 0.2815  spat 0.0116  spec 0.0127  lr 1.81e-04  0.24 it/s  eta 749m  exp=[sp:0.00 ed:0.56 tx:0.44 co:0.00]\n"}
+,{"stream_name":"stdout","time":38715.341264065,"data":"it   9300/20000  loss 0.2673  char 0.0166  sam 0.2332  spat 0.0098  spec 0.0121  lr 1.78e-04  0.24 it/s  eta 742m  exp=[sp:0.00 ed:0.51 tx:0.48 co:0.00]\n"}
+,{"stream_name":"stdout","time":39114.817132401,"data":"it   9400/20000  loss 0.2772  char 0.0170  sam 0.2289  spat 0.0112  spec 0.0110  lr 1.74e-04  0.24 it/s  eta 734m  exp=[sp:0.00 ed:0.56 tx:0.44 co:0.00]\n"}
+,{"stream_name":"stdout","time":39524.446980195,"data":"it   9500/20000  loss 0.2785  char 0.0158  sam 0.2814  spat 0.0110  spec 0.0105  lr 1.71e-04  0.24 it/s  eta 727m  exp=[sp:0.00 ed:0.55 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":39955.0651347,"data":"it   9600/20000  loss 0.2954  char 0.0175  sam 0.2698  spat 0.0096  spec 0.0119  lr 1.67e-04  0.24 it/s  eta 721m  exp=[sp:0.00 ed:0.55 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":40363.212849136,"data":"it   9700/20000  loss 0.2437  char 0.0189  sam 0.1957  spat 0.0100  spec 0.0136  lr 1.63e-04  0.24 it/s  eta 714m  exp=[sp:0.00 ed:0.54 tx:0.46 co:0.00]\n"}
+,{"stream_name":"stdout","time":40746.860561972,"data":"it   9800/20000  loss 0.2467  char 0.0177  sam 0.1873  spat 0.0118  spec 0.0127  lr 1.59e-04  0.24 it/s  eta 706m  exp=[sp:0.00 ed:0.55 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":41161.429238189,"data":"it   9900/20000  loss 0.2783  char 0.0157  sam 0.2323  spat 0.0096  spec 0.0105  lr 1.55e-04  0.24 it/s  eta 699m  exp=[sp:0.00 ed:0.54 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":41555.805785449,"data":"it  10000/20000  loss 0.2775  char 0.0142  sam 0.2493  spat 0.0091  spec 0.0103  lr 1.50e-04  0.24 it/s  eta 692m  exp=[sp:0.00 ed:0.57 tx:0.42 co:0.00]\n"}
+,{"stream_name":"stdout","time":41612.987115672,"data":"  [val@10000] PSNR 29.785  SAM 6.819  ERGAS 8.416\n"}
+,{"stream_name":"stdout","time":41669.466552169,"data":"  [tgt@10000] PSNR 29.785  SAM 6.819  ERGAS 8.416\n"}
+,{"stream_name":"stdout","time":42061.090377489,"data":"it  10100/20000  loss 0.2771  char 0.0163  sam 0.2512  spat 0.0093  spec 0.0115  lr 1.46e-04  0.24 it/s  eta 687m  exp=[sp:0.00 ed:0.55 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":42449.157961933,"data":"it  10200/20000  loss 0.3269  char 0.0222  sam 0.2828  spat 0.0147  spec 0.0149  lr 1.41e-04  0.24 it/s  eta 679m  exp=[sp:0.00 ed:0.54 tx:0.45 co:0.00]\n"}
+,{"stream_name":"stdout","time":42845.00327552,"data":"it  10300/20000  loss 0.2623  char 0.0178  sam 0.2284  spat 0.0096  spec 0.0111  lr 1.36e-04  0.24 it/s  eta 672m  exp=[sp:0.00 ed:0.52 tx:0.47 co:0.00]\n"}
+]
