@@ -112,6 +112,20 @@ class SPCLoss(nn.Module):
                         grad=l_grad.item(), ssim=l_ssim.item(),
                         specgrad=l_specgrad.item())
 
+        # --- projective spectral embedding (v5): train on the metric that
+        # fails.  The manifold is intensity-invariant and calibrated so that
+        # L2 there approximates spectral angle, so these two terms make the
+        # objective measure exactly what SAM measures - without SAM's
+        # anti-parallel gradient problem and without any intensity signal.
+        embed = getattr(model, "embed", None)
+        if supervised and embed is not None:
+            e_pred, _ = embed(pred)
+            e_gt, _ = embed(target)
+            l_embed = F.mse_loss(e_pred, e_gt)
+            l_cal = embed.calibration_loss(torch.cat([pred, target], dim=0))
+            total = total + cfg.w_embed * l_embed + cfg.w_cal * l_cal
+            logs.update(embed=l_embed.item(), cal=l_cal.item())
+
         # --- physics: valid on any domain, with or without ground truth -------
         if cfg.use_physics or not supervised:
             l_spat = charbonnier(self.degrade(pred, kernel), lr_hsi)

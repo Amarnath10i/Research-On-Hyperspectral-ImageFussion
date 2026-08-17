@@ -40,7 +40,9 @@ from .modules import (BackProjectionUpsampler, BicubicUpsampler,
                       ResidualDenseBlock,
                       SpectralDisagreementField,
                       TensorSpectralSpatialEncoder)
-from .nullspace import RangeNullProjector, kernel_from_params
+from .nullspace import (RangeNullProjector, decode_degradation_params,
+                        kernel_from_params)
+from .spectral_embed import ProjectiveSpectralEmbedding
 
 
 class DAETFNet(nn.Module):
@@ -124,12 +126,27 @@ class DAETFNet(nn.Module):
         self.rdb = ResidualDenseBlock(c, growth=32, n_layers=3)
         self.recon = nn.Conv2d(c, b, 3, 1, 1)
 
+        # --- projective spectral embedding (v5: the headline idea) ---------
+        # Maps every output spectrum onto an illumination-invariant, SAM-metric
+        # calibrated manifold.  The loss optimises L2 there, which is spectral
+        # angle by construction (see spectral_embed.py).
+        self.embed = (ProjectiveSpectralEmbedding(b, cfg.embed_dim,
+                                                  cfg.embed_hidden,
+                                                  cfg.embed_layers)
+                      if cfg.use_projective_embed else None)
+
     # ------------------------------------------------------------------
     def _trunk(self, lr_hsi: torch.Tensor, msi: torch.Tensor
                ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor,
                           torch.Tensor, Optional[torch.Tensor]]:
         """Core forward pass. Returns (y0, z_fused, deg_params, d_code, D_field)."""
-        code, deg_params = self.deg(lr_hsi, msi)
+        code, deg_raw = self.deg(lr_hsi, msi)
+        # Keep the quantity exposed to the loss and passed to the observation
+        # operator in the same physical parameterisation.  Previously the
+        # regression loss supervised raw head values while the kernel applied a
+        # second softplus transform, making a correct predicted sigma produce
+        # the wrong blur kernel.
+        deg_params = decode_degradation_params(deg_raw)
         if not self.cfg.use_degradation_code:
             code = torch.zeros_like(code)
 
@@ -212,6 +229,10 @@ class DAETFNet(nn.Module):
             result["disagree"] = D
         if self.moe is not None and self.moe.last_gate is not None:
             result["expert_gate"] = self.moe.last_gate.detach()
+        if self.embed is not None:
+            e, intensity = self.embed(out)
+            result["embed"] = e
+            result["intensity"] = intensity
         return result
 
     def n_params(self) -> int:

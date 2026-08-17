@@ -1,5 +1,22 @@
 # DAETF-Net: Domain-Adaptive Equivariant Tensor Fusion Network
 
+> **Research-status note (August 2026).** This document is a record of the
+> implemented exploratory DAETF-Net stack, not the recommended paper claim.
+> The default code path uses range/null-space reconstruction, whereas this
+> historical document foregrounds back-projection and several optional modules.
+> The focused, paper-oriented architecture and non-negotiable evaluation rules
+> are in [Q1_REDESIGN.md](Q1_REDESIGN.md).  Do not claim SOTA from this document
+> or from `results/RESULTS.md`; those preliminary results are not competitive
+> with the matched classical baselines.
+>
+> **v5 headline (the paper's novel contribution):** the Projective Spectral
+> Embedding (`daetf/spectral_embed.py`).  The network fuses on an
+> illumination-invariant manifold whose metric is calibrated to spectral angle,
+> so training optimises exactly the metric that fails under domain shift and
+> intensity (illumination) is factored out by construction.  The optional
+> equivariant/Tucker/MoE/wavelet modules below are *not* the contribution; they
+> are ablation arms at best.  See §1b and Q1_REDESIGN.md.
+
 **Status:** implemented and executable. Every mechanism described below exists in
 [`proposal1/daetf/`](../daetf/) and is verified numerically by
 [`selfcheck.py`](../daetf/selfcheck.py).
@@ -38,6 +55,36 @@ in-domain PSNR.** Three consequences shape the design:
    is the only thing that stays true when the domain changes.
 3. Give the model a way to adapt without labels, because the target domain has
    no ground truth in deployment.
+
+---
+
+## 1b. v5 headline: Projective Spectral Embedding (PSE)
+
+The paper's contribution is not a module list; it is the observation that
+training a fusion network with pixelwise intensity losses optimises the wrong
+thing.  The benchmark shows why: per-image intensity differences inflate PSNR
+on darker scenes while SAM degrades by 4–57 degrees.  PSE attacks the root
+cause rather than the symptom.
+
+* **Illumination invariance.**  Every output spectrum is projected onto the
+  unit sphere (normalised to unit L2, intensity kept aside as a scalar) before
+  entering a learned spectral MLP.  Per-pixel intensity scaling — exposure,
+  illumination, sensor gain — is *not expressible* in the representation.
+  The intensity the observation determines is carried exactly by the
+  range/null decomposition, which is algebraic.
+* **Metric alignment.**  The embedding is calibrated so that Euclidean distance
+  in the manifold tracks the chord distance on the spectral sphere, a monotone
+  function of spectral angle.  Two loss terms make this load-bearing:
+  * `w_embed * ||phi(ŷ) - phi(y)||^2` — manifold fidelity, intensity-invariant;
+  * `w_cal * calibration_loss` — keeps the manifold honestly metric.
+* **Why not just a SAM loss?**  SAM has zero gradient when spectra are
+  anti-parallel and does not organise the representation.  PSE gives the
+  network a coordinate system in which spectral direction is a Euclidean axis,
+  so gradients are well behaved everywhere on the sphere.
+
+Verified: `check_intensity_invariance` (max|φ(s) − φ(5s)| = 3e-8) and
+`check_metric_calibration` pass; `check_embed_in_loss` confirms the terms
+receive gradient through the assembled network.
 
 ---
 

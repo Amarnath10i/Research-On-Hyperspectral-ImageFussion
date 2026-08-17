@@ -80,6 +80,19 @@ class Config:
     use_disagreement: bool = True        # v3: spectral disagreement field
     use_nullspace: bool = True           # v4: range/null decomposition
 
+    # --- projective spectral embedding (v5: the headline idea) ---------------
+    # The illumination-invariant, SAM-metric-aligned manifold.  Per-pixel
+    # spectra are normalised to the unit sphere (intensity factored out) and
+    # mapped through a calibrated spectral MLP so that L2 in the manifold
+    # tracks spectral angle.  This is what makes training optimise the metric
+    # that actually fails under domain shift.
+    embed_dim: int = 16
+    embed_hidden: int = 32
+    embed_layers: int = 3
+    use_projective_embed: bool = True
+    w_embed: float = 0.50              # manifold fidelity ||phi(y)-phi(gt)||^2
+    w_cal: float = 0.10                # metric calibration of the manifold
+
     # --- range/null decomposition (v4) --------------------------------------
     # Defaults measured in nullspace.py, not chosen by taste:
     #   cg_steps 1/2/4/8/32 -> consistency 5.8e-1 / 2.0e-1 / 8.5e-3 / 6.2e-6 / 1.9e-6
@@ -116,3 +129,28 @@ class Config:
 
     def to_dict(self) -> dict:
         return asdict(self)
+
+    @classmethod
+    def paper_core(cls, **overrides) -> "Config":
+        """Focused configuration for the primary research hypothesis.
+
+        The paper claim should be tested first with a compact model:
+        degradation-conditioned HSI--MSI fusion whose learned residual is
+        restricted to the null space of the imaging operator.  The optional
+        equivariant/Tucker/MoE/wavelet modules remain available as *separate*
+        ablations, rather than being presented as inseparable novelty.
+"""
+        values = dict(
+            use_nullspace=True,
+            use_backprojection=False,
+            use_equivariant=False,
+            use_tsse=False,
+            use_moe=False,
+            use_fdrm=False,
+            use_degradation_code=True,
+            use_disagreement=False,
+            use_physics=True,
+            use_projective_embed=True,
+        )
+        values.update(overrides)
+        return cls(**values)

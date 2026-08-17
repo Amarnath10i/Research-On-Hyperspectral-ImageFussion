@@ -18,6 +18,9 @@ from .metrics import evaluate_arrays
 from .model import DAETFNet
 from .modules import (EquivariantFeatureExtractor, HaarDWT,
                       TensorSpectralSpatialEncoder)
+from .spectral_embed import (ProjectiveSpectralEmbedding,
+                             check_intensity_invariance,
+                             check_metric_calibration)
 
 
 def check_equivariance(device: str = "cpu", tol: float = 1e-4) -> float:
@@ -152,6 +155,14 @@ def run_all(device: str = "cpu") -> bool:
     ok &= check_observation_model()
     ok &= check_tta_isolation(device)
 
+    # v5: the projective spectral embedding.  The headline claim is that the
+    # network fuses on an illumination-invariant, SAM-metric-calibrated
+    # manifold, so intensity cannot leak into the learned representation and
+    # optimising L2 there is optimising spectral angle.
+    ok &= check_intensity_invariance()
+    ok &= check_metric_calibration() < 0.15
+    ok &= check_embed_in_loss(device)
+
     # v4: the range/null decomposition. These verify the central claim - that
     # D(Y_hat) = X is an algebraic identity rather than something the loss
     # negotiates - before any training time is spent.
@@ -165,6 +176,37 @@ def run_all(device: str = "cpu") -> bool:
     smoke_test(device)
     print(f"\n[selfcheck] {'ALL PASS' if ok else 'FAILURES PRESENT'}")
     return bool(ok)
+
+
+def check_embed_in_loss(device: str = "cpu") -> bool:
+    """The embedding terms receive gradient through the assembled network and
+    loss: the headline contribution must actually participate in training."""
+    from .config import Config
+    from .model import DAETFNet
+    from .losses import SPCLoss
+    from .degrade import blur_downsample, gaussian_kernel2d
+
+    torch.manual_seed(0)
+    cfg = Config(bands=31, msi_bands=3, patch=32, scale=4, width=16,
+                 equi_width=4, rank=4, code_dim=32, use_moe=False,
+                 use_tsse=False, use_equivariant=False, use_fdrm=False,
+                 use_projective_embed=True)
+    m = DAETFNet(cfg).to(device)
+    crit = SPCLoss(cfg, torch.rand(cfg.bands, cfg.msi_bands)).to(device)
+    gt = torch.rand(1, cfg.bands, 32, 32, device=device)
+    lr = blur_downsample(gt, gaussian_kernel2d(9, 1.2, 1.2, 0.0), cfg.scale)
+    msi = torch.rand(1, cfg.msi_bands, 32, 32, device=device)
+    out = m(lr, msi)
+    loss, logs = crit(out, gt, lr, msi, m, deg_gt=torch.rand(1, 5, device=device))
+    loss.backward()
+    grads = sum(1 for p in m.embed.parameters()
+                if p.grad is not None and p.grad.abs().sum() > 0)
+    total = sum(1 for _ in m.embed.parameters())
+    ok = grads == total and "embed" in logs and "cal" in logs
+    print(f"[check] embedding participates in loss: embed grads {grads}/{total}, "
+          f"terms {logs.get('embed', float('nan')):.4f}/{logs.get('cal', float('nan')):.4f}"
+          f" ({'PASS' if ok else 'FAIL'})")
+    return ok
 
 
 def check_network_consistency(device: str = "cpu", tol: float = 1e-2) -> bool:
