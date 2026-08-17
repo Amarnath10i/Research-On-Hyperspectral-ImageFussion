@@ -1,16 +1,17 @@
 # Hyperspectral-Multispectral Image Fusion
 
-A benchmark of ten published HSI-MSI fusion methods, and **four new
-architectures** attacking the failure that benchmark exposed by four genuinely
+A benchmark of ten published HSI-MSI fusion methods, and **five new
+architectures** attacking the failure that benchmark exposed by five genuinely
 different mechanisms.
 
 ```
 common/hsifusion/    shared protocol, data, metrics, engine, classical baselines
 existing/            the ten benchmarked methods (notebooks, papers, results)
-proposal1/  DAETF-Net        equivariant tensor + MoE, physics in the LOSS
+proposal1/  DAETF-Net        projective spectral embedding + range/null, physics in the LOSS
 proposal2/  UnfoldFusion     unrolled variational solver, physics in the ARCHITECTURE
 proposal3/  ContinuumFusion  implicit representation, ARBITRARY SCALE FACTOR
 proposal4/  ZeroFusion       self-supervised per-scene, NO TRAINING SET
+proposal5/  SpectralFlow     score-based posterior sampling, physics in the SAMPLER
 literature_survey/   Crossref -> Unpaywall -> annotated Excel pipeline
 tools/               notebook generators, Kaggle push/repair/re-run automation
 ```
@@ -47,20 +48,21 @@ re-run under one protocol.
 
 ---
 
-## The four proposals
+## The five proposals
 
 All target spectral fidelity under domain shift, by different mechanisms.
 
 | | Mechanism | Owns which gap | Params |
 |---|---|---|---|
-| **P1** [DAETF-Net](proposal1/docs/ARCHITECTURE.md) | p4-equivariant CNN + Tucker + per-pixel MoE + wavelet; physics in the loss | geometric robustness, interpretable routing | 2.06 M |
+| **P1** [DAETF-Net](proposal1/docs/ARCHITECTURE.md) | projective spectral embedding (illumination-invariant, SAM-calibrated manifold) + range/null consistency | metric-aligned training, illumination invariance | ~0.5 M (paper core) |
 | **P2** [UnfoldFusion](proposal2/docs/ARCHITECTURE.md) | half-quadratic splitting unrolled; CG data step in a low-rank spectral subspace | interpretability; smallest overfitting surface | 0.09 M |
 | **P3** [ContinuumFusion](proposal3/docs/ARCHITECTURE.md) | continuous field `f(x,y,λ)`, decoded per queried coordinate | **arbitrary scale factor** from one model | ~0.1 M |
 | **P4** [ZeroFusion](proposal4/docs/ARCHITECTURE.md) | per-scene unmixing fitted from the observations alone | **immune to domain shift by construction** | 0.03 M |
+| **P5** [SpectralFlow](proposal5/docs/ARCHITECTURE.md) | score-based posterior sampling on the null space of the (estimated) observation operator | **consistency by construction**; generative spectral prior | ~2 M |
 
 **P4 is the control arm.** It never trains on a source domain, so it cannot
-suffer domain shift. If P1–P3 cannot beat it cross-domain, what they learned on
-the source was worth less than nothing on the target — and per-scene
+suffer domain shift. If P1–P3 and P5 cannot beat it cross-domain, what they
+learned on the source was worth less than nothing on the target — and per-scene
 optimisation is simply the better method. Few fusion papers include this test.
 
 ### Every claim is checked numerically, not asserted
@@ -68,12 +70,15 @@ optimisation is simply the better method. Few fusion papers include this test.
 | Claim | Check | Result |
 |---|---|---|
 | P1 EFE is p4-equivariant | `‖rot90(f(x)) − f(rot90(x))‖` | 7.6e-06 |
+| P1 PSE is intensity-invariant | `‖φ(s) − φ(5s)‖` | 3e-08 |
 | P1 wavelet is invertible | `‖IDWT(DWT(x)) − x‖` | 2.4e-07 |
 | P1 Tucker core is used | gradient reaches the core | pass |
 | P2 `Bᵀ` is the true adjoint | `⟨Bx,y⟩ = ⟨x,Bᵀy⟩` | 1.0e-06 |
 | P2 CG solves the data step | residual over 16 steps | 1.3e+02 → 1.4e-05 |
 | P3 scale is a query parameter | ×2/×3/×4/×5/×8, one model | pass |
 | P4 uses no ground truth | loss term audit | pass |
+| P5 `D(ŷ)=X` after sampling | untrained network, 4 steps | 8.2e-07 |
+| P5 score net learns the prior | denoise RMSE | 0.306 → 0.208 |
 | SRF recovered from data | vs known synthetic response | 2.3e-08 |
 
 Testing caught bugs that would have invalidated results while still training
@@ -102,9 +107,10 @@ Notebooks are self-contained — no clone, no internet.
 
 ```bash
 pip install -r requirements.txt
-export PYTHONPATH=common:proposal1:proposal2:proposal3:proposal4
+export PYTHONPATH=common:proposal1:proposal2:proposal3:proposal4:proposal5
 
-python -c "import daetf; daetf.selfcheck.run_all()"     # verify P1's mechanisms
+python -c "import daetf; daetf.selfcheck.run_all()"        # verify P1's mechanisms
+python -c "import spectralflow; spectralflow.selfcheck()"  # verify P5's mechanisms
 
 python - <<'PY'
 import hsifusion, unfoldfusion
