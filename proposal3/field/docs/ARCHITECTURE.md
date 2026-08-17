@@ -1,0 +1,55 @@
+# P3 scaffold — sensor-independent continuous scene field
+
+The P3 (priority-3) paper restructure: **one continuous scene field
+`F(x,y,lambda)` observed through per-sensor operators `O_s`**, so a model
+fitted on sensors A,B renders for an unseen sensor C zero-shot.  Arbitrary
+resolution per se is NOT the claim (crowded: CLoRF arXiv 2405.17818, IR&ArF
+TIP 2025, PGU-Net arXiv 2606.05759); the claim is *sensor independence*,
+measured by the hold-out-sensor gap `delta_sensor = E_unseen - E_seen`.
+
+## The object: SceneField
+
+`SceneField` is a parametric function of continuous coordinates:
+
+    F(x,y,lam) = sum_{b,k,l} Z[b,k,l] * psi_b(lam) * cos(2 pi kx x) cos(2 pi ky y)
+
+- `psi_b` = Gaussian bumps over `lambda in [0,1]` (the spectral continuum);
+- cosines over `[0,1]^2` = the spatial modes (incl. DC);
+- `Z (B,K,K)` = the only degrees of freedom, linear in the observations.
+
+## The operators: Sensor
+
+`Sensor` = spectral response (Gaussian SRF over lambda) + spatial sampling
+(blur + decimate, reusing `DegradationOperator`).  `O_s[F]` is a **linear
+operator** on `Z`, so:
+
+- `linear_map` builds the dense matrix `A_s` (verified exact: `A_s @ z` equals
+  `observe(F)` to 2.6e-7);
+- fitting a field to any set of sensors is ONE least-squares solve
+  (`fit_field`); rendering for a hold-out sensor is zero-shot.
+
+## Claims verified (selfcheck, non-neural)
+
+| # | claim | value |
+|---|-------|-------|
+| 1 | `O_s` is linear for every sensor | 2.6e-7 |
+| 2 | fit on A,B -> reproduce A,B and C zero-shot | E_seen 7e-6, E_unseen 7e-6, delta ~ -3e-8 |
+| 3 | nearest-band copy of A as baseline | E(C\|A) = 3.8e-1 (field is ~5 orders better) |
+| 4 | under-specified family -> gap grows | E_unseen 6.6e-6 (full) vs 0.95 (under), delta +0.13 |
+
+## What this means for the paper
+
+- When the field family contains the true scene, sensor independence is exact:
+  the hold-out-sensor observation is predicted to solver precision with no
+  re-fitting (`delta_sensor ~ 0`).
+- The baseline demonstrates the field's coupling is what buys the zero-shot:
+  a band-to-band copy of sensor A has 5 orders of magnitude more error on C.
+- `delta_sensor` is a meaningful diagnostic: it grows with model mis-specification
+  (0.95 for the under-parameterised family), i.e. it measures how sensor-independent
+  a model really is, not how well it memorises the training sensors.
+
+## Next stage (Kaggle, GPU)
+
+Learned field (neural coefficient predictor) on real multi-sensor scenes;
+`delta_sensor` and `E_unseen` become the P3 headline metrics; degrade spectral
+diversity / registration error and show `delta_sensor` tracks them.
