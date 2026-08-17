@@ -121,15 +121,20 @@ Components:
 * **`sampler.py`** — `DiffusionSampler`, deterministic DDIM reverse (`eta=0`,
   `sample_steps` configurable) with the per-step null-space projection.  The
   projector runs one small CG solve in LR space per step; the range component
-  `D_pinv(X)` is computed once per scene and cached.
+  `D_pinv(X)` is computed once per scene and cached.  The `use_projection`
+  switch (off ⇒ plain DDIM) is what makes the critical Stage 1 vs Stage 2
+  experiment runnable **on a single checkpoint**: projection is an inference
+  behaviour, not part of training, so one trained score net serves both arms.
 * **`nullspace.py`** — `DegradationOperator` (exact adjoint, zero padding),
   `RangeNullProjector`, CG solver.  Same formulation as P1 but self-contained.
 * **`losses.py`** — denoising score matching (MSE on `eps`), plus a
   degradation-regression term so the code is physical, plus a light
   SRF-consistency term so the MSI channel is load-bearing.
 * **`engine.py`** — `train` (score matching only, no sampling), `SamplingModel`
-  (the protocol-facing wrapper: sampling *is* the forward pass), and
-  `evaluate_dataset` with optional per-scene **operator refinement**.
+  (the protocol-facing wrapper: sampling *is* the forward pass), the
+  `set_projection()` / `set_msi_guide()` toggles that drive the ladder, and
+  `evaluate_dataset` with per-scene **LR-consistency** reporting and optional
+  per-scene **operator refinement**.
 
 ### Blind setting: joint operator estimation and refinement
 
@@ -158,9 +163,17 @@ via Hann-tiled inference, per-scene rows retained for paired tests.
 | 0 | Bicubic, GSA, HySure/CNMF | Is the protocol correct? (run these first) |
 | 1 | Score net without projection (plain DDIM) | Does the generative prior learn the manifold? |
 | 2 | Stage 1 + per-step null-space projection | Does the projection help, hurt, or neither? |
-| 3 | Stage 2 + MSI conditioning | Is the guide load-bearing? |
-| 4 | Stage 3 + blind operator + per-scene refinement | Does estimated-degradation adaptation help? |
-| 5 | One module at a time | Does each addition earn its complexity? |
+| 3 | Stage 2 + MSI conditioning off | Is the guide load-bearing? |
+
+Stages 1–3 are implemented as `STAGE_LADDER` in `experiments.py`: the two
+switches (`use_projection`, `use_msi_guide`) flip inference behaviour on the
+**same** checkpoint, so the ladder costs one training run.  `run_stage_ladder`
+produces a paired stage-vs-stage comparison with Wilcoxon / Cohen's d / bootstrap
+CIs; the roadmap decision gates are Stage 2 vs Stage 1 (SAM ↓≥2°, and
+LR-consistency falling ~1e-2 → ~1e-6) and Stage 3 vs Stage 2 (guide must earn
+its channel).  If projection does not beat plain DDIM on SAM/ERGAS, the correct
+output is a negative-result paper about the limits of data-consistency
+projection — still publishable, different framing.
 
 For every stage, report per-scene PSNR, SSIM, SAM, ERGAS, LR-consistency error
 `‖D(ŷ) − X‖` (expected ~1e-6 with the projection, ~1e-2 without), and
@@ -188,8 +201,10 @@ algebra; the ranking is an empirical outcome this repository does not yet have.
 
 * **Sampling cost.**  Reverse diffusion at inference is 10–50 score forward
   passes per tile; tiled full-scene evaluation is slower than a single-pass
-  regressor.  Mitigations: DDIM `sample_steps=10`, and the null-space reduction
-  shrinks what must be generated.
+  regressor.  Mitigations: DDIM `sample_steps=10`, the null-space reduction
+  shrinks what must be generated, and the companion proposal
+  `proposal6/consistentflow/` distills the sampler into a **one-step** map
+  (same guarantee, ~regressor cost) — the speed story lives there.
 * **The prior is trained on a domain.**  SpectralFlow is robust to shift through
   the projection, not through the prior; a poor prior yields plausible-but-wrong
   null-space detail (e.g., hallucinated texture), which no consistency check can
