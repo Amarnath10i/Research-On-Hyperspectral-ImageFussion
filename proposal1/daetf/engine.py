@@ -12,6 +12,7 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
 import copy
@@ -98,18 +99,36 @@ def tiled_inference(model: DAETFNet, lr: torch.Tensor, msi: torch.Tensor, scale:
 def evaluate_dataset(model: DAETFNet, root: str, cfg: Config, split: str = "Test",
                      device: str = "cuda", limit: Optional[int] = None,
                      tile_hr: int = 256, verbose: bool = True,
-                     return_rows: bool = False):
+                     return_rows: bool = False,
+                     srf: Optional[np.ndarray] = None):
     """Full-scene evaluation through the unified metric module.
 
     With return_rows=True the per-scene table is returned as well, which is what
     the paired significance tests operate on.
+
+    Every scene also reports two observation-consistency errors, because the Q1
+    ladder (Q1_REDESIGN.md) scores data consistency per stage:
+
+      * ``lr_consistency``  max|D(ŷ) - X| / max|X| under the fixed evaluation
+        operator that built X - small when the range/null decomposition holds,
+        large for an unconstrained residual network.
+      * ``srf_consistency``  max|S(ŷ) - M| / max|M| through the recovered
+        spectral response - small when the output re-explains the MSI guide.
+
+    ``srf`` defaults to a least-squares estimate from the evaluated root, so
+    the numbers are reproducible without extra plumbing.
     """
     pairs = find_pairs(root, split)
     if limit:
         pairs = pairs[:limit]
     cache = SceneCache(cfg.bands, cfg.msi_bands, limit=2)
     degrade = FixedDegradation.from_config(cfg).to(device)
-    rows, agg = [], {"psnr": [], "ssim": [], "sam": [], "ergas": []}
+    if srf is None:
+        srf = estimate_srf(root, split, cfg)
+    srf_w = torch.from_numpy(srf.T.reshape(cfg.msi_bands, cfg.bands, 1, 1)
+                             .astype(np.float32)).to(device)
+    rows, agg = [], {"psnr": [], "ssim": [], "sam": [], "ergas": [],
+                     "lr_consistency": [], "srf_consistency": []}
 
     for stem, hp, rp in pairs:
         hsi, rgb = cache.get(stem, hp, rp)
@@ -121,12 +140,19 @@ def evaluate_dataset(model: DAETFNet, root: str, cfg: Config, split: str = "Test
         pred = tiled_inference(model, lr, msi, cfg.scale, tile_hr=tile_hr)
         m = evaluate_arrays(pred[0].cpu().numpy().transpose(1, 2, 0),
                             gt[0].cpu().numpy().transpose(1, 2, 0), cfg.scale)
+        re = degrade(pred.float())
+        m["lr_consistency"] = float(
+            ((re - lr).abs().max() / lr.abs().max().clamp_min(1e-12)).item())
+        sr = F.conv2d(pred.float(), srf_w)
+        m["srf_consistency"] = float(
+            ((sr - msi).abs().max() / msi.abs().max().clamp_min(1e-12)).item())
         rows.append((stem, m))
         for k, v in m.items():
             agg[k].append(v)
         if verbose:
             print(f"  {stem:<24} PSNR={m['psnr']:7.3f}  SSIM={m['ssim']:.4f}  "
-                  f"SAM={m['sam']:6.3f}  ERGAS={m['ergas']:8.3f}")
+                  f"SAM={m['sam']:6.3f}  ERGAS={m['ergas']:8.3f}  "
+                  f"LRcons={m['lr_consistency']:.2e}")
         del gt, msi, lr, pred
         if device == "cuda":
             torch.cuda.empty_cache()
@@ -134,7 +160,8 @@ def evaluate_dataset(model: DAETFNet, root: str, cfg: Config, split: str = "Test
     mean = {k: float(np.mean(v)) for k, v in agg.items()}
     if verbose:
         print(f"  {'MEAN':<24} PSNR={mean['psnr']:7.3f}  SSIM={mean['ssim']:.4f}  "
-              f"SAM={mean['sam']:6.3f}  ERGAS={mean['ergas']:8.3f}")
+              f"SAM={mean['sam']:6.3f}  ERGAS={mean['ergas']:8.3f}  "
+              f"LRcons={mean['lr_consistency']:.2e}")
     if return_rows:
         return mean, [{"scene": s, **m} for s, m in rows]
     return mean
@@ -165,7 +192,7 @@ def train(cfg: Config, device: str = "cuda", align_target: bool = True,
                         drop_last=True, persistent_workers=cfg.workers > 0)
 
     tgt_loader = None
-    if align_target and cfg.target_root:
+    if align_target and cfg.target_root and cfg.use_mmd:
         tgt_set = FusionPatchDataset(cfg.target_root, "Train", cfg, train=True, srf=srf,
                                      length=cfg.iters * cfg.batch)
         tgt_loader = iter(DataLoader(tgt_set, batch_size=cfg.batch, shuffle=False,

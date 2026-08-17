@@ -79,6 +79,7 @@ class Config:
     use_degradation_code: bool = True
     use_disagreement: bool = True        # v3: spectral disagreement field
     use_nullspace: bool = True           # v4: range/null decomposition
+    use_mmd: bool = True                 # v3: MMD domain alignment at train
 
     # --- projective spectral embedding (v5: the headline idea) ---------------
     # The illumination-invariant, SAM-metric-aligned manifold.  Per-pixel
@@ -151,6 +152,7 @@ class Config:
             use_disagreement=False,
             use_physics=True,
             use_projective_embed=True,
+            use_mmd=False,
         )
         values.update(overrides)
         return cls(**values)

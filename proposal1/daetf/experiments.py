@@ -36,7 +36,18 @@ from .engine import (evaluate_dataset, evaluate_with_tta, load_checkpoint,
 from .model import DAETFNet
 
 METRICS = ("psnr", "ssim", "sam", "ergas")
-HIGHER_IS_BETTER = {"psnr": True, "ssim": True, "sam": False, "ergas": False}
+HIGHER_IS_BETTER = {"psnr": True, "ssim": True, "sam": False, "ergas": False,
+                    "lr_consistency": False, "srf_consistency": False}
+
+# Q1_REDESIGN.md: the paper leads with SAM and ERGAS (the metrics that fail
+# under domain shift); PSNR is secondary.  `comparison_table` uses this order
+# unless told otherwise.
+HEADLINE_METRICS = ("sam", "ergas", "psnr", "ssim")
+
+# Observation-consistency errors, reported per stage in the Q1 ladder.
+# Both are "lower is better"; lr_consistency is the one the range/null split
+# claims to make ~0, srf_consistency the one the physical losses claim.
+CONSISTENCY_METRICS = ("lr_consistency", "srf_consistency")
 
 
 # ---------------------------------------------------------------- statistics
@@ -111,7 +122,7 @@ def compare_methods(ours: List[Dict], theirs: List[Dict],
     by_b = {r["scene"]: r for r in theirs}
     shared = [r for r in ours if r["scene"] in by_b]
     out = {"name_a": name_a, "name_b": name_b, "n_scenes": len(shared)}
-    for m in METRICS:
+    for m in METRICS + CONSISTENCY_METRICS:
         a = [r[m] for r in shared]
         b = [by_b[r["scene"]][m] for r in shared]
         test = wilcoxon_signed_rank(a, b)
@@ -127,7 +138,7 @@ def compare_methods(ours: List[Dict], theirs: List[Dict],
 def summarise_rows(rows: List[Dict]) -> Dict[str, Dict[str, float]]:
     """Mean, std and bootstrap CI for each metric across scenes."""
     out = {}
-    for m in METRICS:
+    for m in METRICS + CONSISTENCY_METRICS:
         v = [r[m] for r in rows]
         lo, hi = bootstrap_ci(v)
         out[m] = {"mean": float(np.mean(v)), "std": float(np.std(v, ddof=1)) if len(v) > 1 else 0.0,
@@ -232,6 +243,102 @@ PAPER_CORE_ABLATIONS: List[Tuple[str, Dict]] = [
     ("+ region-aware experts", {"use_moe": True}),
     ("+ wavelet refinement", {"use_fdrm": True}),
 ]
+
+# The exact ladder from Q1_REDESIGN.md, as a strictly ordered sequence.  Each
+# stage adds exactly one mechanism to the previous one, so the marginal effect
+# of the central hypotheses (range/null, then PSE) is isolated.  Stage 0 is not
+# here: it is the classical-baseline protocol audit, which needs no training.
+#
+#   Stage 1  plain residual fusion, capacity matched   is MSI guidance useful?
+#   Stage 2  + physical losses                          do constraints help?
+#   Stage 3  + range/null projection                    does the split help?
+#   Stage 4  + projective spectral embedding            is PSE load-bearing?
+#   Stage 5  + blind degradation conditioning           does the estimate help?
+#   Stage 6  one optional module at a time              does each earn its cost?
+#
+# Every stage shares Config.paper_core()'s width, patches, schedule and metric
+# implementation, so a difference between adjacent stages is attributable to the
+# single mechanism added.
+Q1_LADDER: List[Tuple[str, Dict]] = [
+    ("Stage 1: plain residual fusion (bicubic + residual)",
+     {"use_nullspace": False, "use_backprojection": False,
+      "use_equivariant": False, "use_tsse": False, "use_moe": False,
+      "use_fdrm": False, "use_degradation_code": False,
+      "use_disagreement": False, "use_physics": False,
+      "use_projective_embed": False, "use_mmd": False, "w_deg": 0.0}),
+    ("Stage 2: + physical losses",
+     {"use_nullspace": False, "use_backprojection": False,
+      "use_equivariant": False, "use_tsse": False, "use_moe": False,
+      "use_fdrm": False, "use_degradation_code": False,
+      "use_disagreement": False, "use_physics": True,
+      "use_projective_embed": False, "use_mmd": False, "w_deg": 0.0}),
+    ("Stage 3: + range/null projection",
+     {"use_nullspace": True, "use_backprojection": False,
+      "use_equivariant": False, "use_tsse": False, "use_moe": False,
+      "use_fdrm": False, "use_degradation_code": False,
+      "use_disagreement": False, "use_physics": True,
+      "use_projective_embed": False, "use_mmd": False, "w_deg": 0.0}),
+    ("Stage 4: + projective spectral embedding",
+     {"use_nullspace": True, "use_backprojection": False,
+      "use_equivariant": False, "use_tsse": False, "use_moe": False,
+      "use_fdrm": False, "use_degradation_code": False,
+      "use_disagreement": False, "use_physics": True,
+      "use_projective_embed": True, "use_mmd": False, "w_deg": 0.0}),
+    ("Stage 5: + blind degradation conditioning",
+     {"use_nullspace": True, "use_backprojection": False,
+      "use_equivariant": False, "use_tsse": False, "use_moe": False,
+      "use_fdrm": False, "use_degradation_code": True,
+      "use_disagreement": False, "use_physics": True,
+      "use_projective_embed": True, "use_mmd": False, "w_deg": 0.05}),
+    ("Stage 6: + p4 equivariant encoder", {"use_equivariant": True}),
+    ("Stage 6: + Tucker interaction", {"use_tsse": True}),
+    ("Stage 6: + region-aware experts", {"use_moe": True}),
+    ("Stage 6: + wavelet refinement", {"use_fdrm": True}),
+]
+
+
+def run_q1_ladder(base_cfg: Config, device: str = "cuda",
+                  iters: Optional[int] = None,
+                  variants: Optional[List[Tuple[str, Dict]]] = None,
+                  log_fn=print) -> List[Dict]:
+    """Train the Q1 ladder stages in order and score each on source and target.
+
+    ``base_cfg`` must be ``Config.paper_core()`` (or equal to its *base*
+    overrides); each stage inherits and modifies it.  Stage 0 (classical
+    baselines) is not trained: call ``baselines.evaluate_all_baselines`` on the
+    same roots for the protocol audit.
+    """
+    variants = variants if variants is not None else Q1_LADDER
+    results = []
+    for name, overrides in variants:
+        cfg = replace(base_cfg, **overrides)
+        if iters:
+            cfg.iters = iters
+        cfg.out_dir = os.path.join(base_cfg.out_dir, "q1",
+                                   name.replace("/", "").replace(" ", "_"))
+        log_fn(f"\n=== {name} ===")
+        model, _ = train(cfg, device=device, align_target=False, log_fn=log_fn)
+        row: Dict = {"stage": name, "params_M": model.n_params() / 1e6}
+        src, src_rows = evaluate_dataset(model, cfg.source_root, cfg, "Test",
+                                         device, verbose=False, return_rows=True)
+        row["source"] = src
+        row["source_rows"] = src_rows
+        if cfg.target_root:
+            tgt, tgt_rows = evaluate_dataset(model, cfg.target_root, cfg, "Test",
+                                             device, verbose=False,
+                                             return_rows=True)
+            row["target"] = tgt
+            row["target_rows"] = tgt_rows
+        results.append(row)
+        log_fn(f"  {name}: in-domain SAM {src['sam']:.3f} ERGAS {src['ergas']:.3f} "
+               f"LRcons {src['lr_consistency']:.2e}"
+               + (f" | cross SAM {tgt['sam']:.3f} ERGAS {tgt['ergas']:.3f} "
+                  f"LRcons {tgt['lr_consistency']:.2e}"
+                  if cfg.target_root else ""))
+        del model
+        if device == "cuda":
+            torch.cuda.empty_cache()
+    return results
 
 
 # ------------------------------------------------------------------- SOTA reference
@@ -489,51 +596,82 @@ def latex_table(headers: Sequence[str], rows: Sequence[Sequence],
 
 
 def comparison_table(entries: Dict[str, Dict[str, float]], fmt: str = "markdown",
-                     caption: str = "", label: str = "") -> str:
-    """entries: {method name -> {psnr, ssim, sam, ergas}} rendered with the
-    best value in each column marked."""
-    headers = ["Method", "PSNR (dB) up", "SSIM up", "SAM (deg) down", "ERGAS down"]
+                     caption: str = "", label: str = "",
+                     order: Sequence[str] = HEADLINE_METRICS,
+                     include_consistency: bool = False) -> str:
+    """entries: {method name -> {psnr, ssim, sam, ergas, [lr_consistency,...]}}.
+
+    Column order defaults to the headline metrics (SAM, ERGAS, PSNR, SSIM)
+    per Q1_REDESIGN.md; pass ``order=METRICS`` for the legacy PSNR-first order.
+    """
+    headers = ["Method"] + [_labelled(m) for m in order]
+    if include_consistency:
+        headers += ["LR-consistency down", "SRF-consistency down"]
     best = {m: (max if HIGHER_IS_BETTER[m] else min)(
-        e[m] for e in entries.values() if m in e) for m in METRICS}
+        e[m] for e in entries.values() if m in e) for m in order}
     rows = []
     for name, e in entries.items():
         cells = [name]
-        for m, prec in zip(METRICS, (3, 4, 3, 3)):
+        for m in order:
             val = e.get(m)
             if val is None:
                 cells.append("-")
                 continue
-            txt = f"{val:.{prec}f}"
+            txt = f"{val:.{_prec(m)}f}"
             if abs(val - best[m]) < 1e-9:
                 txt = f"**{txt}**" if fmt == "markdown" else rf"\textbf{{{txt}}}"
             cells.append(txt)
+        if include_consistency:
+            for m in CONSISTENCY_METRICS:
+                val = e.get(m)
+                cells.append("-" if val is None else f"{val:.2e}")
         rows.append(cells)
     return (markdown_table(headers, rows) if fmt == "markdown"
             else latex_table(headers, rows, caption, label))
 
 
+def _labelled(m: str) -> str:
+    up_down = "up" if HIGHER_IS_BETTER.get(m, True) else "down"
+    if m == "sam":
+        return "SAM (deg) down"
+    if m == "ergas":
+        return "ERGAS down"
+    return f"{m.upper()} {up_down}"
+
+
+def _prec(m: str) -> int:
+    return 4 if m == "ssim" else 3
+
+
 def ablation_table(results: List[Dict], fmt: str = "markdown") -> str:
+    """Ladder table: SAM/ERGAS first (the metrics that fail under domain
+    shift), then PSNR/SSIM, then the observation-consistency errors."""
     has_target = any("target" in r for r in results)
-    headers = ["Variant", "Params (M)", "PSNR", "SAM", "ERGAS"]
+    headers = ["Variant", "Params (M)", "SAM", "ERGAS", "PSNR",
+               "LR-consistency", "SRF-consistency"]
     if has_target:
-        headers += ["PSNR (cross)", "SAM (cross)", "ERGAS (cross)"]
+        headers += ["SAM (cross)", "ERGAS (cross)", "LRcons (cross)"]
     rows = []
     for r in results:
         cells = [r["variant"], f"{r['params_M']:.2f}",
-                 f"{r['source']['psnr']:.3f}", f"{r['source']['sam']:.3f}",
-                 f"{r['source']['ergas']:.3f}"]
+                 f"{r['source']['sam']:.3f}", f"{r['source']['ergas']:.3f}",
+                 f"{r['source']['psnr']:.3f}",
+                 f"{r['source']['lr_consistency']:.2e}",
+                 f"{r['source']['srf_consistency']:.2e}"]
         if has_target:
             t = r.get("target", {})
-            cells += [f"{t.get('psnr', float('nan')):.3f}",
-                      f"{t.get('sam', float('nan')):.3f}",
-                      f"{t.get('ergas', float('nan')):.3f}"]
+            cells += [f"{t.get('sam', float('nan')):.3f}",
+                      f"{t.get('ergas', float('nan')):.3f}",
+                      f"{t.get('lr_consistency', float('nan')):.2e}"]
         rows.append(cells)
     return (markdown_table(headers, rows) if fmt == "markdown"
-            else latex_table(headers, rows, "Component ablation.", "tab:ablation"))
+            else latex_table(headers, rows, "Q1 ablation ladder.", "tab:ladder"))
 
 
-def significance_table(comparisons: List[Dict], metric: str = "psnr",
+def significance_table(comparisons: List[Dict], metric: str = "sam",
                        fmt: str = "markdown") -> str:
+    """Paired significance on one metric.  Defaults to SAM - the metric that
+    fails under domain shift - per Q1_REDESIGN.md."""
     headers = ["Baseline", f"ours {metric}", f"baseline {metric}", "delta",
                "Wilcoxon p", "Cohen d", "n"]
     rows = []

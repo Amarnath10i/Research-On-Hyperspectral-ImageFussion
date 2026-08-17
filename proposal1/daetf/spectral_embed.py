@@ -150,21 +150,14 @@ def check_intensity_invariance(tol: float = 1e-6) -> bool:
     return ok
 
 
-def check_metric_calibration(steps: int = 200, tol: float = 0.15) -> float:
+def check_metric_calibration(steps: int = 300, tol: float = 0.15) -> float:
     """Fitting the calibration loss must make manifold distance track sphere
     chord distance (spectral angle) on held-out spectra."""
     torch.manual_seed(0)
     emb = ProjectiveSpectralEmbedding(31, embed_dim=16, hidden=32, layers=3)
     opt = torch.optim.AdamW(emb.parameters(), lr=5e-3)
 
-    # smooth synthetic spectra with per-pixel spatial variation, so sampled
-    # pairs carry a spread of spectral angles
-    base = torch.rand(64, 31, 1, 1)
-    t = torch.linspace(0, 1, 31).reshape(1, 31, 1, 1)
-    spec = (base + 0.5 * torch.randn(64, 31, 1, 1) * torch.cos(3 * t)
-            + 0.2 * torch.randn(64, 31, 1, 1) * torch.sin(7 * t)).abs() + 1e-3
-    spatial = 0.3 + 0.7 * torch.rand(64, 1, 16, 16)
-    data = (spec * spatial).clamp_min(1e-3)
+    data = _synthetic_spectral_data(64, 31, 16)
 
     err_before = emb.metric_error(data, seed=0)
     for step in range(steps):
@@ -177,6 +170,89 @@ def check_metric_calibration(steps: int = 200, tol: float = 0.15) -> float:
     print(f"[check] metric calibration err {err_before:.4f} -> {err_after:.4f} "
           f"({'PASS' if ok else 'FAIL'})")
     return err_after
+
+
+def _synthetic_spectral_data(n: int, bands: int, size: int) -> torch.Tensor:
+    """Smooth spectra whose unit DIRECTIONS vary per pixel, so sampled pairs
+    span a spread of spectral angles.  (A previous construction varied only
+    per-pixel intensity, leaving every pixel collinear - SAM pairs of ~0 deg
+    made the calibration check trivially pass.)"""
+    t = torch.linspace(0, 1, bands).reshape(1, bands, 1, 1)
+    low = torch.rand(n, bands, 1, 1)
+    high = torch.rand(n, bands, 1, 1)
+    u = torch.rand(n, 1, size, size)                 # per-pixel blend weight
+    spec = low + (high - low) * u                    # direction varies per pixel
+    spec = (spec + 0.2 * torch.randn(n, bands, size, size)).abs() + 1e-3
+    return spec
+
+
+@torch.no_grad()
+def manifold_vs_sam_statistics(emb: ProjectiveSpectralEmbedding,
+                               data: torch.Tensor, n_pairs: int = 8192,
+                               seed: int = 0) -> Tuple[float, float, float, float]:
+    """L2 distance in the embedding vs actual SAM on held-out spectra.
+
+    Returns (Pearson r, MAE after a linear fit, slope, intercept).  This is the
+    statistic Q1_REDESIGN.md requires to justify training with L2 in the
+    manifold instead of a raw SAM term: if the correlation is high and the
+    fitted MAE small, optimising L2 in the embedding *is* optimising spectral
+    angle, but with well-behaved gradients everywhere on the sphere.
+    """
+    b, c, h, w = data.shape
+    g = torch.Generator(device=data.device).manual_seed(seed)
+    idx = torch.randint(0, h * w, (2, b, n_pairs), device=data.device, generator=g)
+    flat = data.permute(0, 2, 3, 1).reshape(b, h * w, c)
+    a = flat.gather(1, idx[0].unsqueeze(-1).expand(b, n_pairs, c))
+    bb = flat.gather(1, idx[1].unsqueeze(-1).expand(b, n_pairs, c))
+    ua = a / a.norm(dim=-1, keepdim=True).clamp_min(1e-6)
+    ub = bb / bb.norm(dim=-1, keepdim=True).clamp_min(1e-6)
+    sam = torch.rad2deg(torch.acos((ua * ub).sum(-1).clamp(-1, 1)))
+
+    ea, _ = emb(data)
+    ef = ea.permute(0, 2, 3, 1).reshape(b, h * w, ea.shape[1])
+    e_a = ef.gather(1, idx[0].unsqueeze(-1).expand(b, n_pairs, ea.shape[1]))
+    e_b = ef.gather(1, idx[1].unsqueeze(-1).expand(b, n_pairs, ea.shape[1]))
+    d = (e_a - e_b).norm(dim=-1)
+
+    d_f, s_f = d.flatten().double(), sam.flatten().double()
+    sol, *_ = torch.linalg.lstsq(torch.stack([d_f, torch.ones_like(d_f)], dim=1),
+                                 s_f)
+    slope, intercept = float(sol[0]), float(sol[1])
+    pred = sol[0] * d_f + sol[1]
+    mae = float((pred - s_f).abs().mean())
+    dc, sc = d_f - d_f.mean(), s_f - s_f.mean()
+    r = float(((dc * sc).sum() / (dc.norm() * sc.norm()).clamp_min(1e-12)).item())
+    return r, mae, slope, intercept
+
+
+def check_manifold_predicts_sam(steps: int = 300, corr_tol: float = 0.7,
+                                mae_tol: float = 5.0) -> bool:
+    """The calibration fitted on a TRAIN set must transfer: on HELD-OUT spectra
+    the L2-in-manifold distance predicts SAM with high correlation and small
+    MAE.  This is what makes the PSE objective equivalent to optimising SAM.
+
+    The thresholds are sanity bounds for a 300-step CPU check on synthetic
+    data; the paper reports the same statistic on real spectra.
+    """
+    torch.manual_seed(0)
+    emb = ProjectiveSpectralEmbedding(31, embed_dim=16, hidden=32, layers=3)
+    opt = torch.optim.AdamW(emb.parameters(), lr=5e-3)
+    train_data = _synthetic_spectral_data(48, 31, 16)
+    held_data = _synthetic_spectral_data(48, 31, 16)   # genuinely unseen
+
+    for step in range(steps):
+        opt.zero_grad(set_to_none=True)
+        loss = emb.calibration_loss(train_data, n_pairs=1024)
+        loss.backward()
+        opt.step()
+
+    r, mae, slope, intercept = manifold_vs_sam_statistics(emb, held_data)
+    ok = r > corr_tol and mae < mae_tol
+    print(f"[check] manifold predicts SAM on held-out spectra: "
+          f"Pearson r={r:.3f}, fitted MAE={mae:.3f} deg, "
+          f"SAM ~= {slope:.2f}*d + {intercept:.2f} "
+          f"({'PASS' if ok else 'FAIL'})")
+    return ok
 
 
 if __name__ == "__main__":

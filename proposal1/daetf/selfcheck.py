@@ -20,6 +20,7 @@ from .modules import (EquivariantFeatureExtractor, HaarDWT,
                       TensorSpectralSpatialEncoder)
 from .spectral_embed import (ProjectiveSpectralEmbedding,
                              check_intensity_invariance,
+                             check_manifold_predicts_sam,
                              check_metric_calibration)
 
 
@@ -162,6 +163,9 @@ def run_all(device: str = "cpu") -> bool:
     ok &= check_intensity_invariance()
     ok &= check_metric_calibration() < 0.15
     ok &= check_embed_in_loss(device)
+    # the calibration must transfer: L2-in-manifold predicts SAM on held-out
+    # spectra, which is what justifies training with L2 instead of raw SAM.
+    ok &= check_manifold_predicts_sam()
 
     # v4: the range/null decomposition. These verify the central claim - that
     # D(Y_hat) = X is an algebraic identity rather than something the loss
