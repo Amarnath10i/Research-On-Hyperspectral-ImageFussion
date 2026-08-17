@@ -13,6 +13,7 @@ expert routing rather than a uniform fusion strategy.
 """
 
 from . import baselines, experiments, selfcheck
+from .experiments import PAPER_CORE_ABLATIONS
 from .baselines import (BASELINES, evaluate_all_baselines,
                         evaluate_baseline)
 from .config import Config
@@ -35,6 +36,7 @@ from .modules import (BackProjectionUpsampler, BicubicUpsampler,
                       PlainFeatureExtractor, ResidualDenseBlock,
                       SpectralDisagreementField,
                       TensorSpectralSpatialEncoder)
+from .nullspace import RangeNullProjector, decode_degradation_params, kernel_from_params
 
 # Build the SPCLoss for use in TTA outside the engine
 from .losses import SPCLoss as _SPCLoss
@@ -69,6 +71,8 @@ __all__ = [
     "SpectralDisagreementField", "ChannelAttention", "ResidualDenseBlock",
     "HaarDWT", "FrequencyDomainRefinement",
     "BackProjectionUpsampler", "BicubicUpsampler", "GeometricSelfEnsemble",
+    "RangeNullProjector", "decode_degradation_params", "kernel_from_params",
     "baselines", "experiments", "selfcheck", "__version__", "name",
     "BASELINES", "evaluate_baseline", "evaluate_all_baselines",
+    "PAPER_CORE_ABLATIONS",
 ]

@@ -216,6 +216,23 @@ ABLATIONS: List[Tuple[str, Dict]] = [
     ("w/o physics losses",           {"use_physics": False}),
 ]
 
+# Paper-facing ablation ladder.  Use this with ``Config.paper_core()``.  Each
+# row answers one causal question about the range/null formulation before any
+# optional capacity-heavy modules are considered.  The legacy ``ABLATIONS``
+# list above is retained for exploratory DAETF-Net runs.
+PAPER_CORE_ABLATIONS: List[Tuple[str, Dict]] = [
+    ("Range-null guided fusion (full)", {}),
+    ("w/o range-null projection", {
+        "use_nullspace": False, "use_backprojection": False,
+    }),
+    ("w/o degradation conditioning", {"use_degradation_code": False}),
+    ("w/o physical losses", {"use_physics": False}),
+    ("+ p4 equivariant encoder", {"use_equivariant": True}),
+    ("+ Tucker interaction", {"use_tsse": True}),
+    ("+ region-aware experts", {"use_moe": True}),
+    ("+ wavelet refinement", {"use_fdrm": True}),
+]
+
 
 # ------------------------------------------------------------------- SOTA reference
 # Published numbers from their respective papers. These are NOT run under our
@@ -355,6 +372,8 @@ def run_ablation(base_cfg: Config, device: str = "cuda", iters: Optional[int] = 
 
     Every variant is trained with an identical budget, seed and data order, so
     differences are attributable to the component rather than to the schedule.
+    For the paper hypothesis, call this with ``Config.paper_core()`` and
+    ``variants=PAPER_CORE_ABLATIONS``.
     """
     variants = variants or ABLATIONS
     results = []

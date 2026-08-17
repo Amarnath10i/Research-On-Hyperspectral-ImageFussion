@@ -201,9 +201,41 @@ class RangeNullProjector(nn.Module):
                 "range": range_part, "null": null_part}
 
 
+def decode_degradation_params(raw: torch.Tensor, min_sigma: float = 0.3
+                              ) -> torch.Tensor:
+    """Convert unconstrained head outputs into physical degradation parameters.
+
+    The degradation head is an unconstrained linear layer.  Its output must be
+    decoded *before* it is both supervised and used to construct a blur kernel.
+    Otherwise the regression target and the operator silently use different
+    parameterisations (for example, supervising ``sx`` but applying
+    ``softplus(sx)`` in the operator).  This small detail matters: the spatial
+    observation model is the central claim of the method.
+
+    Returns physical ``[sigma_x, sigma_y, sin(2 theta), cos(2 theta), noise]``
+    values.  The orientation pair is normalised so it always represents a valid
+    ellipse orientation, while the sigmas and noise are positive.
+    """
+    if raw.ndim != 2 or raw.shape[1] < 5:
+        raise ValueError("expected raw degradation parameters [B, >=5]")
+    sigma_x = F.softplus(raw[:, 0]) + min_sigma
+    sigma_y = F.softplus(raw[:, 1]) + min_sigma
+    orient = raw[:, 2:4]
+    orient_norm = orient.norm(dim=1, keepdim=True)
+    orient_unit = orient / orient_norm.clamp_min(1e-6)
+    # A zero vector has no angle.  At initialisation use theta=0
+    # (sin(2 theta)=0, cos(2 theta)=1), which is a valid circular/default
+    # orientation rather than passing an invalid [0, 0] pair downstream.
+    default_orient = torch.zeros_like(orient)
+    default_orient[:, 1] = 1.0
+    orient = torch.where(orient_norm > 1e-6, orient_unit, default_orient)
+    noise = F.softplus(raw[:, 4])
+    return torch.cat([sigma_x[:, None], sigma_y[:, None], orient, noise[:, None]], dim=1)
+
+
 def kernel_from_params(params: torch.Tensor, ksize: int = 9,
                        min_sigma: float = 0.3) -> torch.Tensor:
-    """Build a differentiable anisotropic Gaussian kernel from predicted
+    """Build a differentiable anisotropic Gaussian kernel from *physical*
     degradation parameters (sx, sy, sin2t, cos2t, ...).
 
     This is what makes the degradation encoder load-bearing rather than
@@ -211,15 +243,17 @@ def kernel_from_params(params: torch.Tensor, ksize: int = 9,
     range component is wrong, and the consistency identity - while still exact
     with respect to the *estimated* operator - no longer matches the true
     sensor. Estimating the kernel and using it here couples the two: gradients
-    from the reconstruction reach the kernel predictor.
+    from the reconstruction reach the kernel predictor.  ``params`` must have
+    passed through :func:`decode_degradation_params`; it is deliberately not
+    decoded a second time here.
 
     The doubled angle (sin 2t, cos 2t) is deliberate. An ellipse is invariant
     under a half turn, so parameterising t directly makes t and t+pi distinct
     predictions of the same kernel and leaves a discontinuity for the network
     to trip over.
     """
-    sx = F.softplus(params[:, 0]) + min_sigma
-    sy = F.softplus(params[:, 1]) + min_sigma
+    sx = params[:, 0].clamp_min(min_sigma)
+    sy = params[:, 1].clamp_min(min_sigma)
     s2, c2 = params[:, 2], params[:, 3]
     norm = torch.sqrt(s2 ** 2 + c2 ** 2).clamp_min(1e-6)
     theta = 0.5 * torch.atan2(s2 / norm, c2 / norm)
