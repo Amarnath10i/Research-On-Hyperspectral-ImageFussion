@@ -77,12 +77,17 @@ class DiffusionSampler:
                  projector: RangeNullProjector,
                  num_timesteps: int = 200, sample_steps: int = 10,
                  eta: float = 0.0, beta_start: float = 1e-4,
-                 beta_end: float = 0.02):
+                 beta_end: float = 0.02,
+                 use_projection: bool = True):
         self.score_net = score_net
         self.projector = projector
         self.schedule = LinearNoiseSchedule(num_timesteps, beta_start, beta_end)
         self.sample_steps = sample_steps
         self.eta = eta
+        # When False the sampler is plain DDIM: the same prior, but nothing is
+        # projected onto the consistent set.  This is the Stage 1 control arm
+        # of the Q1 ladder - it answers whether the projection itself helps.
+        self.use_projection = use_projection
 
     # ------------------------------------------------------------------
     @torch.no_grad()
@@ -117,7 +122,8 @@ class DiffusionSampler:
         self.schedule = self.schedule.to(lr_hsi.device)
         self.score_net.eval()
         b, c, h, w = msi.shape[0], lr_hsi.shape[1], msi.shape[2], msi.shape[3]
-        range_part = self.projector.pinv(lr_hsi, (h, w), kernel)
+        range_part = (self.projector.pinv(lr_hsi, (h, w), kernel)
+                      if self.use_projection else None)
 
         y = torch.randn(b, c, h, w, device=lr_hsi.device, dtype=lr_hsi.dtype)
         steps = self._steps(lr_hsi.device)
@@ -129,11 +135,14 @@ class DiffusionSampler:
             tt = torch.full((b,), t, device=lr_hsi.device, dtype=torch.long)
             eps = self.score_net(y, msi, code, tt)
             x0 = (y - sq1_t * eps) / a_t
-            x0 = self._consistent(x0, range_part, kernel)
-            # Clamping is needed for a valid image, but the clamp itself would
-            # break D(x0) = X, so project again after the clamp to restore the
-            # identity exactly.
-            x0 = self._consistent(x0.clamp(0, 1), range_part, kernel)
+            if self.use_projection:
+                x0 = self._consistent(x0, range_part, kernel)
+                # Clamping is needed for a valid image, but the clamp itself
+                # would break D(x0) = X, so project again after the clamp to
+                # restore the identity exactly.
+                x0 = self._consistent(x0.clamp(0, 1), range_part, kernel)
+            else:
+                x0 = x0.clamp(0, 1)
             if return_x0_history:
                 hist.append(x0)
 

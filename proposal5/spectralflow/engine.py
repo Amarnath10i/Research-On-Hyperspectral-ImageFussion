@@ -98,8 +98,18 @@ class SamplingModel(nn.Module):
         self.sampler = DiffusionSampler(
             self.score_net, self.projector, num_timesteps=cfg.num_timesteps,
             sample_steps=cfg.sample_steps, eta=cfg.eta,
-            beta_start=cfg.beta_start, beta_end=cfg.beta_end)
+            beta_start=cfg.beta_start, beta_end=cfg.beta_end,
+            use_projection=cfg.use_projection)
         self._ext_kernel: Optional[torch.Tensor] = None
+        self._use_msi_guide = cfg.use_msi_guide
+
+    def set_projection(self, enabled: bool) -> None:
+        """Toggle the null-space projection (Q1 ladder Stage 1 vs Stage 2)."""
+        self.sampler.use_projection = bool(enabled)
+
+    def set_msi_guide(self, enabled: bool) -> None:
+        """Toggle whether the HR-MSI guide reaches the sampler."""
+        self._use_msi_guide = bool(enabled)
 
     def set_kernel(self, kernel: Optional[torch.Tensor]) -> None:
         """External kernel override (used by per-scene operator refinement)."""
@@ -109,6 +119,8 @@ class SamplingModel(nn.Module):
             self._ext_kernel = kernel.detach().clone()
 
     def forward(self, lr_hsi: torch.Tensor, msi: torch.Tensor):
+        if not self._use_msi_guide:
+            msi = torch.zeros_like(msi)
         code, raw = self.deg_head(lr_hsi, msi)
         if self._ext_kernel is not None:
             kernel = self._ext_kernel.to(lr_hsi.device)
@@ -231,7 +243,8 @@ def evaluate_dataset(model: SamplingModel, root: str, cfg: Config,
     from hsifusion.data import SceneCache
     cache = SceneCache(cfg.bands, cfg.msi_bands, limit=2)
     degrade = FixedDegradation(cfg.scale, cfg.blur_ksize, cfg.eval_sigma).to(device)
-    rows, agg = [], {"psnr": [], "ssim": [], "sam": [], "ergas": []}
+    rows, agg = [], {"psnr": [], "ssim": [], "sam": [], "ergas": [],
+                     "lr_consistency": []}
 
     for stem, hp, rp in pairs:
         hsi, rgb = cache.get(stem, hp, rp)
@@ -257,12 +270,20 @@ def evaluate_dataset(model: SamplingModel, root: str, cfg: Config,
 
         m = evaluate_arrays(pred[0].cpu().numpy().transpose(1, 2, 0),
                             gt[0].cpu().numpy().transpose(1, 2, 0), cfg.scale)
+        # LR-consistency under the FIXED evaluation operator (the one used to
+        # build the observation): with the projection this is solver tolerance,
+        # without it (~Stage 1) it is the free-DDIM drift.  The estimated-
+        # operator consistency is reported separately for blind runs.
+        re = degrade(pred.float())
+        lc = float(((re - lr).abs().max() / lr.abs().max().clamp_min(1e-12)).item())
+        m = {**m, "lr_consistency": lc}
         rows.append({"scene": stem, **m})
         for k, v in m.items():
             agg[k].append(v)
         if verbose:
             print(f"  {stem:<24} PSNR={m['psnr']:7.3f}  SSIM={m['ssim']:.4f}  "
-                  f"SAM={m['sam']:6.3f}  ERGAS={m['ergas']:8.3f}")
+                  f"SAM={m['sam']:6.3f}  ERGAS={m['ergas']:8.3f}  "
+                  f"LRcons={m['lr_consistency']:.2e}")
         del gt, msi, lr, pred
         if device == "cuda":
             torch.cuda.empty_cache()
@@ -270,7 +291,8 @@ def evaluate_dataset(model: SamplingModel, root: str, cfg: Config,
     mean = {k: float(np.mean(v)) for k, v in agg.items()}
     if verbose:
         print(f"  {'MEAN':<24} PSNR={mean['psnr']:7.3f}  SSIM={mean['ssim']:.4f}  "
-              f"SAM={mean['sam']:6.3f}  ERGAS={mean['ergas']:8.3f}")
+              f"SAM={mean['sam']:6.3f}  ERGAS={mean['ergas']:8.3f}  "
+              f"LRcons={mean['lr_consistency']:.2e}")
     return (mean, rows) if return_rows else mean
 
 

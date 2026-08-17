@@ -54,6 +54,14 @@ class Config:
     refine_lr: float = 1e-2
     refine_w_spec: float = 1.0
 
+    # --- ablation switches -----------------------------------------------------
+    # The Q1 critical experiment is Stage 1 vs Stage 2 of docs/ARCHITECTURE.md:
+    # the SAME trained score network, sampled with and without the per-step
+    # null-space projection.  These switches make that comparison runnable
+    # without re-training - the projection lives in the sampler, not the loss.
+    use_projection: bool = True        # False = plain DDIM (Stage 1)
+    use_msi_guide: bool = True         # False = the HR-MSI guide is zeroed
+
     # --- optimisation ----------------------------------------------------------
     iters: int = 30000
     batch: int = 8
