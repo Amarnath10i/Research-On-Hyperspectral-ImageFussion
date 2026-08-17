@@ -1,166 +1,115 @@
-# Hyperspectral-Multispectral Image Fusion
+# Hyperspectral–Multispectral Image Fusion — Q1 research program
 
-A benchmark of ten published HSI-MSI fusion methods, and **five new
-architectures** attacking the failure that benchmark exposed by five genuinely
-different mechanisms.
+The Q1 program was restructured around **identifiability and uncertainty**,
+after the literature audit showed the "another fusion CNN" route is crowded
+out (range/null decomposition: DDNM, NSDD, LCDM-BAOAB; arbitrary resolution:
+CLoRF, IR&ArF; blind joint estimation: PGU-Net, U2K, DTDNML, ...).  Four
+papers remain, each a scientific question plus a mathematical object, ranked
+by risk:
+
+| | Paper | Question | Object | Headline metric |
+|---|---|---|---|---|
+| **P2** (priority 1) | Spectral complexity | Can the intrinsic spectral dimensionality of a fusion problem be identified from its observations? | observation-identifiable rank `r_id = rank(R^T U_r)` | `\|r̂ − r_id\|` |
+| **P1** (priority 2) | Admissible ambiguity | What does a fusion method know, and what does it invent? | learned admissible manifold `M_θ ⊂ N(A)` | hallucination `H = ‖P_N(X̂−X)‖/(‖P_N X‖+ε)` |
+| **P3** | Sensor-independent field | Can one scene field be fused for *any* sensor? | continuous field `F(x,y,λ)` with sensor operators `O_s` | hold-out-sensor gap `Δ_sensor = E_unseen − E_seen` |
+| **P4** (capstone) | Joint identifiability | When is the fusion problem identifiable *at all*? | identifiability phase diagram (I → W → N) | regime, `r_id_hat/r`, `‖P_N X‖/‖X‖` |
+
+**Common spine:** uncertainty / ambiguity quantification — `U(x,y,λ)` (P1),
+`r_id` (P2), `U_sensor` (P3), `I(X,D,R,E,A)` (P4).  Evaluation philosophy:
+observation consistency, spectral fidelity (SAM/ERGAS per `PROTOCOL_AUDIT.md`),
+generalisation gaps, identifiability — never a single inflated headline.
+
+## Current state: all four non-neural scaffolds complete and self-checked
+
+The program's falsifiable foundations are implemented, verified (ALL PASS),
+committed and pushed.  Each scaffold contains no networks — every claim is
+against the operator algebra, so failures are caught before any training.
+
+| Scaffold | What it proves | Selfcheck |
+|---|---|---|
+| `proposal2/rankest` + `metrics` + `theory` | `r_id` is recoverable from observations: exact `\|Δr\|=0` for r=3..30; monotone in SNR (12→5) and MSI bands; SRF-overlap tracking 12→12→11→6; noise within 3–5% | ALL PASS |
+| `proposal1/ambiguity` | joint `A=[D;R]` projector; consistency is an identity (8.7e-6); `H` monotone 1.0/0.5/0.0 with `E_obs` invariant (spread 4e-6); ambiguity map predicts null-ignorant failure (corr 1.0) | ALL PASS |
+| `proposal3/field` | one field, many sensors: linear operators 2.6e-7; zero-shot `Δ_sensor ≈ −3e-8`; nearest-band baseline 3.8e-1 (five orders worse); under-specified family `E_unseen 0.95` | ALL PASS |
+| `proposal4/identifiability` | phase diagram I/W/N; `r_id_hat` monotone in SNR & M; `null_frac` monotone; the two identifiability views anti-correlate (−0.70) | ALL PASS |
+
+The learned stage of each paper (network `M_θ`, adaptive rank model, neural
+field, joint recovery) is built on these scaffolds and runs on Kaggle (GPU).
+
+## Repository layout
 
 ```
-common/hsifusion/    shared protocol, data, metrics, engine, classical baselines
-existing/            the ten benchmarked methods (notebooks, papers, results)
-proposal1/  DAETF-Net        projective spectral embedding + range/null, physics in the LOSS
-proposal2/  UnfoldFusion     unrolled variational solver, physics in the ARCHITECTURE
-proposal3/  ContinuumFusion  implicit representation, ARBITRARY SCALE FACTOR
-proposal4/  ZeroFusion       self-supervised per-scene, NO TRAINING SET
-proposal5/  SpectralFlow     score-based posterior sampling, physics in the SAMPLER
+common/hsifusion/      shared protocol, data, metrics, engine, classical baselines
+existing/              the ten benchmarked methods (notebooks, papers, results)
+proposal1/  ambiguity/     P1 paper scaffold (A=[D;R], obs/amb, hallucination, U)
+            daetf/ slt/    legacy architectures (selfchecked, superseded)
+proposal2/  rankest/       P2 paper foundation (generator, r_id selfcheck, results)
+            metrics/       identifiable-rank + rank-error metrics
+            theory/        rank definitions, estimator, assumptions
+            experiments/   4 sweep scripts (python -m)
+            krylovnet/ unfoldfusion/   legacy architectures
+proposal3/  field/         P3 paper scaffold (SceneField, sensors, delta_sensor)
+            continuumfusion/ nsp/      legacy architectures
+proposal4/  identifiability/  P4 capstone scaffold (phase-diagram simulator)
+            zerofusion/ graphdip/      legacy architectures
+proposal5/  manifoldflow/     learned null-space flow (P1 learned-stage groundwork)
+            spectralflow/     legacy + RangeNullProjector (the shared operator core)
+proposal6/  consistentflow/   legacy architecture
 literature_survey/   Crossref -> Unpaywall -> annotated Excel pipeline
 tools/               notebook generators, Kaggle push/repair/re-run automation
+PROTOCOL_AUDIT.md    evaluation protocol (SAM/ERGAS headline, paired Wilcoxon,
+                     bootstrap CIs, >=3 seeds, SOTA_REFERENCE table)
 ```
 
-Each `proposalN/` contains `<package>/`, `notebooks/`, `docs/`, `results/`.
-
----
-
-## The finding that drives all of this
-
-Re-running ten fusion methods across CAVE and Harvard shows the usual headline
-metric points the wrong way.
-
-Five of nine methods score **higher PSNR** on the harder dataset — per-image
-maximum normalisation inflates it on dark scenes. What actually breaks is
-**spectral fidelity**: seven of nine lose 4–57 degrees of SAM, and ERGAS rises
-by up to two orders of magnitude.
-
-| Method | SAM CAVE → Harvard | ERGAS CAVE → Harvard |
-|---|---|---|
-| Fusformer | 2.35 → **58.89** | 0.85 → **302.39** |
-| UTAL | 4.62 → **36.46** | 0.27 → 16.60 |
-| IFCASformer | 5.15 → **26.86** | 3.55 → **85.41** |
-| PSRT | 7.55 → 15.87 | 0.39 → 1.81 |
-| DHIF-Net | 2.16 → 2.62 | 0.51 → 0.93 |
-
-Full table and caveats: [`existing/results/BENCHMARK.md`](existing/results/BENCHMARK.md).
-
-**Stated up front:** those ten notebooks each used their own protocol — scale
-factors of ×4, ×8, ×16 and ×32, different normalisations, and one method on a
-different dataset and task. The numbers are real but **not comparable across
-methods**. No cross-method ranking here is settled until every baseline is
-re-run under one protocol.
-
----
-
-## The five proposals
-
-All target spectral fidelity under domain shift, by different mechanisms.
-
-| | Mechanism | Owns which gap | Params |
-|---|---|---|---|
-| **P1** [DAETF-Net](proposal1/docs/ARCHITECTURE.md) | projective spectral embedding (illumination-invariant, SAM-calibrated manifold) + range/null consistency | metric-aligned training, illumination invariance | ~0.5 M (paper core) |
-| **P2** [UnfoldFusion](proposal2/docs/ARCHITECTURE.md) | half-quadratic splitting unrolled; CG data step in a low-rank spectral subspace | interpretability; smallest overfitting surface | 0.09 M |
-| **P3** [ContinuumFusion](proposal3/docs/ARCHITECTURE.md) | continuous field `f(x,y,λ)`, decoded per queried coordinate | **arbitrary scale factor** from one model | ~0.1 M |
-| **P4** [ZeroFusion](proposal4/docs/ARCHITECTURE.md) | per-scene unmixing fitted from the observations alone | **immune to domain shift by construction** | 0.03 M |
-| **P5** [SpectralFlow](proposal5/docs/ARCHITECTURE.md) | score-based posterior sampling on the null space of the (estimated) observation operator | **consistency by construction**; generative spectral prior | ~2 M |
-
-**P4 is the control arm.** It never trains on a source domain, so it cannot
-suffer domain shift. If P1–P3 and P5 cannot beat it cross-domain, what they
-learned on the source was worth less than nothing on the target — and per-scene
-optimisation is simply the better method. Few fusion papers include this test.
-
-### Every claim is checked numerically, not asserted
-
-| Claim | Check | Result |
-|---|---|---|
-| P1 EFE is p4-equivariant | `‖rot90(f(x)) − f(rot90(x))‖` | 7.6e-06 |
-| P1 PSE is intensity-invariant | `‖φ(s) − φ(5s)‖` | 3e-08 |
-| P1 wavelet is invertible | `‖IDWT(DWT(x)) − x‖` | 2.4e-07 |
-| P1 Tucker core is used | gradient reaches the core | pass |
-| P2 `Bᵀ` is the true adjoint | `⟨Bx,y⟩ = ⟨x,Bᵀy⟩` | 1.0e-06 |
-| P2 CG solves the data step | residual over 16 steps | 1.3e+02 → 1.4e-05 |
-| P3 scale is a query parameter | ×2/×3/×4/×5/×8, one model | pass |
-| P4 uses no ground truth | loss term audit | pass |
-| P5 `D(ŷ)=X` after sampling | untrained network, 4 steps | 8.2e-07 |
-| P5 score net learns the prior | denoise RMSE | 0.306 → 0.208 |
-| SRF recovered from data | vs known synthetic response | 2.3e-08 |
-
-Testing caught bugs that would have invalidated results while still training
-happily — a padding mismatch that broke P2's adjoint and would have reduced the
-solver to a stack of denoisers, and a forward-pass `clamp` that froze P4's
-optimisation entirely. Both are documented in the respective architecture docs.
-
----
+Each `proposalN/` README describes its present-work package and legacy ones.
+Every package self-checks its own claims numerically.
 
 ## Running it
 
-### On Kaggle
+```powershell
+# Windows PowerShell (Linux/macOS: replace ';' with ':' in PYTHONPATH)
+$env:PYTHONPATH="common;proposal1;proposal2;proposal3;proposal4;proposal5"
 
-1. Upload the proposal's notebook from `proposalN/notebooks/`
-2. Attach the CAVE and Harvard datasets
-3. **Settings → Accelerator → "GPU T4 x2"** — set this in the UI. PyTorch ≥ 2.6
-   ships no kernels for the P100's `sm_60`, so a P100 fails on the first CUDA op.
-   The push API accepts an `accelerator` field but Kaggle ignores it and will
-   silently reset your choice, so do not push to a kernel between setting it and
-   running.
-4. Set `QUICK = True` first (a few minutes) to validate, then `False`
+# verify each paper scaffold
+python -c "import proposal2.rankest as r; r._selfcheck.run_all()"       # P2
+python -c "import proposal1.ambiguity as a; a._selfcheck.run_all()"     # P1
+python -c "import proposal3.field as f; f._selfcheck.run_all()"         # P3
+python -c "import proposal4.identifiability as i; i._selfcheck.run_all()"  # P4
 
-Notebooks are self-contained — no clone, no internet.
-
-### Locally
-
-```bash
-pip install -r requirements.txt
-export PYTHONPATH=common:proposal1:proposal2:proposal3:proposal4:proposal5
-
-python -c "import daetf; daetf.selfcheck.run_all()"        # verify P1's mechanisms
-python -c "import spectralflow; spectralflow.selfcheck()"  # verify P5's mechanisms
-
-python - <<'PY'
-import hsifusion, unfoldfusion
-cfg = unfoldfusion.Config().resolve()      # discovers datasets, infers bands
-model, hist = unfoldfusion.train(cfg)
-hsifusion.evaluate_dataset(model, cfg.source_root, cfg)
-PY
+# artefacts
+python -m proposal2.experiments.synthetic_rank_sweep   # P2 tables
+python -m proposal2.experiments.noise_sweep
+python -m proposal2.experiments.band_count_sweep
+python -m proposal2.experiments.srf_sweep
+python -m proposal4.identifiability.phasediagram       # P4 phase diagram
 ```
 
-Datasets are discovered under `/kaggle/input`, `./data` or the cwd, at any
-nesting depth. Override with `DAETF_DATA_ROOTS` or `Config(source_root=...)`.
-Nothing is hardcoded — band counts are read from the files.
+Legacy architecture selfchecks still run the same way (e.g. `python -c
+"import daetf; daetf.selfcheck.run_all()"`).
 
-### Regenerating notebooks
+### Kaggle (learned stage, GPU)
 
-```bash
-python tools/build_notebook.py                  # proposal 1
-python tools/build_proposal_notebook.py         # proposals 2-4
-```
-
-Edit the packages and regenerate; never edit notebook cells directly.
-
----
+Upload the proposal notebook, attach CAVE + Harvard, set **Accelerator → GPU
+T4 x2** in the UI (the push API ignores the accelerator field), run `QUICK =
+True` first.  Notebooks are self-contained.
 
 ## Why one shared library
 
-`common/hsifusion` holds the protocol, data pipeline, metric implementation,
-degradation model, classical baselines and a model-agnostic engine. Any model
-following `forward(lr_hsi, msi) -> {"out": tensor}` trains and scores
-identically.
-
-`BaseConfig` carries the protocol fields; each proposal subclasses it and adds
-only its architecture. So a difference between two proposals is attributable to
-the architecture — not to one of them evaluating at a different scale factor.
-That is precisely how the ten published baselines became incomparable, and the
-structure exists to stop it happening again.
-
-Every proposal is also scored against the same three classical baselines
-(bicubic, GSA, a coupled subspace estimator) which need no checkpoints and so
-run through the identical pipeline. They are the only strictly comparable rows
-available today, and the floor any learned method must clear.
-
----
+`common/hsifusion` holds the protocol, data pipeline, metric implementations,
+degradation model and classical baselines.  Any model following
+`forward(lr_hsi, msi) -> {"out": tensor}` trains and scores identically;
+`BaseConfig` carries the protocol fields so differences between methods are
+attributable to the method, not to different scale factors — the exact mistake
+that made the ten published baselines incomparable.
 
 ## Status
 
-Implementations, evaluation harness, and automation are complete and tested.
+The four paper scaffolds and all legacy implementations are complete and
+self-checked.  **No results on real CAVE/Harvard data exist yet** — the learned
+stage (network `M_θ`, adaptive rank model, neural field, joint recovery) runs
+on Kaggle, and every published claim is re-verified under the shared protocol
+before any state-of-the-art statement is made.  Until then this repository
+makes no claim about beating the state of the art.
 
-**No results on real CAVE or Harvard data exist yet.** Every number in this
-repository from the four proposals comes from a synthetic test harness used to
-verify correctness. Until the training runs complete and the ten baselines are
-re-run under one protocol, this repository makes **no claim** about beating the
-state of the art.
+Background finding that motivates the program: re-running ten fusion methods
+across CAVE/Harvard shows spectral fidelity, not PSNR, is what breaks under
+domain shift (see `existing/results/BENCHMARK.md`).
