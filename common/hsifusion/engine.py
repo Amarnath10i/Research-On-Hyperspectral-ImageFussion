@@ -24,6 +24,7 @@ from .data import FusionPatchDataset, SceneCache, estimate_srf
 from .degrade import FixedDegradation
 from .io_utils import find_pairs
 from .metrics import evaluate_arrays
+from .checkpoint import CheckpointManager
 
 
 def set_seed(seed: int) -> None:
@@ -171,23 +172,24 @@ def train(cfg, build_model: Callable[[object], nn.Module],
                                 "cfg": cfg.to_dict(), "params": total_params}
     best, t0 = -1e9, time.time()
 
-    start_step = 1
-    ckpt_path = os.path.join(cfg.out_dir, f"{cfg.name}_checkpoint.pth")
-    if os.path.exists(ckpt_path):
-        log_fn(f"Resuming from {ckpt_path}")
-        ckpt = torch.load(ckpt_path, map_location=device)
-        model.load_state_dict(ckpt["model"])
-        if "ema_model" in locals() and "ema_model" in ckpt:
-            ema_model.load_state_dict(ckpt["ema_model"])
-        opt.load_state_dict(ckpt["opt"])
-        scaler.load_state_dict(ckpt["scaler"])
-        start_step = ckpt["step"] + 1
-        best = ckpt.get("best", -1e9)
-        history = ckpt.get("history", history)
+    ckpt_mgr = CheckpointManager(cfg.out_dir, cfg.name, device=device)
+    ckpt_mgr.print_status(log_fn)
+
+    resume_result = ckpt_mgr.maybe_resume(model, opt, scaler, log_fn=log_fn)
+    if isinstance(resume_result, tuple):
+        start_step, best, history = resume_result
+    else:
+        start_step = resume_result
 
     model.train()
     for step, batch in enumerate(loader, start=start_step):
         if step > cfg.iters:
+            break
+
+        # Kaggle time guard: save and exit if <10min remaining
+        if ckpt_mgr._time_remaining() < 600:
+            log_fn(f"\n[KAGGLE] <10min remaining — saving checkpoint at step {step} and exiting")
+            ckpt_mgr.save(model, opt, scaler, step, best, history, force=True)
             break
         for g in opt.param_groups:
             g["lr"] = cosine_lr(step, cfg)
@@ -224,17 +226,7 @@ def train(cfg, build_model: Callable[[object], nn.Module],
             history["iter"].append(step)
             history["loss"].append(logs["total"])
 
-            save_dict = {
-                "model": model.state_dict(),
-                "opt": opt.state_dict(),
-                "scaler": scaler.state_dict(),
-                "step": step,
-                "best": best,
-                "history": history,
-            }
-            if "ema_model" in locals():
-                save_dict["ema_model"] = locals()["ema_model"].state_dict()
-            torch.save(save_dict, ckpt_path)
+            ckpt_mgr.save(model, opt, scaler, step, best, history, every=2000)
 
         if step % cfg.val_every == 0 or step == cfg.iters:
             m = evaluate_dataset(model, cfg.source_root, cfg, "Test", device,
@@ -244,14 +236,10 @@ def train(cfg, build_model: Callable[[object], nn.Module],
             history["val"].append({"iter": step, **m})
             if m["psnr"] > best:
                 best = m["psnr"]
-                torch.save({"model": model.state_dict(), "cfg": cfg.to_dict(),
-                            "srf": srf, "val": m},
-                           os.path.join(cfg.out_dir, f"{cfg.name}_best.pth"))
+                ckpt_mgr.save_best(model, cfg, srf, m, log_fn=log_fn)
             model.train()
 
-    torch.save({"model": model.state_dict(), "cfg": cfg.to_dict(), "srf": srf,
-                "params": total_params},
-               os.path.join(cfg.out_dir, f"{cfg.name}_final.pth"))
+    ckpt_mgr.save_final(model, cfg, srf, total_params, log_fn=log_fn)
     with open(os.path.join(cfg.out_dir, "history.json"), "w") as f:
         json.dump(history, f, indent=1)
     return model, history
