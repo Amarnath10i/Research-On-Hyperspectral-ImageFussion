@@ -19,7 +19,23 @@ the observations support?", not "how many does the scene have?":
   floor in the noise-free regime; `estimate_ranks` pipeline.
 - `metrics/rank_error.py` — `|r_hat - r_id|`, `within_tol`, summariser.
 - `theory/` — `rank_definition.md` (four rank notions), `identifiable_rank.md`
-  (equivalence `X1 ~_A X2 <=> A(X1)=A(X2)`), `assumptions.md`.
+  (equivalence `X1 ~_A X2 <=> A(X1)=A(X2)`), `assumptions.md`,
+  `model_selection.md` (optimality floor for any observation-consistent
+  reconstruction; the scene-aware projector `G = RᵀU`).
+- `model_selection.py` — **the new headline object for Q1.** A model-selection
+  rule `r* = min(r_hat, r_id_hat)` and a provable, architecture-independent
+  lower bound on spectral error:
+
+  ```
+  min_{A X̂ = A X} ‖X̂ − X‖ / ‖X‖  =  ‖U P_null Z‖ / ‖X‖,
+        P_null = I − Gᵀ(GGᵀ)⁻¹G,  G = RᵀU,  Z = UᵀX.
+  ```
+
+  Functions: `select_rank`, `spectral_null_fraction(X, U, R)`,
+  `observable_reconstruction`, `reconstruct_with_prior`, `true_null_component`.
+  `model_selection_selfcheck.py` proves the bound is achieved (rank-`r*`
+  reconstruction hits `err = floor = 0.5712`; oracle → 0; over/under-ranked >
+  floor).
 - `experiments/` — four sweep scripts (run via `python -m`):
   `synthetic_rank_sweep`, `noise_sweep`, `band_count_sweep`, `srf_sweep`.
 
@@ -30,6 +46,7 @@ Headline numbers: exact rank recovery `|Δr|=|Δr_id|=0` for r = 3..30;
 ```powershell
 $env:PYTHONPATH="common;proposal1;proposal2;proposal5"
 python -c "import proposal2.rankest as r; r._selfcheck.run_all()"
+python -c "import proposal2.model_selection_selfcheck as m; m.run_all()"
 python -m proposal2.experiments.synthetic_rank_sweep   # etc.
 ```
 

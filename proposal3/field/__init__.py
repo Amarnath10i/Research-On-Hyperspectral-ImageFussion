@@ -8,9 +8,11 @@ no networks); the learned field and the delta_sensor evaluation live on top.
 
 from . import selfcheck as _selfcheck
 from . import field, metrics, sensors
+from . import neural_field, neural_selfcheck
 from .field import SceneField
 from .sensors import Sensor, fit_field
 from .metrics import delta_sensor, relative_error
 
 __all__ = ["SceneField", "Sensor", "fit_field", "delta_sensor",
-           "relative_error", "field", "metrics", "sensors"]
+           "relative_error", "field", "metrics", "sensors",
+           "neural_field", "neural_selfcheck"]

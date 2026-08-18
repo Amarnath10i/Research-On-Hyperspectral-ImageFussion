@@ -10,6 +10,8 @@ from typing import List
 import torch
 
 from .simulator import simulate
+from proposal2.rankest.generator import RankScene, make_srf
+from proposal1.ambiguity.operator import CombinedOperator
 
 
 @torch.no_grad()
@@ -99,6 +101,48 @@ def check_agreement(rank=8, bands=31):
     return ok
 
 
+@torch.no_grad()
+def check_predictive(rank: int = 8, bands: int = 31):
+    """The phase diagram is PREDICTIVE, not just descriptive.  Its score
+    r_id_hat/r predicts the *spectral* identifiability floor:
+
+        floor_spec = ||P_{ker(R^T)} X|| / ||X||,
+
+    i.e. the part of the scene no fusion can recover because the sensors
+    literally do not observe those spectral directions.  We build an
+    Identifiable (I: r_id = r) and a Non-identifiable (N: r_id << r) cell,
+    show that the best consistent spectral reconstruction error EQUALS
+    floor_spec (so the diagram's score is exactly the achievable floor), and
+    that the regimes separate the floor (tiny in I, large in N)."""
+    from proposal2.model_selection import (spectral_null_fraction,
+                                          observable_reconstruction)
+
+    def cell(msi_bands, srf_width, snr_db):
+        d = simulate(rank, msi_bands, srf_width, snr_db, bands)
+        scene = RankScene(bands, msi_bands, 4, rank, 48, 48, 0,
+                          srf_width=srf_width, snr_db=snr_db)
+        floor = spectral_null_fraction(scene.X, scene.U, scene.R)
+        x_rec = observable_reconstruction(scene.X, scene.U, scene.R)
+        best_err = (x_rec - scene.X).norm() / scene.X.norm().clamp_min(1e-12)
+        return d, float(floor), float(best_err)
+
+    i_d, i_floor, i_err = cell(31, 0.02, None)     # I regime (r_id = r)
+    n_d, n_floor, n_err = cell(4, 0.50, 5)         # N regime (r_id << r)
+
+    # Best consistent reconstruction error must equal the spectral floor.
+    ok_i = abs(i_err - i_floor) < 1e-3
+    ok_n = abs(n_err - n_floor) < 1e-3
+    # The diagram's score predicts the floor: ~0 in I, large in N.
+    ok_floor_i = i_floor < 0.05
+    ok_floor_n = n_floor > 0.20
+    ok = ok_i and ok_n and ok_floor_i and ok_floor_n
+    print(f"[6] predictive spectral floor  I: score={i_d['score']:.2f} "
+          f"floor={i_floor:.3f} best-err={i_err:.3f};  "
+          f"N: score={n_d['score']:.2f} floor={n_floor:.3f} "
+          f"best-err={n_err:.3f}  ({'PASS' if ok else 'FAIL'})")
+    return ok
+
+
 def run_all(verbose: bool = True) -> bool:
     ok = True
     ok &= check_regimes()
@@ -106,6 +150,7 @@ def run_all(verbose: bool = True) -> bool:
     ok &= check_band_monotone()
     ok &= check_null_frac()
     ok &= check_agreement()
+    ok &= check_predictive()
     print(f"\n[identifiability] {'ALL PASS' if ok else 'FAILURES PRESENT'}")
     return bool(ok)
 

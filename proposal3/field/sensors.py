@@ -39,13 +39,21 @@ class Sensor:
     def centers(self) -> torch.Tensor:
         return torch.linspace(self.srf_lo, self.srf_hi, self.msi_bands)
 
-    def observe(self, field: SceneField, lam: torch.Tensor,
-                hw: int) -> torch.Tensor:
-        """Y_s = O_s[F]: spectral integrate, then blur + decimate. (M, h, w)."""
+    def observe_cube(self, f: torch.Tensor, lam: torch.Tensor) -> torch.Tensor:
+        """Y_s = O_s[F] applied to an already-rendered spectral cube.
+
+        `f` is (N_lam, H, W); the operator is (1) spectral integrate through
+        the SRF and (2) spatial blur + decimate.  Shared by every field type
+        (linear SceneField and the learned NeuralSceneField) so the sensor
+        operator is byte-for-byte identical across models."""
         spec = gaussian_srf(self.centers(), lam, self.srf_width)  # (N,M)
-        f = field.render(lam, hw)                                  # (N,H,W)
         y = torch.einsum("nm,nhw->mhw", spec, f)                   # (M,H,W)
         return self.D(y[None])[0]
+
+    def observe(self, field: SceneField, lam: torch.Tensor,
+                 hw: int) -> torch.Tensor:
+        """Y_s = O_s[F]: spectral integrate, then blur + decimate. (M, h, w)."""
+        return self.observe_cube(field.render(lam, hw), lam)
 
     def linear_map(self, field: SceneField, lam: torch.Tensor,
                    hw: int) -> torch.Tensor:

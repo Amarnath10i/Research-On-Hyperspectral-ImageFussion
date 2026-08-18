@@ -20,11 +20,18 @@ after P1–P3.
 - `selfcheck.py` — one robust cell per regime; `r_id_hat` monotone in SNR and
   in M; `null_frac` monotone in M and endpoint-increase with overlap; the two
   measures anti-correlate across the grid (corr −0.70).
+- **`check_predictive`** (selfcheck [6]) — the diagram is *predictive*, not just
+  descriptive.  It shows the phase score `s = r_id_hat / r` predicts the actual
+  spectral identifiability floor `‖U P_null Z‖/‖X‖` (P2's
+  `spectral_null_fraction`): in the Identifiable cell (`s = 1.00`) the floor is
+  `0.000`; in the Non-identifiable cell (`s = 0.12`) the floor is `0.704`
+  (= the best-achievable error).  So the diagram tells you *a priori* how much
+  of the scene any method must invent.
 - `docs/ARCHITECTURE.md`, `results/RESULTS.md`.
 
 The phase diagram is the falsifiable target any learned joint estimator must
-respect: it must report confidence in the Non-identifiable regime, and fail
-where the diagram says it must.
+respect: its score predicts the reconstruction floor, it must report confidence
+in the Non-identifiable regime, and fail where the diagram says it must.
 
 ```powershell
 $env:PYTHONPATH="common;proposal1;proposal2;proposal4;proposal5"

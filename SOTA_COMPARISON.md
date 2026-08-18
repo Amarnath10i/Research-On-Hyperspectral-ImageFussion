@@ -116,12 +116,19 @@ everyone measures but nobody explains.
 
 ---
 
-## Next experiments (to fill the table with our own numbers)
+## Experiments (multi-dataset run — `MultiDataset_Fusion_Study.ipynb`, v15)
+
+All numbers below use the **same protocol** (Wald simulation: Gaussian
+blur σ=1.2, x4 decimation, 3-band Gaussian SRF). Published SOTA rows use
+*their* protocol (often Nikon SRF) and are **not directly comparable** —
+they are context only.  This separation fixes the earlier protocol-mixing
+bug in the notebook (old §15 table mixed the hard benchmark's SOTA_CAVE
+with our easier papers-protocol rows).
 
 | Experiment | Dataset(s) | What we report |
 |---|---|---|
-| Baselines under Wald's protocol (3-band MSI) | CAVE, Harvard | PSNR/SSIM/SAM/ERGAS vs above table |
-| Train DAETF-Net / KrylovNet (2000 iters) | CAVE train | in-domain CAVE test |
-| Zero-shot | CAVE→Harvard | cross-domain table (vs CVPR'25 46.48) |
-| r̂_id model selection | CAVE, Harvard | rank auto-selection, error floor |
-| P1 auditor on SOTA outputs | any | hallucination maps, H score |
+| In-domain baselines (Bicubic/GSA/Subspace-LS) | CAVE, Harvard, Chikusei, PaviaU | PSNR/SSIM/SAM/ERGAS, per-scene |
+| Train KrylovNet (2000 iters, ~2.3k params) | each dataset's train split | in-domain test on its own test split |
+| Zero-shot cross-domain | CAVE→Harvard, Harvard→CAVE | cross-domain drop (CAVE−Harvard) |
+| r̂_id analysis | all datasets | per-scene identifiable rank |
+| Ambiguity audit (P1) | all datasets | H score vs SAM correlation |
