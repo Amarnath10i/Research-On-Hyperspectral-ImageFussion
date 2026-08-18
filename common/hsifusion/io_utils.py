@@ -173,8 +173,7 @@ def infer_channels(root: str) -> Tuple[int, int]:
     base = os.path.join(root, split)
     hsi_dir = next(os.path.join(base, d) for d in ("HSI", "hsi")
                    if os.path.isdir(os.path.join(base, d)))
-    rgb_dir = next((os.path.join(base, d) for d in ("RGB", "rgb")
-                    if os.path.isdir(os.path.join(base, d))), None)
+    rgb_dir = _find_rgb_dir(base)
     hsi = np.squeeze(load_mat(sorted(glob.glob(os.path.join(hsi_dir, "*.mat")))[0]))
     bands = int(min(hsi.shape))
     msi_bands = 3
@@ -190,8 +189,7 @@ def find_pairs(root: str, split: str) -> List[Tuple[str, str, str]]:
     base = os.path.join(root, actual)
     hsi_dir = next((os.path.join(base, d) for d in ("HSI", "hsi")
                     if os.path.isdir(os.path.join(base, d))), None)
-    rgb_dir = next((os.path.join(base, d) for d in ("RGB", "rgb")
-                    if os.path.isdir(os.path.join(base, d))), None)
+    rgb_dir = _find_rgb_dir(base)
     if not hsi_dir or not rgb_dir:
         raise FileNotFoundError(f"no HSI/RGB folders under {base}")
     rgb = {os.path.splitext(os.path.basename(p))[0]: p
@@ -204,3 +202,12 @@ def find_pairs(root: str, split: str) -> List[Tuple[str, str, str]]:
     if not out:
         raise RuntimeError(f"no matched pairs under {base}")
     return out
+
+
+def _find_rgb_dir(base: str) -> Optional[str]:
+    """Find RGB dir, also checking PER_RGB and MONO as fallbacks."""
+    for name in ('RGB', 'rgb', 'PER_RGB', 'per_rgb', 'MONO', 'mono'):
+        d = os.path.join(base, name)
+        if os.path.isdir(d):
+            return d
+    return None
