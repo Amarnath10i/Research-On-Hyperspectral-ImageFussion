@@ -23,17 +23,17 @@ MSI). Our numbers are computed under the **repository's unified protocol**
 | Fusformer | 2022 | Transformer | 44.52 | 0.983 | 4.12 | 1.06 | Wald |
 | DHIF | 2022 | Deep + MMD | 51.07 | 0.997 | 2.01 | 1.22 | Wald + Nikon SRF |
 | MIMO-SST | 2022 | CNN | 50.98 | 0.997 | 2.23 | 1.18 | Wald + Nikon SRF |
-| **Ours (baseline, same-protocol)** | | | | | | | |
-| Bicubic | | | 29.93 | 0.888 | 4.89 | 8.37 | Repo protocol (identity SRF) |
-| GSA | | | 30.77 | 0.856 | 9.06 | 7.25 | Repo protocol (identity SRF) |
-| Subspace-LS (r̂_id) | | | (run) | | | | Repo protocol (identity SRF) |
+| **Ours (same-protocol, §11-14)** | | | | | | | |
+| Bicubic (3-band MSI) | | | (run) | | | | Papers' protocol (SRF + x4) |
+| GSA (3-band MSI) | | | (run) | | | | Papers' protocol (SRF + x4) |
+| Subspace-LS (r̂_id) | | | (run) | | | | Papers' protocol (SRF + x4) |
+| KrylovNet (ours, trained) | | | (run) | | | | Papers' protocol, CAVE-trained |
 
-> **Protocol warning.** The published rows use a *true* MSI simulation (Nikon
-> D700 spectral response → 3-band MSI) and report higher PSNR because the
-> fusion problem is better conditioned. Our Kaggle CAVE attachment
-> (`liptee/...`) ships 31-band `PER_RGB`, so the MSI ≈ identity copy of the
-> HSI — a degenerate and *harder* condition for fusion. A like-for-like
-> comparison requires re-simulating a 3-band MSI from the HSI via an SRF.
+> **Protocol warning (addressed in notebook §11).** The published rows use a
+> *true* MSI simulation (Nikon D700 spectral response → 3-band MSI). The Kaggle
+> CAVE attachment (`liptee/...`) ships 31-band `PER_RGB`, so we re-simulate a
+> 3-band MSI from the HR-HSI via an SRF (notebook §11) so our numbers are
+> comparable to the published protocol.
 
 ---
 
