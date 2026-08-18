@@ -42,16 +42,16 @@ class Config:
     eval_sigma: float = 1.2              # fixed kernel used to build the eval LR
 
     # --- optimisation --------------------------------------------------------
-    iters: int = 90000                   # ~9h on P100 @ 2.8 it/s (batch=12)
+    iters: int = 2000                    # ~1.2h on P100; scale up for full convergence
     batch: int = 12                      # safe for P100 16GB; T4x2 can use 16
     lr: float = 2e-4
     min_lr: float = 1e-6
-    warmup: int = 2000                   # longer warmup for 90k run
+    warmup: int = 200                    # 10% of iters
     grad_clip: float = 1.0
     amp: bool = True                     # fp16: halves memory, faster on sm_70+
     grad_accum: int = 2                  # effective batch = batch * grad_accum
     ema_decay: float = 0.999             # EMA decay rate for model weights
-    n_restarts: int = 3                  # cosine warm restarts over 90k iters
+    n_restarts: int = 1                  # single cosine schedule
     workers: int = 2
     seed: int = 42
     cache_limit: int = 12                # scenes held in RAM per loader worker
@@ -103,7 +103,7 @@ class Config:
 
     # --- bookkeeping ---------------------------------------------------------
     out_dir: str = "./daetf_out"
-    val_every: int = 2000
+    val_every: int = 500
     log_every: int = 200
     val_scenes: int = 8
 

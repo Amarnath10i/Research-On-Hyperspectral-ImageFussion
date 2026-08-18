@@ -62,11 +62,11 @@ class Config:
     ridge: float = 1e-6
 
     # --- optimisation -----------------------------------------------------------
-    iters: int = 30000
+    iters: int = 2000                    # ~1.2h on P100; scale up for full convergence
     batch: int = 8
     lr: float = 2e-4
     min_lr: float = 1e-6
-    warmup: int = 1000
+    warmup: int = 200
     grad_clip: float = 1.0
     amp: bool = True
     workers: int = 2
@@ -79,7 +79,7 @@ class Config:
 
     # --- bookkeeping -------------------------------------------------------------
     out_dir: str = "./consistentflow_out"
-    val_every: int = 2000
+    val_every: int = 500
     log_every: int = 200
     val_scenes: int = 4
     name: str = "consistentflow"

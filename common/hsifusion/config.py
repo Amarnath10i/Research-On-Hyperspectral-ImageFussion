@@ -38,11 +38,11 @@ class BaseConfig:
     srf_jitter: float = 0.35
 
     # --- optimisation --------------------------------------------------------
-    iters: int = 20000
+    iters: int = 2000
     batch: int = 16
     lr: float = 2e-4
     min_lr: float = 1e-6
-    warmup: int = 500
+    warmup: int = 200
     grad_clip: float = 1.0
     amp: bool = True
     workers: int = 2

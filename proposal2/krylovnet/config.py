@@ -47,16 +47,16 @@ class Config:
     eval_sigma: float = 1.2
 
     # --- optimisation --------------------------------------------------------
-    iters: int = 90000
+    iters: int = 2000                    # ~1.2h on P100; scale up for full convergence
     batch: int = 12
     lr: float = 2e-4
     min_lr: float = 1e-6
-    warmup: int = 2000
+    warmup: int = 200
     grad_clip: float = 1.0
     amp: bool = True
     grad_accum: int = 2
     ema_decay: float = 0.999
-    n_restarts: int = 3
+    n_restarts: int = 1
     workers: int = 2
     seed: int = 42
     cache_limit: int = 12
@@ -69,7 +69,7 @@ class Config:
 
     # --- bookkeeping ---------------------------------------------------------
     out_dir: str = "./krylovnet_out"
-    val_every: int = 2000
+    val_every: int = 500
     log_every: int = 200
     val_scenes: int = 8
     name: str = "krylovnet"

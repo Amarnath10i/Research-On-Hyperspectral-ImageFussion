@@ -272,7 +272,7 @@ def _relax_dataset_discovery(nb: dict, _m: "re.Match", ctx: dict) -> bool:
 
 
 def _shrink_run(nb: dict, _m: "re.Match", ctx: dict) -> bool:
-    """Kernel exceeded its time limit: cut the iteration budget in half."""
+    """Kernel exceeded its time limit: cut the iteration budget in half (floor 500)."""
     return _sub_in_plain_cells(
         nb, lambda t: re.sub(r"\biters=(\d+)",
                              lambda x: f"iters={max(500, int(x.group(1)) // 2)}", t))
