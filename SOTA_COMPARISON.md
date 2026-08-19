@@ -111,6 +111,42 @@ MSI). Our numbers are computed under the **repository's unified protocol**
 
 ---
 
+## 2026 competitor sweep (15 papers, Feb 2026)
+
+All repositories/abstracts read and audited. **Bottom line: none of these
+report a number on the standard CAVE ×4 (Wald, Nikon D700 SRF) protocol** —
+the benchmark we train on. Every "headline" number lives on a different
+protocol (×8, mosaiced+PAN, blind-degradation, remote-sensing-only, or
+non-standard SRF/PSF). FeINFN 52.47 / BDT 52.30 on CAVE ×4 remain the
+head-to-head target.
+
+| Method | Venue | Task/protocol | Reported (non-comparable protocol) | Comparable CAVE ×4? |
+|---|---|---|---|---|
+| SEMF-Net | TGRS 2026 | ×8 (8×8 Gauss σ=3, Nikon SRF) | CAVE 46.39 PSNR (×8, DDMM reproduction) | No (×8) |
+| EFN (Equivariant) | TIP 2026 | Mosaiced 8×8 + PAN fusion | CAVE 40.55 PSNR (mosaiced+PAN) | No (different task) |
+| DIM-HMPF | TGRS 2026 | HSI+MSI+PAN (remote sensing) | Chikusei MPSNR 30.71 (×16 PAN) | No (tri-modal, RS) |
+| SHOTUN | TIP 2026 | Unsupervised tensor unrolling | no accessible CAVE table (paywalled) | Unknown |
+| SSDAN | TGRS 2026 | ×8 (8×8 Gauss σ=3, custom SRF) | CAVE 49.05 PSNR (×8, range-255 metric) | No (×8 + metric) |
+| RAMoE | TGRS 2026 | MoE, remote sensing | WDCM/Chikusei/Xiongan only | No (no CAVE) |
+| MFME-DiffNet | TGRS 2026 | Reference-based (unpaired) diffusion | no public numbers | No (different task) |
+| CDGN | TGRS 2026 | Blind (×8, SRF/PSF banks) | no public numbers | No (blind ×8) |
+| BHSR-Net | TIP 2026 | Dual-degradation unfolding | no public numbers (16-bit metric) | Unknown |
+| BFMM | TGRS 2026 | Mamba + tensor BTD | no public numbers; released code broken | Unknown |
+| SCALMU | arXiv 2025 | Blind unrolled CNMF | ×8 only: Urban 41.49, Chikusei 48.03 | No (×8, no CAVE) |
+| CYformer | TCSVT 2025 | ×4, Nikon D700 SRF, 3×3 σ=0.5 | paywalled | Likely comparable — target |
+| NPFNet | GRSL 2026 | Pixel clustering + FFT | abstract only, no code | Unknown |
+| BFCTN | arXiv 2025 | Bayesian tensor (MATLAB) | CAVE 45.57 @ 35 dB noise (non-standard) | No (noisy, avg blur) |
+| GTNN | TNNLS 2025 | Tensor nuclear norm (MATLAB) | CAVE 40.11 (BFCTN protocol) | No |
+
+**What this means for the paper:** our CAVE ×4 protocol with Nikon D700 SRF
+is the *only* setting where a direct head-to-head with the published record
+(FeINFN/BDT/DSPNet/PSRT/DHIF/MIMO-SST) is possible, and no 2026 method has
+posted a number there. Beating 52.47 dB on that line is a clean, defensible
+Q1 headline; the ×8/remote-sensing numbers above are protocol-aliases and
+must not be mixed into the same table (see PROTOCOL_AUDIT.md).
+
+---
+
 ## What the field is doing (2022 → 2026)
 
 | Trend | Example methods | Progress |
