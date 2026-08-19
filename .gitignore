@@ -7,13 +7,17 @@ kaggle.json
 
 # Run outputs
 daetf_out/
-kaggle_runs/
 kaggle_logs/
 kaggle_ckpt_continuum/
 kaggle_ckpt_zero/
 proposal1/results/*.pth
 proposal1/results/*.npy
 results.json
+# Kaggle run folders: ignore everything except the final multi-dataset results
+kaggle_runs/*
+!kaggle_runs/multidataset/
+kaggle_runs/multidataset/*
+!kaggle_runs/multidataset/out/
 
 # Python
 __pycache__/

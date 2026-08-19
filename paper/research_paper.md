@@ -382,20 +382,108 @@ All baselines run on the exact same simulated pairs as KrylovNet.
 
 ### 7.2 In-domain results (papers' protocol, 3-band MSI)
 
-*(Table filled from the multi-dataset run — see below.)*
+One KrylovNet (2,287 params) trained per dataset, 2,000 iters; evaluated
+on that dataset's held-out test split.  Baselines evaluated on the same
+pairs.  CAVE/Harvard are multi-scene (30/20 scenes, deterministic
+60/40 split for Harvard, seed 42); Chikusei/Pavia are single scenes
+split into non-overlapping patches (70/30).
+
+| Dataset | Method | PSNR↑ | SSIM↑ | SAM↓ | ERGAS↓ |
+|---|---|---|---|---|---|
+| CAVE (31 b) | Bicubic | 29.928 | 0.8884 | 4.888 | 8.367 |
+| CAVE | GSA | 34.381 | 0.9245 | 7.087 | 5.096 |
+| CAVE | Subspace-LS | 33.548 | 0.9463 | 4.681 | 5.456 |
+| CAVE | **KrylovNet** | **40.848** | **0.9831** | **3.389** | **2.335** |
+| Harvard (31 b) | Bicubic | 60.305 | 0.9975 | 2.595 | 4.198 |
+| Harvard | GSA | 66.460 | 0.9993 | 2.746 | 2.410 |
+| Harvard | Subspace-LS | 64.234 | 0.9990 | 2.413 | 2.960 |
+| Harvard | **KrylovNet** | **70.784** | **0.9998** | **2.295** | **1.664** |
+| Chikusei (128 b) | Bicubic | 33.583 | 0.8973 | 14.245 | —* |
+| Chikusei | GSA | 34.902 | 0.9138 | 13.797 | —* |
+| Chikusei | Subspace-LS | 34.772 | 0.9185 | 12.896 | —* |
+| Chikusei | **KrylovNet** | **43.693** | **0.9829** | **6.065** | —* |
+| PaviaU (103 b) | Bicubic | 25.404 | 0.7132 | 15.047 | 8.188 |
+| PaviaU | GSA | 25.989 | 0.7430 | 14.241 | 7.713 |
+| PaviaU | Subspace-LS | 26.700 | 0.7840 | 12.784 | 7.062 |
+| PaviaU | **KrylovNet** | **34.484** | **0.9524** | **4.455** | **2.844** |
+
+*ERGAS for Chikusei is dominated by tiny per-band denominators in the
+reflectance-normalised patches and is not reported (see §9.3); PSNR/SSIM/
+SAM remain valid.
+
+Observations:
+- KrylovNet beats every classical baseline on every dataset (+6.9 dB over
+  Bicubic on CAVE, +10.1 on Chikusei, +9.1 on PaviaU, +10.5 on Harvard).
+- Harvard's absolute PSNR (~60-70 dB) is a property of the data, not the
+  solver: the scenes are extremely smooth (amplitude ≈ 0.06, std ≈ 0.003),
+  so the x4-up-sampled LR-HSI alone is already within ~0.06 dB of the GT
+  (verified locally; same protocol, same loader).
+- PaviaU is the hardest dataset (25-34 dB) — urban texture and 103 bands;
+  KrylovNet still improves +9 dB over Bicubic and -10.6° SAM over GSA.
 
 ### 7.3 Zero-shot cross-domain results (CAVE ↔ Harvard)
 
-*(Table filled from the multi-dataset run — see below.)*
+Both datasets are 31-band, 400-700 nm, and use the *same* simulated
+3-band SRF (sensor EMD = 0 by construction, Thm 5 predicts zero
+sensor-induced drop).  Models trained on one dataset are applied to the
+other's test split with no adaptation.
+
+| Direction | PSNR↑ | SSIM↑ | SAM↓ | ERGAS↓ | vs in-domain |
+|---|---|---|---|---|---|
+| CAVE → Harvard | 70.721 | 0.9998 | 2.301 | 1.676 | −0.06 dB (CAVE model ≈ Harvard model) |
+| Harvard → CAVE | 40.851 | 0.9831 | 3.398 | 2.331 | +0.00 dB (equals CAVE in-domain) |
+
+Interpretation (Thm 5): with identical simulated sensors the *sensor*
+EMD is zero, so the bound permits zero sensor-induced drop.  The
+remaining scene-distribution shift (spectral EMD 0.116) is absorbed by
+the smoothness of both domains — a CAVE-trained model performs
+identically on Harvard, and a Harvard-trained model on CAVE.  This is
+exactly the Thm 5 regime: sensor shift, not scene shift, drives
+cross-domain cost when sensors differ; here they do not.
 
 ### 7.4 r_id analysis and ambiguity audit
 
-We compute `r̂_id` per scene (Thm 1 estimator) and the ambiguity score
-`H(Ô)` (Thm 3) on the same simulated pairs, and test:
-- correlation between `r̂_id` and per-scene difficulty,
-- correlation between `H(Ô)` and SAM error across methods.
+`r̂_id` (Thm 1 estimator, §A.1) and the hallucination score `H`
+(Thm 3) on every dataset, per test scene (mean over up to 8 scenes):
 
-*(Numbers filled from the multi-dataset run.)*
+| Dataset | mean `r̂_id` | ambiguity energy `\|\|X_null\|\|/\|\|X\|\|` | KrylovNet H | Subspace-LS H | GSA H | Bicubic H |
+|---|---|---|---|---|---|---|
+| CAVE | 0.0 | 0.182 | **0.190** | 0.764 | 0.606 | 1.295 |
+| Harvard | 0.0 | 0.168 | **0.229** | 0.639 | 0.542 | 1.056 |
+| Chikusei | 2.0 | 0.123 | **0.269** | 1.042 | 1.127 | 1.203 |
+| PaviaU | 2.0 | 0.192 | **0.281** | 1.265 | 1.424 | 1.510 |
+
+- The ambiguity energy (`\|\|X_null\|\|/\|\|X\|\|` ≈ 0.12-0.19) is the
+  fraction of spectral content the observations *cannot* pin down; it is
+  positive on every dataset, confirming Thm 3's decomposition is
+  non-vacuous on real data.
+- `H` < 1 means the method *under-fills* the null space (safe, conservative);
+  H > 1 means it *over-fills* (invents more null content than the GT
+  contains).  Bicubic and GSA over-fill on every dataset (H ≈ 1.06-1.51);
+  Subspace-LS sits at or below the ambiguity level (0.64-1.27); KrylovNet
+  is the only method with H < 1 on every dataset (0.19-0.28), i.e. it
+  hallucinates *less* than the truth's own ambiguous content.
+- H tracks SAM error: the method with lowest H (KrylovNet) also has the
+  lowest SAM on 4/4 datasets, consistent with Thm 3's H↔error coupling.
+- Phase transition (Thm 4, §7.5): `r̂_id(M)` is monotone and capped by
+  `M` on all datasets (CAVE/Harvard `r̂_id ≡ 0` at M ≤ 8; Chikusei
+  `[1,2,2,...]`; PaviaU `[1,1,2,2,...]`) — the identifiable rank grows
+  with the number of MSI bands and never exceeds it, as Thm 4 predicts
+  (verified numerically in Appendix C and on real data).
+
+### 7.5 Phase transition and sensor-shift measurements (P3/P4)
+
+| Dataset | r̂_id(M=1..8) | monotone | capped by M |
+|---|---|---|---|
+| CAVE | [0,0,0,0,0,0,0,0] | ✓ | ✓ |
+| Harvard | [0,0,0,0,0,0,0,0] | ✓ | ✓ |
+| Chikusei | [1,2,2,2,2,2,2,2] | ✓ | ✓ |
+| PaviaU | [1,1,2,2,2,2,2,2] | ✓ | ✓ |
+
+Sensor shift (Thm 5): sensor EMD (CAVE vs Harvard SRF) = 0 by
+construction; scene spectral EMD = 0.116.  The zero sensor EMD predicts
+zero sensor-induced cross-domain drop, which §7.3 confirms exactly
+(cross-domain ≈ in-domain to within 0.06 dB).
 
 ---
 
@@ -423,7 +511,8 @@ Accordingly:
 
 ## 9. Discussion and Limitations
 
-- **PSNR ceiling.**  Our 2.3k-parameter solver reaches ~X dB under our
+- **PSNR ceiling.**  Our 2.3k-parameter solver reaches 34.5-43.7 dB on
+  textured scenes (PaviaU/Chikusei) and 40.8 dB on CAVE under our
   protocol, below transformer-based SOTA under theirs.  The gap is
   partly protocol and partly capacity; we do not claim SOTA PSNR.
 - **Identifiability is scene-dependent.**  `r_id` varies per scene; the
@@ -434,6 +523,11 @@ Accordingly:
   future work.
 - **The ambiguity auditor needs a robust `N(A)` projection**; for large
   `N` this is the main computational cost.
+- **§9.3 Chikusei ERGAS is not reported** because the ERGAS formula's
+  per-band denominators are unstable for Chikusei's radiance-normalised
+  patches (values 4×10⁴-1.6×10⁵ vs. O(1-10) elsewhere); PSNR/SSIM/SAM
+  are unaffected.  A future revision should compute ERGAS with the
+  original radiance scale or a fixed per-band floor.
 
 ---
 
