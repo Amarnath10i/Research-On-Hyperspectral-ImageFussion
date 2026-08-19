@@ -27,6 +27,7 @@ from .io_utils import (available_splits, discover_dataset, find_dataset_roots,
                        find_pairs, infer_channels, load_mat, search_roots,
                        to_chw01)
 from .losses import FusionLoss, charbonnier, gradient_loss, mmd_rbf, sam_loss
+from .srf import conditioning, gaussian_srf, nikon_d700_srf
 from .metrics import (evaluate_arrays, metric_ergas, metric_psnr, metric_sam,
                       metric_ssim, ssim_torch)
 
@@ -44,5 +45,6 @@ __all__ = [
     "evaluate_arrays", "metric_psnr", "metric_ssim", "metric_sam",
     "metric_ergas", "ssim_torch",
     "BASELINES", "evaluate_baseline", "evaluate_all_baselines",
+    "nikon_d700_srf", "gaussian_srf", "conditioning",
     "baselines", "experiments", "__version__",
 ]
