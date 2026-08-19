@@ -37,9 +37,9 @@ class Config:
     # The solver alone is Tikhonov least squares with no image prior and scores
     # below bicubic. These control the plug-and-play denoiser between stages.
     use_prior: bool = True
-    prior_width: int = 64
-    prior_blocks: int = 4
-    n_outer: int = 3                     # data/prior alternations
+    prior_width: int = 96                # SOTA push: was 64
+    prior_blocks: int = 8                # SOTA push: was 4
+    n_outer: int = 4                     # data/prior alternations
 
     # --- spectral graph preconditioner --------------------------------------
     graph_k: int = 4                     # kNN edges in the band graph
@@ -55,16 +55,20 @@ class Config:
     eval_sigma: float = 1.2
 
     # --- optimisation --------------------------------------------------------
-    iters: int = 2000                    # ~1.2h on P100; scale up for full convergence
+    # Published CAVE x4 results (FeINFN 52.47, BDT 52.30) come from 1e5-1e6
+    # iterations. The previous default of 2000 - whose own comment said "scale
+    # up for full convergence" - is 50-500x short, and produced 40.85 dB.
+    # This is the value to run for a headline number; drop it for debugging.
+    iters: int = 100000
     batch: int = 12
     lr: float = 2e-4
     min_lr: float = 1e-6
-    warmup: int = 200
+    warmup: int = 2000
     grad_clip: float = 1.0
     amp: bool = True
     grad_accum: int = 2
     ema_decay: float = 0.999
-    n_restarts: int = 1
+    n_restarts: int = 3
     workers: int = 2
     seed: int = 42
     cache_limit: int = 12
@@ -72,7 +76,10 @@ class Config:
     # --- loss weights --------------------------------------------------------
     w_phys: float = 1.0                  # ||D(ŷ) - X||^2
     w_spec: float = 1.0                  # ||S(ŷ) - M||^2
-    w_recon: float = 0.1                 # L1 vs ground truth
+    # Physics consistency is satisfied by an entire family of solutions - that
+    # is the whole point of the null-space view - so weighting it 10x above
+    # fidelity gave the model little pressure to pick the right member.
+    w_recon: float = 1.0                 # L1 vs ground truth (was 0.1)
     w_res: float = 0.1                   # final GMRES residual (regulariser)
 
     # --- bookkeeping ---------------------------------------------------------
