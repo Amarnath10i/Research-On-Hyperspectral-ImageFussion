@@ -606,7 +606,7 @@ low-rank scenes.  Results (all PASS):
 
 - All experiments in one notebook
   `MultiDataset_Fusion_Study.ipynb` (Kaggle kernel
-  `amarnathmadaka/q1-results-cave-harvard-v2`).
+  `amarnathmadaka/multidataset-hsi-msi-fusion-study`).
 - Datasets: CAVE (`liptee/...`), Harvard (`nikeshreddypatlolla/
   harvard-hsi-2`), Chikusei (`mingliu123/chikusei`),
   Pavia (`syamkakarla/pavia-university-hsi`).

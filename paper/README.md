@@ -14,7 +14,9 @@ cross-sensor HSI-MSI fusion study.
 ## Experiments (results land in `../results_all_datasets.json`)
 
 The experiments run in the Kaggle notebook `MultiDataset_Fusion_Study.ipynb`
-(kernel `amarnathmadaka/q1-results-cave-harvard-v2`, version 16, COMPLETE):
+(kernel `amarnathmadaka/multidataset-hsi-msi-fusion-study`, version 1,
+COMPLETE — re-run of the same code previously at
+`amarnathmadaka/q1-results-cave-harvard-v2` v16):
 
 1. **In-domain, all datasets**: train KrylovNet (2000 iters, 2.3k params)
    on CAVE / Harvard / Chikusei / Pavia train splits; test on each dataset's
