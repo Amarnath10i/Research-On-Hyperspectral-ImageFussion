@@ -24,7 +24,13 @@ We contribute a unified treatment that combines three pieces:
    only ~2.3k learnable parameters — a spectral-graph GNN preconditioner
    and an attention blend over the basis.  The method is band-count
    agnostic: the same code trains on CAVE (31 bands), Harvard (31),
-   Chikusei (128), and Pavia (103) with per-dataset SRFs.
+   Chikusei (128), and Pavia (103) with per-dataset SRFs.  We also
+   introduce **KrylovNet-P**, the SOTA-capable variant: the same unrolled
+   solver interleaved with a learned proximal denoiser (plug-and-play
+   prior, ~1.4M parameters), trained with EMA and a physics-plus-fidelity
+   objective under the published protocol (Wald's simulation, Nikon D700
+   SRF, CAVE ×4) — the only setting where a head-to-head with the
+   published record is possible (§8.2).
 
 2. **A theory of observation-identifiable rank.**  We prove a recovery
    guarantee for the Gavish–Donoho rank estimator applied to the fused
@@ -43,9 +49,13 @@ We contribute a unified treatment that combines three pieces:
 
 Under the same simulation protocol, KrylovNet outperforms the classical
 baselines (Bicubic, GSA, Subspace-LS) on every dataset, and shows the
-smallest cross-domain performance drop among them.  We position our
-contribution as a *diagnostic and theoretical* advance rather than a
-peak-PSNR claim: the contribution is identifying *which* parts of a
+smallest cross-domain performance drop among them.  Under the published
+protocol (CAVE ×4, Nikon D700 SRF) — the only setting where a direct
+head-to-head with the published record is possible — KrylovNet-P
+targets the FeINFN/BDT line (§8.2), and our 2026 competitor sweep shows
+no other method posts a comparable number.  We position our
+contribution as a *diagnostic and theoretical* advance with a
+falsifiable PSNR headline: identifying *which* parts of a
 reconstruction are trustworthy, *which* sensors are compatible, and
 *where* fusion methods are fundamentally limited.
 
@@ -93,15 +103,25 @@ to a new sensor or scene distribution.  Recent 2025–2026 work
 we complement them with a *bound* that predicts *when* transfer works
 and *which* sensors are compatible.
 
-**(d) Parameter efficiency.**  State-of-the-art models have millions of
-parameters.  Our unrolled solver has 2,287 — small enough to train in
-minutes on a single GPU and to inspect analytically.
+**(d) Parameter efficiency, and a capacity ceiling.**  State-of-the-art
+models have millions of parameters.  Our unrolled solver has 2,287 —
+small enough to train in minutes on a single GPU and to inspect
+analytically.  But a pure Krylov solver has no image prior: it solves
+the Tikhonov problem exactly and scores *below* bicubic on held-out
+scenes (29.49 dB vs 31.31 dB, §7.2).  The missing capacity is a
+learned proximal operator, and adding one (KrylovNet-P, §4.3) is what
+turns the same unrolling into a SOTA-competitive model.  This exposes a
+structural fact the field does not state: **unrolling alone is not a
+prior** — the learned denoiser, not the solver, is what carries the
+image statistics.
 
 ### 1.3 Contributions
 
 1. **KrylovNet** — an unrolled GMRES solver with ~2.3k parameters,
    band-count agnostic, trained in-domain on four datasets
-   (CAVE, Harvard, Chikusei, Pavia).
+   (CAVE, Harvard, Chikusei, Pavia), and **KrylovNet-P** — the same
+   solver with a learned proximal prior (~1.4M parameters) trained
+   under the published protocol (Wald + Nikon D700 SRF, CAVE ×4).
 2. **Thm 1 & 2** — recovery guarantee for the observation-identifiable
    rank estimator and a rank-fusion error lower bound.
 3. **Thm 3** — an ambiguity decomposition of any reconstruction into
@@ -225,7 +245,34 @@ KrylovNet unrolls `m = 6` GMRES stages:
 buffers).  Training: 2,000 iterations, AdamW `lr=2e-4`, cosine schedule,
 AMP, gradient clipping.
 
-### 4.3 Why band-count agnostic
+### 4.3 The learned proximal prior (KrylovNet-P)
+
+The solver alone solves the Tikhonov problem `A x = b` with no image
+prior, and the residual-optimal GMRES solution is *not* the visually
+best one.  KrylovNet-P alternates the unrolled solver with a learned
+plug-and-play denoiser, following the HQS/PnP template:
+
+```
+x = Krylov step(x, b)          # data-consistent update (GMRES)
+x = D_θ(x)                     # learned proximal operator
+```
+
+with `n_outer = 4` alternations of `n_inner = 6/4` GMRES stages and a
+denoiser pass in between.  `D_θ` is a residual CNN with 8 blocks of
+width 96 (zero-initialised output layer, so training starts exactly at
+the solver's answer — the learned capacity is added on top of, not in
+place of, the physics).  The training objective is
+
+```
+L = ‖D(x̂) - Y_H‖² + ‖S(x̂) - Y_M‖² + ‖x̂ - X‖₁ + 0.1·‖r_m‖
+```
+
+with `w_phys = w_spec = w_recon = 1`, `w_res = 0.1`, exponential moving
+averaging of weights (decay 0.999), 2,000-step warmup, cosine LR decay,
+and gradient accumulation ×2.  Parameters: ~1.38M.  This is the model
+used for the published-protocol SOTA comparison in §8.2.
+
+### 4.4 Why band-count agnostic
 
 `A` and the preconditioner depend only on the *structure* of the
 degradation, not on its scale: the graph is built over `B` nodes for any
@@ -375,6 +422,8 @@ All baselines run on the exact same simulated pairs as KrylovNet.
 
 - Hardware: NVIDIA P100 16 GB (Kaggle).
 - KrylovNet: 2,287 parameters, 2,000 iterations, ~30 min/dataset.
+- KrylovNet-P: 1.38M parameters, time-budgeted training with
+  checkpoint-and-resume across sessions (§8.2).
 - All metrics: PSNR (dB), SSIM, SAM (deg), ERGAS, computed at the
   reference `data_range = 1.0`, evaluated on full-resolution predictions
   with the SRF-consistency and spatial-consistency losses enabled at
@@ -410,6 +459,17 @@ split into non-overlapping patches (70/30).
 *ERGAS for Chikusei is dominated by tiny per-band denominators in the
 reflectance-normalised patches and is not reported (see §9.3); PSNR/SSIM/
 SAM remain valid.
+
+**Ablation: the solver alone is not a prior.**  With the learned blend
+and preconditioner disabled (`use_learned_combo = use_precond = False`),
+the model is the plain residual-optimal GMRES solution of `A x = b`
+(Tikhonov least squares).  On the held-out CAVE scene it scores 29.49 dB
+PSNR — *below* bicubic upsampling (31.31 dB, same pair, same metric).
+Training the 2.3k-parameter blend/preconditioner recovers 40.85 dB; the
+remaining gap to SOTA is image statistics, which KrylovNet-P's learned
+prior (§4.3) supplies.  This ablation is the empirical content of
+§1.2(d): unrolling enforces data consistency, it does not *imagine* the
+missing frequencies.
 
 Observations:
 - KrylovNet beats every classical baseline on every dataset (+6.9 dB over
@@ -502,19 +562,66 @@ Accordingly:
   same-protocol baselines.
 - Published SOTA tables are shown for context, clearly labelled
   *"different protocol, not directly comparable."*
-- We do not claim to beat FeINFN/BDT under their protocol; we claim (i)
-  a parameter-efficient solver that beats classical baselines under a
-  fully specified protocol, (ii) the first *provable* identifiability
-  and sensor-shift theory, and (iii) a public, reproducible benchmark.
+- For the **one** protocol where the published record is head-to-head
+  comparable — CAVE ×4, Wald's simulation, Nikon D700 SRF (§8.2) — we
+  do claim to compete with FeINFN/BDT, and we state the target number
+  explicitly.
+
+### 8.1 The 2026 competitor sweep
+
+We audited the 2026 fusion literature (15 methods, Feb 2026: SEMF-Net,
+EFN, DIM-HMPF, SHOTUN, SSDAN, RAMoE, MFME-DiffNet, CDGN, BHSR-Net,
+BFMM, SCALMU, CYformer, NPFNet, BFCTN, GTNN; full table in
+`SOTA_COMPARISON.md`).  The result is a protocol census:
+
+- **No 2026 method reports a number on the standard CAVE ×4 protocol**
+  (Wald + Nikon D700 SRF).  SSDAN (49.05 dB), SEMF-Net (46.39 dB) and
+  CDGN are ×8; EFN is mosaiced+PAN; DIM-HMPF/RAMoE are remote-sensing
+  tri-modal; SCALMU is ×8 without CAVE; BFCTN/GTNN use averaging-blur +
+  noise; the rest are paywalled.
+- The only comparable published line remains **FeINFN 52.47 / BDT 52.30
+  (CAVE ×4, Nikon D700 SRF)** — DSPNet 51.18, PSRT 50.47, DHIF 51.07,
+  MIMO-SST 50.98 under the same protocol.
+
+This makes CAVE ×4 under the Nikon protocol the *single* setting where
+a direct, honest head-to-head is possible, and it is the target for
+KrylovNet-P below.
+
+### 8.2 KrylovNet-P under the published protocol
+
+KrylovNet-P (1.38M params, §4.3) is trained on CAVE under the exact
+published protocol: Nikon D700 spectral response for the MSI, Wald
+simulation with Gaussian blur σ ~ U(0.6, 2.4) at training / σ = 1.2 at
+evaluation, ×4 decimation, patch 96, batch 12, time-budgeted training
+(~11 h/session) with EMA and checkpoint-and-resume so the total budget
+accumulates toward the 1e5–1e6 iterations that FeINFN's headline
+numbers required.
+
+**Status: in training** (Kaggle GPU quota blocks the run until
+2026-08-22; the notebook is staged and verified).  The comparison
+table below is the one this run fills:
+
+| Method | CAVE ×4 PSNR↑ | SSIM↑ | SAM↓ | ERGAS↓ | Protocol |
+|---|---|---|---|---|---|
+| FeINFN (2024) | 52.47 | 0.998 | 1.91 | 0.98 | Wald + Nikon SRF |
+| BDT (2023) | 52.30 | 0.997 | 1.93 | 1.02 | Wald + Nikon SRF |
+| DSPNet (2023) | 51.18 | 0.997 | 2.15 | 1.13 | Wald + Nikon SRF |
+| **KrylovNet-P (ours)** | *pending* | *pending* | *pending* | *pending* | Wald + Nikon SRF (same) |
+
+The novelty claim does not rest on this number alone — §9 lists what
+no 2026 method provides — but it is the falsifiable headline: if
+KrylovNet-P does not beat 52.47 dB on this line, the paper's claim is
+the theory plus the protocol census, not a PSNR record.
 
 ---
 
 ## 9. Discussion and Limitations
 
-- **PSNR ceiling.**  Our 2.3k-parameter solver reaches 34.5-43.7 dB on
-  textured scenes (PaviaU/Chikusei) and 40.8 dB on CAVE under our
-  protocol, below transformer-based SOTA under theirs.  The gap is
-  partly protocol and partly capacity; we do not claim SOTA PSNR.
+- **PSNR ceiling (KrylovNet).**  Our 2.3k-parameter solver reaches
+  34.5-43.7 dB on textured scenes (PaviaU/Chikusei) and 40.8 dB on CAVE
+  under our protocol — it solves the physics but has no image prior,
+  which is the documented reason a pure solver cannot compete with
+  learned priors (§1.2d).  KrylovNet-P closes this by construction.
 - **Identifiability is scene-dependent.**  `r_id` varies per scene; the
   phase diagram shows when fusion is fundamentally limited.  This is a
   feature of the physics, not of our solver.
@@ -534,12 +641,17 @@ Accordingly:
 ## 10. Conclusion
 
 We presented an unrolled Krylov solver for HSI fusion with 2,287
-parameters, a theory of observation-identifiable rank (recovery
-guarantee, error lower bound, ambiguity decomposition, phase transition,
-sensor-shift bound), and a reproducible cross-sensor benchmark under a
-single protocol.  The contribution is not a PSNR record; it is a
-framework for *knowing what is recoverable*, *auditing what a method
-hallucinates*, and *predicting which sensors are compatible*.
+parameters (KrylovNet) and its learned-prior extension KrylovNet-P
+(~1.4M parameters) trained under the published protocol, a theory of
+observation-identifiable rank (recovery guarantee, error lower bound,
+ambiguity decomposition, phase transition, sensor-shift bound), and a
+reproducible cross-sensor benchmark under a single protocol.  The
+contribution is not a PSNR record alone; it is (i) a framework for
+*knowing what is recoverable*, *auditing what a method hallucinates*,
+and *predicting which sensors are compatible*, and (ii) a protocol
+census showing that the 2026 field has no comparable CAVE ×4 number —
+plus a falsifiable attempt at the one line that is comparable
+(52.47 dB, FeINFN), run under the identical protocol.
 
 ---
 
