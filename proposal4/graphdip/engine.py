@@ -77,7 +77,7 @@ def train(cfg: Config, device: Optional[str] = None) -> dict:
 
     from proposal1.daetf.io_utils import find_pairs
     pairs = find_pairs(cfg.source_root, cfg.target_root)[:cfg.val_scenes]
-    srf = estimate_srf(cfg.source_root, cfg.bands, cfg.msi_bands)
+    srf = estimate_srf(cfg.source_root, "Train", cfg)
 
     agg = {"psnr": [], "ssim": [], "sam": [], "ergas": []}
     t0 = time.time()

@@ -63,7 +63,7 @@ def train(cfg: Config, device: Optional[str] = None) -> dict:
     device = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
     set_seed(cfg.seed)
 
-    srf = estimate_srf(cfg.source_root, cfg.bands, cfg.msi_bands)
+    srf = estimate_srf(cfg.source_root, "Train", cfg)
     model = _make_model(cfg, device, srf)
     loss_fn = KrylovLoss(cfg)
     optimizer = torch.optim.AdamW(model.parameters(), lr=cfg.lr)
@@ -150,7 +150,7 @@ def evaluate_dataset(model: nn.Module, cfg: Config, device: torch.device,
     model.eval()
     pairs = find_pairs(cfg.source_root, cfg.target_root)
     pairs = pairs[:cfg.val_scenes] if mode == "quick" else pairs
-    srf = estimate_srf(cfg.source_root, cfg.bands, cfg.msi_bands)
+    srf = estimate_srf(cfg.source_root, "Train", cfg)
     degrade = FixedDegradation(cfg.blur_ksize, cfg.scale, cfg.eval_sigma,
                                cfg.eval_sigma, 0.0, 0.0, 0.0)
     s, p, sa, e = [], [], [], []
@@ -205,7 +205,7 @@ def tiled_inference(model: nn.Module, lr: np.ndarray, msi: np.ndarray,
 
 def load_checkpoint(path: str, cfg: Config, device: torch.device) -> KrylovNet:
     ckpt = torch.load(path, map_location=device)
-    srf = estimate_srf(cfg.source_root, cfg.bands, cfg.msi_bands)
+    srf = estimate_srf(cfg.source_root, "Train", cfg)
     model = _make_model(cfg, device, srf)
     model.load_state_dict(ckpt["state"])
     model.eval()
