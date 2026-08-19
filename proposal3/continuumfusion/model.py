@@ -1,3 +1,4 @@
+from __future__ import annotations
 """ContinuumFusion - continuous spectral-spatial representation for HSI-MSI fusion.
 
 WHERE THIS DIFFERS FROM PROPOSALS 1 AND 2
@@ -51,8 +52,6 @@ factors turns the resolution ratio into just another nuisance variable the
 model has learned to be robust to - the same argument as randomising the blur,
 applied to geometry.
 """
-
-from __future__ import annotations
 
 import math
 from typing import Dict, Optional, Tuple
