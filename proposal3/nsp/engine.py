@@ -61,6 +61,26 @@ def _lr_schedule(it: int, cfg: Config) -> float:
     return cfg.min_lr + 0.5 * (cfg.lr - cfg.min_lr) * (1 + math.cos(math.pi * t))
 
 
+
+class _TupleAdapter(torch.utils.data.Dataset):
+    """Bridge the shared dataset (dict) to this engine's tuple-consuming loop.
+
+    Keeping the shared FusionPatchDataset as the single source of truth for the
+    protocol is the point: a private dataset per proposal is exactly how the ten
+    baselines in existing/ became mutually incomparable.
+    """
+
+    def __init__(self, base):
+        self.base = base
+
+    def __len__(self):
+        return len(self.base)
+
+    def __getitem__(self, i):
+        d = self.base[i]
+        return d["lr"], d["msi"], d["gt"], d["kernel"], d["name"]
+
+
 def train(cfg: Config, device: Optional[str] = None) -> dict:
     cfg.resolve()
     device = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
@@ -73,12 +93,9 @@ def train(cfg: Config, device: Optional[str] = None) -> dict:
     scaler = GradScaler(enabled=cfg.amp and device.type == "cuda")
     ema = EMA(model, cfg.ema_decay)
 
-    ds = FusionPatchDataset(cfg.source_root, cfg.target_root, cfg.patch,
-                            cfg.patch, cfg.bands, cfg.msi_bands, cfg.scale,
-                            cache_limit=cfg.cache_limit,
-                            sigma_range=cfg.sigma_range,
-                            aniso=cfg.aniso, noise_range=cfg.noise_range,
-                            srf_jitter=cfg.srf_jitter)
+    ds = _TupleAdapter(FusionPatchDataset(
+        cfg.source_root, "Train", cfg, train=True, srf=srf,
+        length=max(cfg.iters * cfg.batch, 1)))
     dl = DataLoader(ds, batch_size=cfg.batch, shuffle=True,
                     num_workers=cfg.workers, pin_memory=device.type == "cuda",
                     persistent_workers=(cfg.workers > 0 and device.type == "cuda"))
@@ -143,31 +160,29 @@ def train(cfg: Config, device: Optional[str] = None) -> dict:
     return history
 
 
-def evaluate_dataset(model: nn.Module, cfg: Config, device: torch.device,
-                     mode: str = "full") -> dict:
-    from proposal1.daetf.io_utils import find_pairs
+def evaluate_dataset(model, cfg, device, mode: str = "full") -> dict:
+    """Delegate to the shared evaluator.
+
+    The previous implementation was written for a different data format: it
+    called find_pairs(source_root, target_root), unpacked the resulting
+    3-tuples as pairs, loaded scenes with np.load(...)["arr_0"] when the
+    datasets ship .mat, and built FixedDegradation with its arguments in the
+    wrong order. It had never been executed.
+
+    One evaluator for every proposal is also what keeps the comparison valid -
+    one metric implementation, one degradation, one scale factor.
+    """
+    from proposal1.daetf.engine import evaluate_dataset as _shared_eval
+
+    was_training = model.training
     model.eval()
-    pairs = find_pairs(cfg.source_root, cfg.target_root)
-    pairs = pairs[:cfg.val_scenes] if mode == "quick" else pairs
-    srf = estimate_srf(cfg.source_root, "Train", cfg)
-    degrade = FixedDegradation(cfg.blur_ksize, cfg.scale, cfg.eval_sigma,
-                               cfg.eval_sigma, 0.0, 0.0, 0.0)
-    s, p, sa, e = [], [], [], []
-    with torch.no_grad():
-        for src, tgt in pairs:
-            gt = np.load(tgt)["arr_0"][..., :cfg.bands]
-            lr = degrade(torch.from_numpy(gt).permute(2, 0, 1).unsqueeze(0))
-            lr = lr.squeeze(0).permute(1, 2, 0).numpy()
-            msi = np.einsum("hwc,cm->hwm", gt, srf)
-            out = tiled_inference(model, lr, msi, cfg.scale, cfg.bands,
-                                  cfg.msi_bands, srf, device)
-            out = out[:, :, :gt.shape[0], :gt.shape[1]]
-            met = evaluate_arrays(out, gt, cfg.scale)
-            s.append(met["ssim"]); p.append(met["psnr"])
-            sa.append(met["sam"]); e.append(met["ergas"])
-    model.train()
-    return {"psnr": float(np.mean(p)), "ssim": float(np.mean(s)),
-            "sam": float(np.mean(sa)), "ergas": float(np.mean(e))}
+    try:
+        return _shared_eval(model, cfg.source_root, cfg, "Test", str(device),
+                            limit=(cfg.val_scenes if mode == "quick" else None),
+                            verbose=False)
+    finally:
+        if was_training:
+            model.train()
 
 
 def tiled_inference(model: nn.Module, lr: np.ndarray, msi: np.ndarray,

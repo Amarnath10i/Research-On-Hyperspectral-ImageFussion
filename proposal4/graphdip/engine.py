@@ -62,8 +62,9 @@ def _scene_tensors(cfg: Config, gt: np.ndarray, srf: np.ndarray,
                    device: torch.device):
     H, W = gt.shape[:2]
     gt_t = torch.from_numpy(gt[..., :cfg.bands]).permute(2, 0, 1).float()
-    degrade = FixedDegradation(cfg.blur_ksize, cfg.scale, cfg.eval_sigma,
-                               cfg.eval_sigma, 0.0, 0.0, 0.0)
+    # FixedDegradation is (scale, ksize, sigma); the previous call passed
+    # blur_ksize as the scale factor and sigma as the kernel size.
+    degrade = FixedDegradation(cfg.scale, cfg.blur_ksize, cfg.eval_sigma)
     lr = degrade(gt_t.unsqueeze(0)).squeeze(0)
     msi = torch.einsum("chw,cm->mhw", gt_t, torch.from_numpy(srf).float())
     return (gt_t.unsqueeze(0).to(device), lr.unsqueeze(0).to(device),
@@ -76,13 +77,19 @@ def train(cfg: Config, device: Optional[str] = None) -> dict:
     set_seed(cfg.seed)
 
     from proposal1.daetf.io_utils import find_pairs
-    pairs = find_pairs(cfg.source_root, cfg.target_root)[:cfg.val_scenes]
+    # find_pairs(root, split) -> (stem, hsi_path, rgb_path); it was called with
+    # target_root as the split and its 3-tuples unpacked as pairs.
+    pairs = find_pairs(cfg.source_root, "Test")[:cfg.val_scenes]
     srf = estimate_srf(cfg.source_root, "Train", cfg)
 
     agg = {"psnr": [], "ssim": [], "sam": [], "ergas": []}
     t0 = time.time()
-    for src, tgt in pairs:
-        gt = np.load(tgt)["arr_0"]
+    from proposal1.daetf.data import SceneCache
+    cache = SceneCache(cfg.bands, cfg.msi_bands, limit=2)
+    for stem, hsi_path, rgb_path in pairs:
+        # datasets ship .mat, not .npz - np.load(...)["arr_0"] never worked
+        hsi, _rgb = cache.get(stem, hsi_path, rgb_path)
+        gt = np.transpose(hsi.astype(np.float32), (1, 2, 0))
         gt_t, lr, msi = _scene_tensors(cfg, gt, srf, device)
         labels, centres = kmeans_superpixels(
             msi.squeeze(0), cfg.n_seg, cfg.spatial_weight, seed=cfg.seed)
