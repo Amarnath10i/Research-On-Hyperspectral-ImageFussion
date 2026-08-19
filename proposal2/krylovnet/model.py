@@ -121,30 +121,40 @@ class KrylovNet(nn.Module):
                   / torch.linalg.vector_norm(b, dim=(1, 2, 3)))
             alpha_gates = self.hypernet(r0.unsqueeze(-1))
 
-        def _solve(x_init, n_stages):
+        def _solve(x_init, rhs, n_stages):
+            Ak = lambda v: self.op.A(v, kernel, self.srf)
             if self.cfg.use_krylov:
                 blend = self.blend if self.cfg.use_learned_combo else None
-                return krylov_gmres(x_init, b, A, Pinv, n_stages, blend,
+                return krylov_gmres(x_init, rhs, Ak, Pinv, n_stages, blend,
                                     alpha_gates)
-            return richardson_solve(x_init, b, A, Pinv, n_stages,
+            return richardson_solve(x_init, rhs, Ak, Pinv, n_stages,
                                     self.cfg.rich_alpha)
 
         if self.prior is None:
-            out, residuals = _solve(x0, self.cfg.n_stages)
+            out, residuals = _solve(x0, b, self.cfg.n_stages)
         else:
-            # Half-quadratic splitting: alternate a data step (agree with the
-            # observations) and a prior step (supply what they underdetermine).
+            # Plug-and-play ordering: data step, then prior step, ending on the
+            # PRIOR.
+            #
+            # Ending on a data step destroys the prior's contribution: A already
+            # contains rho*I and b does not reference the prior, so the solver's
+            # fixed point is the Tikhonov solution shrinking toward zero, and any
+            # detail the prior added is converged away. Measured: overfitting a
+            # single patch plateaued at 23.18 dB with 154k parameters.
+            #
+            # Feeding the prior back through the RHS as b + rho*v was tried and
+            # diverged (L1 213) - with rho = 1e-3 the anchor is far too weak to
+            # constrain the solve while still coupling the iterations, so the
+            # outer loop is unstable. Ending on the prior keeps the prior's
+            # output intact; data consistency is then carried by the physics
+            # terms in the loss rather than by a final projection.
             n_outer = max(1, self.cfg.n_outer)
             inner = max(1, self.cfg.n_stages // n_outer)
             out, residuals = x0, []
             for _ in range(n_outer):
-                out, res = _solve(out, inner)
+                out, res = _solve(out, b, inner)
                 residuals = residuals + list(res)
                 out = self.prior(out)
-            # finish on a data step so the returned estimate is the one that
-            # actually agrees with the observations
-            out, res = _solve(out, inner)
-            residuals = residuals + list(res)
 
         # Hard clamping during training zeroes the gradient wherever the solver
         # overshoots, which is precisely where it most needs to be corrected.
