@@ -23,6 +23,13 @@ COMPLETE — re-run of the same code previously at
    test split. Baselines (Bicubic / GSA / Subspace-LS) on the same pairs.
    → CAVE 40.85, Harvard 70.78, Chikusei 43.69, PaviaU 34.48 dB (PSNR),
    beating all baselines on all datasets.
+2. **SOTA push (§8.2)**: KrylovNet-P (1.38M params, learned proximal
+   prior, EMA, physics loss) trained on CAVE ×4 under the published
+   protocol (Wald + Nikon D700 SRF). Notebook:
+   `proposal2/notebooks/krylovnet_SOTA_CAVE_Nikon.ipynb` (Kaggle,
+   checkpoint-and-resume via the `amarnathmadaka/krylovnet-cp` dataset).
+   Target: FeINFN 52.47 dB. Status: in training (GPU quota refresh
+   2026-08-22).
 2. **Cross-domain zero-shot**: CAVE-trained model → Harvard Test and
    Harvard-trained model → CAVE Test (both 31-band, 400–700 nm).
    → 70.72 / 40.85 dB; no sensor shift (shared SRF) ⇒ no drop (Thm 5).
@@ -55,6 +62,10 @@ COMPLETE — re-run of the same code previously at
 
 Published SOTA numbers are shown **only as context** with an explicit
 protocol warning. Our numbers are compared **only** against same-protocol
-baselines. We do not claim a PSNR record; the contribution is the theory
-(identifiability, ambiguity, sensor-shift) plus a reproducible
-cross-sensor benchmark.
+baselines. The one exception is §8.2: CAVE ×4 under the Nikon D700
+protocol is the single setting where a direct head-to-head with the
+published record (FeINFN 52.47 / BDT 52.30) is possible, and
+KrylovNet-P is run under exactly that protocol. The contribution is the
+theory (identifiability, ambiguity, sensor-shift), the 2026 protocol
+census (`../SOTA_COMPARISON.md`), and a falsifiable protocol-matched
+PSNR attempt.

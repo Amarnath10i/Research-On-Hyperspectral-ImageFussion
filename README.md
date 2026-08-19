@@ -20,7 +20,7 @@ Given a low-resolution hyperspectral image (LR-HSI) and a high-resolution multis
 | **P3 — Sensor-shift bound** | Can one field be fused for any sensor? | `Δ_sensor ≤ L_F · EMD(P_s1, P_s2)` bounds cross-domain gap by sensor spectral-response mismatch | PSNR drop |
 | **P4 — Phase transition** | When is fusion identifiable? | `M*(r) = min M : rank(R^T U) = r` predicts the minimum MSI bands needed | Phase diagram |
 
-## Results (KrylovNet, 2000 iterations, ~2.3k parameters)
+## Results (KrylovNet, 2000 iterations, ~2.3k parameters; KrylovNet-P, ~1.38M, SOTA push)
 
 ### In-Domain (Wald simulation, Gaussian blur σ = 1.2, x4 decimation, 3-band Gaussian SRF)
 
@@ -67,7 +67,21 @@ Given a low-resolution hyperspectral image (LR-HSI) and a high-resolution multis
 
 *\*Harvard's high PSNR is a data property — scenes are extremely smooth (amplitude ~0.06). Bicubic alone scores 60 dB.*
 
-**Our contribution is not SOTA PSNR.** It is a diagnostic layer (identifiability, ambiguity audit, sensor-shift bound, phase transition) that no existing method provides.
+**SOTA push (KrylovNet-P, in training).**  The gap above is protocol +
+capacity: KrylovNet is a 2.3k-parameter solver with no image prior.  Its
+learned-prior extension **KrylovNet-P** (1.38M params, §4.3 of the
+paper) is trained under the *published* protocol (Wald + Nikon D700 SRF,
+CAVE ×4) — the only setting where a direct head-to-head with FeINFN
+52.47 / BDT 52.30 is possible.  Our 2026 competitor sweep
+(`SOTA_COMPARISON.md`) shows no 2026 method posts a comparable CAVE ×4
+number (SSDAN/SEMF/CDGN/SCALMU are ×8; the rest are other tasks or
+paywalled).  Run: `proposal2/notebooks/krylovnet_SOTA_CAVE_Nikon.ipynb`
+(Kaggle, checkpoint-and-resume across sessions).
+
+**Our contribution is not a PSNR record alone.** It is a diagnostic
+layer (identifiability, ambiguity audit, sensor-shift bound, phase
+transition) that no existing method provides, plus a falsifiable
+protocol-matched attempt at the published CAVE ×4 line.
 
 ## Repository Structure
 
@@ -112,7 +126,7 @@ Upload `MultiDataset_Fusion_Study.ipynb` to Kaggle, attach CAVE + Harvard + Chik
 
 Kernels:
 - `amarnathmadaka/multidataset-hsi-msi-fusion-study` — main 4-dataset run (COMPLETE)
-- `amarnathmadaka/multidataset-sota-continuumfusion` — SOTA comparison attempt (training)
+- `amarnathmadaka/sota-krylovnet-cave-nikon` — KrylovNet-P SOTA push, CAVE ×4 Nikon protocol (staged; GPU quota refresh 2026-08-22)
 
 ## Key Findings
 
