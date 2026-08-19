@@ -33,6 +33,14 @@ class Config:
     use_precond: bool = True             # spectral-graph GNN preconditioner
     use_hypernet: bool = False           # condition-adaptive stage gating
 
+    # --- learned proximal prior (the capacity that makes this competitive) ---
+    # The solver alone is Tikhonov least squares with no image prior and scores
+    # below bicubic. These control the plug-and-play denoiser between stages.
+    use_prior: bool = True
+    prior_width: int = 64
+    prior_blocks: int = 4
+    n_outer: int = 3                     # data/prior alternations
+
     # --- spectral graph preconditioner --------------------------------------
     graph_k: int = 4                     # kNN edges in the band graph
     hidden: int = 32

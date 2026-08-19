@@ -77,6 +77,11 @@ class KrylovNet(nn.Module):
         self.precond = SpectralPreconditioner(
             cfg.bands, cfg.graph_k, cfg.hidden, cfg.gcn_layers)
         self.blend = Blend(cfg.n_stages)
+        # Learned proximal prior. Without it the model is a pure Tikhonov
+        # solver with no image prior and loses to bicubic; see ResidualDenoiser.
+        self.prior = (ResidualDenoiser(cfg.bands, cfg.prior_width,
+                                       cfg.prior_blocks)
+                      if getattr(cfg, "use_prior", True) else None)
         self.hypernet = Hypernet(cfg.n_stages) if cfg.use_hypernet else None
         k = gaussian_kernel2d(cfg.blur_ksize, cfg.eval_sigma, cfg.eval_sigma,
                               0.0)
@@ -116,12 +121,75 @@ class KrylovNet(nn.Module):
                   / torch.linalg.vector_norm(b, dim=(1, 2, 3)))
             alpha_gates = self.hypernet(r0.unsqueeze(-1))
 
-        if self.cfg.use_krylov:
-            blend = self.blend if self.cfg.use_learned_combo else None
-            out, residuals = krylov_gmres(x0, b, A, Pinv, self.cfg.n_stages,
-                                          blend, alpha_gates)
-        else:
-            out, residuals = richardson_solve(
-                x0, b, A, Pinv, self.cfg.n_stages, self.cfg.rich_alpha)
+        def _solve(x_init, n_stages):
+            if self.cfg.use_krylov:
+                blend = self.blend if self.cfg.use_learned_combo else None
+                return krylov_gmres(x_init, b, A, Pinv, n_stages, blend,
+                                    alpha_gates)
+            return richardson_solve(x_init, b, A, Pinv, n_stages,
+                                    self.cfg.rich_alpha)
 
-        return {"out": out.clamp(0, 1), "residuals": residuals}
+        if self.prior is None:
+            out, residuals = _solve(x0, self.cfg.n_stages)
+        else:
+            # Half-quadratic splitting: alternate a data step (agree with the
+            # observations) and a prior step (supply what they underdetermine).
+            n_outer = max(1, self.cfg.n_outer)
+            inner = max(1, self.cfg.n_stages // n_outer)
+            out, residuals = x0, []
+            for _ in range(n_outer):
+                out, res = _solve(out, inner)
+                residuals = residuals + list(res)
+                out = self.prior(out)
+            # finish on a data step so the returned estimate is the one that
+            # actually agrees with the observations
+            out, res = _solve(out, inner)
+            residuals = residuals + list(res)
+
+        # Hard clamping during training zeroes the gradient wherever the solver
+        # overshoots, which is precisely where it most needs to be corrected.
+        out = out.clamp(0, 1) if not self.training else out
+        return {"out": out, "residuals": residuals}
+
+class ResidualDenoiser(nn.Module):
+    """Learned proximal operator applied between Krylov data steps.
+
+    WHY THIS IS NEEDED
+    ------------------
+    The solver alone minimises ||D x - X||^2 + ||S x - M||^2 + rho||x||^2.
+    That is a Tikhonov least-squares fit to the observations, and it carries no
+    image prior at all - so it returns the smooth minimum-norm member of the
+    solution set and cannot recover high-frequency spectral detail that the
+    observations underdetermine. Measured: the solver-only model scored 29.49 dB
+    against plain bicubic at 31.31 dB, i.e. worse than doing nothing.
+
+    Interleaving a learned denoiser turns the unrolling into half-quadratic
+    splitting / plug-and-play: the data step enforces agreement with the
+    observations, the prior step supplies what the observations cannot. This is
+    where SOTA unfolding methods put their capacity, and it is the difference
+    between a 2.3k-parameter solver and a competitive model.
+
+    Zero-initialised output, so the network starts exactly at the solver's
+    answer and can only improve on it - training never has to first undo a
+    random perturbation of an already-reasonable estimate.
+    """
+
+    def __init__(self, bands: int, width: int = 64, blocks: int = 4):
+        super().__init__()
+        self.head = nn.Conv2d(bands, width, 3, 1, 1)
+        self.body = nn.ModuleList([
+            nn.Sequential(nn.Conv2d(width, width, 3, 1, 1),
+                          nn.LeakyReLU(0.1, True),
+                          nn.Conv2d(width, width, 3, 1, 1))
+            for _ in range(blocks)
+        ])
+        self.tail = nn.Conv2d(width, bands, 3, 1, 1)
+        nn.init.zeros_(self.tail.weight)
+        nn.init.zeros_(self.tail.bias)
+        self.act = nn.LeakyReLU(0.1, True)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        h = self.act(self.head(x))
+        for blk in self.body:
+            h = h + blk(h)
+        return x + self.tail(h)
