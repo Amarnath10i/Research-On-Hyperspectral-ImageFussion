@@ -126,7 +126,7 @@ Upload `MultiDataset_Fusion_Study.ipynb` to Kaggle, attach CAVE + Harvard + Chik
 
 Kernels:
 - `amarnathmadaka/multidataset-hsi-msi-fusion-study` — main 4-dataset run (COMPLETE)
-- `amarnathmadaka/sota-krylovnet-cave-nikon` — KrylovNet-P SOTA push, CAVE ×4 Nikon protocol (staged; GPU quota refresh 2026-08-22)
+- `amarnath1004/sota-krylovnet-cave-nikon` — KrylovNet-P SOTA push, CAVE ×4 Nikon protocol (running on fresh quota)
 
 ## Key Findings
 
