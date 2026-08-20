@@ -1,5 +1,27 @@
 # SOTA Comparison — HSI-MSI Fusion (CAVE, Harvard, Chikusei, PaviaU)
 
+> ## ⚠️ Every number below is superseded (2026-08-20)
+>
+> Three findings invalidate the comparisons in this file as they stand:
+>
+> 1. **Protocol mismatch.** Our MSI used a 3-Gaussian response; the published
+>    numbers use Nikon D700, which is a *harder* problem (cond 1.86 vs 1.42).
+>    Our results were obtained on an easier task than the ones they sit beside.
+> 2. **Undersized model.** KrylovNet had **2,287 trainable parameters** and no
+>    image prior — it solved Tikhonov least squares and scored *below bicubic*
+>    (29.49 vs 31.31 dB on a held-out scene). It is now 1.38 M parameters with a
+>    learned proximal prior.
+> 3. **Training budget.** 2,000 iterations against the 1e5–1e6 the published
+>    methods use.
+>
+> The Harvard rows are **not wins**: bicubic alone scores 60.3 dB under our
+> Harvard setup where published methods report ~49, so the problem there is far
+> easier than theirs. Do not quote them as beating SOTA.
+>
+> Regenerate under `USE_NIKON_SRF = True` with the current model before citing
+> anything here.
+
+
 Compiled from published papers (2022–2026). All numbers are the authors'
 reported values under **their** protocol (Wald's simulation, Nikon SRF for
 MSI). Our numbers are computed under the **repository's unified protocol**
@@ -27,13 +49,26 @@ MSI). Our numbers are computed under the **repository's unified protocol**
 | Bicubic (3-band MSI) | | | 29.928 | 0.8884 | 4.888 | 8.367 | Papers' protocol (SRF + x4) |
 | GSA (3-band MSI) | | | 34.381 | 0.9245 | 7.087 | 5.096 | Papers' protocol (SRF + x4) |
 | Subspace-LS (r̂_id) | | | 33.548 | 0.9463 | 4.681 | 5.456 | Papers' protocol (SRF + x4) |
-| KrylovNet (ours, trained) | | | 40.848 | 0.9831 | 3.389 | 2.335 | Papers' protocol, CAVE-trained |
+| KrylovNet (ours, trained) | | | 40.848 | 0.9831 | 3.389 | 2.335 | ⚠️ 3-Gaussian SRF, 2000 iters, 2.3k params — superseded |
 
-> **Protocol warning (addressed in notebook §11).** The published rows use a
-> *true* MSI simulation (Nikon D700 spectral response → 3-band MSI). The Kaggle
-> CAVE attachment (`liptee/...`) ships 31-band `PER_RGB`, so we re-simulate a
-> 3-band MSI from the HR-HSI via an SRF (notebook §11) so our numbers are
-> comparable to the published protocol.
+> **Protocol warning — the rows above are NOT yet comparable (measured
+> 2026-08-20).** The published rows simulate the MSI with the Nikon D700
+> measured response. Our runs used three Gaussian bumps (centres
+> 0.30/0.55/0.78), and the two are materially different problems:
+>
+> | response | condition number | channel overlap |
+> |---|---|---|
+> | Nikon D700 (published) | 1.86 | 0.149 |
+> | 3-Gaussian (ours, historic) | 1.42 | 0.091 |
+>
+> Three narrow, well-separated Gaussians are a *better-conditioned* 31→3 mixing
+> matrix, so **our protocol was the easier one** — 40.85 dB was earned on a
+> softer problem than the 52.47 dB it is placed beside. The true gap is wider
+> than the 11.6 dB shown, not narrower.
+>
+> `hsifusion.srf.nikon_d700_srf()` now provides the published response and the
+> notebooks use it (`USE_NIKON_SRF = True`). Every row in this file predates
+> that change and must be regenerated before any of it is quoted.
 
 ---
 
@@ -50,7 +85,7 @@ MSI). Our numbers are computed under the **repository's unified protocol**
 | Bicubic (3-band MSI) | | | 60.305 | 0.9975 | 2.595 | 4.198 | papers' protocol (SRF + x4) |
 | GSA (3-band MSI) | | | 66.460 | 0.9993 | 2.746 | 2.410 | papers' protocol (SRF + x4) |
 | Subspace-LS (r̂_id) | | | 64.234 | 0.9990 | 2.413 | 2.960 | papers' protocol (SRF + x4) |
-| KrylovNet (ours, trained) | | | 70.784 | 0.9998 | 2.295 | 1.664 | papers' protocol, Harvard-trained |
+| KrylovNet (ours, trained) | | | 70.784 | 0.9998 | 2.295 | 1.664 | ⚠️ not a win — see the note below |
 
 > **Harvard's high absolute PSNR is a data property, verified locally:**
 > the scenes are extremely smooth (amplitude ≈ 0.06, std ≈ 0.003), so
