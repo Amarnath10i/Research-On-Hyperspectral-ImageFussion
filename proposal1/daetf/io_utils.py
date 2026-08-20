@@ -173,8 +173,7 @@ def infer_channels(root: str) -> Tuple[int, int]:
     base = os.path.join(root, split)
     hsi_dir = next(os.path.join(base, d) for d in ("HSI", "hsi")
                    if os.path.isdir(os.path.join(base, d)))
-    rgb_dir = next((os.path.join(base, d) for d in ("RGB", "rgb")
-                    if os.path.isdir(os.path.join(base, d))), None)
+    rgb_dir = _find_rgb_dir(base)
     hsi = np.squeeze(load_mat(sorted(glob.glob(os.path.join(hsi_dir, "*.mat")))[0]))
     bands = int(min(hsi.shape))
     msi_bands = 3
@@ -190,8 +189,7 @@ def find_pairs(root: str, split: str) -> List[Tuple[str, str, str]]:
     base = os.path.join(root, actual)
     hsi_dir = next((os.path.join(base, d) for d in ("HSI", "hsi")
                     if os.path.isdir(os.path.join(base, d))), None)
-    rgb_dir = next((os.path.join(base, d) for d in ("RGB", "rgb")
-                    if os.path.isdir(os.path.join(base, d))), None)
+    rgb_dir = _find_rgb_dir(base)
     if not hsi_dir or not rgb_dir:
         raise FileNotFoundError(f"no HSI/RGB folders under {base}")
     rgb = {os.path.splitext(os.path.basename(p))[0]: p
@@ -204,3 +202,59 @@ def find_pairs(root: str, split: str) -> List[Tuple[str, str, str]]:
     if not out:
         raise RuntimeError(f"no matched pairs under {base}")
     return out
+
+
+def _find_rgb_dir(base: str) -> Optional[str]:
+    """Find RGB dir, also checking PER_RGB and MONO as fallbacks."""
+    for name in ('RGB', 'rgb', 'PER_RGB', 'per_rgb', 'MONO', 'mono'):
+        d = os.path.join(base, name)
+        if os.path.isdir(d):
+            return d
+    return None
+
+
+# ---------------------------------------------------------- scene enumeration
+# These three were defined only inside MultiDataset_Fusion_Study.ipynb and never
+# added to the package, so any notebook that writes this module and then imports
+# them fails at run time with ImportError. That is what killed the first SOTA
+# KrylovNet run. Keeping them here makes the package the single definition.
+
+def load_hsi(hsi_path: str, bands: int, max_dim: int = 512) -> np.ndarray:
+    """Load an HSI scene as CHW float32 in [0, 1], centre-cropped to max_dim.
+
+    The crop bounds memory on the large scenes (Harvard is 1040x1392, Chikusei
+    larger still) and is centred so the same region is used every run.
+    """
+    hsi = to_chw01(load_mat(hsi_path), bands)
+    if hsi.shape[1] > max_dim or hsi.shape[2] > max_dim:
+        y0 = max(0, (hsi.shape[1] - max_dim) // 2)
+        x0 = max(0, (hsi.shape[2] - max_dim) // 2)
+        hsi = hsi[:, y0:y0 + max_dim, x0:x0 + max_dim]
+    return hsi
+
+
+def find_hsi_only(root: str, split: str = "Test") -> List[Tuple[str, str]]:
+    """Enumerate HSI scenes even when no RGB/MONO counterpart exists.
+
+    Chikusei and PaviaU ship HSI only - the MSI is simulated from it - so
+    find_pairs, which requires a matched RGB, finds nothing for them.
+    """
+    actual = available_splits(root).get(split, split)
+    base = os.path.join(root, actual)
+    hsi_dir = next((os.path.join(base, d) for d in ("HSI", "hsi")
+                    if os.path.isdir(os.path.join(base, d))), None)
+    if hsi_dir is None:
+        hits = glob.glob(os.path.join(root, "**", "HSI", "*.mat"), recursive=True)
+        if not hits:
+            raise FileNotFoundError(f"no HSI folder under {base}")
+        return [(os.path.splitext(os.path.basename(h))[0], h) for h in sorted(hits)]
+    return [(os.path.splitext(os.path.basename(h))[0], h)
+            for h in sorted(glob.glob(os.path.join(hsi_dir, "*.mat")))]
+
+
+def list_hsi(root: str, split: str = "Test") -> List[Tuple[str, str]]:
+    """Unified scene enumeration -> [(stem, hsi_path)], paired or HSI-only."""
+    try:
+        return find_hsi_only(root, split)
+    except FileNotFoundError:
+        return [(stem, hp) for stem, hp, _ in find_pairs(root, split)]
