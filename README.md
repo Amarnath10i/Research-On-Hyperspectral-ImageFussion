@@ -20,7 +20,9 @@ Given a low-resolution hyperspectral image (LR-HSI) and a high-resolution multis
 | **P3 — Sensor-shift bound** | Can one field be fused for any sensor? | `Δ_sensor ≤ L_F · EMD(P_s1, P_s2)` bounds cross-domain gap by sensor spectral-response mismatch | PSNR drop |
 | **P4 — Phase transition** | When is fusion identifiable? | `M*(r) = min M : rank(R^T U) = r` predicts the minimum MSI bands needed | Phase diagram |
 
-## Results (KrylovNet, 2000 iterations, ~2.3k parameters; KrylovNet-P, ~1.38M, SOTA push)
+## Results
+
+### KrylovNet (2000 iterations, ~2.3k parameters; KrylovNet-P, ~1.38M, SOTA push)
 
 ### In-Domain (Wald simulation, Gaussian blur σ = 1.2, x4 decimation, 3-band Gaussian SRF)
 
@@ -94,6 +96,8 @@ proposal2/rankest/       P2: identifiable rank (r̂_id, phase transition)
 proposal3/field/         P3: sensor-shift bound (SceneField, EMD)
 proposal4/identifiability/  P4: phase diagram (I/W/N regimes)
 proposal3/continuumfusion/  INR-based SOTA attempt (FeINFN-like architecture)
+proposal7/nullfusion/     NullFusion: null-space conditional fusion network
+                           (Q1 method — exact A=[D;R] consistency by construction)
 
 existing/                ten benchmarked methods with cross-dataset results
 literature_survey/       Crossref → Unpaywall → annotated literature pipeline
