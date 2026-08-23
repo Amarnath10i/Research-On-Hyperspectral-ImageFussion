@@ -1,0 +1,41 @@
+optimizer:
+  name: "adamw"
+  lr: !!float 3e-4
+  weight_decay: !!float 1e-6
+
+lr_scheduler:
+  name: 'cos_anneal_restart_reduce'
+  T_0: 100
+  T_mult: 2
+  lr_mult: 0.5
+  eta_min: !!float 1e-6
+
+max_norm: 0.03
+ema_decay: 0.999
+
+path:
+  wv3_train_path: <your_path>/train_data/
+  wv3_val_path: <your_path>/val_data/
+
+  gf2_train_path: <your_path>/train_data/
+  gf2_val_path: <your_path>/val_data/
+
+  cave_x4_train_path: <your_path>/train_data/
+  cave_x4_val_path: <your_path>/val_data/
+
+network_configs:
+  lformer:
+    pan_dim: 1
+    lms_dim: 4
+    attn_dim: 64
+    hp_dim: 64
+    n_stage: 5
+    patch_merge: yes
+    crop_batch_size: 64
+    patch_size_list: [16, 64, 64]
+    scale: 4
+
+logger_config:
+  base_path: ./log_file/
+  name: lformer
+  file_mode: w

@@ -1,0 +1,34 @@
+# --- IDE / OS ---
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+
+# --- Build artifacts / CUDA ---
+*.cu
+*.cuh
+*.o
+*.obj
+*.so
+*.dll
+
+# --- Logs / autosave junk ---
+nohup.out
+*.asv
+
+# --- Vendor test suites (large, not needed for the harness) ---
+**/tests/
+**/test_*/
+**/matlab_xunit/
+
+# --- Nested git metadata from vendored deps ---
+.gitmodules
+.gitattributes
