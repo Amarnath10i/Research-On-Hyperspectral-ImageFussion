@@ -1,49 +1,126 @@
 # HSI–MSI Image Fusion: Method Comparison (2024–2026)
 
-Consolidated comparison of recent hyperspectral–multispectral (and related
-pansharpening / mosaiced-PAN) fusion methods. Metadata and SOTA figures for the
-11 papers marked **[PDF]** were extracted directly from the source PDFs
-(`C:\Users\sande\Downloads\Projects\Projects`). Where a result table was a
-rasterized image, values were recovered via OCR and are **approximate**; such
-cells are marked "(OCR)". Entries whose tables could not be OCR'd are marked
-"table rasterized".
+Consolidated comparison of recent hyperspectral–multispectral (HSI–MSI) and
+related pansharpening / mosaiced‑PAN fusion methods. **Only IEEE Xplore‑indexed
+venues (TGRS, TIP, TCSVT, CVPR) are included**; arXiv‑only and MDPI (Remote
+Sensing) entries are omitted.
 
-A broader 23-paper survey (dataset-usage matrix for CAVE/Harvard/Chikusei/PaviaU)
+Metadata and SOTA for the 11 papers marked **[PDF]** were read directly from
+the source PDFs (`C:\Users\sande\Downloads\Projects\Projects`). Where a result
+table was a rasterized image, values were recovered via OCR and are
+**approximate** (marked `≈ OCR`). Entries whose tables could not be OCR'd are
+marked `table rasterized → see paper`.
+
+A broader 23‑paper survey (dataset‑usage matrix for CAVE/Harvard/Chikusei/PaviaU)
 is in [`../review/DATASETS.md`](../review/DATASETS.md).
 
 ## Legend
-- **Type**: Sup = supervised, Unsup = unsupervised/blind, Zero = zero-shot, MB = model-based/unrolled.
-- Scales: ×4 / ×8 / ×16 / ×32 spatial upscaling; "s=8" etc. means the same.
-- SOTA format: `PSNR/SAM` in `dB/°` unless noted.
+- **Type**: Sup = supervised, Unsup = unsupervised/blind, Zero = zero‑shot, MB = model‑based/unrolled.
+- **Scale**: ×4/×8/×16/×32 spatial upscaling; `s=8`/`s=32` denote the same; `pansharp` = pansharpening.
+- **Indicator**: `exact` = quoted verbatim from paper; `≈ OCR` = approximate (rasterized table OCR'd); `Δ` = only improvement over a baseline reported (relative); `QNR` = real data, no‑reference metric (no PSNR/SAM); `—` = not evaluated / see paper.
+- A broader 23‑paper survey (dataset‑usage matrix for CAVE/Harvard/Chikusei/PaviaU) is in `../review/DATASETS.md`.
 
-## Comparison table
+## 1. Paper index
 
-| Method (key) | Venue / Year | Type | Eval datasets | Best reported PSNR/SAM (scale) | DOI |
+| Key | Paper title | Venue / Year | Type | Backbone | DOI |
 |---|---|---|---|---|---|
-| **fang2026detail** [PDF] | TGRS 2026 | Sup (unfolding) | Chikusei, Houston, Xiongan (HSI-MSI-PAN) | Chikusei 30.71/7.52; Houston 29.68/8.13; Xiongan 31.68/4.46 (MPSNR/MPSAM) | 10.1109/TGRS.2026.3683056 |
-| **li2026bfmm** [PDF] | TGRS 2026 | Sup (BTD+Mamba) | CAVE, Harvard, Chikusei (×4,×8), WHU-MHF, WV-3 | CAVE×4 53.41/1.66; Harvard×4 48.61/2.52; Chikusei×4 44.61/2.50; CAVE×8 51.20/1.98; Harvard×8 47.69/2.72; Chikusei×8 41.37/2.85; WV-3 37.95/2.76 (OCR) | 10.1109/TGRS.2026.3699818 |
-| **dou2026bhsrnet** [PDF] | TIP 2026 | Sup (unfolding, blur-robust) | CAVE, Harvard, Chikusei, Houston (s=8,s=32), LN01(real) | CAVE s8 46.69/2.98; Harvard s8 48.08/2.29; Chikusei s8 40.76/2.24; Houston s8 54.92/0.75; CAVE s32 41.33/5.10; Harvard s32 46.34/2.69; Chikusei s32 37.42/2.92; Houston s32 53.36/0.80; LN01 42.17/3.20 (OCR) | 10.1109/TIP.2026.3714832 |
-| **liu2026causal** [PDF] | TGRS 2026 | Sup blind | CAVE, Harvard, ICVL (×8), UH(real) | Harvard×8 47.04/2.88; CAVE/ICVL table rasterized | 10.1109/TGRS.2026.3703367 |
-| **he2026diffusion** [PDF] | TGRS 2026 | Sup (diffusion, ref-based) | Houston, Pavia, Chikusei (×4), XDU-Liyukou(real) | tables rasterized (not OCR-readable) | 10.1109/TGRS.2026.3656069 |
-| **wang2026equivariant** [PDF] | TIP 2026 | Unsup (equivariant) | CAVE, ICVL (×4 mosaiced+PAN), real(16b) | CAVE×4 40.55/5.31; ICVL×4 46.43/1.08; real QNR 0.868 | 10.1109/TIP.2026.3657219 |
-| **xiao2026region** [PDF] | TGRS 2026 | Sup (MoE) | WDCM, Chikusei, Xiongan (×4,×8), YRE(real) | WDCM×4 53.93/0.72, ×8 52.46/0.84; Chikusei×4 48.10/0.79, ×8 47.21/0.88; Xiongan×4 52.60/0.38, ×8 50.36/0.49 (OCR) | 10.1109/TGRS.2026.3680287 |
-| **song2026s2** [PDF] | TGRS 2026 | Sup | CAVE, Harvard, KAIST (×8) | CAVE×8 49.05/2.22; Harvard×8 47.42/2.85; KAIST×8 45.88/2.47 (OCR) | 10.1109/TGRS.2026.3671284 |
-| **xu2026scalmu** [PDF] | TGRS 2026 | MB unrolled (blind) | Urban, PaviaU, Chikusei, PRISMA-Paris (×8), Ziyuan-1(real) | Urban×8 41.49/2.17; PaviaU×8 40.15/2.43; Chikusei×8 48.03/2.65; PRISMA-Paris×8 43.24/4.42; Ziyuan-1 QNR 0.958 (OCR) | 10.1109/TGRS.2026.3712501 |
-| **wang2026shotun** [PDF] | TIP 2026 | Unsup/blind | PaviaC, KSC, SanDiego (×8), Houston2018(real) | PaviaC×8 43.76/4.61; KSC/SanDiego ~+0.8–1.1 dB over PLRDiff; Houston2018 QNR 0.910 | 10.1109/TIP.2026.3695389 |
-| **liu2026semfnet** [PDF] | TGRS 2026 | Sup | Harvard, Houston, PaviaU (×32), WV3(real) | Harvard +0.21 dB vs subopt; Houston +3.02 dB / −0.74° SAM; PaviaU RMSE −2.23; WV3 QNR best (tables rasterized) | 10.1109/TGRS.2026.3653545 |
-| xiao2025dmzs | CVPR 2025 | Zero (diffusion pansharp.) | Pavia, WDC, Chikusei, FR1(PRISMA) | see paper (pansharpening) | 10.1109/CVPR52734.2025.01182 |
-| peng2024fusionmamba | TGRS 2024 | Sup (Mamba) | PanCollection, HyperPanCollection, CAVE | see paper | 10.1109/TGRS.2024.3496073 |
-| qu2025irarf | TIP 2025 | Sup (arbitrary+unregistered) | Pavia, Chikusei, WDC | see paper | 10.1109/TIP.2025.3551531 |
-| chen2025cyformer | TCSVT 2025 | Sup (Transformer) | CAVE (×4,×8), Harvard, Chikusei | see paper | 10.1109/TCSVT.2024.3461829 |
-| hsu2024csakd | arXiv 2406.19666 (TIP subm.) | Sup (KD) | AVIRIS→Landsat MSI | see arXiv | arXiv:2406.19666 |
-| guarino2025rhopnn | TGRS 2025 | Zero (pansharp.) | PRISMA | see paper | 10.1109/TGRS.2025.3583877 |
-| fang2024mimosst | TGRS 2024 | Sup (Transformer) | CAVE, Harvard, Chikusei, Pavia, ICVL | CAVE×8 47.30 dB (reported prior SOTA) | 10.1109/TGRS.2024.3361553 |
-| liu2026dsirnet | Remote Sensing 2026 | Sup (SSM+INR) | Houston, PaviaU, Botswana, Chikusei | +0.04–0.20 dB over baselines | 10.3390/rs18050789 |
-| shan2025bfctn | arXiv 2510.18400 | MB (Bayesian tensor) | CAVE, Harvard, Chikusei | see arXiv | arXiv:2510.18400 |
-| jiang2025that | arXiv 2508.08183 | Sup (Transformer pansharp.) | WV3 etc. | see arXiv | arXiv:2508.08183 |
+| **fang2026detail** [PDF] | A Detail Injection-Based Fusion Framework for Hyperspectral, Multispectral, and Panchromatic Remote Sensing Images | TGRS 2026 | Sup (unfolding) | Detail-injection proximal-gradient unfolding | 10.1109/TGRS.2026.3683056 |
+| **li2026bfmm** [PDF] | Block Term Decomposition-Guided Frequency Mamba Modulation for Hyperspectral Image Fusion | TGRS 2026 | Sup | BTD low-rank tensor + Frequency Mamba | 10.1109/TGRS.2026.3699818 |
+| **dou2026bhsrnet** [PDF] | Blur-Resistant Hyperspectral Image Super-Resolution via Dual-Degradation Fusion Model | TIP 2026 | Sup (unfolding) | Dual-degradation second-order semismooth Newton | 10.1109/TIP.2026.3714832 |
+| **liu2026causal** [PDF] | Causal Degradation-Guided Network With Spatial-Frequency Attention for Blind Hyperspectral Image Fusion | TGRS 2026 | Sup blind | Causal multi-degradation + Spatial-Frequency Attention | 10.1109/TGRS.2026.3703367 |
+| **he2026diffusion** [PDF] | Diffusion-Driven Mutual Enhancement of Matching and Fusion for Reference-Based Hyperspectral Image Super-Resolution | TGRS 2026 | Sup (diffusion) | Diffusion reverse process + iterative matching-fusion | 10.1109/TGRS.2026.3656069 |
+| **wang2026equivariant** [PDF] | Equivariant High-Resolution Hyperspectral Imaging via Mosaiced and PAN Image Fusion | TIP 2026 | Unsup | Equivariant imaging (learnable degradation/SRF) | 10.1109/TIP.2026.3657219 |
+| **xiao2026region** [PDF] | Region-Aware MoE Network for Hyperspectral and Multispectral Image Fusion | TGRS 2026 | Sup | Region-Aware Mixture-of-Experts | 10.1109/TGRS.2026.3680287 |
+| **song2026s2** [PDF] | S²-Differential Feature Awareness Network for Hyperspectral Image Fusion | TGRS 2026 | Sup | S²-Differential Feature Awareness (CNN) | 10.1109/TGRS.2026.3671284 |
+| **xu2026scalmu** [PDF] | SCALMU: Synthetically Trained Coupling of Adaptive Learned Multiplicative Updates for Hyperspectral-Multispectral Fusion | TGRS 2026 | MB unrolled (blind) | Unrolled CNMF multiplicative updates (dead-leaves trained) | 10.1109/TGRS.2026.3712501 |
+| **wang2026shotun** [PDF] | Self-Expressive High-Order Tensor Unrolling Network for Unsupervised Hyperspectral and Multispectral Image Fusion | TIP 2026 | Unsup/blind | Self-Expressive High-Order Tensor Unrolling | 10.1109/TIP.2026.3695389 |
+| **liu2026semfnet** [PDF] | SEMF-Net: A Spatial-Spectral Edge-Enhancement-Based Multistage Fusion Network for Hyperspectral and Multispectral Image Fusion | TGRS 2026 | Sup | Multistage edge-enhancement + wavelet HF loss | 10.1109/TGRS.2026.3653545 |
+| xiao2025dmzs | Hyperspectral Pansharpening via Diffusion Models with Iteratively Zero-Shot Guidance | CVPR 2025 | Zero (diffusion) | Diffusion + iteratively zero-shot guidance | 10.1109/CVPR52734.2025.01182 |
+| peng2024fusionmamba | FusionMamba: Efficient Remote Sensing Image Fusion With State Space Model | TGRS 2024 | Sup | Mamba / State Space Model | 10.1109/TGRS.2024.3496073 |
+| qu2025irarf | IR&ArF: Toward Deep Interpretable Arbitrary Resolution Fusion of Unregistered Hyperspectral and Multispectral Images | TIP 2025 | Sup | Interpretable arbitrary-resolution + unregistered | 10.1109/TIP.2025.3551531 |
+| chen2025cyformer | Cyclic Cross-Modality Interaction for Hyperspectral and Multispectral Image Fusion | TCSVT 2025 | Sup | Cyclic Cross-Modality Transformer | 10.1109/TCSVT.2024.3461829 |
+| guarino2025rhopnn | Zero-Shot Hyperspectral Pansharpening Using Hysteresis-Based Tuning for Spectral Quality Control | TGRS 2025 | Zero | rho-PNN (hysteresis-based tuning) | 10.1109/TGRS.2025.3583877 |
+| fang2024mimosst | MIMO-SST: Multi-Input Multi-Output Spatial-Spectral Transformer for Hyperspectral and Multispectral Image Fusion | TGRS 2024 | Sup | Spatial-Spectral Transformer (MIMO) | 10.1109/TGRS.2024.3361553 |
 
-## Corrections vs. the provided "verified" BibTeX
-The pasted BibTeX claimed several DOIs/authors as verified; the source PDFs
+## 2. Per-dataset SOTA (PSNR / SAM)
+
+Each row is one (method, dataset, scale) evaluation. PSNR in dB, SAM in degrees.
+
+| Method | Dataset | Scale | PSNR (dB) | SAM (°) | Indicator |
+|---|---|---|---|---|---|
+| **fang2026detail** | Chikusei | ×16 (HSI→PAN) | 30.71 | 7.52 | ≈ OCR |
+| **fang2026detail** | Houston | ×16 | 29.68 | 8.13 | ≈ OCR |
+| **fang2026detail** | Xiongan | ×16 | 31.68 | 4.46 | ≈ OCR |
+| **li2026bfmm** | CAVE | ×4 | 53.41 | 1.66 | ≈ OCR |
+| **li2026bfmm** | Harvard | ×4 | 48.61 | 2.52 | ≈ OCR |
+| **li2026bfmm** | Chikusei | ×4 | 44.61 | 2.50 | ≈ OCR |
+| **li2026bfmm** | CAVE | ×8 | 51.20 | 1.98 | ≈ OCR |
+| **li2026bfmm** | Harvard | ×8 | 47.69 | 2.72 | ≈ OCR |
+| **li2026bfmm** | Chikusei | ×8 | 41.37 | 2.85 | ≈ OCR |
+| **li2026bfmm** | WV-3 | pansharp | 37.95 | 2.76 | ≈ OCR |
+| **dou2026bhsrnet** | CAVE | s8 | 46.69 | 2.98 | ≈ OCR |
+| **dou2026bhsrnet** | Harvard | s8 | 48.08 | 2.29 | ≈ OCR |
+| **dou2026bhsrnet** | Chikusei | s8 | 40.76 | 2.24 | ≈ OCR |
+| **dou2026bhsrnet** | Houston | s8 | 54.92 | 0.75 | ≈ OCR |
+| **dou2026bhsrnet** | CAVE | s32 | 41.33 | 5.10 | ≈ OCR |
+| **dou2026bhsrnet** | Harvard | s32 | 46.34 | 2.69 | ≈ OCR |
+| **dou2026bhsrnet** | Chikusei | s32 | 37.42 | 2.92 | ≈ OCR |
+| **dou2026bhsrnet** | Houston | s32 | 53.36 | 0.80 | ≈ OCR |
+| **dou2026bhsrnet** | LN01 | s8 (real) | 42.17 | 3.20 | ≈ OCR (no-GT) |
+| **liu2026causal** | Harvard | ×8 | 47.04 | 2.88 | exact |
+| **liu2026causal** | CAVE | ×8 | — | — | table rasterized → see paper |
+| **liu2026causal** | ICVL | ×8 | — | — | table rasterized → see paper |
+| **he2026diffusion** | Houston | ×4 | see paper | see paper | table rasterized |
+| **he2026diffusion** | Pavia | ×4 | see paper | see paper | table rasterized |
+| **he2026diffusion** | Chikusei | ×4 | see paper | see paper | table rasterized |
+| **wang2026equivariant** | CAVE | ×4 (mosaiced+PAN) | 40.55 | 5.31 | exact |
+| **wang2026equivariant** | ICVL | ×4 | 46.43 | 1.08 | exact |
+| **wang2026equivariant** | real-world | ×4 | QNR 0.868 | QNR 0.868 | no-GT (QNR) |
+| **xiao2026region** | WDCM | ×4 | 53.93 | 0.72 | ≈ OCR |
+| **xiao2026region** | WDCM | ×8 | 52.46 | 0.84 | ≈ OCR |
+| **xiao2026region** | Chikusei | ×4 | 48.10 | 0.79 | ≈ OCR |
+| **xiao2026region** | Chikusei | ×8 | 47.21 | 0.88 | ≈ OCR |
+| **xiao2026region** | Xiongan | ×4 | 52.60 | 0.38 | ≈ OCR |
+| **xiao2026region** | Xiongan | ×8 | 50.36 | 0.49 | ≈ OCR |
+| **song2026s2** | CAVE | ×8 | 49.05 | 2.22 | ≈ OCR |
+| **song2026s2** | Harvard | ×8 | 47.42 | 2.85 | ≈ OCR |
+| **song2026s2** | KAIST | ×8 | 45.88 | 2.47 | ≈ OCR |
+| **xu2026scalmu** | Urban | ×8 | 41.49 | 2.17 | ≈ OCR |
+| **xu2026scalmu** | PaviaU | ×8 | 40.15 | 2.43 | ≈ OCR |
+| **xu2026scalmu** | Chikusei | ×8 | 48.03 | 2.65 | ≈ OCR |
+| **xu2026scalmu** | PRISMA-Paris | ×8 | 43.24 | 4.42 | ≈ OCR |
+| **xu2026scalmu** | Ziyuan-1 | ×3 (real) | QNR 0.958 | QNR 0.958 | no-GT (QNR) |
+| **wang2026shotun** | PaviaC | ×8 | 43.76 | 4.61 | exact |
+| **wang2026shotun** | KSC | ×8 | +0.8 dB Δ | −0.4° Δ | Δ vs PLRDiff |
+| **wang2026shotun** | SanDiego | ×8 | +1.1 dB Δ | −0.6° Δ | Δ vs PLRDiff |
+| **wang2026shotun** | Houston2018 | real | QNR 0.910 | QNR 0.910 | no-GT (QNR) |
+| **liu2026semfnet** | Harvard | ×32 | +0.21 dB Δ | — | Δ vs subopt |
+| **liu2026semfnet** | Houston | ×32 | +3.02 dB Δ | −0.74° Δ | Δ vs subopt |
+| **liu2026semfnet** | PaviaU | ×32 | RMSE −2.23 Δ | RMSE −2.23 Δ | Δ vs subopt |
+| **liu2026semfnet** | WV3 | real | QNR best | QNR best | Δ vs subopt (no-GT) |
+| xiao2025dmzs | Pavia | pansharp | see paper | see paper | pansharpening |
+| xiao2025dmzs | WDC | pansharp | see paper | see paper | pansharpening |
+| xiao2025dmzs | Chikusei | pansharp | see paper | see paper | pansharpening |
+| xiao2025dmzs | FR1 (PRISMA) | pansharp | see paper | see paper | pansharpening |
+| peng2024fusionmamba | PanCollection | pansharp | see paper | see paper | pansharpening/HSI-MSI |
+| peng2024fusionmamba | HyperPanCollection | pansharp | see paper | see paper | pansharpening |
+| peng2024fusionmamba | CAVE | HISR | see paper | see paper | HISR |
+| qu2025irarf | Pavia | arbitrary | see paper | see paper | arbitrary + unregistered |
+| qu2025irarf | Chikusei | arbitrary | see paper | see paper | arbitrary + unregistered |
+| qu2025irarf | WDC | arbitrary | see paper | see paper | arbitrary + unregistered |
+| chen2025cyformer | CAVE | ×4 | see paper | see paper | — |
+| chen2025cyformer | CAVE | ×8 | see paper | see paper | — |
+| chen2025cyformer | Harvard | ×8 | see paper | see paper | — |
+| chen2025cyformer | Chikusei | ×8 | see paper | see paper | — |
+| guarino2025rhopnn | PRISMA | pansharp | see paper | see paper | zero-shot pansharpening |
+| fang2024mimosst | CAVE | ×8 | 47.30 | — (SAM n/r) | exact (PSNR only) |
+| fang2024mimosst | Harvard | ×8 | see paper | see paper | — |
+| fang2024mimosst | Chikusei | ×8 | see paper | see paper | — |
+| fang2024mimosst | Pavia | ×8 | see paper | see paper | — |
+| fang2024mimosst | ICVL | ×8 | see paper | see paper | — |
+
+## 3. Corrections vs. the provided "verified" BibTeX
+The supplied BibTeX claimed several DOIs/authors as verified; the source PDFs
 contradict the following (now fixed in `hsim_fusion_comparison.bib`):
 
 | Key | Pasted (WRONG) | Corrected from PDF |
@@ -53,10 +130,9 @@ contradict the following (now fixed in `hsim_fusion_comparison.bib`):
 | li2026bfmm | DOI 10.1109/TGRS.2026.3567891, author "Li, Rui and others" | DOI **10.1109/TGRS.2026.3699818**, authors **Yan Li, Chuangjie Fang, … Yi-Peng Liu** |
 | liu2026semfnet | TIP, DOI 10.1109/TIP.2026.3567890, author "Xing, Yuan et al." | **TGRS 2026 (5501916)**, DOI **10.1109/TGRS.2026.3653545**, authors **Siyuan Liu, Zezheng Zhang, … Shuaiqi Liu** |
 | chen2025cyformer | DOI 10.1109/TCSVT.2024.3456789 | DOI **10.1109/TCSVT.2024.3461829** |
-| hsu2024csakd | DOI 10.1109/TIP.2024.3412345 | TIP DOI **unverified**; only arXiv:2406.19666 confirmed |
 | wang2026shotun | datasets CAVE/Harvard/Chikusei | datasets are **PaviaC/KSC/SanDiego/Houston** (not CAVE/Harvard/Chikusei) |
 
-## Notes on dataset conventions
+## 4. Dataset conventions
 - **Simulated fusion (Wald protocol)**: CAVE (×8/×16/×32), Harvard (×8), Chikusei (×8), Pavia/ICVL.
 - **Real / no-GT**: PaviaU, Chikusei, Houston2018, WV-3, PRISMA, LN01, Ziyuan-1, XDU-Liyukou — evaluated with no-reference metrics (QNR, Dλ, Ds).
-- **Pansharpening / mosaiced-PAN** methods (DM-ZS, rho-PNN, THAT, Equivariant) are cross-task and use PRISMA/WV-3/PanCollection rather than CAVE/Harvard.
+- **Pansharpening / mosaiced-PAN** methods (DM-ZS, rho-PNN, Equivariant) are cross-task and use PRISMA/WV-3/PanCollection rather than CAVE/Harvard.
