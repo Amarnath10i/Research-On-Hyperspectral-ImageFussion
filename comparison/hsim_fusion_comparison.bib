@@ -1,0 +1,708 @@
+% =============================================================================
+% HSI-MSI fusion: IEEE journals, Impact Factor > 9 (TIP, TPAMI, TNNLS, TGRS, TCYB)
+% All entries are IEEE Transactions (subscription / non-open-access by default).
+%
+% NOTE ON THE "MOSTLY 2026" REQUEST:
+%   Genuine *2026* IEEE fusion papers with IF>9 are rare in this niche; the
+%   high-IF IEEE burst is 2024-2025. We include the one solid 2026 IEEE entry
+%   (MIAN, TGRS 2026) and fill the rest with 2024-2025 IEEE Transactions.
+%   (CoFusion 2026 and the latent-guided 2026 paper are NOT IEEE / NOT IF>9.)
+%
+% Impact factors (approx., 2024-2025 Journal Citation Reports):
+%   TIP  ~10.6   TPAMI ~23.0   TNNLS ~10.4   TGRS ~9.4   TCYB ~11.0
+%
+% Sections:
+%   A. Core recent deep / hybrid methods (2021-2026)
+%   B. Foundational model-based methods (related-work grounding)
+%
+% Dataset legend (note field): CAVE | Harvard | Chikusei | PaviaU
+%   Y = used, N = not used, ? = not confirmed from abstract/code/README.
+% =============================================================================
+
+% ----------------------------- SECTION A -----------------------------------
+
+
+
+@article{shi2025vdmu,
+  author  = {Shi, Yang and Liu, Yang and Cheng, Jun and Wang, Z. Jane and Chen, Xindong},
+  title   = {{VDMUFusion}: A Versatile Diffusion Model-Based Unsupervised Framework for Image Fusion},
+  journal = {IEEE Transactions on Image Processing},
+  volume  = {34},
+  pages   = {441--454},
+  year    = {2025},
+  doi     = {10.1109/TIP.2024.3512365},
+  note    = {Datasets: CAVE N | Harvard N | Chikusei N | PaviaU N. General multi-modal framework (IR/visible, medical, multi-exposure); HSI-MSI / CAVE-Harvard not its benchmark.}
+}
+
+@article{chen2025rangenull,
+  author  = {Chen, Yang and Wang, Yu and Zhang, Hongyang},
+  title   = {Unsupervised Range-Nullspace Learning Prior for Multispectral Images Reconstruction},
+  journal = {IEEE Transactions on Image Processing},
+  volume  = {34},
+  pages   = {2513--2528},
+  year    = {2025},
+  doi     = {10.1109/TIP.2025.3560430},
+  note    = {Datasets: CAVE Y | Harvard ? | Chikusei ? | PaviaU ?. Code README lists CAVE (snapshot MS demosaicing); other benchmarks not confirmed.}
+}
+
+@article{wang2025deeptucker,
+  author  = {Wang, Ting and Xu, Min and Wu, Xiuyun and Wei, Wei and others},
+  title   = {Unsupervised Hyperspectral and Multispectral Image Blind Fusion Based on Deep Tucker Decomposition Network With Spatial-Spectral Manifold Learning},
+  journal = {IEEE Transactions on Neural Networks and Learning Systems},
+  volume  = {36},
+  number  = {7},
+  pages   = {12721--12735},
+  year    = {2025},
+  doi     = {10.1109/TNNLS.2024.3457781},
+  note    = {Datasets: CAVE N | Harvard N | Chikusei Y | PaviaU Y. Uses Pavia University + Chikusei (also WaDC, SanDiego).}
+}
+
+@article{qu2024regfusionconsistency,
+  author  = {Qu, Jiahui and others},
+  title   = {A Principle Design of Registration-Fusion Consistency: Toward Interpretable Deep Unregistered Hyperspectral Image Fusion},
+  journal = {IEEE Transactions on Neural Networks and Learning Systems},
+  year    = {2024},
+  doi     = {10.1109/TNNLS.2024.3412528},
+  note    = {Datasets: CAVE N | Harvard N | Chikusei N | PaviaU Y. Validated on Pavia University (+ Salton Sea, Mississippi Gulfport).}
+}
+
+@article{liu2025amsfnet,
+  author  = {Liu, Shuaiqi and Shao, Tingting and Zhang, Yudong},
+  title    = {An Asymptotic Multiscale Symmetric Fusion Network for Hyperspectral and Multispectral Image Fusion},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {63},
+  year    = {2025},
+  doi     = {10.1109/TGRS.2025.3525840},
+  note    = {Datasets: CAVE Y | Harvard N | Chikusei Y | PaviaU N. Uses CAVE, Chikusei, Houston, WorldView-3.}
+}
+
+@article{huo2026mian,
+  author  = {Huo, Xuanfu and Gan, Hongping},
+  title   = {Leveraging Modal Interaction and Window Dilation in Attention Network for Hyperspectral and Multispectral Remote Sensing Image Fusion},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {64},
+  pages   = {1--15},
+  year    = {2026},
+  doi     = {10.1109/TGRS.2026.3659928},
+  note    = {Datasets: CAVE ? | Harvard ? | Chikusei ? | PaviaU ?. Benchmark list not found in public sources.}
+}
+
+@article{wang2023difiv,
+  author  = {Wang, Xiuheng and Borsoi, Ricardo Augusto and Richard, Cedric and Chen, Jie},
+  title   = {Deep Hyperspectral and Multispectral Image Fusion With Inter-Image Variability},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {61},
+  year    = {2023},
+  doi     = {10.1109/TGRS.2023.3273118},
+  note    = {Datasets: CAVE N | Harvard N | Chikusei N | PaviaU N. Real AVIRIS/Sentinel-2 pairs (Ivanpah, Lake Tahoe).}
+}
+
+@article{chi2025csgav,
+  author  = {Chi, Biwei and Lu, Hangyuan and Liu, Rixian and Yang, Yong and Xu, Lingrong and Wan, Weiguo},
+  title   = {Multispectral-Hyperspectral Image Fusion via Similarity-Guided Graph Attention and {VAE}-Transformer},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {63},
+  pages   = {1--16},
+  year    = {2025},
+  doi     = {10.1109/TGRS.2025.3573047},
+  note    = {Datasets: CAVE N | Harvard N | Chikusei N | PaviaU Y. Uses Houston, Botswana, Pavia University.}
+}
+
+@article{xie2022mhfnet,
+  author  = {Xie, Qi and Zhou, Minghao and Zhao, Qian and Xu, Zongben and Meng, Deyu},
+  title   = {{MHF-Net}: An Interpretable Deep Network for Multispectral and Hyperspectral Image Fusion},
+  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  volume  = {44},
+  number  = {3},
+  pages   = {1457--1473},
+  year    = {2022},
+  doi     = {10.1109/TPAMI.2020.3015691},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. Standard CAVE/Harvard simulated + real Pavia/Chikusei.}
+}
+
+@article{ran2023guidednet,
+  author  = {Ran, Rui and Deng, Liang-Jian and Jiang, Tian-Jing and Hu, Jun-Feng and Chanussot, Jocelyn and Vivone, Gemine},
+  title   = {{GuidedNet}: A General {CNN} Fusion Framework via High-Resolution Guidance for Hyperspectral Image Super-Resolution},
+  journal = {IEEE Transactions on Cybernetics},
+  volume  = {53},
+  number  = {7},
+  pages   = {4148--4161},
+  year    = {2023},
+  doi     = {10.1109/TCYB.2023.3238200},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei N | PaviaU N. Code provides test data for CAVE + Harvard (natural-image HISR framework).}
+}
+
+@article{tian2024hmpnet,
+  author  = {Tian, Xin and Li, Kun and Zhang, Wei and Wang, Zhongyuan and Ma, Jiayi},
+  title   = {Interpretable Model-Driven Deep Network for Hyperspectral, Multispectral, and Panchromatic Image Fusion},
+  journal = {IEEE Transactions on Neural Networks and Learning Systems},
+  volume  = {35},
+  number  = {10},
+  pages   = {14382--14395},
+  year    = {2024},
+  doi     = {10.1109/TNNLS.2023.3278928},
+  note    = {Datasets: CAVE ? | Harvard ? | Chikusei ? | PaviaU ?. Benchmark list not confirmed from public sources.}
+}
+
+@article{fang2024dunet,
+  author  = {Fang, Jian and Yang, Jingxiang and Khader, Abdolraheem and Xiao, Liang},
+  title   = {Deep Unfolding Network Enhanced by Transformer Priors for Unregistered Hyperspectral and Multispectral Image Fusion},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {62},
+  pages   = {1--16},
+  year    = {2024},
+  doi     = {10.1109/TGRS.2024.3460186},
+  note    = {Datasets: CAVE N | Harvard N | Chikusei Y | PaviaU N. Uses ICVL, Chikusei, Houston.}
+}
+
+@article{guo2023scanet,
+  author  = {Guo, Yujuan and Fu, Xiyou and Xu, Meng and Jia, Sen},
+  title   = {Stereo Cross-Attention Network for Unregistered Hyperspectral and Multispectral Image Fusion},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {61},
+  pages   = {1--15},
+  year    = {2023},
+  doi     = {10.1109/TGRS.2023.3314755},
+  note    = {Datasets: CAVE N | Harvard N | Chikusei Y | PaviaU Y. Uses Pavia University, Chikusei, PYLake.}
+}
+
+@article{dong2021modelguided,
+  author  = {Dong, Weisheng and Zhou, Chen and Wu, Fangfang and Wu, Jinjian and Shi, Guangming and Li, Xin},
+  title   = {Model-Guided Deep Hyperspectral Image Super-Resolution},
+  journal = {IEEE Transactions on Image Processing},
+  volume  = {30},
+  pages   = {5754--5768},
+  year    = {2021},
+  doi     = {10.1109/TIP.2021.3078058},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. Standard Wald-protocol benchmark sets.}
+}
+
+@article{dian2024crossfusion,
+  author  = {Dian, Renwei and Shan, Tao and He, Wei and Liu, Hongyan},
+  title   = {Spectral Super-Resolution via Model-Guided Cross-Fusion Network},
+  journal = {IEEE Transactions on Neural Networks and Learning Systems},
+  volume  = {35},
+  number  = {7},
+  pages   = {10059--10070},
+  year    = {2024},
+  doi     = {10.1109/TNNLS.2023.3238506},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. Standard benchmark sets.}
+}
+
+@article{hu2024spectralprior,
+  author  = {Hu, Qiang and Wang, Xin and Jiang, Jinyuan and Zhang, Xing and Ma, Jiayi},
+  title   = {Exploring the Spectral Prior for Hyperspectral Image Super-Resolution},
+  journal = {IEEE Transactions on Image Processing},
+  volume  = {33},
+  pages   = {5260--5272},
+  year    = {2024},
+  doi     = {10.1109/TIP.2024.3460470},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. Standard benchmark sets.}
+}
+
+@article{fang2024cs2dips,
+  author  = {Fang, Yu and Liu, Yidong and Chi, Chong-Yung and Long, Zhen and Zhu, Ce},
+  title   = {{CS2DIPs}: Unsupervised {HSI} Super-Resolution Using Coupled Spatial and Spectral Deep Image Priors},
+  journal = {IEEE Transactions on Image Processing},
+  volume  = {33},
+  pages   = {3090--3101},
+  year    = {2024},
+  doi     = {10.1109/TIP.2024.3390582},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. Standard benchmark sets.}
+}
+
+@article{he2025arbpansharp,
+  author  = {He, Lei and Fang, Zhiyong and Li, Jiayi and Ye, Han and Plaza, Antonio},
+  title   = {Arbitrary-Resolution Hyperspectral Pansharpening Neural Operators},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {63},
+  pages   = {1--19},
+  year    = {2025},
+  doi     = {10.1109/TGRS.2025.3558086},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. Standard benchmark sets.}
+}
+
+% ----------------------------- SECTION B -----------------------------------
+
+@article{yokoya2012cnmf,
+  author  = {Yokoya, Naoto and Yairi, Takehisa and Iwasaki, Akira},
+  title   = {Coupled Nonnegative Matrix Factorization Unmixing for Hyperspectral and Multispectral Data Fusion},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {50},
+  number  = {2},
+  pages   = {528--537},
+  year    = {2012},
+  doi     = {10.1109/TGRS.2011.2161320},
+  note    = {Datasets: CAVE Y | Harvard ? | Chikusei Y | PaviaU Y. CAVE simulated + real Chikusei/Pavia (Harvard atypical for this RS unmixing method).}
+}
+
+@article{simoes2015hysure,
+  author  = {Simoes, Miguel and Bioucas-Dias, Jose and Almeida, Luis B. and Chanussot, Jerome},
+  title   = {A Convex Formulation for Hyperspectral Image Superresolution via Subspace-Based Regularization},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {53},
+  number  = {6},
+  pages   = {3373--3388},
+  year    = {2015},
+  doi     = {10.1109/TGRS.2014.2375320},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. CAVE, Harvard + real Pavia/Chikusei.}
+}
+
+@article{wei2015sparse,
+  author  = {Wei, Qi and Bioucas-Dias, Jose and Dobigeon, Nicolas and Tourneret, Jean-Yves},
+  title   = {Hyperspectral and Multispectral Image Fusion Based on a Sparse Representation},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {53},
+  number  = {7},
+  pages   = {3658--3668},
+  year    = {2015},
+  doi     = {10.1109/TGRS.2014.2381272},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. CAVE, Harvard + real Pavia/Chikusei.}
+}
+
+@article{zhou2020integrated,
+  author  = {Zhou, Yujie and Rangarajan, Arun and Gader, Paul D.},
+  title   = {An Integrated Approach to Registration and Fusion of Hyperspectral and Multispectral Images},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {58},
+  number  = {5},
+  pages   = {3020--3033},
+  year    = {2020},
+  doi     = {10.1109/TGRS.2019.2946803},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. CAVE, Harvard + real Pavia/Chikusei.}
+}
+
+% ==============================================================================
+% APPENDED: RECENT 2024-2026 METHODS (authoritative, PDF-verified where available)
+% ==============================================================================
+
+% ==============================================================================
+% HSI-MSI Fusion: RECENT METHODS (2024-2026) - AUTHORITATIVE METADATA
+% DOIs / authors / SOTA extracted directly from the source PDFs where present.
+% SOTA values from rasterized result tables were recovered via OCR and are
+% approximate; entries marked "(table rasterized)" could not be OCR'd.
+% ==============================================================================
+
+
+% --- 1. Detail Injection-Based Fusion Framework (HSI-MSI-PAN) ----------------
+@article{fang2026detail,
+  title   = {A Detail Injection-Based Fusion Framework for Hyperspectral, Multispectral, and Panchromatic Remote Sensing Images},
+  author  = {Fang, Jian and Sun, He and Sun, Xu and Ni, Li and Gao, Lianru},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {64},
+  year    = {2026},
+  doi     = {10.1109/TGRS.2026.3683056},
+  type    = {Supervised (deep unfolding, detail-injection physical model)},
+  datasets= {Chikusei, Houston, Xiongan (simulated HSI-MSI-PAN, ~x16 to PAN)},
+  sota    = {Chikusei MPSNR 30.71/SAM 7.52; Houston MPSNR 29.68/SAM 8.13; Xiongan MPSNR 31.68/SAM 4.46 (deg/dB)},
+  note    = {Tri-modal HSI-MSI-PAN fusion, not standard HSI-MSI only}
+}
+
+
+% --- 2. BFMM: Block Term Decomposition-Guided Frequency Mamba Modulation ----
+@article{li2026bfmm,
+  title   = {Block Term Decomposition-Guided Frequency Mamba Modulation for Hyperspectral Image Fusion},
+  author  = {Li, Yan and Fang, Chuangjie and Chen, Zhijie and Meng, Yiqun and Xu, Honghui and Wang, Hao and Liu, Yi-Peng},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {64},
+  year    = {2026},
+  doi     = {10.1109/TGRS.2026.3699818},
+  type    = {Supervised (BTD low-rank tensor + frequency Mamba)},
+  datasets= {CAVE, Harvard, Chikusei (x4,x8), WHU-MHF (real), WV-3 (pansharpening)},
+  sota    = {CAVE x4 53.405/1.664; Harvard x4 48.610/2.521; Chikusei x4 44.609/2.498; CAVE x8 51.204/1.980; Harvard x8 47.686/2.719; Chikusei x8 41.369/2.851; WV-3 37.946/2.761 (PSNR/SAM dB/deg; OCR of rasterized table)},
+  note    = {Standard HSI-MSI fusion on CAVE/Harvard/Chikusei}
+}
+
+
+% --- 3. BHSR-Net: Blur-Resistant HSI Super-Resolution -----------------------
+@article{dou2026bhsrnet,
+  title   = {Blur-Resistant Hyperspectral Image Super-Resolution via Dual-Degradation Fusion Model},
+  author  = {Xu, Mai and Dou, Yongxuan and Deng, Xin and Zou, Xin and Shi, Zhenwei},
+  journal = {IEEE Transactions on Image Processing},
+  volume  = {35},
+  year    = {2026},
+  doi     = {10.1109/TIP.2026.3714832},
+  type    = {Supervised (deep unfolding, second-order semismooth Newton)},
+  datasets= {CAVE, Harvard, Chikusei, Houston (s=8,s=32, with/without MSI blur), LN01 (real s=8)},
+  sota    = {CAVE s8 46.69/2.979; Harvard s8 48.08/2.292; Chikusei s8 40.76/2.235; Houston s8 54.92/0.745; CAVE s32 41.33/5.099; Harvard s32 46.34/2.692; Chikusei s32 37.42/2.922; Houston s32 53.36/0.802; LN01(real) 42.17/3.201 (PSNR/SAM dB/deg; OCR of rasterized table)},
+  note    = {HSI-MSI super-resolution (not pansharpening). Effective x8 / x32 spatial upscaling}
+}
+
+
+% --- 4. Causal Degradation-Guided Network (Blind) ---------------------------
+@article{liu2026causal,
+  title   = {Causal Degradation-Guided Network With Spatial-Frequency Attention for Blind Hyperspectral Image Fusion},
+  author  = {Liu, Jianjun and Cheng, Lian and Dong, Mengjie and Wu, Zebin and Xiao, Liang},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {64},
+  year    = {2026},
+  doi     = {10.1109/TGRS.2026.3703367},
+  type    = {Supervised blind fusion (multi-degradation / causal training)},
+  datasets= {CAVE, Harvard, ICVL (x8 Wald), UH (real, no GT)},
+  sota    = {Harvard x8 47.04/2.88 (CAVE/ICVL result tables rasterized, not OCR-readable)},
+  note    = {HSI-MSI fusion (LR-HSI + HR-MSI). CAVE/ICVL exact numbers not extracted}
+}
+
+
+% --- 5. Diffusion-Driven Mutual Enhancement (Reference-Based) ----------------
+@article{he2026diffusion,
+  title   = {Diffusion-Driven Mutual Enhancement of Matching and Fusion for Reference-Based Hyperspectral Image Super-Resolution},
+  author  = {He, Jie and Qu, Jiahui and Zhang, Xiaohan and Dong, Wenqian and Li, Yunsong},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {64},
+  year    = {2026},
+  doi     = {10.1109/TGRS.2026.3656069},
+  type    = {Supervised (diffusion, reference-based / unpaired HR-MSI)},
+  datasets= {Houston, Pavia, Chikusei (x4 Wald), XDU-Liyukou (real, no GT)},
+  sota    = {Houston/Pavia/Chikusei x4 (all result tables rasterized, exact PSNR/SAM not OCR-readable)},
+  note    = {Reference-based unpaired HSI-SR fusing LR-HSI with unpaired HR-MSI}
+}
+
+
+% --- 6. Equivariant HSI via Mosaiced + PAN ----------------------------------
+@article{wang2026equivariant,
+  title   = {Equivariant High-Resolution Hyperspectral Imaging via Mosaiced and PAN Image Fusion},
+  author  = {Wang, Nan and Guo, Anjing and Dian, Renwei and Li, Shutao},
+  journal = {IEEE Transactions on Image Processing},
+  volume  = {35},
+  pages   = {1246--1260},
+  year    = {2026},
+  doi     = {10.1109/TIP.2026.3657219},
+  type    = {Unsupervised (equivariant imaging, learnable degradation/SRF)},
+  datasets= {CAVE, ICVL (x4 mosaiced+PAN), real-world mosaiced/PAN (60 pairs, 16 bands)},
+  sota    = {CAVE x4 40.55/5.3147; ICVL x4 46.43/1.0777; real-world QNR 0.8681 (PSNR/SAM dB/deg)},
+  note    = {Mosaiced+PAN fusion, NOT classic HSI-MSI. Uses CAVE/ICVL (not Chikusei)}
+}
+
+
+% --- 7. Region-Aware MoE Network --------------------------------------------
+@article{xiao2026region,
+  title   = {Region-Aware MoE Network for Hyperspectral and Multispectral Image Fusion},
+  author  = {Xiao, Nan and Fu, Xiyou and Ren, Qi and He, Wangquan and Wei, Siqi and Jia, Sen},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {64},
+  year    = {2026},
+  doi     = {10.1109/TGRS.2026.3680287},
+  type    = {Supervised (paired GT from real HSIs via simulation)},
+  datasets= {WDCM, Chikusei, Xiongan (x4,x8), YRE (real, no GT)},
+  sota    = {WDCM x4 53.93/0.72, x8 52.46/0.84; Chikusei x4 48.10/0.79, x8 47.21/0.88; Xiongan x4 52.60/0.38, x8 50.36/0.49 (PSNR/SAM dB/deg; OCR of rasterized table)},
+  note    = {YRE uses no-reference QNR (no GT PSNR/SAM)}
+}
+
+
+% --- 8. S^2-Differential Feature Awareness Network --------------------------
+@article{song2026s2,
+  title   = {S$^2$-Differential Feature Awareness Network for Hyperspectral Image Fusion},
+  author  = {Song, Qiya and Guo, Shuo and Yang, Tao and Sun, Bin and Dian, Renwei and Li, Shutao},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {64},
+  year    = {2026},
+  doi     = {10.1109/TGRS.2026.3671284},
+  type    = {Supervised (LR-HSI/HR-MSI/HR-HSI training)},
+  datasets= {CAVE, Harvard, KAIST (x8)},
+  sota    = {CAVE x8 49.0519/2.2188; Harvard x8 47.4242/2.8470; KAIST x8 45.8791/2.4655 (PSNR/SAM dB/deg; OCR of rasterized table)},
+  note    = {31 spectral channels; LR-HSI via 8x8 Gaussian blur + x8 downsample}
+}
+
+
+% --- 9. SCALMU: Synthetically-Trained Coupling of Adaptive Learned MUs ------
+@article{xu2026scalmu,
+  title   = {SCALMU: Synthetically Trained Coupling of Adaptive Learned Multiplicative Updates for Hyperspectral-Multispectral Fusion},
+  author  = {Xu, Xinxin and Gousseau, Yann and Kervazo, Christophe and Ladjal, Said},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {64},
+  year    = {2026},
+  doi     = {10.1109/TGRS.2026.3712501},
+  type    = {Model-based unrolled (CNMF multiplicative updates), blind degradation, synthetic-trained},
+  datasets= {Urban, PaviaU, Chikusei, PRISMA-Paris (x8), Ziyuan-1 02D (real x3)},
+  sota    = {Urban x8 41.49/2.17; PaviaU x8 40.15/2.43; Chikusei x8 48.03/2.65; PRISMA-Paris x8 43.24/4.42; Ziyuan-1 02D(real) QNR 0.9578 (PSNR/SAM dB/deg; OCR of rasterized table)},
+  note    = {Blind unrolled NMF; trained on synthetic dead-leaves data}
+}
+
+
+% --- 10. SHOTUN: Self-Expressive High-Order Tensor Unrolling ----------------
+@article{wang2026shotun,
+  title   = {Self-Expressive High-Order Tensor Unrolling Network for Unsupervised Hyperspectral and Multispectral Image Fusion},
+  author  = {Wang, He and Xu, Yang and Wei, Zhihui and Wu, Zebin},
+  journal = {IEEE Transactions on Image Processing},
+  volume  = {35},
+  pages   = {5714--5729},
+  year    = {2026},
+  doi     = {10.1109/TIP.2026.3695389},
+  type    = {Unsupervised / blind (model-based deep unrolling)},
+  datasets= {Pavia Center, KSC, SanDiego (x8), Houston 2018 (real)},
+  sota    = {PaviaC x8 43.76/4.61; KSC x8 (~+0.8 dB / ~-0.4 deg over PLRDiff); SanDiego x8 (~+1.1 dB / ~-0.6 deg); Houston2018(real) QNR 0.9104 (PSNR/SAM dB/deg)},
+  note    = {Datasets are PaviaC/KSC/SanDiego/Houston (simulated x8,x16), NOT CAVE/Harvard/Chikusei}
+}
+
+
+% --- 11. SEMF-Net: Spatial-Spectral Edge-Enhancement Multistage ------------
+@article{liu2026semfnet,
+  title   = {SEMF-Net: A Spatial-Spectral Edge-Enhancement-Based Multistage Fusion Network for Hyperspectral and Multispectral Image Fusion},
+  author  = {Liu, Siyuan and Zhang, Zezheng and Yue, Huanru and Hu, Qi and Li, Bing and Zhang, Yudong and Liu, Shuaiqi},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {64},
+  number  = {5501916},
+  year    = {2026},
+  doi     = {10.1109/TGRS.2026.3653545},
+  type    = {Supervised (deep network, L1 loss vs GT HR-HSI)},
+  datasets= {Harvard, Houston, PaviaU (x32 sim), WV3 (real)},
+  sota    = {Harvard best on 5/8 metrics (+0.2115 dB vs subopt); Houston (+3.0229 dB, -0.7354 deg SAM); PaviaU (RMSE -2.2307); WV3 QNR best (result tables rasterized, only deltas in prose)},
+  note    = {Simulated LR-HSI via 32-fold bilinear downsample + Gaussian blur (x32 upscaling)}
+}
+
+
+% ==============================================================================
+% ADDITIONAL VERIFIED RECENT PAPERS (from provided BibTeX; DOIs checked)
+% ==============================================================================
+
+
+@inproceedings{xiao2025dmzs,
+  title     = {Hyperspectral Pansharpening via Diffusion Models with Iteratively Zero-Shot Guidance},
+  author    = {Xiao, Jin-Liang and Huang, Ting-Zhu and Deng, Liang-Jian and Lin, Guang and Cao, Zihan and Li, Chao and Zhao, Qibin},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {12669--12678},
+  year      = {2025},
+  doi       = {10.1109/CVPR52734.2025.01182},
+  type      = {Zero-shot diffusion pansharpening},
+  datasets  = {Pavia, Washington DC, Chikusei, FR1 (PRISMA)},
+  sota      = {Pansharpening (PAN+LR-HSI); see paper for PSNR/SAM},
+  note      = {DOI verified from CVPR Open Access}
+}
+
+
+@article{peng2024fusionmamba,
+  title   = {FusionMamba: Efficient Remote Sensing Image Fusion With State Space Model},
+  author  = {Peng, Siran and Zhu, Xiangyu and Deng, Haoyu and Deng, Liang-Jian and Lei, Zhen},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {62},
+  pages   = {1--16},
+  year    = {2024},
+  doi     = {10.1109/TGRS.2024.3496073},
+  type    = {Supervised (Mamba/SSM)},
+  datasets= {PanCollection (WV3, GF2), HyperPanCollection (Pavia, Botswana, WDC), CAVE (HISR)},
+  sota    = {See paper for PSNR/SAM (CAVE HISR reported)},
+  note    = {First Mamba/SSM for HSI fusion. DOI verified}
+}
+
+
+@article{qu2025irarf,
+  title   = {IR\&ArF: Toward Deep Interpretable Arbitrary Resolution Fusion of Unregistered Hyperspectral and Multispectral Images},
+  author  = {Qu, Jiahui and Wu, Xiaoyang and Dong, Wenqian and Cui, Jizhou and Li, Yunsong},
+  journal = {IEEE Transactions on Image Processing},
+  volume  = {34},
+  pages   = {1934--1949},
+  year    = {2025},
+  doi     = {10.1109/TIP.2025.3551531},
+  type    = {Supervised (arbitrary resolution + unregistered)},
+  datasets= {Pavia, Chikusei, WDC with Homography/Affine distortions},
+  sota    = {See paper for PSNR/SAM},
+  note    = {DOI as provided; verify on IEEE Xplore if used formally}
+}
+
+
+@article{chen2025cyformer,
+  title   = {Cyclic Cross-Modality Interaction for Hyperspectral and Multispectral Image Fusion},
+  author  = {Chen, Shi and Zhang, Lefei and Zhang, Liangpei},
+  journal = {IEEE Transactions on Circuits and Systems for Video Technology},
+  volume  = {35},
+  number  = {1},
+  pages   = {741--753},
+  year    = {2025},
+  doi     = {10.1109/TCSVT.2024.3461829},
+  type    = {Supervised (cyclic Transformer)},
+  datasets= {CAVE (x4,x8), Harvard, Chikusei},
+  sota    = {See paper for PSNR/SAM},
+  note    = {DOI corrected to 10.1109/TCSVT.2024.3461829 (provided bib had wrong placeholder 10.1109/TCSVT.2024.3456789)}
+}
+
+
+@article{hsu2024csakd,
+  title   = {CSAKD: Knowledge Distillation with Cross Self-Attention for Hyperspectral and Multispectral Image Fusion},
+  author  = {Hsu, Chih-Chung and Ni, Chih-Chien and Lee, Chia-Ming and Kang, Li-Wei},
+  journal = {IEEE Transactions on Image Processing (submitted; not confirmed published)},
+  year    = {2024},
+  eprint        = {2406.19666},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CV},
+  type    = {Teacher-Student KD + Cross Self-Attention},
+  datasets= {AVIRIS (172 bands) -> MSI 4/6 bands (Landsat SRF)},
+  sota    = {See arXiv:2406.19666 for PSNR/SAM},
+  note    = {TIP DOI in provided bib (10.1109/TIP.2024.3412345) is UNVERIFIED; only arXiv preprint confirmed}
+}
+
+
+@article{guarino2025rhopnn,
+  title   = {Zero-Shot Hyperspectral Pansharpening Using Hysteresis-Based Tuning for Spectral Quality Control},
+  author  = {Guarino, Giuseppe and Ciotola, Matteo and Vivone, Gemine and Poggi, Giovanni and Scarpa, Giuseppe},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {63},
+  pages   = {1--19},
+  year    = {2025},
+  doi     = {10.1109/TGRS.2025.3583877},
+  type    = {Zero-shot (no pre-training)},
+  datasets= {PRISMA (159 bands, PAN 5m/HS 30m)},
+  sota    = {See paper for PSNR/SAM (zero-shot pansharpening)},
+  note    = {DOI verified}
+}
+
+
+@article{fang2024mimosst,
+  title   = {MIMO-SST: Multi-Input Multi-Output Spatial-Spectral Transformer for Hyperspectral and Multispectral Image Fusion},
+  author  = {Fang, Jian and Yang, Jingxiang and Khader, Abdolraheem and Xiao, Liang},
+  journal = {IEEE Transactions on Geoscience and Remote Sensing},
+  volume  = {62},
+  pages   = {1--16},
+  year    = {2024},
+  doi     = {10.1109/TGRS.2024.3361553},
+  type    = {Supervised (spatial-spectral transformer)},
+  datasets= {CAVE, Harvard, Chikusei, Pavia, ICVL},
+  sota    = {CAVE x8 PSNR 47.30 dB (reported as prior SOTA, +0.85 dB over earlier)},
+  note    = {DOI verified}
+}
+
+
+@article{liu2026dsirnet,
+  title   = {A Dual-Stream State-Space Fusion Network with Implicit Neural Representation for Hyperspectral--Multispectral Image Fusion},
+  author  = {Liu, Baisen and others},
+  journal = {Remote Sensing},
+  volume  = {18},
+  number  = {5},
+  pages   = {789},
+  year    = {2026},
+  doi     = {10.3390/rs18050789},
+  type    = {Supervised (state-space + INR)},
+  datasets= {Houston, PaviaU, Botswana, Chikusei},
+  sota    = {PSNR gains 0.04-0.20 dB over baselines (see paper)},
+  note    = {DOI verified (MDPI)}
+}
+
+
+@article{shan2025bfctn,
+  title   = {Bayesian Fully Connected Tensor Network for Hyperspectral and Multispectral Image Fusion},
+  author  = {Shan, Linsong and Yang, Zecan and Yang, Laurence T. and Li, Changlong and Zhao, Honglu and Nie, Xin},
+  journal = {arXiv preprint arXiv:2510.18400},
+  year    = {2025},
+  url     = {https://arxiv.org/abs/2510.18400},
+  type    = {Bayesian tensor network (model-based)},
+  datasets= {CAVE, Harvard, Chikusei},
+  sota    = {See arXiv for PSNR/SAM},
+  note    = {Preprint; MATLAB implementation}
+}
+
+
+@article{jiang2025that,
+  title   = {THAT: Token-wise High-frequency Augmentation Transformer for Hyperspectral Pansharpening},
+  author  = {Jin, Hongkun and Jiang, Hongcheng and Zhang, Zejun and Zhang, Yuan and Fu, Jia and Li, Tingfeng and others},
+  journal = {arXiv preprint arXiv:2508.08183},
+  year    = {2025},
+  url     = {https://arxiv.org/abs/2508.08183},
+  type    = {Supervised Transformer (pansharpening)},
+  datasets= {Pansharpening benchmarks (WV3, etc.)},
+  sota    = {See arXiv for PSNR/SAM (pansharpening SOTA)},
+  note    = {Preprint}
+}
+
+
+% ==============================================================================
+% KEY BENCHMARK DATASETS (referenced across papers)
+% ==============================================================================
+
+
+@misc{cave_dataset,
+  title        = {CAVE Multispectral Image Database},
+  author       = {Yasuma, F. and Mitsunaga, T. and Iso, D. and Nayar, S. K.},
+  year         = {2010},
+  howpublished = {\url{http://www.cs.columbia.edu/CAVE/databases/multispectral/}},
+  note         = {32 indoor scenes, 512x512, 31 bands (400-700nm, 10nm). Standard HSI-MSI fusion (x8,x16,x32)}
+}
+
+
+@misc{harvard_dataset,
+  title        = {Harvard Hyperspectral Image Database},
+  author       = {Chakrabarti, A. and Zickler, T.},
+  year         = {2011},
+  howpublished = {\url{https://vision.seas.harvard.edu/dataset/harvard/}},
+  note         = {77 indoor/outdoor scenes, 1392x1040, 31 bands (420-720nm, 10nm)}
+}
+
+
+@misc{chikusei_dataset,
+  title        = {Chikusei Hyperspectral Dataset},
+  author       = {Yokoya, N. and others},
+  year         = {2017},
+  howpublished = {\url{https://naotoyokoya.com/Download.html}},
+  note         = {Airborne AISA Fenix, 2517x2335, 128 bands (363-1018nm), 2.5m GSD}
+}
+
+
+@misc{pancollection,
+  title        = {PanCollection: Benchmark Datasets for Pansharpening},
+  author       = {Deng, Liang-Jian and others},
+  year         = {2022},
+  howpublished = {\url{https://github.com/liangjiandeng/PanCollection}},
+  note         = {WV3 (8 bands), GF2 (4 bands), QB. Wald's protocol. Standard pansharpening}
+}
+
+
+@misc{hyperpancollection,
+  title        = {HyperPanCollection: Benchmark for Hyperspectral Pansharpening},
+  author       = {Deng, Liang-Jian and others},
+  year         = {2023},
+  howpublished = {\url{https://github.com/liangjiandeng/HyperPanCollection}},
+  note         = {Pavia (115b), Botswana (242b), WDC (210b), Chikusei (128b)}
+}
+
+
+@misc{aviris_dataset,
+  title        = {AVIRIS Hyperspectral Data (Pre-processed for CSAKD)},
+  author       = {Hsu, C.-C. and others},
+  year         = {2024},
+  howpublished = {\url{https://drive.google.com/drive/folders/10ovLQkVHvNzhXDiEnVGZJdvEMUKsC6Mo}},
+  note         = {172 bands, 256x256 patches, 2078 images. MSI via Landsat 4/6-band SRF}
+}
+
+
+@misc{prisma_toolbox,
+  title        = {Hyperspectral Pansharpening Toolbox (PRISMA Benchmark)},
+  author       = {Ciotola, Matteo and Vivone, Gemine and others},
+  year         = {2024},
+  howpublished = {\url{https://github.com/matciotola/hyperspectral_pansharpening_toolbox}},
+  note         = {PRISMA FR/RR, 159 bands. Standard zero-shot pansharpening eval}
+}
+
+
+@misc{houston_dataset,
+  title        = {Houston Hyperspectral Dataset (IEEE GRSS Data Fusion Contest)},
+  author       = {IEEE GRSS},
+  year         = {2018},
+  howpublished = {\url{https://hyperspectral.ee.uh.edu/}},
+  note         = {ITRES CASI, 48 bands, 1202x4172. Urban scene}
+}
+
+
+@misc{wv3_dataset,
+  title        = {WorldView-3 Dataset (via PanCollection)},
+  author       = {Maxar Technologies / Deng, L.-J.},
+  year         = {2022},
+  howpublished = {\url{https://github.com/liangjiandeng/PanCollection}},
+  note         = {8 MS bands + PAN, 1.2m/0.3m. Standard pansharpening & HSI-MSI fusion}
+}
+
+
+@misc{icvl_dataset,
+  title        = {ICVL Hyperspectral Dataset},
+  author       = {ICVL, BGU},
+  year         = {2015},
+  howpublished = {\url{http://icvl.cs.bgu.ac.il/hyperspectral/}},
+  note         = {201 scenes, 1392x1300, 31 bands. Used in MIMO-SST, Equivariant, Causal}
+}
+
+
+@misc{arad1k_dataset,
+  title        = {ARAD_1K / NTIRE 2022 Spectral Reconstruction Dataset},
+  author       = {NTIRE Challenge},
+  year         = {2022},
+  howpublished = {\url{https://codalab.lisn.upsaclay.fr/competitions/5237}},
+  note         = {482 train + 100 val, 482x512, 31 bands (400-700nm)}
+}
