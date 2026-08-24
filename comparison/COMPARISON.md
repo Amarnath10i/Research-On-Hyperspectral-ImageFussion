@@ -119,7 +119,32 @@ Each row is one (method, dataset, scale) evaluation. PSNR in dB, SAM in degrees.
 | fang2024mimosst | Pavia | ×8 | see paper | see paper | — |
 | fang2024mimosst | ICVL | ×8 | see paper | see paper | — |
 
-## 3. Corrections vs. the provided "verified" BibTeX
+## CAVE ×4 (in-domain) benchmark
+
+Standardized CAVE ×4 (in-domain, Wald + SRF) benchmark in the usual SOTA format.
+PSNR↑ / SSIM↑ higher is better; SAM↓ / ERGAS↓ lower is better.
+
+| Method | Paper (title / note) | Year | Type | PSNR↑ | SSIM↑ | SAM↓ | ERGAS↓ | Protocol |
+|---|---|---|---|---|---|---|---|---|
+| BDT | external baseline — title/DOI to verify | 2023 | Unfolding | 52.30 | 0.997 | 1.93 | 1.02 | Wald + Nikon SRF |
+| FeINFN | project method — title to verify | 2024 | INR | 52.47 | 0.998 | 1.91 | 0.98 | Wald + Nikon SRF |
+| CoFusion | external baseline — title/DOI to verify | 2026 | CNN+Attn | 50.67 | 0.997 | 2.15 | 1.73 | Wald + SRF |
+| SSA | external baseline — title/DOI to verify | 2026 | INR+MK | 45.92 | 0.996 | 2.02 | 1.07 | Wald, mixed datasets |
+| Multi-path | external baseline — title/DOI to verify | 2026 | Transformer | 45.63 | 0.990 | 2.57 | 0.76 | Wald |
+| SMF2Net | external baseline — title/DOI to verify | 2026 | CNN+HybridFormer | 43.91 | 0.997 | 2.04 | 6.40 | Wald |
+| DSPNet | external baseline — title/DOI to verify | 2023 | CNN | 51.18 | 0.997 | 2.15 | 1.13 | Wald + Nikon SRF |
+| 3DT-Net | external baseline — title/DOI to verify | 2023 | 3D CNN | 51.38 | 0.996 | 2.16 | 1.14 | Wald + Nikon SRF |
+| PSRT | external baseline — title/DOI to verify | 2023 | Transformer | 50.47 | 0.996 | 2.19 | 2.06 | Wald + Nikon SRF |
+| Fusformer | external baseline — title/DOI to verify | 2022 | Transformer | 44.52 | 0.983 | 4.12 | 1.06 | Wald |
+| DHIF | external baseline — title/DOI to verify | 2022 | Deep + MMD | 51.07 | 0.997 | 2.01 | 1.22 | Wald + Nikon SRF |
+| **li2026bfmm** [PDF] | Block Term Decomposition-Guided Frequency Mamba Modulation | 2026 | Sup (BTD+Mamba) | **53.41** | — (n/r) | **1.66** | — (n/r) | Wald (×4) |
+
+> External-baseline values are as provided and must be verified/cited before
+> publication; full paper titles and DOIs are pending. BFMM's SSIM/ERGAS were
+> not printed in the source PDF (marked n/r = not reported). BFMM leads on both
+> PSNR (53.41) and SAM (1.66) among the listed CAVE ×4 methods.
+
+## 4. Corrections vs. the provided "verified" BibTeX
 The supplied BibTeX claimed several DOIs/authors as verified; the source PDFs
 contradict the following (now fixed in `hsim_fusion_comparison.bib`):
 
@@ -132,7 +157,7 @@ contradict the following (now fixed in `hsim_fusion_comparison.bib`):
 | chen2025cyformer | DOI 10.1109/TCSVT.2024.3456789 | DOI **10.1109/TCSVT.2024.3461829** |
 | wang2026shotun | datasets CAVE/Harvard/Chikusei | datasets are **PaviaC/KSC/SanDiego/Houston** (not CAVE/Harvard/Chikusei) |
 
-## 4. Dataset conventions
+## 5. Dataset conventions
 - **Simulated fusion (Wald protocol)**: CAVE (×8/×16/×32), Harvard (×8), Chikusei (×8), Pavia/ICVL.
 - **Real / no-GT**: PaviaU, Chikusei, Houston2018, WV-3, PRISMA, LN01, Ziyuan-1, XDU-Liyukou — evaluated with no-reference metrics (QNR, Dλ, Ds).
 - **Pansharpening / mosaiced-PAN** methods (DM-ZS, rho-PNN, Equivariant) are cross-task and use PRISMA/WV-3/PanCollection rather than CAVE/Harvard.

@@ -159,6 +159,35 @@ fang2024mimosst & ICVL & $\times$8 & see paper & see paper & -- \\
 \end{longtable}
 \normalsize
 
+\section{CAVE $\times$4 (in-domain) Benchmark}
+Standardized CAVE $\times$4 (Wald + SRF) benchmark. $\uparrow$ higher is better;
+$\downarrow$ lower is better.
+\small
+\begin{longtable}{@{}p{2.2cm}p{3.0cm}p{1.0cm}p{1.9cm}p{1.5cm}p{1.4cm}p{1.4cm}p{1.4cm}p{2.4cm}@{}}
+\toprule
+\textbf{Method} & \textbf{Paper} & \textbf{Year} & \textbf{Type} & \textbf{PSNR$\uparrow$} & \textbf{SSIM$\uparrow$} & \textbf{SAM$\downarrow$} & \textbf{ERGAS$\downarrow$} & \textbf{Protocol} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+%
+BDT & external; verify & 2023 & Unfolding & 52.30 & 0.997 & 1.93 & 1.02 & Wald + Nikon SRF \\
+FeINFN & project method & 2024 & INR & 52.47 & 0.998 & 1.91 & 0.98 & Wald + Nikon SRF \\
+CoFusion & external; verify & 2026 & CNN+Attn & 50.67 & 0.997 & 2.15 & 1.73 & Wald + SRF \\
+SSA & external; verify & 2026 & INR+MK & 45.92 & 0.996 & 2.02 & 1.07 & Wald, mixed \\
+Multi-path & external; verify & 2026 & Transformer & 45.63 & 0.990 & 2.57 & 0.76 & Wald \\
+SMF2Net & external; verify & 2026 & CNN+HybridFormer & 43.91 & 0.997 & 2.04 & 6.40 & Wald \\
+DSPNet & external; verify & 2023 & CNN & 51.18 & 0.997 & 2.15 & 1.13 & Wald + Nikon SRF \\
+3DT-Net & external; verify & 2023 & 3D CNN & 51.38 & 0.996 & 2.16 & 1.14 & Wald + Nikon SRF \\
+PSRT & external; verify & 2023 & Transformer & 50.47 & 0.996 & 2.19 & 2.06 & Wald + Nikon SRF \\
+Fusformer & external; verify & 2022 & Transformer & 44.52 & 0.983 & 4.12 & 1.06 & Wald \\
+DHIF & external; verify & 2022 & Deep + MMD & 51.07 & 0.997 & 2.01 & 1.22 & Wald + Nikon SRF \\
+\textbf{li2026bfmm} & BTD Frequency Mamba & 2026 & Sup (BTD+Mamba) & \textbf{53.41} & n/r & \textbf{1.66} & n/r & Wald ($\times$4) \\
+\end{longtable}
+\normalsize
+\noindent External-baseline values are as provided and must be verified/cited before
+publication; BFMM SSIM/ERGAS not reported in the source PDF.
+
 \section{Corrections vs. the provided ``verified'' BibTeX}
 The supplied BibTeX claimed several DOIs/authors as verified; the source PDFs
 contradict the following (now fixed in \texttt{hsim\_fusion\_comparison.bib}):
