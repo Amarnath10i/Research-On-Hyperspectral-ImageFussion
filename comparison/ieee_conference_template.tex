@@ -1,0 +1,81 @@
+% ==============================================================================
+% IEEE Conference Template (starter) -- IEEEtran, two-column.
+% Overleaf-ready. Use this as the base format for fusion / super-resolution papers.
+% Compile with pdflatex + bibtex (or Overleaf default).
+% ==============================================================================
+\documentclass[conference]{IEEEtran}
+
+% --- typical packages ---------------------------------------------------------
+\usepackage{cite}        % IEEE-style citations
+\usepackage{booktabs}    % professional tables
+\usepackage{url}         % URLs in bib
+\usepackage{amsmath}     % math
+\usepackage{hyperref}    % clickable links
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
+
+% --- metadata ----------------------------------------------------------------
+\title{Your Paper Title Here}
+
+\author{
+\IEEEauthorblockN{Author One, Author Two, Author Three}
+\IEEEauthorblockA{Department / University\\
+City, Country\\
+email@univ.edu}
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Write a concise abstract (approx. 100--150 words): problem, method, key result,
+and contribution. This file is a reusable IEEE conference template; copy it and
+fill in your fusion / super-resolution content.
+\end{abstract}
+
+\section{Introduction}
+Introduce the problem and your motivation. Cite related work with \cite{ref1}.
+
+\section{Related Work}
+Summarize prior art and position your contribution.
+
+\section{Proposed Method}
+Describe your approach. Use equations when helpful:
+\begin{equation}
+\label{eq:model}
+Y = A X B^{\top} + N ,
+\end{equation}
+where $X$ is the fused HSI, $A$ and $B$ encode spatial/spectral degradations.
+
+\section{Experiments}
+Report datasets, protocol, and metrics (PSNR, SAM, SSIM, ERGAS).
+
+% Wide table spanning both columns:
+\begin{table*}[t]
+\centering
+\caption{Example per-dataset benchmark (PSNR / SAM).}
+\label{tab:benchmark}
+\small
+\begin{tabular}{@{}p{3.2cm}p{2.0cm}p{0.8cm}p{1.7cm}p{1.1cm}p{1.3cm}p{1.1cm}p{2.2cm}@{}}
+\toprule
+Paper & Method & Yr & Type & Scale & PSNR (dB) & SAM ($^\circ$) & Protocol \\
+\midrule
+Example Method A & keyA & 26 & Sup & $\times$4 & 53.41 & 1.66 & Wald \\
+Example Method B & keyB & 26 & Unsup & $\times$8 & 47.42 & 2.85 & Wald \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\section{Conclusion}
+Summarize findings and future work.
+
+% --- references --------------------------------------------------------------
+% Put entries in a .bib file (e.g., references.bib) and use:
+%   \bibliographystyle{IEEEtran}
+%   \bibliography{references}
+% Example inline reference entry (replace with your .bib):
+\begin{thebibliography}{1}
+\bibitem{ref1} A.~Author, ``Title of related work,'' \emph{IEEE Trans. Geosci.
+Remote Sens.}, vol.~64, 2026.
+\end{thebibliography}
+
+\end{document}
