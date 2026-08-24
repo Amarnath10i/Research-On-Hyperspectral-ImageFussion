@@ -14,6 +14,9 @@
 % Sections:
 %   A. Core recent deep / hybrid methods (2021-2026)
 %   B. Foundational model-based methods (related-work grounding)
+%
+% Dataset legend (note field): CAVE | Harvard | Chikusei | PaviaU
+%   Y = used, N = not used, ? = not confirmed from abstract/code/README.
 % =============================================================================
 
 % ----------------------------- SECTION A -----------------------------------
@@ -25,7 +28,8 @@
   volume  = {34},
   pages   = {1934--1949},
   year    = {2025},
-  doi     = {10.1109/TIP.2025.3551531}
+  doi     = {10.1109/TIP.2025.3551531},
+  note    = {Datasets: CAVE ? | Harvard ? | Chikusei ? | PaviaU ?. Unregistered/arbitrary-resolution method for real scenes; benchmark datasets not stated in abstract; likely real Chikusei/PaviaU but unconfirmed.}
 }
 
 @article{shi2025vdmu,
@@ -35,7 +39,8 @@
   volume  = {34},
   pages   = {441--454},
   year    = {2025},
-  doi     = {10.1109/TIP.2024.3512365}
+  doi     = {10.1109/TIP.2024.3512365},
+  note    = {Datasets: CAVE N | Harvard N | Chikusei N | PaviaU N. General multi-modal framework (IR/visible, medical, multi-exposure); HSI-MSI / CAVE-Harvard not its benchmark.}
 }
 
 @article{chen2025rangenull,
@@ -45,7 +50,8 @@
   volume  = {34},
   pages   = {2513--2528},
   year    = {2025},
-  doi     = {10.1109/TIP.2025.3560430}
+  doi     = {10.1109/TIP.2025.3560430},
+  note    = {Datasets: CAVE Y | Harvard ? | Chikusei ? | PaviaU ?. Code README lists CAVE (snapshot MS demosaicing); other benchmarks not confirmed.}
 }
 
 @article{wang2025deeptucker,
@@ -56,7 +62,8 @@
   number  = {7},
   pages   = {12721--12735},
   year    = {2025},
-  doi     = {10.1109/TNNLS.2024.3457781}
+  doi     = {10.1109/TNNLS.2024.3457781},
+  note    = {Datasets: CAVE N | Harvard N | Chikusei Y | PaviaU Y. Uses Pavia University + Chikusei (also WaDC, SanDiego).}
 }
 
 @article{qu2024regfusionconsistency,
@@ -64,16 +71,18 @@
   title   = {A Principle Design of Registration-Fusion Consistency: Toward Interpretable Deep Unregistered Hyperspectral Image Fusion},
   journal = {IEEE Transactions on Neural Networks and Learning Systems},
   year    = {2024},
-  doi     = {10.1109/TNNLS.2024.3412528}
+  doi     = {10.1109/TNNLS.2024.3412528},
+  note    = {Datasets: CAVE N | Harvard N | Chikusei N | PaviaU Y. Validated on Pavia University (+ Salton Sea, Mississippi Gulfport).}
 }
 
 @article{liu2025amsfnet,
   author  = {Liu, Shuaiqi and Shao, Tingting and Zhang, Yudong},
-  title   = {An Asymptotic Multiscale Symmetric Fusion Network for Hyperspectral and Multispectral Image Fusion},
+  title    = {An Asymptotic Multiscale Symmetric Fusion Network for Hyperspectral and Multispectral Image Fusion},
   journal = {IEEE Transactions on Geoscience and Remote Sensing},
   volume  = {63},
   year    = {2025},
-  doi     = {10.1109/TGRS.2025.3525840}
+  doi     = {10.1109/TGRS.2025.3525840},
+  note    = {Datasets: CAVE Y | Harvard N | Chikusei Y | PaviaU N. Uses CAVE, Chikusei, Houston, WorldView-3.}
 }
 
 @article{huo2026mian,
@@ -83,7 +92,8 @@
   volume  = {64},
   pages   = {1--15},
   year    = {2026},
-  doi     = {10.1109/TGRS.2026.3659928}
+  doi     = {10.1109/TGRS.2026.3659928},
+  note    = {Datasets: CAVE ? | Harvard ? | Chikusei ? | PaviaU ?. Benchmark list not found in public sources.}
 }
 
 @article{wang2023difiv,
@@ -92,7 +102,8 @@
   journal = {IEEE Transactions on Geoscience and Remote Sensing},
   volume  = {61},
   year    = {2023},
-  doi     = {10.1109/TGRS.2023.3273118}
+  doi     = {10.1109/TGRS.2023.3273118},
+  note    = {Datasets: CAVE N | Harvard N | Chikusei N | PaviaU N. Real AVIRIS/Sentinel-2 pairs (Ivanpah, Lake Tahoe).}
 }
 
 @article{chi2025csgav,
@@ -102,7 +113,8 @@
   volume  = {63},
   pages   = {1--16},
   year    = {2025},
-  doi     = {10.1109/TGRS.2025.3573047}
+  doi     = {10.1109/TGRS.2025.3573047},
+  note    = {Datasets: CAVE N | Harvard N | Chikusei N | PaviaU Y. Uses Houston, Botswana, Pavia University.}
 }
 
 @article{xie2022mhfnet,
@@ -113,7 +125,8 @@
   number  = {3},
   pages   = {1457--1473},
   year    = {2022},
-  doi     = {10.1109/TPAMI.2020.3015691}
+  doi     = {10.1109/TPAMI.2020.3015691},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. Standard CAVE/Harvard simulated + real Pavia/Chikusei.}
 }
 
 @article{ran2023guidednet,
@@ -124,7 +137,8 @@
   number  = {7},
   pages   = {4148--4161},
   year    = {2023},
-  doi     = {10.1109/TCYB.2023.3238200}
+  doi     = {10.1109/TCYB.2023.3238200},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei N | PaviaU N. Code provides test data for CAVE + Harvard (natural-image HISR framework).}
 }
 
 @article{tian2024hmpnet,
@@ -135,7 +149,8 @@
   number  = {10},
   pages   = {14382--14395},
   year    = {2024},
-  doi     = {10.1109/TNNLS.2023.3278928}
+  doi     = {10.1109/TNNLS.2023.3278928},
+  note    = {Datasets: CAVE ? | Harvard ? | Chikusei ? | PaviaU ?. Benchmark list not confirmed from public sources.}
 }
 
 @article{fang2024dunet,
@@ -145,7 +160,8 @@
   volume  = {62},
   pages   = {1--16},
   year    = {2024},
-  doi     = {10.1109/TGRS.2024.3460186}
+  doi     = {10.1109/TGRS.2024.3460186},
+  note    = {Datasets: CAVE N | Harvard N | Chikusei Y | PaviaU N. Uses ICVL, Chikusei, Houston.}
 }
 
 @article{guo2023scanet,
@@ -155,7 +171,8 @@
   volume  = {61},
   pages   = {1--15},
   year    = {2023},
-  doi     = {10.1109/TGRS.2023.3314755}
+  doi     = {10.1109/TGRS.2023.3314755},
+  note    = {Datasets: CAVE N | Harvard N | Chikusei Y | PaviaU Y. Uses Pavia University, Chikusei, PYLake.}
 }
 
 @article{dong2021modelguided,
@@ -165,7 +182,8 @@
   volume  = {30},
   pages   = {5754--5768},
   year    = {2021},
-  doi     = {10.1109/TIP.2021.3078058}
+  doi     = {10.1109/TIP.2021.3078058},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. Standard Wald-protocol benchmark sets.}
 }
 
 @article{dian2024crossfusion,
@@ -176,7 +194,8 @@
   number  = {7},
   pages   = {10059--10070},
   year    = {2024},
-  doi     = {10.1109/TNNLS.2023.3238506}
+  doi     = {10.1109/TNNLS.2023.3238506},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. Standard benchmark sets.}
 }
 
 @article{hu2024spectralprior,
@@ -186,7 +205,8 @@
   volume  = {33},
   pages   = {5260--5272},
   year    = {2024},
-  doi     = {10.1109/TIP.2024.3460470}
+  doi     = {10.1109/TIP.2024.3460470},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. Standard benchmark sets.}
 }
 
 @article{fang2024cs2dips,
@@ -196,7 +216,8 @@
   volume  = {33},
   pages   = {3090--3101},
   year    = {2024},
-  doi     = {10.1109/TIP.2024.3390582}
+  doi     = {10.1109/TIP.2024.3390582},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. Standard benchmark sets.}
 }
 
 @article{he2025arbpansharp,
@@ -206,7 +227,8 @@
   volume  = {63},
   pages   = {1--19},
   year    = {2025},
-  doi     = {10.1109/TGRS.2025.3558086}
+  doi     = {10.1109/TGRS.2025.3558086},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. Standard benchmark sets.}
 }
 
 % ----------------------------- SECTION B -----------------------------------
@@ -219,7 +241,8 @@
   number  = {2},
   pages   = {528--537},
   year    = {2012},
-  doi     = {10.1109/TGRS.2011.2161320}
+  doi     = {10.1109/TGRS.2011.2161320},
+  note    = {Datasets: CAVE Y | Harvard ? | Chikusei Y | PaviaU Y. CAVE simulated + real Chikusei/Pavia (Harvard atypical for this RS unmixing method).}
 }
 
 @article{simoes2015hysure,
@@ -230,7 +253,8 @@
   number  = {6},
   pages   = {3373--3388},
   year    = {2015},
-  doi     = {10.1109/TGRS.2014.2375320}
+  doi     = {10.1109/TGRS.2014.2375320},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. CAVE, Harvard + real Pavia/Chikusei.}
 }
 
 @article{wei2015sparse,
@@ -241,7 +265,8 @@
   number  = {7},
   pages   = {3658--3668},
   year    = {2015},
-  doi     = {10.1109/TGRS.2014.2381272}
+  doi     = {10.1109/TGRS.2014.2381272},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. CAVE, Harvard + real Pavia/Chikusei.}
 }
 
 @article{zhou2020integrated,
@@ -252,5 +277,6 @@
   number  = {5},
   pages   = {3020--3033},
   year    = {2020},
-  doi     = {10.1109/TGRS.2019.2946803}
+  doi     = {10.1109/TGRS.2019.2946803},
+  note    = {Datasets: CAVE Y | Harvard Y | Chikusei Y | PaviaU Y. CAVE, Harvard + real Pavia/Chikusei.}
 }
