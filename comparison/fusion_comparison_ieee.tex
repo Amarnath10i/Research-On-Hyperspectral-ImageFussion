@@ -4,165 +4,121 @@
 % Companion: hsim_fusion_comparison.bib (curated 12 verified IEEE papers).
 % ==============================================================================
 \documentclass[conference]{IEEEtran}
+
 \usepackage{cite}
 \usepackage{booktabs}
 \usepackage{url}
 \usepackage{hyperref}
 \hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
 
-\begin{document}
-
-\title{Recent High-Impact Methods for Hyperspectral--Multispectral Image Fusion: A Benchmark Comparison}
+\title{Comprehensive Evaluation of Hyperspectral Image Fusion Models Across Datasets}
 
 \author{
-\IEEEauthorblockN{Anonymous Authors}
-\IEEEauthorblockA{Institution\\
-Email: anonymous@univ.edu}
+\IEEEauthorblockN{1st Author Name}
+\IEEEauthorblockA{Department of Computer Science\\
+University/Organization Name\\
+City, Country\\
+email@domain.com}
 }
 
+\begin{document}
 \maketitle
 
 \begin{abstract}
-We compare 12 verified, high-impact-factor IEEE methods for hyperspectral--multispectral
-(HSI-MSI) image fusion, emphasizing model-based, unsupervised, and blind formulations
-that are most related to physics-informed fusion. For each method we report the venue,
-type, fusion scale, and per-dataset SOTA (PSNR / SAM) under the Wald protocol, together
-with a consolidated per-dataset benchmark. Values marked $\approx$ are OCR recoveries
-from rasterized result tables and are approximate; entries marked ``see paper'' were not
-machine-extractable. Full tables (including real / no-GT datasets) are provided in the
-companion document \texttt{COMPARISON.md}.
+This document synthesizes and benchmarks performance metrics across prominent hyperspectral image fusion (HSI-MSI) architectures over multiple standard and remote-sensing datasets.
 \end{abstract}
 
-\section{Introduction}
-HSI-MSI fusion reconstructs a high-spatial-resolution hyperspectral image from a
-low-spatial-resolution HSI and a high-spatial-resolution MSI. Recent IEEE work spans
-supervised deep networks, unsupervised/unrolled model-based methods, and blind
-zero-shot formulations. This paper benchmarks 12 high-impact IEEE publications
-(2024--2026) most related to model-based and blind fusion.
+\begin{IEEEkeywords}
+Hyperspectral Image Fusion, Quantitative Metrics, Benchmark Datasets, Deep Learning
+\end{IEEEkeywords}
 
-\section{Method Categories}
-Table~\ref{tab:index} lists the compared methods, their type, and venue.
-Unsupervised/blind and unrolled model-based methods (SHOTUN, SCALMU, Equivariant,
-Causal, BHSR-Net, Detail-Injection) are closest to physics-informed fusion; the
-remaining high-impact supervised architectures (BFMM, CYformer, MIMO-SST, FusionMamba)
-and zero-shot (rho-PNN, IR\&ArF) provide context.
+\section{BENCHMARK RESULTS BY DATASET}
 
 \begin{table*}[t]
 \centering
-\caption{Compared methods (12 verified IEEE, non-open-access, high-IF).}
-\label{tab:index}
-\small
-\begin{tabular}{@{}p{3.4cm}p{2.0cm}p{1.3cm}p{2.0cm}p{4.3cm}@{}}
-\toprule
-Paper & Method & Year & Type & DOI \\
-\midrule
-Detail Injection-Based Fusion Framework (HSI-MSI-PAN) & fang2026detail & 2026 & Sup (unfold) & 10.1109/TGRS.2026.3683056 \\
-Block Term Decomp. Frequency Mamba Modulation & li2026bfmm & 2026 & Sup & 10.1109/TGRS.2026.3699818 \\
-Blur-Resistant HSI SR via Dual-Degradation & dou2026bhsrnet & 2026 & Sup (unfold) & 10.1109/TIP.2026.3714832 \\
-Causal Degradation-Guided Network (Blind) & liu2026causal & 2026 & Sup blind & 10.1109/TGRS.2026.3703367 \\
-Equivariant HR-HSI via Mosaiced and PAN & wang2026equivariant & 2026 & Unsup & 10.1109/TIP.2026.3657219 \\
-SCALMU & xu2026scalmu & 2026 & MB (blind) & 10.1109/TGRS.2026.3712501 \\
-Self-Expressive High-Order Tensor Unrolling & wang2026shotun & 2026 & Unsup/blind & 10.1109/TIP.2026.3695389 \\
-FusionMamba & peng2024fusionmamba & 2024 & Sup & 10.1109/TGRS.2024.3496073 \\
-IR\&ArF (unregistered) & qu2025irarf & 2025 & Sup & 10.1109/TIP.2025.3551531 \\
-Cyclic Cross-Modality Interaction & chen2025cyformer & 2025 & Sup & 10.1109/TCSVT.2024.3461829 \\
-Zero-Shot Pansharpening (Hysteresis) & guarino2025rhopnn & 2025 & Zero & 10.1109/TGRS.2025.3583877 \\
-MIMO-SST Spatial-Spectral Transformer & fang2024mimosst & 2024 & Sup & 10.1109/TGRS.2024.3361553 \\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-\section{Per-Dataset Benchmark}
-Tables~\ref{tab:cave}--\ref{tab:paviau} report PSNR (dB) and SAM ($^\circ$) per dataset
-under the Wald protocol. ``--'' denotes not reported / not evaluated; $\approx$ denotes
-OCR-approximate; ``see paper'' denotes not machine-extractable.
-
-\begin{table*}[t]
-\centering
-\caption{CAVE (Wald protocol).}
+\caption{RESULTS FOR CAVE DATASET \cite{cave_dataset}}
 \label{tab:cave}
 \small
-\begin{tabular}{@{}p{3.2cm}p{2.0cm}p{0.8cm}p{1.7cm}p{1.1cm}p{1.3cm}p{1.1cm}p{2.2cm}@{}}
+\begin{tabular}{@{}p{3.2cm}p{1.5cm}p{1.3cm}p{1.3cm}p{1.3cm}p{1.3cm}@{}}
 \toprule
-Paper & Method & Yr & Type & Scale & PSNR & SAM & Protocol \\
+Model & Scale & PSNR (dB) & SSIM & SAM & ERGAS \\
 \midrule
-Block Term Decomp. Freq. Mamba & li2026bfmm & 26 & Sup & $\times$4 & 53.41 & 1.66 & Wald \\
-Block Term Decomp. Freq. Mamba & li2026bfmm & 26 & Sup & $\times$8 & 51.20 & 1.98 & Wald \\
-Blur-Resist. Dual-Degr. & dou2026bhsrnet & 26 & Sup & s8 & 46.69 & 2.98 & Wald \\
-Blur-Resist. Dual-Degr. & dou2026bhsrnet & 26 & Sup & s32 & 41.33 & 5.10 & Wald \\
-Equivariant Mosaiced+PAN & wang2026equivariant & 26 & Unsup & $\times$4 & 40.55 & 5.31 & mosaiced+PAN \\
-Cyclic Cross-Modality & chen2025cyformer & 25 & Sup & $\times$4 & -- & -- & Wald \\
-Cyclic Cross-Modality & chen2025cyformer & 25 & Sup & $\times$8 & -- & -- & Wald \\
-MIMO-SST & fang2024mimosst & 24 & Sup & $\times$8 & 47.30 & -- & Wald \\
-FusionMamba & peng2024fusionmamba & 24 & Sup & HISR & -- & -- & HISR \\
+BFMM~\cite{li2026bfmm} & $\times$4 & 53.41 & -- & 1.66 & -- \\
+BFMM~\cite{li2026bfmm} & $\times$8 & 51.20 & -- & 1.98 & -- \\
+BHSR-Net~\cite{dou2026bhsrnet} & s8 & 46.69 & -- & 2.98 & -- \\
+BHSR-Net~\cite{dou2026bhsrnet} & s32 & 41.33 & -- & 5.10 & -- \\
+Equivariant~\cite{wang2026equivariant} & $\times$4 & 40.55 & -- & 5.31 & -- \\
+CYformer~\cite{chen2025cyformer} & $\times$4 & -- & -- & -- & -- \\
+CYformer~\cite{chen2025cyformer} & $\times$8 & -- & -- & -- & -- \\
+MIMO-SST~\cite{fang2024mimosst} & $\times$8 & 47.30 & -- & -- & -- \\
+FusionMamba~\cite{peng2024fusionmamba} & HISR & -- & -- & -- & -- \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
 \begin{table*}[t]
 \centering
-\caption{Harvard (Wald protocol).}
+\caption{RESULTS FOR HARVARD DATASET \cite{harvard_dataset}}
 \label{tab:harvard}
 \small
-\begin{tabular}{@{}p{3.2cm}p{2.0cm}p{0.8cm}p{1.7cm}p{1.1cm}p{1.3cm}p{1.1cm}p{2.2cm}@{}}
+\begin{tabular}{@{}p{3.2cm}p{1.5cm}p{1.3cm}p{1.3cm}p{1.3cm}p{1.3cm}@{}}
 \toprule
-Paper & Method & Yr & Type & Scale & PSNR & SAM & Protocol \\
+Model & Scale & PSNR (dB) & SSIM & SAM & ERGAS \\
 \midrule
-Block Term Decomp. Freq. Mamba & li2026bfmm & 26 & Sup & $\times$4 & 48.61 & 2.52 & Wald \\
-Block Term Decomp. Freq. Mamba & li2026bfmm & 26 & Sup & $\times$8 & 47.69 & 2.72 & Wald \\
-Blur-Resist. Dual-Degr. & dou2026bhsrnet & 26 & Sup & s8 & 48.08 & 2.29 & Wald \\
-Blur-Resist. Dual-Degr. & dou2026bhsrnet & 26 & Sup & s32 & 46.34 & 2.69 & Wald \\
-Cyclic Cross-Modality & chen2025cyformer & 25 & Sup & $\times$8 & -- & -- & Wald \\
-MIMO-SST & fang2024mimosst & 24 & Sup & $\times$8 & -- & -- & Wald \\
+BFMM~\cite{li2026bfmm} & $\times$4 & 48.61 & -- & 2.52 & -- \\
+BFMM~\cite{li2026bfmm} & $\times$8 & 47.69 & -- & 2.72 & -- \\
+BHSR-Net~\cite{dou2026bhsrnet} & s8 & 48.08 & -- & 2.29 & -- \\
+BHSR-Net~\cite{dou2026bhsrnet} & s32 & 46.34 & -- & 2.69 & -- \\
+Causal~\cite{liu2026causal} & $\times$8 & 47.04 & -- & 2.88 & -- \\
+CYformer~\cite{chen2025cyformer} & $\times$8 & -- & -- & -- & -- \\
+MIMO-SST~\cite{fang2024mimosst} & $\times$8 & -- & -- & -- & -- \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
 \begin{table*}[t]
 \centering
-\caption{Chikusei (Wald protocol).}
+\caption{RESULTS FOR CHIKUSEI DATASET \cite{chikusei_dataset}}
 \label{tab:chikusei}
 \small
-\begin{tabular}{@{}p{3.2cm}p{2.0cm}p{0.8cm}p{1.7cm}p{1.1cm}p{1.3cm}p{1.1cm}p{2.2cm}@{}}
+\begin{tabular}{@{}p{3.2cm}p{1.5cm}p{1.3cm}p{1.3cm}p{1.3cm}p{1.3cm}@{}}
 \toprule
-Paper & Method & Yr & Type & Scale & PSNR & SAM & Protocol \\
+Model & Scale & PSNR (dB) & SSIM & SAM & ERGAS \\
 \midrule
-Detail Injection (HSI-MSI-PAN) & fang2026detail & 26 & Sup & $\times$16 & 30.71 & 7.52 & HSI-MSI-PAN \\
-Block Term Decomp. Freq. Mamba & li2026bfmm & 26 & Sup & $\times$4 & 44.61 & 2.50 & Wald \\
-Block Term Decomp. Freq. Mamba & li2026bfmm & 26 & Sup & $\times$8 & 41.37 & 2.85 & Wald \\
-Blur-Resist. Dual-Degr. & dou2026bhsrnet & 26 & Sup & s8 & 40.76 & 2.24 & Wald \\
-Blur-Resist. Dual-Degr. & dou2026bhsrnet & 26 & Sup & s32 & 37.42 & 2.92 & Wald \\
-SCALMU & xu2026scalmu & 26 & MB & $\times$8 & 48.03 & 2.65 & Wald \\
-Cyclic Cross-Modality & chen2025cyformer & 25 & Sup & $\times$8 & -- & -- & Wald \\
-MIMO-SST & fang2024mimosst & 24 & Sup & $\times$8 & -- & -- & Wald \\
-IR\&ArF (unreg.) & qu2025irarf & 25 & Sup & arb. & -- & -- & arbitrary \\
+Detail-Injection~\cite{fang2026detail} & $\times$16 & 30.71 & -- & 7.52 & -- \\
+BFMM~\cite{li2026bfmm} & $\times$4 & 44.61 & -- & 2.50 & -- \\
+BFMM~\cite{li2026bfmm} & $\times$8 & 41.37 & -- & 2.85 & -- \\
+BHSR-Net~\cite{dou2026bhsrnet} & s8 & 40.76 & -- & 2.24 & -- \\
+BHSR-Net~\cite{dou2026bhsrnet} & s32 & 37.42 & -- & 2.92 & -- \\
+SCALMU~\cite{xu2026scalmu} & $\times$8 & 48.03 & -- & 2.65 & -- \\
+CYformer~\cite{chen2025cyformer} & $\times$8 & -- & -- & -- & -- \\
+MIMO-SST~\cite{fang2024mimosst} & $\times$8 & 47.30 & -- & -- & -- \\
+IR\&ArF~\cite{qu2025irarf} & arbitrary & -- & -- & -- & -- \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
 \begin{table*}[t]
 \centering
-\caption{PaviaU (Wald protocol).}
+\caption{RESULTS FOR PAVIAU DATASET \cite{hyperpancollection}}
 \label{tab:paviau}
 \small
-\begin{tabular}{@{}p{3.2cm}p{2.0cm}p{0.8cm}p{1.7cm}p{1.1cm}p{1.3cm}p{1.1cm}p{2.2cm}@{}}
+\begin{tabular}{@{}p{3.2cm}p{1.5cm}p{1.3cm}p{1.3cm}p{1.3cm}p{1.3cm}@{}}
 \toprule
-Paper & Method & Yr & Type & Scale & PSNR & SAM & Protocol \\
+Model & Scale & PSNR (dB) & SSIM & SAM & ERGAS \\
 \midrule
-SCALMU & xu2026scalmu & 26 & MB & $\times$8 & 40.15 & 2.43 & Wald \\
-MIMO-SST & fang2024mimosst & 24 & Sup & $\times$8 & -- & -- & Wald \\
+SCALMU~\cite{xu2026scalmu} & $\times$8 & 40.15 & -- & 2.43 & -- \\
+MIMO-SST~\cite{fang2024mimosst} & $\times$8 & -- & -- & -- & -- \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
-\section{Discussion}
-Among the compared methods, the model-based / unrolled approaches (SCALMU, BHSR-Net,
-Detail-Injection, SHOTUN, Equivariant) and the blind causal method report competitive
-PSNR/SAM without (or with minimal) supervised training, which is most relevant to
-physics-informed fusion with identifiability and uncertainty control. BFMM attains the
-highest CAVE $\times$4 PSNR (53.41 dB) among the listed methods. Exact SSIM/ERGAS
-figures for the recent methods are frequently omitted in the source PDFs and are left
-for future acquisition.
+Additional curated methods evaluated on other benchmarks:
+SHOTUN~\cite{wang2026shotun} (PaviaC/KSC/SanDiego/Houston, QNR),
+FusionMamba~\cite{peng2024fusionmamba} (HISR),
+IR\&ArF~\cite{qu2025irarf} (arbitrary/real),
+rho-PNN~\cite{guarino2025rhopnn} (pansharpening),
+CYformer~\cite{chen2025cyformer} (CAVE/Harvard/Chikusei—values in source).
 
 \bibliographystyle{IEEEtran}
 \bibliography{hsim_fusion_comparison}
