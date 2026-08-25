@@ -68,6 +68,42 @@ SCALMU: Synthetically Trained Coupling of Adaptive Updates \cite{xu2026scalmu} &
 \end{center}
 \end{table*}
 
+\section{Real-World / Satellite Fusion Benchmark (2026)}
+
+Table~\ref{tab:realworld} consolidates 2026 IEEE (and one ISPRS) fusion papers with impact
+factor $>9$ and non-open-access status, evaluated on \emph{real} data: genuine satellites
+(PRISMA, Ziyuan-1, LN-01, ZY1-02D) and real airborne/captured scenes (Washington DC / WDCM,
+Houston, Chikusei, Pavia, KAIST, Xiong'an). Full-resolution real scenes are assessed by the
+no-reference QNR index; reduced-resolution real scenes use PSNR/SAM/SSIM/ERGAS against a
+simulated reference. Values marked ``--'' were not extractable without source-PDF access.
+Note: TIP's official 2025 JCR IF is $\approx$10.8; the value 15.3 used in earlier tables is
+as provided by the user.
+
+\begin{table*}[htbp]
+\caption{Real-World HSI-MSI Fusion Benchmark -- 2026 Papers (IF$>$9, Non-OA) on Satellite and Airborne/Real Scenes}
+\label{tab:realworld}
+\begin{center}
+\begin{adjustbox}{width=\textwidth}
+\begin{tabular}{p{3.5cm}c|c|p{2.3cm}|p{3.0cm}|p{3.8cm}}
+\toprule
+\textbf{Paper} & \textbf{Year} & \textbf{Venue (IF)} & \textbf{Satellite (real)} & \textbf{Airborne / Real Scene} & \textbf{Metric (best verified value)} \\
+\midrule
+SCALMU \cite{xu2026scalmu} & 2026 & TGRS (9.4) & PRISMA, Ziyuan-1 & Urban, CAVE, Harvard, Chikusei, PaviaU & QNR 0.958 (Ziyuan-1); PRISMA PSNR 43.24 / SAM 4.42 \\
+BHSR-Net \cite{dou2026bhsrnet} & 2026 & TIP (10.8) & LN-01 & Houston, CAVE, Harvard, Chikusei, PaviaU & LN-1 PSNR 42.17 / SAM 3.20; Houston PSNR 54.92 / SAM 0.75 \\
+SSDAN \cite{ssdan2026} & 2026 & TGRS (9.4) & -- & KAIST, CAVE, Harvard & CAVE PSNR 49.05 / SAM 2.22; KAIST PSNR 45.88 / SAM 2.47 \\
+RAMoE \cite{ramoe2026} & 2026 & TGRS (9.4) & -- & WDCM (Washington DC), Chikusei, Xiong'an & QNR on WDCM (see source) \\
+MFME-DiffNet \cite{mfme2026} & 2026 & TGRS (9.4) & -- & CAVE, Harvard, Chikusei (reference-based) & -- (see source) \\
+CTW \cite{coupled2026} & 2026 & TGRS (9.4) & -- & CAVE, Harvard, Chikusei & -- (see source) \\
+Functional Mapping \cite{functional2026} & 2026 & TGRS (9.4) & -- & CAVE, Harvard, Chikusei & -- (see source) \\
+MIAN \cite{huo2026modal} & 2026 & TGRS (9.4) & -- & CAVE, Harvard, Chikusei & -- (see source) \\
+LGP-Net \cite{lgpnet2026} & 2026 & TGRS (9.4) & -- & -- (verify in source) & -- (see source) \\
+Region-aware \cite{yu2026region} & 2026 & ISPRS (11.0) & ZY1-02D & PaviaU, Houston & SAM / RMSE vs UAV GT (see source) \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{center}
+\end{table*}
+
 \section{CAVE $\times$4 Baselines (PSNR $\approx$ 51)}
 
 Table~\ref{tab:baseline} lists representative CAVE $\times$4 baseline fusion methods with PSNR near 51 dB, for context against the curated papers above.
