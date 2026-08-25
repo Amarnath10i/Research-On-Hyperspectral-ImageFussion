@@ -195,22 +195,93 @@ class _SpectralGate(nn.Module):
         )
 
     def forward(self, alpha, ctx):
-        # alpha: (B,K,H,W), ctx: (B,ctx_ch,H,W)
         x = torch.cat([alpha, ctx], dim=1)
-        gate = self.net(x)  # (B,K,H,W) in (0,1)
+        gate = self.net(x)
         return alpha * gate
 
 
-class NullFusionNetV3(nn.Module):
+# ===========================================================================
+# Novel: Haar wavelet transform (lifting scheme) for high-frequency branch
+# ===========================================================================
+def haar_dwt2d(x):
+    """2D Haar DWT: x (B,C,H,W) -> (LL, LH, HL, HH) each (B,C,H/2,W/2)."""
+    B, C, H, W = x.shape
+    # Pad if odd
+    if H % 2 == 1:
+        x = F.pad(x, (0, 0, 0, 1), mode='reflect')
+    if W % 2 == 1:
+        x = F.pad(x, (0, 1, 0, 0), mode='reflect')
+    B, C, H, W = x.shape
+    x = x.reshape(B, C, H//2, 2, W//2, 2)
+    LL = (x[:, :, :, 0, :, 0] + x[:, :, :, 1, :, 0] +
+          x[:, :, :, 0, :, 1] + x[:, :, :, 1, :, 1]) / 4
+    LH = (x[:, :, :, 0, :, 0] - x[:, :, :, 1, :, 0] +
+          x[:, :, :, 0, :, 1] - x[:, :, :, 1, :, 1]) / 4
+    HL = (x[:, :, :, 0, :, 0] + x[:, :, :, 1, :, 0] -
+          x[:, :, :, 0, :, 1] - x[:, :, :, 1, :, 1]) / 4
+    HH = (x[:, :, :, 0, :, 0] - x[:, :, :, 1, :, 0] -
+          x[:, :, :, 0, :, 1] + x[:, :, :, 1, :, 1]) / 4
+    return LL, LH, HL, HH
+
+
+def haar_idwt2d(LL, LH, HL, HH):
+    """Inverse 2D Haar DWT."""
+    B, C, h, w = LL.shape
+    H, W = h * 2, w * 2
+    x = torch.zeros(B, C, H, W, device=LL.device, dtype=LL.dtype)
+    x[:, :, 0::2, 0::2] = LL + LH + HL + HH
+    x[:, :, 1::2, 0::2] = LL - LH + HL - HH
+    x[:, :, 0::2, 1::2] = LL + LH - HL - HH
+    x[:, :, 1::2, 1::2] = LL - LH - HL + HH
+    return x
+
+
+class _WaveletDetailBranch(nn.Module):
+    """Wavelet high-frequency branch: learns null-space detail in wavelet domain.
+    Novel: operates on null-space residual's high-frequency subbands."""
+
+    def __init__(self, bands, width, depth=2):
+        super().__init__()
+        self.bands = bands
+        self.enc = nn.Sequential(
+            nn.Conv2d(bands * 3, width, 3, 1, 1),  # LH+HL+HH = 3*bands
+            nn.ReLU(inplace=True),
+            *[_ResBlock(width) for _ in range(depth)],
+            nn.Conv2d(width, bands * 3, 3, 1, 1)
+        )
+
+    def forward(self, null_comp):
+        """null_comp: (B, bands, H, W) -> high-freq correction (B, bands, H, W)"""
+        LL, LH, HL, HH = haar_dwt2d(null_comp)
+        hf = torch.cat([LH, HL, HH], dim=1)  # (B, 3*bands, H/2, W/2)
+        hf_corr = self.enc(hf)               # (B, 3*bands, H/2, W/2)
+        LH_c, HL_c, HH_c = hf_corr.chunk(3, dim=1)
+        LL_zero = torch.zeros_like(LL)
+        corr = haar_idwt2d(LL_zero, LH_c, HL_c, HH_c)
+        # Crop to original size if padded
+        return corr[:, :, :null_comp.shape[-2], :null_comp.shape[-1]]
+
+
+class NullFusionNetV4(nn.Module):
+    """NullFusion v4: Multi-scale Spectral Dictionary + Wavelet High-Freq Branch.
+    Novel contributions:
+      1. Pyramid dictionary: global + mid + fine scales (spatially varying support)
+      2. Wavelet high-frequency branch on null-space residual
+      3. Cross-scale spectral consistency loss (handled in loss function)
+    """
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
-        Bn, M, W, K = cfg.bands, cfg.msi_bands, cfg.width, cfg.dict_size
+        Bn, M, W = cfg.bands, cfg.msi_bands, cfg.width
+        Kg, Km, Kf = cfg.dict_global, cfg.dict_mid, cfg.dict_fine
         self.op = CombinedOperator(cfg.scale, Bn, M, cfg.ksize, cfg.sigma,
                                    cfg.srf, cfg.cg_steps, cfg.ridge)
-        self.K = K
-        # --- null-space spectral dictionary (the core novelty) -------------
-        self.D = nn.Parameter(torch.zeros(Bn, K))
+        # --- pyramid spectral dictionary (novel) ---------------------------
+        self.D_global = nn.Parameter(torch.zeros(Bn, Kg))  # global atoms
+        self.D_mid    = nn.Parameter(torch.zeros(Bn, Km))  # mid-scale
+        self.D_fine   = nn.Parameter(torch.zeros(Bn, Kf))  # fine detail
+        self.Kg, self.Km, self.Kf = Kg, Km, Kf
         # --- conditioning encoder (cross-modal) ----------------------------
         self.hsi_stem = nn.Conv2d(Bn, W, 3, 1, 1)
         self.msi_stem = nn.Conv2d(M, W, 3, 1, 1)
@@ -219,37 +290,45 @@ class NullFusionNetV3(nn.Module):
         self.fuse = nn.Conv2d(2 * W, W, 1)
         self.enc = nn.Sequential(*[_ResBlock(W) for _ in range(cfg.enc_depth)])
         self.up = nn.ConvTranspose2d(W, W, cfg.scale, cfg.scale, 0, bias=False)
-        # --- code predictor -------------------------------------------------
+        # --- code predictors for 3 scales ----------------------------------
         self.prior_in = nn.Conv2d(2 * W + Bn, W, 3, 1, 1)
         body = []
         for i in range(cfg.prior_depth):
             body.append(_ResBlock(W))
         self.prior_body = nn.Sequential(*body)
-        self.spect_gate = _SpectralGate(K, W)
-        self.code_head = nn.Conv2d(W, K, 3, 1, 1)
+        self.spect_gate_g = _SpectralGate(Kg, W)
+        self.spect_gate_m = _SpectralGate(Km, W)
+        self.spect_gate_f = _SpectralGate(Kf, W)
+        self.code_head_g = nn.Conv2d(W, Kg, 3, 1, 1)
+        self.code_head_m = nn.Conv2d(W, Km, 3, 1, 1)
+        self.code_head_f = nn.Conv2d(W, Kf, 3, 1, 1)
+        # --- wavelet high-frequency branch (novel) -------------------------
+        self.wavelet_branch = _WaveletDetailBranch(Bn, W // 2, depth=2)
+        # --- spectral consistency projection (for loss) --------------------
+        # projects per-scale codes to common spectral space
+        self.consist_proj = nn.Conv2d(Kg + Km + Kf, Bn, 1)
 
     # -- null-space init: make D orthogonal to the RGB response ------------
     def set_srf(self, srf: torch.Tensor):
         s = srf if srf.shape[0] == self.cfg.bands else srf.t().contiguous()
-        s = s.float().to(self.D.device)
+        s = s.float().to(self.D_global.device)
         self.op.srf.data = s.to(self.op.srf.device)
         # precompute pinv(srf)^T for MSI-exact min-norm base
         s_pinv = torch.linalg.pinv(s)            # (msi, bands)
         self.register_buffer("srf_pinv_t", s_pinv.t().contiguous())  # (bands, msi)
         with torch.no_grad():
-            M = torch.randn(self.cfg.bands, self.K, device=self.D.device)
-            P = torch.linalg.pinv(s)            # (msi, bands)
-            Rng = s @ P                         # (bands, bands) range proj of R^T
-            D0 = M - Rng @ M                    # push into SRF-null subspace
-            D0 = D0 / (D0.norm(dim=0, keepdim=True) + 1e-8)
-            self.D.copy_(D0)
+            for D in (self.D_global, self.D_mid, self.D_fine):
+                K = D.shape[1]
+                M = torch.randn(self.cfg.bands, K, device=D.device)
+                P = torch.linalg.pinv(s)
+                Rng = s @ P
+                D0 = M - Rng @ M
+                D0 = D0 / (D0.norm(dim=0, keepdim=True) + 1e-8)
+                D.copy_(D0)
 
     def _base(self, yH, yM):
-        """MSI-exact base that uses BOTH observations (no CG, cheap)."""
         B, _, H, W = yM.shape
-        # min-norm solution to R(X)=yM: X = yM @ pinv(srf)^T
         base0 = torch.einsum("bmhw,cm->bchw", yM, self.srf_pinv_t)
-        # add LR-HSI spatial detail (projected to SRF-null space)
         base1 = F.interpolate(yH, (H, W), mode="bicubic",
                               align_corners=False)
         delta = base1 - base0
@@ -268,15 +347,30 @@ class NullFusionNetV3(nn.Module):
         cond = torch.cat([f_hr, f_msi, base], dim=1)
         v = self.prior_in(cond)
         v = self.prior_body(v)
-        alpha = F.softplus(self.code_head(v))               # (B, K, H, W) >= 0
-        alpha = self.spect_gate(alpha, v)                   # spatial atom selection
-        # null-space component from the spectral dictionary
-        # D: (bands, K), alpha: (B, K, H, W) -> out: (B, bands, H, W)
-        null_comp = torch.einsum("ck,bkhw->bchw", self.D, alpha)
-        # enforce exact MSI consistency (cheap spectral projection)
+        # --- multi-scale codes with spectral gating -----------------------
+        alpha_g = F.softplus(self.code_head_g(v))
+        alpha_m = F.softplus(self.code_head_m(v))
+        alpha_f = F.softplus(self.code_head_f(v))
+        alpha_g = self.spect_gate_g(alpha_g, v)
+        alpha_m = self.spect_gate_m(alpha_m, v)
+        alpha_f = self.spect_gate_f(alpha_f, v)
+        # --- pyramid dictionary reconstruction -----------------------------
+        # D: (bands, K), alpha: (B, K, H, W) -> (B, bands, H, W)
+        null_g = torch.einsum("ck,bkhw->bchw", self.D_global, alpha_g)
+        null_m = torch.einsum("ck,bkhw->bchw", self.D_mid, alpha_m)
+        null_f = torch.einsum("ck,bkhw->bchw", self.D_fine, alpha_f)
+        null_comp = null_g + null_m + null_f
+        # exact MSI consistency (spectral projection)
         null_comp = null_comp - self.op.Rt(self.op.R(null_comp))
-        out = base + null_comp
-        return {"out": out, "base": base, "alpha": alpha, "null": null_comp}
+        # --- wavelet high-frequency correction (novel) --------------------
+        wf_corr = self.wavelet_branch(null_comp)
+        out = base + null_comp + wf_corr
+        # spectral consistency features (for loss)
+        all_alpha = torch.cat([alpha_g, alpha_m, alpha_f], dim=1)
+        consist = self.consist_proj(all_alpha)
+        return {"out": out, "base": base, "null_comp": null_comp,
+                "alpha_g": alpha_g, "alpha_m": alpha_m, "alpha_f": alpha_f,
+                "wf_corr": wf_corr, "consist": consist}
 
 
 # ===========================================================================
@@ -505,11 +599,13 @@ def build_config():
     c.sigma = 1.2
     c.cg_steps = 40
     c.ridge = 1e-6
-    c.width = 64
+    c.width = 96
     c.enc_depth = 4
-    c.prior_depth = 6
+    c.prior_depth = 8
     c.cross_attn_heads = 4
-    c.dict_size = 48
+    c.dict_global = 64
+    c.dict_mid = 48
+    c.dict_fine = 32
     c.epochs = 2000
     c.batch_size = 2
     c.patch_size = 80
@@ -521,6 +617,7 @@ def build_config():
     c.w_ssim = 0.5
     c.w_sam = 0.05
     c.w_phys = 0.1
+    c.w_consist = 0.05
     c.time_budget_h = 9.0
     c.max_dim = 512
     c.amp = True
@@ -562,10 +659,10 @@ def train(args):
     print(f"Train scenes: {len(train_ds.scenes)}, Test scenes: {len(test_ds.scenes)}")
 
     cfg.srf = srf_t
-    model = NullFusionNetV3(cfg).to(device)
+    model = NullFusionNetV4(cfg).to(device)
     model.set_srf(srf_t)
     nparams = sum(p.numel() for p in model.parameters())
-    print(f"NullFusionNetV3 params: {nparams/1e6:.2f}M")
+    print(f"NullFusionNetV4 params: {nparams/1e6:.2f}M")
 
     opt = torch.optim.AdamW(model.parameters(), lr=cfg.lr,
                             weight_decay=cfg.weight_decay)
@@ -605,7 +702,8 @@ def train(args):
             yM = torch.stack(mss, 0).to(device)
 
             with torch.cuda.amp.autocast(enabled=cfg.amp):
-                out = model(yH, yM)["out"]
+                out_dict = model(yH, yM)
+                out = out_dict["out"]
                 loss_l1 = l1(out, gt)
                 loss_ssim = 1.0 - torch.tensor(
                     calc_ssim(out[0].detach().cpu().numpy(),
@@ -614,8 +712,12 @@ def train(args):
                     calc_sam(out[0].detach().cpu().numpy(),
                              gt[0].detach().cpu().numpy()), dtype=torch.float32, device=device)
                 loss_phys = F.mse_loss(model.op.D(out), yH)
+                # spectral consistency: per-scale codes should reconstruct same spectra
+                consist = out_dict["consist"]
+                loss_consist = F.l1_loss(consist, gt)
                 loss = (cfg.w_l1 * loss_l1 + cfg.w_ssim * loss_ssim
-                        + cfg.w_sam * loss_sam + cfg.w_phys * loss_phys)
+                        + cfg.w_sam * loss_sam + cfg.w_phys * loss_phys
+                        + cfg.w_consist * loss_consist)
 
             opt.zero_grad()
             scaler.scale(loss).backward()

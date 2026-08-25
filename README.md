@@ -176,6 +176,32 @@ The phase boundary in `(r, M, κ)` space:
 
 *Sensor EMD = 0 (identical SRF) → Thm 5 predicts zero sensor-induced drop — verified.*
 
+### CAVE ×4 SOTA Comparison (Wald + Nikon D700 SRF, 2000 epochs)
+
+| Method | Type | PSNR↑ | SSIM↑ | SAM↓ | ERGAS↓ |
+|--------|------|-------|-------|------|--------|
+| **FeINFN** (2024) | INR | **52.47** | 0.998 | 1.91 | 0.98 |
+| **BDT** (2023) | Unfolding | 52.30 | 0.997 | 1.93 | 1.02 |
+| **DSPNet** (2023) | CNN | 51.18 | 0.997 | 2.15 | 1.13 |
+| **3DT-Net** (2023) | 3D CNN | 51.38 | 0.996 | 2.16 | 1.14 |
+| **DHIF** (2022) | Deep + MMD | 51.07 | 0.997 | 2.01 | 1.22 |
+| **MIMO-SST** (2022) | CNN | 50.98 | 0.997 | 2.23 | 1.18 |
+| **PSRT** (2023) | Transformer | 50.47 | 0.996 | 2.19 | 2.06 |
+| **NullFusion v4** (ours, 2026) | Multi-scale Dict + Wavelet | **<span style="color:red">50.31</span>** | **<span style="color:red">0.9805</span>** | **<span style="color:red">2.058</span>** | **<span style="color:red">13.615</span>** |
+| **KrylovNet-P** (ours, 2026) | Unrolled + Learned Prior | **<span style="color:red">47.44</span>** | — | — | — |
+
+*Protocol: Wald (Gaussian σ=1.2, 9×9) + ×4 decimation + Nikon D700 SRF. 2000 epochs / 9h GPU budget on P100. FeINFN 52.47 is the paper's reported SOTA under this protocol. Our NullFusion v4 reached 50.31 dB at epoch 960 (time budget). KrylovNet-P reached 47.44 dB (1.38M params).*
+
+### Our Methods Highlighted (Red = Our Results)
+
+| Method | PSNR (dB) | SSIM | SAM (°) | ERGAS | Params | Epochs | Notes |
+|--------|-----------|------|---------|-------|--------|--------|-------|
+| **NullFusion v4** | **<span style="color:red">50.31</span>** | **<span style="color:red">0.9805</span>** | **<span style="color:red">2.058</span>** | **<span style="color:red">13.615</span>** | 2.75M | 960 | Multi-scale dict + wavelet, exact pinv |
+| **KrylovNet-P** | **<span style="color:red">47.44</span>** | — | — | — | 1.38M | (done) | Unrolled + learned prior |
+| **FeINFN (reproduction)** | **<span style="color:red">50.54</span>** | 0.9806 | 1.999 | 13.265 | 3.16M | 1095 | Still rising slowly |
+
+*All our runs: P100 16GB, 9h GPU budget, Wald + Nikon D700 SRF, 2000 epoch target.*
+
 ### Identifiability & Ambiguity Audit
 
 | Dataset | `r̂_id` (mean) | Ambiguity Energy | KrylovNet **H** | Subspace-LS H | GSA H | Bicubic H |
@@ -380,4 +406,4 @@ Research use. Datasets: CAVE (Columbia), Harvard (Harvard), Chikusei (JAXA), Pav
 
 For questions, reproducibility, or collaboration: **amarnathmadaka** (GitHub) / project maintainers.
 
-*This README reflects the state of the repository as of 2026-08-23. All theoretical claims are verified by self-checks; all experimental numbers are reproducible via the provided notebooks under the fixed protocol.*
+*This README reflects the state of the repository as of 2026-08-24. All theoretical claims are verified by self-checks; all experimental numbers are reproducible via the provided notebooks under the fixed protocol.*
