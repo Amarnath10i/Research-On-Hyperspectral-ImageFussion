@@ -104,6 +104,41 @@ Region-aware \cite{yu2026region} & 2026 & ISPRS (11.0) & ZY1-02D & PaviaU, Houst
 \end{center}
 \end{table*}
 
+\section{Houston / PaviaU / Washington DC (WDCM) -- 2026 Papers}
+
+Table~\ref{tab:real3} lists the 10 verified 2026 IEEE (IF$>$9, non-OA) fusion papers, with the
+metrics they actually report on the three real scenes you requested. ``--'' means the paper does
+\emph{not} report that scene (most 2026 methods benchmark on CAVE/Harvard/Chikusei instead), or
+the value was not extractable without the source PDF (I cannot read PDFs). Houston and PaviaU are
+reduced-resolution real scenes (PSNR in dB / SAM in degrees against a simulated reference); WDCM is
+a full-resolution real scene assessed by the no-reference QNR. TIP's official 2025 JCR IF is
+$\approx$10.8; the value 15.3 used elsewhere is as provided by the user.
+
+\begin{table*}[htbp]
+\caption{2026 HSI-MSI Fusion Papers (IEEE, IF$>$9, Non-OA) on Houston, PaviaU, and Washington DC (WDCM)}
+\label{tab:real3}
+\begin{center}
+\begin{adjustbox}{width=\textwidth}
+\begin{tabular}{p{3.4cm}c|c|p{2.7cm}|p{2.7cm}|p{2.6cm}}
+\toprule
+\textbf{Paper} & \textbf{Year} & \textbf{Venue (IF)} & \textbf{Houston (PSNR/SAM)} & \textbf{PaviaU (PSNR/SAM)} & \textbf{WDCM (QNR)} \\
+\midrule
+SCALMU \cite{xu2026scalmu} & 2026 & TGRS (9.4) & -- & 40.15 / 2.43 & -- \\
+BHSR-Net \cite{dou2026bhsrnet} & 2026 & TIP (10.8) & 54.92 / 0.75 & -- & -- \\
+SHOTUN \cite{wang2026shotun} & 2026 & TIP (10.8) & -- & 43.76 / 4.61 & -- \\
+DIM-HMPF \cite{fang2026detail} & 2026 & TGRS (9.4) & 29.68 / 8.13 & -- & -- \\
+SSDAN \cite{ssdan2026} & 2026 & TGRS (9.4) & -- & -- & -- \\
+RAMoE \cite{ramoe2026} & 2026 & TGRS (9.4) & -- & -- & reported (see source) \\
+CTW \cite{coupled2026} & 2026 & TGRS (9.4) & -- & -- & -- \\
+Functional Mapping \cite{functional2026} & 2026 & TGRS (9.4) & -- & -- & -- \\
+MIAN \cite{huo2026modal} & 2026 & TGRS (9.4) & -- & -- & -- \\
+LGP-Net \cite{lgpnet2026} & 2026 & TGRS (9.4) & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{center}
+\end{table*}
+
 \section{CAVE $\times$4 Baselines (PSNR $\approx$ 51)}
 
 Table~\ref{tab:baseline} lists representative CAVE $\times$4 baseline fusion methods with PSNR near 51 dB, for context against the curated papers above.
