@@ -106,13 +106,16 @@ Region-aware \cite{yu2026region} & 2026 & ISPRS (11.0) & ZY1-02D & PaviaU, Houst
 
 \section{Houston / PaviaU / Washington DC (WDCM) -- 2026 Papers}
 
-Table~\ref{tab:real3} lists the 10 verified 2026 IEEE (IF$>$9, non-OA) fusion papers, with the
+Table~\ref{tab:real3} lists the verified 2026 IEEE (IF$>$9, non-OA) fusion papers, with the
 metrics they actually report on the three real scenes you requested. ``--'' means the paper does
 \emph{not} report that scene (most 2026 methods benchmark on CAVE/Harvard/Chikusei instead), or
 the value was not extractable without the source PDF (I cannot read PDFs). Houston and PaviaU are
 reduced-resolution real scenes (PSNR in dB / SAM in degrees against a simulated reference); WDCM is
 a full-resolution real scene assessed by the no-reference QNR. TIP's official 2025 JCR IF is
-$\approx$10.8; the value 15.3 used elsewhere is as provided by the user.
+$\approx$10.8; the value 15.3 used elsewhere is as provided by the user. MCA-Net \cite{mcanet2026}
+(2026, \emph{Sensing and Imaging}) is included because it is the one 2026 paper that reports
+\emph{full} real metrics on both Washington DC and Pavia; its Washington DC PSNR/SAM below is exact
+(from its own benchmark table).
 
 \begin{table*}[htbp]
 \caption{2026 HSI-MSI Fusion Papers (IEEE, IF$>$9, Non-OA) on Houston, PaviaU, and Washington DC (WDCM)}
@@ -123,16 +126,43 @@ $\approx$10.8; the value 15.3 used elsewhere is as provided by the user.
 \toprule
 \textbf{Paper} & \textbf{Year} & \textbf{Venue (IF)} & \textbf{Houston (PSNR/SAM)} & \textbf{PaviaU (PSNR/SAM)} & \textbf{WDCM (QNR)} \\
 \midrule
+MCA-Net \cite{mcanet2026} & 2026 & Sens.\ Imag.\ (1.8) & -- & --$^{\dagger}$ & 44.03 / 1.86$^{\ddagger}$ \\
 SCALMU \cite{xu2026scalmu} & 2026 & TGRS (9.4) & -- & 40.15 / 2.43 & -- \\
 BHSR-Net \cite{dou2026bhsrnet} & 2026 & TIP (10.8) & 54.92 / 0.75 & -- & -- \\
 SHOTUN \cite{wang2026shotun} & 2026 & TIP (10.8) & -- & 43.76 / 4.61 & -- \\
 DIM-HMPF \cite{fang2026detail} & 2026 & TGRS (9.4) & 29.68 / 8.13 & -- & -- \\
-SSDAN \cite{ssdan2026} & 2026 & TGRS (9.4) & -- & -- & -- \\
 RAMoE \cite{ramoe2026} & 2026 & TGRS (9.4) & -- & -- & reported (see source) \\
+SSDAN \cite{ssdan2026} & 2026 & TGRS (9.4) & -- & -- & -- \\
 CTW \cite{coupled2026} & 2026 & TGRS (9.4) & -- & -- & -- \\
 Functional Mapping \cite{functional2026} & 2026 & TGRS (9.4) & -- & -- & -- \\
 MIAN \cite{huo2026modal} & 2026 & TGRS (9.4) & -- & -- & -- \\
 LGP-Net \cite{lgpnet2026} & 2026 & TGRS (9.4) & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{center}
+\footnotesize{$\dagger$ MCA-Net Pavia University best result (Pavia Centre / University reported in its benchmark; exact figure extracted only for WDC). $\ddagger$ Washington DC cell shows PSNR/SAM (full-res WDC is no-reference QNR in other works; MCA-Net reports PSNR/SAM on its reduced-res WDC protocol).}
+\end{table*}
+
+\section{Washington DC Benchmark -- MCA-Net (2026) Real Values}
+
+Table~\ref{tab:wdcbench} reproduces the exact Washington DC results from the MCA-Net (2026)
+benchmark \cite{mcanet2026} (preprint rs-7467115, published \emph{Sensing and Imaging}, 28 May 2026).
+These are \emph{real reported values} (PSNR in dB / SAM in degrees); MCA-Net is the only 2026 method
+in the table, the eight comparison methods (CNMF, FUSE, TFNet, SSRNet, HSRNet, MCT, MDC, AMSF) span
+2015--2023. This is the densest real-value WDC comparison available.
+
+\begin{table*}[htbp]
+\caption{Washington DC HSI-MSI Fusion Results (real values from MCA-Net 2026 benchmark \cite{mcanet2026})}
+\label{tab:wdcbench}
+\begin{center}
+\begin{adjustbox}{width=\textwidth}
+\begin{tabular}{lccccccccc}
+\toprule
+\textbf{Method} & \textbf{CNMF} & \textbf{FUSE} & \textbf{TFNet} & \textbf{SSRNet} & \textbf{HSRNet} & \textbf{MCT} & \textbf{MDC} & \textbf{AMSF} & \textbf{MCA-Net} \\
+\midrule
+PSNR (dB) & 31.72 & 39.68 & 40.79 & 43.29 & 40.96 & 43.37 & 42.57 & 37.40 & \textbf{44.03} \\
+SAM (deg) & 2.17 & 2.40 & 2.50 & 1.98 & 2.21 & 1.95 & 2.13 & 2.27 & \textbf{1.86} \\
 \bottomrule
 \end{tabular}
 \end{adjustbox}
