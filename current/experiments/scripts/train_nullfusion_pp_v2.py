@@ -93,6 +93,25 @@ def block_cg(applyA, rhs, steps, tol=1e-10):
     return z
 
 
+def scalar_cg(applyA, rhs, steps, tol=1e-10):
+    """Batched CG for a single symmetric positive-definite system."""
+    z = torch.zeros_like(rhs)
+    r = rhs - applyA(z)
+    p = r.clone()
+    rs = (r * r).flatten(1).sum(1)
+    for _ in range(steps):
+        ap = applyA(p)
+        denom = (p * ap).flatten(1).sum(1)
+        alpha = (rs / denom.clamp_min(tol)).reshape(-1, 1, 1, 1)
+        z = z + alpha * p
+        r = r - alpha * ap
+        rs_new = (r * r).flatten(1).sum(1)
+        beta = (rs_new / rs.clamp_min(tol)).reshape(-1, 1, 1, 1)
+        p = r + beta * p
+        rs = rs_new
+    return z
+
+
 class RangeNullProjector(nn.Module):
     """Exact null-space projector for the blur+decimate operator D.
 
@@ -113,7 +132,7 @@ class RangeNullProjector(nn.Module):
         return applyA
 
     def pinv(self, yH, out_hw):
-        z = block_cg(self._normal_op(out_hw), yH, self.cg_steps)
+        z = scalar_cg(self._normal_op(out_hw), yH, self.cg_steps)
         return self.D.transpose(z, out_hw)
 
     def project_null(self, v, out_hw=None):
@@ -415,7 +434,7 @@ class NullFusionPlusV2(nn.Module):
         srf_t = torch.from_numpy(chikusei_srf(bands)).float()
 
         # 1. Exact null-space projector (from proposal 7)
-        self.projector = RangeNullProjector(scale, cg_steps=40, ridge=1e-4)
+        self.projector = RangeNullProjector(scale, cg_steps=8, ridge=1e-4)
         self.register_buffer("srf", srf_t)
         self.register_buffer("srfinv", torch.linalg.pinv(srf_t))
 
@@ -484,9 +503,8 @@ class NullFusionPlusV2(nn.Module):
         self._init_dicts()
 
     def _init_dicts(self):
-        s = self.projector.srf
-        s_pinv = torch.linalg.pinv(s)
-        self.register_buffer("srfinv", s_pinv)
+        s = self.srf
+        s_pinv = self.srfinv
         with torch.no_grad():
             for D in (self.Dg, self.Dm, self.Df):
                 M = torch.randn(self.bands, D.shape[1], device=D.device)
@@ -494,8 +512,18 @@ class NullFusionPlusV2(nn.Module):
                 D.copy_(D0 / (D0.norm(dim=0, keepdim=True) + 1e-8))
 
     def _base(self, yH, yM):
-        B, _, H, W = yM.shape
-        return self.projector.pinv(yH, yM, (H, W))
+        B, _, H_lr, W_lr = yH.shape
+        _, _, H_hr, W_hr = yM.shape
+        # D pseudoinverse for spatial upscaling (result is HR)
+        base_lr = self.projector.pinv(yH, (H_hr, W_hr))
+        # SRF pseudoinverse for spectral detail (result is HR)
+        # srfinv shape: [msi_bands, bands] = [3, 128]
+        base_srf = torch.einsum("bmhw,mc->bchw", yM, self.srfinv)
+        # Combine: base = pinv_D(yH) + S^T(yM) - S^T S (pinv_D(yH))
+        # S(base_lr) is MSI-mixed version at HR, S^T brings it back to HSI
+        base_r_msi = torch.einsum("bchw,cm->bmhw", base_lr, self.srf)  # [B, 3, H_hr, W_hr]
+        base_spec = base_srf - torch.einsum("bmhw,mc->bchw", base_r_msi, self.srfinv)
+        return base_lr + base_spec
 
     def forward(self, yH, yM):
         B, _, H_lr, W_lr = yH.shape
@@ -524,7 +552,8 @@ class NullFusionPlusV2(nn.Module):
         obs_spectral = F.interpolate(
             yH, size=(H_hr, W_hr), mode="bicubic", align_corners=False
         )
-        obs_spatial = self.projector.Rt(yM)
+        # Spatial observation from MSI via pseudoinverse
+        obs_spatial = torch.einsum("bmhw,mc->bchw", yM, self.srfinv)
         refined = self.unfold1(base, obs_spectral, obs_spatial)
         refined = self.unfold2(refined, obs_spectral, obs_spatial)
 
@@ -760,7 +789,10 @@ def nullfusion_pp_v2_loss(out, gt, yH, yM, model, w_l1=1.0, w_ssim=0.5,
     l_spec_grad = spectral_gradient_loss(pred, gt)
 
     # Physics: observation consistency
-    l_phys = F.mse_loss(model.projector.D(pred), yH) + F.mse_loss(model.projector.R(pred), yM)
+    # D(pred) should match yH, R(pred) should match yM
+    l_phys_d = F.mse_loss(model.projector.D(pred), yH)
+    l_phys_r = F.mse_loss(torch.einsum("bchw,cm->bmhw", pred, model.srf), yM)
+    l_phys = l_phys_d + l_phys_r
 
     total = (
         w_l1 * l_l1
