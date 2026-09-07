@@ -94,46 +94,32 @@ def block_cg(applyA, rhs, steps, tol=1e-10):
 
 
 class RangeNullProjector(nn.Module):
-    """Exact null-space projector: D_pinv and P_perp from proposal 7."""
+    """Exact null-space projector for the blur+decimate operator D.
 
-    def __init__(self, scale, bands, msi, srf, cg_steps=40, ridge=1e-4):
+    pinv(yH) = D^T (D D^T + ridge)^{-1} yH   — CG solve in LR space.
+    project_null(v) = v - pinv(D v)            — removes LR-visible component.
+    """
+
+    def __init__(self, scale, cg_steps=40, ridge=1e-4):
         super().__init__()
         self.D = DegradationOp(scale)
         self.scale = scale
-        self.bands = bands
-        self.msi_bands = msi
         self.cg_steps = cg_steps
         self.ridge = ridge
-        self.register_buffer("srf", srf.float())
-
-    def R(self, x):
-        return torch.einsum("nbhw,bm->nmhw", x, self.srf)
-
-    def Rt(self, m):
-        return torch.einsum("nmhw,bm->nbhw", m, self.srf)
-
-    def forward(self, x):
-        return self.D(x), self.R(x)
 
     def _normal_op(self, out_hw):
-        def applyA(z_tuple):
-            zH, zM = z_tuple
-            DtH = self.D.transpose(zH, out_hw)
-            return (
-                self.D(DtH) + self.R(self.Rt(zM)) + self.ridge * zH,
-                self.R(DtH) + self.R(self.Rt(zM)) + self.ridge * zM,
-            )
+        def applyA(z):
+            return self.D(self.D.transpose(z, out_hw)) + self.ridge * z
         return applyA
 
-    def pinv(self, yH, yM, out_hw):
-        zH, zM = block_cg(self._normal_op(out_hw), (yH, yM), self.cg_steps)
-        return self.D.transpose(zH, out_hw) + self.Rt(zM)
+    def pinv(self, yH, out_hw):
+        z = block_cg(self._normal_op(out_hw), yH, self.cg_steps)
+        return self.D.transpose(z, out_hw)
 
     def project_null(self, v, out_hw=None):
         if out_hw is None:
             out_hw = (v.shape[-2], v.shape[-1])
-        dH, dM = self.forward(v)
-        return v - self.pinv(dH, dM, out_hw)
+        return v - self.pinv(self.D(v), out_hw)
 
 
 # ---------------------------------------------------------------------------
@@ -429,7 +415,9 @@ class NullFusionPlusV2(nn.Module):
         srf_t = torch.from_numpy(chikusei_srf(bands)).float()
 
         # 1. Exact null-space projector (from proposal 7)
-        self.projector = RangeNullProjector(scale, bands, msi, srf_t, cg_steps=40, ridge=1e-4)
+        self.projector = RangeNullProjector(scale, cg_steps=40, ridge=1e-4)
+        self.register_buffer("srf", srf_t)
+        self.register_buffer("srfinv", torch.linalg.pinv(srf_t))
 
         # 2. Feature encoding
         self.hsi_stem = nn.Sequential(nn.Conv2d(bands, W, 3, 1, 1), RCAB(W))
