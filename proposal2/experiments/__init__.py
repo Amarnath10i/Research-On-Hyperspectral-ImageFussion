@@ -1,1 +1,0 @@
-"""P2 experiment scripts (run via: python -m proposal2.experiments.<sweep>)."""

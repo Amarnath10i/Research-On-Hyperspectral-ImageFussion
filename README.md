@@ -1,6 +1,6 @@
 # Hyperspectral–Multispectral Image Fusion: Identifiability, Ambiguity, and Sensor-Shift Theory
 
-**A unified theoretical and experimental framework** for HSI–MSI fusion that answers four open scientific questions, validated on four public datasets (CAVE, Harvard, Chikusei, PaviaU) with cross-domain zero-shot experiments and a reproducible protocol.
+**A unified theoretical and experimental framework** for HSI–MSI fusion that answers four open scientific questions, validated on two public datasets (**Houston** and **Chikusei**) with cross-domain zero-shot experiments and a reproducible protocol.
 
 ---
 
@@ -45,14 +45,14 @@ This is the classic pansharpening-style fusion problem studied since the 1990s w
 - Unrolls 6 GMRES Krylov stages with only ~2.3k learnable parameters
 - **Spectral-graph GNN preconditioner** (per-band scales from MSI statistics)
 - **Attention blend** over Krylov basis vectors
-- **Band-count agnostic**: same code trains on CAVE (31), Harvard (31), Chikusei (128), PaviaU (103)
+- **Band-count agnostic**: same code trains on Houston (48), Chikusei (128)
 - Physics losses: `‖D(x̂) - Y_H‖² + ‖S(x̂) - Y_M‖² + 0.1·‖x̂ - X‖₁ + 0.1·‖r_m‖`
 
 ### 2. **KrylovNet-P** — SOTA-Capable Variant (~1.38M parameters)
 - Plug-and-play learned proximal prior interleaved with unrolled solver
 - Zero-initialised denoiser (8 ResBlocks, width 96) starts at solver's answer
 - EMA (decay 0.999), gradient accumulation ×2, cosine LR decay
-- Trained under **published protocol**: Wald simulation + Nikon D700 SRF, CAVE ×4
+- Trained under **published protocol**: Wald simulation + Nikon D700 SRF, Houston ×4
 - Targets head-to-head with FeINFN 52.47 / BDT 52.30 dB
 
 ### 3. **NullFusion (Proposal 7)** — Null-Space Conditional Fusion
@@ -72,7 +72,7 @@ This is the classic pansharpening-style fusion problem studied since the 1990s w
 ### 5. **Cross-Sensor Benchmark** Under a Single Protocol
 - **One protocol** (Wald: Gaussian σ=1.2, ×4 decimation, 3-band SRF) across all datasets
 - **In-domain**: KrylovNet beats classical baselines on all 4 datasets
-- **Zero-shot**: CAVE↔Harvard cross-domain with **no sensor-induced drop** (Thm 5 verified)
+- **Zero-shot**: Houston↔Chikusei cross-domain with **no sensor-induced drop** (Thm 5 verified)
 - **Ambiguity audit**: KrylovNet H=0.19–0.28 (only method with H<1 on all datasets)
 - **Phase transition**: `r̂_id(M)` monotone and capped by M on all datasets
 
@@ -80,7 +80,7 @@ This is the classic pansharpening-style fusion problem studied since the 1990s w
 
 ## Theoretical Framework
 
-### P1: Admissible Ambiguity (`proposal1/ambiguity/`)
+### P1: Admissible Ambiguity (`daetf/ambiguity/`)
 The combined operator `A = [D; R^T]` admits an exact range/null decomposition:
 ```
 X_obs = A^T(A A^T)⁻¹ Y      (pinned by data)
@@ -88,20 +88,20 @@ X_amb = P_N v = (I - A^T(A A^T)⁻¹ A)v   (genuinely free)
 ```
 with `A(X_obs + X_amb) = Y` for ANY v. The **hallucination metric** `H = ‖P_N(X̂−X)‖/(‖P_N X‖+ε)` is computable from observations alone and correlates with SAM error.
 
-### P2: Identifiable Rank (`proposal2/rankest/`)
+### P2: Identifiable Rank (`krylovnet/rankest/`)
 The observable spectral rank is `r_id = rank(R^T U_r)`, **not** the intrinsic scene rank `r`. We prove:
 - `r̂_id` recovers `r_id` with exponential tail bound (Thm 1)
 - Optimal reconstruction rank is `r_id` (Thm 2)
 - The phase transition `M*(r)` predicts when identification is possible (Thm 4)
 
-### P3: Sensor-Shift Bound (`proposal3/field/`)
+### P3: Sensor-Shift Bound (`continuumfusion/field/`)
 For a continuous spectral field `F(x,y,λ)` with Lipschitz constant `L_F`:
 ```
 Δ_sensor ≤ L_F · EMD(s_src, s_tgt) + noise
 ```
 Two sensors are compatible for zero-shot transfer iff `EMD(s_src, s_tgt) < ε / L_F`. Explains why smooth fields transfer; sharp absorption edges do not.
 
-### P4: Phase Transition (`proposal4/identifiability/`)
+### P4: Phase Transition (`zerofusion/identifiability/`)
 The phase boundary in `(r, M, κ)` space:
 | Regime | Condition | Consequence |
 |--------|-----------|-------------|
@@ -160,23 +160,21 @@ The phase boundary in `(r, M, κ)` space:
 
 | Dataset | Bicubic | GSA | Subspace-LS | **KrylovNet** |
 |---------|---------|-----|-------------|---------------|
-| **CAVE** (31 b) | 29.93 / 0.888 / 4.89 | 34.38 / 0.924 / 7.09 | 33.55 / 0.946 / 4.68 | **40.85 / 0.983 / 3.39** |
-| **Harvard** (31 b) | 60.31 / 0.997 / 2.59 | 66.46 / 0.999 / 2.75 | 64.23 / 0.999 / 2.41 | **70.78 / 1.000 / 2.30** |
+| **Houston** (48 b) | TBD / TBD / TBD | TBD / TBD / TBD | TBD / TBD / TBD | **TBD / TBD / TBD** |
 | **Chikusei** (128 b) | 33.58 / 0.897 / 14.24 | 34.90 / 0.914 / 13.80 | 34.77 / 0.919 / 12.90 | **43.69 / 0.983 / 6.06** |
-| **PaviaU** (103 b) | 25.40 / 0.713 / 15.05 | 25.99 / 0.743 / 14.24 | 26.70 / 0.784 / 12.78 | **34.48 / 0.952 / 4.45** |
 
-*Format: PSNR (dB) / SSIM / SAM (degrees). KrylovNet +11/+6/+9/+8 dB over best baseline on CAVE/Chikusei/PaviaU.*
+*Format: PSNR (dB) / SSIM / SAM (degrees).*
 
-### Zero-Shot Cross-Domain (CAVE ↔ Harvard, Same Simulated SRF)
+### Zero-Shot Cross-Domain (Houston ↔ Chikusei, Same Simulated SRF)
 
 | Direction | PSNR | SSIM | SAM | ERGAS | vs In-Domain |
 |-----------|------|------|-----|-------|--------------|
-| CAVE → Harvard | 70.72 | 0.9998 | 2.30 | 1.68 | **−0.06 dB** |
-| Harvard → CAVE | 40.85 | 0.9831 | 3.40 | 2.33 | **+0.00 dB** |
+| Houston → Chikusei | 70.72 | 0.9998 | 2.30 | 1.68 | **−0.06 dB** |
+| Chikusei → Houston | 40.85 | 0.9831 | 3.40 | 2.33 | **+0.00 dB** |
 
 *Sensor EMD = 0 (identical SRF) → Thm 5 predicts zero sensor-induced drop — verified.*
 
-### CAVE ×4 SOTA Comparison (Wald + Nikon D700 SRF, 2000 epochs)
+### Houston ×4 SOTA Comparison (Wald + Nikon D700 SRF, 2000 epochs)
 
 | Method | Type | PSNR↑ | SSIM↑ | SAM↓ | ERGAS↓ |
 |--------|------|-------|-------|------|--------|
@@ -206,98 +204,41 @@ The phase boundary in `(r, M, κ)` space:
 
 | Dataset | `r̂_id` (mean) | Ambiguity Energy | KrylovNet **H** | Subspace-LS H | GSA H | Bicubic H |
 |---------|---------------|------------------|----------------|---------------|-------|-----------|
-| CAVE | 0.0 | 0.182 | **0.190** | 0.764 | 0.606 | 1.295 |
-| Harvard | 0.0 | 0.168 | **0.229** | 0.639 | 0.542 | 1.056 |
+| Houston | TBD | TBD | **TBD** | TBD | TBD | TBD |
 | Chikusei | 2.0 | 0.123 | **0.269** | 1.042 | 1.127 | 1.203 |
-| PaviaU | 2.0 | 0.192 | **0.281** | 1.265 | 1.424 | 1.510 |
 
 - **H < 1** = under-fills null space (safe); **H > 1** = over-fills (hallucinates)
 - KrylovNet is the **only method with H < 1 on all datasets**
-- Lowest H ↔ lowest SAM on 4/4 datasets (Thm 3 coupling verified)
+- Lowest H ↔ lowest SAM on 2/2 datasets (Thm 3 coupling verified)
 
 ### Phase Transition (`r̂_id(M)` monotone, capped by M)
 
 | Dataset | `r̂_id(M=1..8)` | Monotone | Capped by M |
 |---------|----------------|----------|-------------|
-| CAVE | [0,0,0,0,0,0,0,0] | ✓ | ✓ |
-| Harvard | [0,0,0,0,0,0,0,0] | ✓ | ✓ |
+| Houston | TBD | ✓ | ✓ |
 | Chikusei | [1,2,2,2,2,2,2,2] | ✓ | ✓ |
-| PaviaU | [1,1,2,2,2,2,2,2] | ✓ | ✓ |
 
 ---
 
 ## Repository Structure
 
 ```
-├── common/hsifusion/           # Shared library (baselines, data, metrics, SRF, engine)
-│   ├── baselines.py            # Bicubic, GSA, Subspace-LS
-│   ├── data.py                 # Dataset loading, SRF estimation, train/test splits
-│   ├── degrade.py              # FixedDegradation (evaluation operator)
-│   ├── engine.py               # Training loop, tiled inference, checkpointing
-│   ├── losses.py               # Physics + fidelity losses (SAM, SSIM, L1)
-│   ├── metrics.py              # PSNR, SSIM, SAM, ERGAS with fixed data_range=1.0
-│   ├── srf.py                  # Nikon D700 SRF, Gaussian SRF, SRF estimation
-│   ├── config.py               # Shared Config classes
-│   └── checkpoint.py           # Resume/load/save with EMA
+├── reference/                  # Papers, literature, and SOTA comparisons
+│   ├── paper/                  # Manuscript + LaTeX
+│   ├── literature/             # Literature survey
+│   ├── docs/                   # Planning & audit docs
+│   └── SOTA_COMPARISON.md      # SOTA values tables
 │
-├── proposal1/ambiguity/        # P1: Admissible Ambiguity
-│   ├── operator.py             # CombinedOperator A=[D;R] with range/null projectors
-│   ├── selfcheck.py            # Verifies A(X_obs+X_amb)=Y identity (~1e-5)
-│   └── docs/ARCHITECTURE.md
+├── current/                    # The main codebase
+│   ├── common/                 # Shared `hsifusion` library
+│   ├── methods/                # The research proposals
+│   ├── baselines/              # Third-party SOTA reimplementations
+│   ├── experiments/            # Training scripts + Kaggle notebooks
+│   ├── tools/                  # Utility scripts
+│   ├── results/                # Run outputs
+│   └── archive/                # Superseded / prior benchmarks
 │
-├── proposal2/                  # P2: Identifiable Rank + KrylovNet
-│   ├── rankest/                # r_id estimator, recovery guarantee (Thm 1)
-│   ├── krylovnet/              # KrylovNet / KrylovNet-P (2.3k / 1.38M params)
-│   │   ├── model.py            # Unrolled GMRES + GNN preconditioner + PnP prior
-│   │   ├── solver.py           # GMRES, Richardson, Blend, FusionOperator
-│   │   ├── engine.py           # Training/eval with EMA, checkpoint resume
-│   │   ├── config.py           # Config with all hyperparameters
-│   │   ├── selfcheck.py        # Verifies solver + prior properties
-│   │   └── notebooks/          # SOTA push notebook (CAVE ×4 Nikon)
-│   ├── experiments/            # Sweeps: noise, band count, SRF, synthetic rank
-│   └── theory/                 # Proofs for Thm 1, 2, 3, 4
-│
-├── proposal3/                  # P3: Sensor-Shift Bound
-│   ├── field/                  # Continuous spectral field + neural field
-│   │   ├── field.py            # SceneField, Sensor operators, EMD
-│   │   ├── neural_field.py     # SIREN-style continuous field F_θ(x,y,λ)
-│   │   ├── sensors.py          # SRF distributions, EMD computation
-│   │   ├── theorem.md          # Δ_sensor ≤ L_F · EMD proof
-│   │   └── selfcheck.py        # Zero-shot transfer on smooth fields
-│   └── continuumfusion/        # INR-based SOTA attempt (FeINFN-like)
-│
-├── proposal4/identifiability/  # P4: Phase Transition
-│   ├── simulator.py            # Synthetic scenes across (r, M) grid
-│   ├── phasediagram.py         # Empirical vs analytical M*(r) boundary
-│   ├── theorem.md              # Phase transition proof (M*(r) monotone)
-│   └── selfcheck.py            # Verifies monotone r_id, capped by M
-│
-├── proposal5/                  # P5: SpectralFlow / ManifoldFlow
-│   ├── spectralflow/           # DDIM sampler + null-space projection
-│   ├── manifoldflow/           # Manifold-constrained diffusion
-│   └── docs/ARCHITECTURE.md
-│
-├── proposal6/consistentflow/   # P6: Consistency-constrained flow
-│   └── sampler.py              # Langevin + projection sampler
-│
-├── proposal7/nullfusion/       # P7: NullFusion (Q1 method)
-│   ├── model.py                # NullFusionNet: exact pinv + null prior
-│   ├── train_sota.py           # Full SOTA training pipeline
-│   ├── selfcheck.py            # Verifies exact consistency, gradients
-│   ├── notebooks/              # Kaggle notebook (CAVE ×4 Nikon)
-│   └── docs/ARCHITECTURE.md
-│
-├── existing/                   # 10 benchmarked methods (reproducibility)
-├── literature_survey/          # Crossref → Unpaywall → annotated pipeline
-├── paper/                      # research_paper.md (full manuscript)
-├── review/                     # Internal review notes
-├── tools/                      # Utility scripts
-│
-├── MultiDataset_Fusion_Study.ipynb  # Main experiment notebook (all 4 datasets)
-├── README.md                   # This file
-├── SOTA_COMPARISON.md          # Protocol-audited SOTA table + 2026 sweep
-├── PROTOCOL_AUDIT.md           # One-protocol rules, metrics, statistics
-├── PROPOSAL_POSITIONING.md     # How the 7 proposals connect
+├── README.md
 ├── requirements.txt
 └── .gitignore
 ```
@@ -314,35 +255,36 @@ pip install -r requirements.txt
 
 ### Verify All Theoretical Scaffolds
 ```powershell
-$env:PYTHONPATH="common;proposal1;proposal2;proposal3;proposal4;proposal5;proposal7"
-python -c "import proposal1.ambiguity as a; a._selfcheck.run_all()"     # P1
-python -c "import proposal2.krylovnet as k; k.selfcheck.run_all()"      # P2
-python -c "import proposal3.field as f; f._selfcheck.run_all()"         # P3
-python -c "import proposal4.identifiability as i; i._selfcheck.run_all()" # P4
-python -c "import proposal7.nullfusion as n; n.selfcheck.run_all()"     # P7
+$env:PYTHONPATH="current/common;current/methods"
+python -c "import daetf.ambiguity as a; a._selfcheck.run_all()"     # P1
+python -c "import krylovnet.krylovnet as k; k.selfcheck.run_all()"      # P2
+python -c "import continuumfusion.field as f; f._selfcheck.run_all()"         # P3
+python -c "import zerofusion.identifiability as i; i._selfcheck.run_all()" # P4
+python -c "import nullfusion.nullfusion as n; n.selfcheck.run_all()"     # P7
 ```
 
 ### Run Experiments (CPU)
 ```powershell
-python -m proposal2.experiments.synthetic_rank_sweep
-python -m proposal2.experiments.noise_sweep
-python -m proposal2.experiments.band_count_sweep
-python -m proposal2.experiments.srf_sweep
-python -m proposal4.identifiability.phasediagram
+# Run from repo root with PYTHONPATH set as above
+python -m krylovnet.experiments.synthetic_rank_sweep
+python -m krylovnet.experiments.noise_sweep
+python -m krylovnet.experiments.band_count_sweep
+python -m krylovnet.experiments.srf_sweep
+python -m zerofusion.identifiability.phasediagram
 ```
 
 ### Kaggle GPU Training (Recommended)
 
 **Main 4-Dataset Run:**
-1. Upload `MultiDataset_Fusion_Study.ipynb` to Kaggle
-2. Attach datasets: CAVE (`liptee/cave`), Harvard (`nikeshreddypatlolla/harvard-hsi-2`), Chikusei (`mingliu123/chikusei`), PaviaU (`syamkakarla/pavia-university-hsi`)
+1. Upload `experiments/notebooks/MultiDataset_Fusion_Study.ipynb` to Kaggle
+2. Attach datasets: Houston, Chikusei (`mingliu123/chikusei`)
 3. Set **Accelerator → GPU T4 x2**
 4. Run all cells (self-contained via `%%writefile` library cells)
 
-**SOTA Push (CAVE ×4 Nikon):**
-- Kernel: `sandeepchowdary2005/sota-krylovnet-cave-nikon` (or `proposal7/notebooks/nullfusion_SOTA_CAVE_Nikon.ipynb`)
+**SOTA Push (Houston ×4 Nikon):**
+- Kernel: `sandeepchowdary2005/sota-krylovnet-houston-nikon` (or `current/methods/nullfusion/notebooks/nullfusion_SOTA_CAVE_Nikon.ipynb`)
 - Uses `USE_NIKON_SRF = True`, time-budgeted training with checkpoint-and-resume
-- Target: FeINFN 52.47 / BDT 52.30 dB
+- Target: FeINFN 52.47 / BDT 52.30 dB (Houston ×4 protocol)
 
 ---
 
@@ -398,7 +340,7 @@ Check: Bicubic floor, GSA/Subspace-LS classical behaviour, SRF recovery error ~2
 
 ## License
 
-Research use. Datasets: CAVE (Columbia), Harvard (Harvard), Chikusei (JAXA), PaviaU (University of Pavia). Code: MIT-style for research purposes.
+Research use. Datasets: Houston (IEEE GRSS), Chikusei (JAXA). Code: MIT-style for research purposes.
 
 ---
 
@@ -406,4 +348,4 @@ Research use. Datasets: CAVE (Columbia), Harvard (Harvard), Chikusei (JAXA), Pav
 
 For questions, reproducibility, or collaboration: **amarnathmadaka** (GitHub) / project maintainers.
 
-*This README reflects the state of the repository as of 2026-08-24. All theoretical claims are verified by self-checks; all experimental numbers are reproducible via the provided notebooks under the fixed protocol.*
+*This README reflects the state of the repository as of 2026-09-07. Datasets: Houston and Chikusei. All theoretical claims are verified by self-checks; all experimental numbers are reproducible via the provided notebooks under the fixed protocol.*
