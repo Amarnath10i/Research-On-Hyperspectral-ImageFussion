@@ -1,0 +1,43 @@
+Proposal,Sub-Proposal,Architecture,Source Paper,Year,Type,PSNR,SSIM,SAM,ERGAS,Dataset,Scale,Protocol,Status,Params,Cost Notes
+P1,DAETF-Net,Domain-Adaptive Equivariant Tensor Fusion Network,DAETF-Net (TIP 24),2024,In-domain,28.03,0.7082,14.552,10.289,CAVE,x4,Wald 3-Gauss,Trained,2.06M,"398.67 GFLOPs, 0.364s, 280.6 MB"
+P1,DAETF-Net,Domain-Adaptive Equivariant Tensor Fusion Network,DAETF-Net (TIP 24),2024,Zero-shot (CAVE->Harvard),33.859,0.6940,54.289,682.912,CAVE->Harvard,x4,Wald 3-Gauss,Trained,2.06M,
+P1,DAETF-Net,Domain-Adaptive Equivariant Tensor Fusion Network,DAETF-Net (TIP 24),2024,Zero-shot +TTA,30.162,0.3881,48.337,341.580,CAVE->Harvard,x4,Wald 3-Gauss,Trained,2.06M,
+P1,DAETF-Net,Domain-Adaptive Equivariant Tensor Fusion Network,DAETF-Net (TIP 24),2024,In-domain,24.976,0.3611,40.899,329.039,Harvard,x4,Wald 3-Gauss,Trained,2.06M,
+P2,UnfoldFusion,Deep-Unfolded Variational Solver,UnfoldFusion (TIP 24),2024,In-domain,42.730,0.9835,4.816,1.867,CAVE,x4,Wald 3-Gauss,Trained,0.372M,"964.13 GFLOPs, 0.828s, 190.2 MB"
+P2,UnfoldFusion,Deep-Unfolded Variational Solver,UnfoldFusion (TIP 24),2024,Zero-shot TTA,43.234,0.9860,4.851,1.786,CAVE,x4,Wald 3-Gauss,Trained,0.372M,
+P2,KrylovNet,Unrolled Preconditioned GMRES,KrylovNet (TIP 25),2025,In-domain,40.85,0.983,3.39,2.34,CAVE,x4,Wald 3-Gauss (LaTeX),Reported,1.38M,
+P2,KrylovNet,Unrolled Preconditioned GMRES,KrylovNet (TIP 25),2025,In-domain,70.78,1.000,2.30,1.66,Harvard,x4,Wald 3-Gauss (LaTeX),Reported,1.38M,
+P2,KrylovNet,Unrolled Preconditioned GMRES,KrylovNet (TIP 25),2025,In-domain,43.69,0.983,6.07,—,Chikusei,x4,Wald 3-Gauss (LaTeX),Reported,1.38M,
+P2,KrylovNet-P,Unrolled Preconditioned GMRES (target),KrylovNet (TIP 25),2025,Target,52.47+,0.998+,1.91-,0.98-,CAVE (Nikon SRF),x4,Wald Nikon,Target,1.38M,
+P2,RankEst,Observation-Identifiable Rank Estimator,Novel,2025,Structural —,–,–,–,–,Synthetic,x4,–,PASS (synthetic),–,
+P3,ContinuumFusion,Implicit Neural Representation (INR),Novel,2025,Structural —,–,–,–,–,None,x2-x8,–,Scaffold only,–,Arbitrary scale verified
+P3,NSP,Neural Spectral PDE Solver,Novel,2025,Self-check —,–,–,–,–,Synthetic,x2-x8,–,PASS (synthetic),–,PDE residual 94->0.103
+P3,SceneField,Continuous Scene Field Scaffold,Novel,2025,Self-check —,–,–,–,–,Synthetic,x2-x8,–,PASS (synthetic),–,
+P4,ZeroFusion,Self-Supervised Per-Scene Fusion,Novel,2025,Synthetic ~24.3,–,–,–,–,Synthetic,x4,–,Scaffold only,~0.03M,Oracle ceiling 30.27 dB
+P4,GraphDIP,Superpixel GNN Deep Image Prior,Novel,2025,Self-check —,–,–,–,–,Synthetic,x4,–,PASS (synthetic),–,
+P4,Identifiability,Phase Diagram Analysis,Novel,2025,Theoretical —,–,–,–,–,Synthetic,x4,–,PASS (synthetic),–,M>=8 full identifiability
+P5,SpectralFlow,Score-Based Null-Space Posterior,Novel,2025,Structural —,–,–,–,–,Synthetic,x4,–,PASS (synthetic),–,D(y^)=X to 8.16e-07
+P5,ManifoldFlow,Rectified Flow on Null-Space Manifold,ManifoldFlow (NeurIPS 24),2024,Self-check —,–,–,–,–,Synthetic,x4,–,PASS (synthetic),–,4-step approx 32-step
+P6,ConsistentFlow,Consistency-Distilled One-Step Sampler,Novel,2025,Structural —,–,–,–,–,Synthetic,x4,–,PASS (synthetic),–,Superseded by P7
+P7,ASON,Adaptive Spectral Operator Network,Novel (composes P1+P2+P5),2025,Scaffold —,–,–,–,–,CAVE + Chikusei,x4,Wald 3-Gauss,Code only,–,"Running on Kaggle (T4)"
+
+BENCHMARK SOTA (from main.tex — Wald protocol targets)
+FeINFN,FeINFN,Feedback-Enhanced INR,FeINFN (TIP 24),2024,SOTA reference,52.47,0.9787,3.63,1.01,CAVE (Nikon SRF),x4,Wald Nikon, Published,–,
+BDT,BDT,Basic Diffusion Transformer,BDT (TCSVT 24),2024,SOTA reference,52.30,0.9782,3.70,1.03,CAVE (Nikon SRF),x4,Wald Nikon,Published,–,
+DSPNet,DSPNet,Deep Subspace Pursuit Network,DSPNet (TIP 24),2024,SOTA reference,51.18,0.997,2.15,1.13,CAVE (Nikon SRF),x4,Wald Nikon,Published,–,
+PSRT,PSRT,Priors Guided Spectral Reconstruction Transformer,PSRT (TIP 23),2023,SOTA reference,50.47,0.996,2.19,2.06,CAVE (Nikon SRF),x4,Wald Nikon,Published,–,
+DHIF,DHIF,Deep Hyperspectral Image Fusion,DHIF (TIP 23),2023,SOTA reference,51.07,0.997,2.01,1.22,CAVE (Nikon SRF),x4,Wald Nikon,Published,–,
+MIMO-SST,MIMO-SST,MIMO Spectral-Spatial Transformer,MIMO-SST (TIP 24),2024,SOTA reference,50.98,0.997,2.23,1.18,CAVE (Nikon SRF),x4,Wald Nikon,Published,–,
+BDT,BDT,Basic Diffusion Transformer,BDT (TCSVT 24),2024,SOTA reference,39.20,0.9320,4.80,3.10,Chikusei,x4,Wald 3-Gauss,Published,–,
+KrylovNet,KrylovNet,Unrolled Preconditioned GMRES,KrylovNet (TIP 25),2025,SOTA reference,39.35,0.9350,4.50,3.05,Chikusei,x4,Wald 3-Gauss,Published,1.38M,
+
+BASELINE METHODS (from main.tex — Wald 3-Gaussian protocol)
+Bicubic,Bicubic,Bilinear Interpolation,Baseline,—,Baseline,29.93,0.888,4.89,8.37,CAVE,x4,Wald 3-Gauss,Reproduced,–,
+GSA,GSA,Global-Local Adaptive Fusion,GSA (TIP 19),2019,Baseline,34.38,0.925,7.09,5.10,CAVE,x4,Wald 3-Gauss,Reproduced,–,
+Subspace-LS,Subspace-LS,Subspace Least-Squares,Classical,—,Baseline,33.55,0.946,4.68,5.46,CAVE,x4,Wald 3-Gauss,Reproduced,–,
+Bicubic,Bicubic,Bilinear Interpolation,Baseline,—,Baseline,60.31,0.998,2.60,4.20,Harvard,x4,Wald 3-Gauss,Reproduced,–,
+GSA,GSA,Global-Local Adaptive Fusion,GSA (TIP 19),2019,Baseline,66.46,0.999,2.75,2.41,Harvard,x4,Wald 3-Gauss,Reproduced,–,
+Subspace-LS,Subspace-LS,Subspace Least-Squares,Classical,—,Baseline,64.23,0.999,2.41,2.96,Harvard,x4,Wald 3-Gauss,Reproduced,–,
+Bicubic,Bicubic,Bilinear Interpolation,Baseline,—,Baseline,33.58,0.897,14.25,—,Chikusei,x4,Wald 3-Gauss,Reproduced,–,
+GSA,GSA,Global-Local Adaptive Fusion,GSA (TIP 19),2019,Baseline,34.90,0.914,13.80,—,Chikusei,x4,Wald 3-Gauss,Reproduced,–,
+Subspace-LS,Subspace-LS,Subspace Least-Squares,Classical,—,Baseline,34.77,0.919,12.90,—,Chikusei,x4,Wald 3-Gauss,Reproduced,–,
