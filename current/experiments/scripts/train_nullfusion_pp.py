@@ -601,7 +601,7 @@ def train(args):
     print(f"Device: {device}")
     if torch.cuda.is_available():
         print(f"GPU: {torch.cuda.get_device_name(0)}")
-        mem = torch.cuda.get_device_properties(0).total_mem / 1e9
+        mem = torch.cuda.get_device_properties(0).total_memory / 1e9
         print(f"Memory: {mem:.1f} GB")
         if mem < 12:
             patch_size, batch_size, width = 64, 2, 32

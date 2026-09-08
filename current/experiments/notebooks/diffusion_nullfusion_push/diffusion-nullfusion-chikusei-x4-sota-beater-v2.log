@@ -1,0 +1,199 @@
+[{"stream_name":"stderr","time":7.091716798,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.092613077,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.092621482,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.09262624,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":7.734671369,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.7347101160000005,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.734736822,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.7347415,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":10.948941937,"data":"Requirement already satisfied: scipy in /usr/local/lib/python3.12/dist-packages (1.16.3)\r\n"}
+,{"stream_name":"stdout","time":10.948990037,"data":"Requirement already satisfied: h5py in /usr/local/lib/python3.12/dist-packages (3.16.0)\r\n"}
+,{"stream_name":"stdout","time":10.949009539,"data":"Requirement already satisfied: numpy\u003c2.6,\u003e=1.25.2 in /usr/local/lib/python3.12/dist-packages (from scipy) (2.0.2)\r\n"}
+,{"stream_name":"stdout","time":13.546012611,"data":"Setup done\n"}
+,{"stream_name":"stdout","time":13.56612863,"data":"Writing train_diffusion_nullfusion.py\n"}
+,{"stream_name":"stdout","time":18.975904954,"data":"Library OK\n"}
+,{"stream_name":"stdout","time":18.975947896,"data":"Device: cuda\n"}
+,{"stream_name":"stdout","time":18.975954286,"data":"GPU: Tesla P100-PCIE-16GB 17.1 GB sm_60\n"}
+,{"stream_name":"stdout","time":18.975959623,"data":"Built for: sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120\n"}
+,{"stream_name":"stdout","time":18.975964959,"data":"\n"}
+,{"stream_name":"stdout","time":18.975970119,"data":"*** GPU sm_60 incompatible with this PyTorch — falling back to CPU ***\n"}
+,{"stream_name":"stdout","time":18.975976519,"data":"For GPU: Settings -\u003e Accelerator -\u003e GPU T4 x2 -\u003e Save -\u003e Re-run\n"}
+,{"stream_name":"stdout","time":18.975982224,"data":"Model: Diffusion-NullFusion — 1.73M params\n"}
+,{"stream_name":"stderr","time":18.977163262,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":18.977186144,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
+,{"stream_name":"stderr","time":18.977191584,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
+,{"stream_name":"stderr","time":18.977196205,"data":"    (7.0) - (12.0)\n"}
+,{"stream_name":"stderr","time":18.977202483,"data":"    \n"}
+,{"stream_name":"stderr","time":18.977207219,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":18.977211524,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":18.977217219,"data":"    Please install PyTorch with a following CUDA\n"}
+,{"stream_name":"stderr","time":18.977222174,"data":"    configurations:  12.6 following instructions at\n"}
+,{"stream_name":"stderr","time":18.977226552,"data":"    https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":18.977230969,"data":"    \n"}
+,{"stream_name":"stderr","time":18.977235599,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":18.9772539,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":18.977258077,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
+,{"stream_name":"stderr","time":18.977262015,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
+,{"stream_name":"stderr","time":18.977265979,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":18.977270034,"data":"\n"}
+,{"stream_name":"stderr","time":18.977273487,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":18.977276955,"data":"\n"}
+,{"stream_name":"stderr","time":18.977280152,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":18.977283792,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
+,{"stream_name":"stderr","time":18.977287425,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
+,{"stream_name":"stderr","time":18.977291893,"data":"    (7.0) - (12.0)\n"}
+,{"stream_name":"stderr","time":18.9772952,"data":"    \n"}
+,{"stream_name":"stderr","time":18.977298678,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":18.977301919,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":18.977305867,"data":"    Please install PyTorch with a following CUDA\n"}
+,{"stream_name":"stderr","time":18.977309386,"data":"    configurations:  12.6 following instructions at\n"}
+,{"stream_name":"stderr","time":18.977313064,"data":"    https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":18.977316209,"data":"    \n"}
+,{"stream_name":"stderr","time":18.97731946,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":18.977322777,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":18.977326488,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
+,{"stream_name":"stderr","time":18.977330034,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
+,{"stream_name":"stderr","time":18.977334884,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":18.977339502,"data":"\n"}
+,{"stream_name":"stderr","time":18.977342815,"data":"  queued_call()\n"}
+,{"stream_name":"stdout","time":19.204448917,"data":"[Data] Found: /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat\n"}
+,{"stream_name":"stdout","time":19.204490459,"data":"[Data] Loading: /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat\n"}
+,{"stream_name":"stdout","time":19.204516681,"data":"[Data] v7.3 mat file - using h5py\n"}
+,{"stream_name":"stdout","time":73.765869017,"data":"[Data] Cube: 128b, 2335x2517px\n"}
+,{"stream_name":"stdout","time":73.765908066,"data":"[Data] train: 982 patches\n"}
+,{"stream_name":"stdout","time":73.765914887,"data":"[Data] Loading: /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat\n"}
+,{"stream_name":"stdout","time":73.765921174,"data":"[Data] v7.3 mat file - using h5py\n"}
+,{"stream_name":"stdout","time":127.462764327,"data":"[Data] Cube: 128b, 2335x2517px\n"}
+,{"stream_name":"stdout","time":127.462806686,"data":"[Data] test: 422 patches\n"}
+,{"stream_name":"stdout","time":133.02133066,"data":"\n"}
+,{"stream_name":"stdout","time":133.021361014,"data":"Training: 5000 epochs, 8.5h budget\n"}
+,{"stream_name":"stdout","time":133.021366189,"data":"Diffusion T=1000, DDIM steps=50, samples=5\n"}
+,{"stream_name":"stdout","time":133.021370659,"data":"Effective batch: 8, Steps/epoch: 200\n"}
+,{"stream_name":"stdout","time":133.021374924,"data":"----------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":137.323345423,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":137.323383109,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":137.323390156,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":137.323540149,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":137.323565196,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":137.323756837,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":137.324518804,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":137.324542302,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":137.324548767,"data":"Exception encountered at \"In [5]\":\n"}
+,{"stream_name":"stderr","time":137.324554377,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":137.324559916,"data":"RuntimeError                              Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":137.324565382,"data":"/tmp/ipykernel_23/567818274.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":137.324571169,"data":"     12         yH = torch.stack(lhs, 0).to(device)\n"}
+,{"stream_name":"stderr","time":137.324576306,"data":"     13         yM = torch.stack(mss, 0).to(device)\n"}
+,{"stream_name":"stderr","time":137.324581658,"data":"---\u003e 14         loss, l_noise, l_phys = lib.total_loss(model, gt, yH, yM, schedule)\n"}
+,{"stream_name":"stderr","time":137.324592127,"data":"     15         (loss / grad_accum).backward()\n"}
+,{"stream_name":"stderr","time":137.32459613,"data":"     16         if (step + 1) % grad_accum == 0:\n"}
+,{"stream_name":"stderr","time":137.324600333,"data":"\n"}
+,{"stream_name":"stderr","time":137.324617424,"data":"/kaggle/working/train_diffusion_nullfusion.py in total_loss(model, gt, yH, yM, schedule, w_noise, w_phys)\n"}
+,{"stream_name":"stderr","time":137.324636248,"data":"    260     H_hr,W_hr=yM.shape[-2],yM.shape[-1]; cond,base=model._conditioning(yH,yM,H_hr,W_hr)\n"}
+,{"stream_name":"stderr","time":137.324655429,"data":"    261     x0=model.projector.project_null(gt-base,(H_hr,W_hr))\n"}
+,{"stream_name":"stderr","time":137.324661014,"data":"--\u003e 262     l_noise=diffusion_loss(model,x0,cond,schedule)\n"}
+,{"stream_name":"stderr","time":137.324666571,"data":"    263     l_phys=physics_loss(base+x0,yH,yM,model)\n"}
+,{"stream_name":"stderr","time":137.324672073,"data":"    264     return w_noise*l_noise+w_phys*l_phys,l_noise,l_phys\n"}
+,{"stream_name":"stderr","time":137.324677534,"data":"\n"}
+,{"stream_name":"stderr","time":137.324682455,"data":"/kaggle/working/train_diffusion_nullfusion.py in diffusion_loss(model, x0, cond, schedule)\n"}
+,{"stream_name":"stderr","time":137.324715946,"data":"    252     B=x0.shape[0]; t=torch.randint(0,schedule.T,(B,),device=x0.device)\n"}
+,{"stream_name":"stderr","time":137.324721349,"data":"    253     noise=torch.randn_like(x0); x_t=schedule.add_noise(x0,noise,t)\n"}
+,{"stream_name":"stderr","time":137.324726147,"data":"--\u003e 254     return F.mse_loss(model(x_t,t,cond),noise)\n"}
+,{"stream_name":"stderr","time":137.324730684,"data":"    255 \n"}
+,{"stream_name":"stderr","time":137.324735439,"data":"    256 def physics_loss(pred,yH,yM,model):\n"}
+,{"stream_name":"stderr","time":137.324740224,"data":"\n"}
+,{"stream_name":"stderr","time":137.324744073,"data":"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)\n"}
+,{"stream_name":"stderr","time":137.324748464,"data":"   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]\n"}
+,{"stream_name":"stderr","time":137.324752767,"data":"   1775         else:\n"}
+,{"stream_name":"stderr","time":137.324756946,"data":"-\u003e 1776             return self._call_impl(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":137.32476105,"data":"   1777 \n"}
+,{"stream_name":"stderr","time":137.324765013,"data":"   1778     # torchrec tests the code consistency with the following code\n"}
+,{"stream_name":"stderr","time":137.324769236,"data":"\n"}
+,{"stream_name":"stderr","time":137.324773019,"data":"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)\n"}
+,{"stream_name":"stderr","time":137.324777197,"data":"   1785                 or _global_backward_pre_hooks or _global_backward_hooks\n"}
+,{"stream_name":"stderr","time":137.324782876,"data":"   1786                 or _global_forward_hooks or _global_forward_pre_hooks):\n"}
+,{"stream_name":"stderr","time":137.324787093,"data":"-\u003e 1787             return forward_call(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":137.324791193,"data":"   1788 \n"}
+,{"stream_name":"stderr","time":137.324795355,"data":"   1789         result = None\n"}
+,{"stream_name":"stderr","time":137.324803921,"data":"\n"}
+,{"stream_name":"stderr","time":137.324819651,"data":"/kaggle/working/train_diffusion_nullfusion.py in forward(self, x_t, t, cond)\n"}
+,{"stream_name":"stderr","time":137.324824557,"data":"    186         return cond,base\n"}
+,{"stream_name":"stderr","time":137.324829208,"data":"    187     def forward(self,x_t,t,cond):\n"}
+,{"stream_name":"stderr","time":137.324834072,"data":"--\u003e 188         return self.unet(x_t,cond+self.time_mlp(t.float().unsqueeze(-1)))\n"}
+,{"stream_name":"stderr","time":137.324839019,"data":"    189     @torch.no_grad()\n"}
+,{"stream_name":"stderr","time":137.32484291,"data":"    190     def inference(self,yH,yM,num_samples=5,ddim_steps=50):\n"}
+,{"stream_name":"stderr","time":137.324847019,"data":"\n"}
+,{"stream_name":"stderr","time":137.324850815,"data":"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)\n"}
+,{"stream_name":"stderr","time":137.32485504,"data":"   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]\n"}
+,{"stream_name":"stderr","time":137.324859173,"data":"   1775         else:\n"}
+,{"stream_name":"stderr","time":137.324863096,"data":"-\u003e 1776             return self._call_impl(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":137.324867216,"data":"   1777 \n"}
+,{"stream_name":"stderr","time":137.324871041,"data":"   1778     # torchrec tests the code consistency with the following code\n"}
+,{"stream_name":"stderr","time":137.324875087,"data":"\n"}
+,{"stream_name":"stderr","time":137.324883945,"data":"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)\n"}
+,{"stream_name":"stderr","time":137.324888287,"data":"   1785                 or _global_backward_pre_hooks or _global_backward_hooks\n"}
+,{"stream_name":"stderr","time":137.324892506,"data":"   1786                 or _global_forward_hooks or _global_forward_pre_hooks):\n"}
+,{"stream_name":"stderr","time":137.324901844,"data":"-\u003e 1787             return forward_call(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":137.324916279,"data":"   1788 \n"}
+,{"stream_name":"stderr","time":137.324921011,"data":"   1789         result = None\n"}
+,{"stream_name":"stderr","time":137.324925679,"data":"\n"}
+,{"stream_name":"stderr","time":137.324930433,"data":"/kaggle/working/train_diffusion_nullfusion.py in forward(self, x, cond)\n"}
+,{"stream_name":"stderr","time":137.324935578,"data":"    138         skip2=x; x,H2,W2=self.merge2(x,H1,W1)\n"}
+,{"stream_name":"stderr","time":137.324939857,"data":"    139         for b in self.bottleneck: x=b(x,cond)\n"}
+,{"stream_name":"stderr","time":137.324943978,"data":"--\u003e 140         x,H2,W2=self.expand2(x,H2,W2); x=x+self.proj_skip2(skip2)\n"}
+,{"stream_name":"stderr","time":137.324948045,"data":"    141         for b in self.dec2: x=b(x,cond)\n"}
+,{"stream_name":"stderr","time":137.324952018,"data":"    142         x,H1,W1=self.expand1(x,H1,W1); x=x+self.proj_skip1(skip1)\n"}
+,{"stream_name":"stderr","time":137.324956207,"data":"\n"}
+,{"stream_name":"stderr","time":137.324960005,"data":"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)\n"}
+,{"stream_name":"stderr","time":137.324964207,"data":"   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]\n"}
+,{"stream_name":"stderr","time":137.324968383,"data":"   1775         else:\n"}
+,{"stream_name":"stderr","time":137.324972259,"data":"-\u003e 1776             return self._call_impl(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":137.324976502,"data":"   1777 \n"}
+,{"stream_name":"stderr","time":137.3249803,"data":"   1778     # torchrec tests the code consistency with the following code\n"}
+,{"stream_name":"stderr","time":137.32498438,"data":"\n"}
+,{"stream_name":"stderr","time":137.324988211,"data":"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)\n"}
+,{"stream_name":"stderr","time":137.324997437,"data":"   1785                 or _global_backward_pre_hooks or _global_backward_hooks\n"}
+,{"stream_name":"stderr","time":137.325011685,"data":"   1786                 or _global_forward_hooks or _global_forward_pre_hooks):\n"}
+,{"stream_name":"stderr","time":137.325016439,"data":"-\u003e 1787             return forward_call(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":137.325021291,"data":"   1788 \n"}
+,{"stream_name":"stderr","time":137.325025715,"data":"   1789         result = None\n"}
+,{"stream_name":"stderr","time":137.325030401,"data":"\n"}
+,{"stream_name":"stderr","time":137.325037359,"data":"/kaggle/working/train_diffusion_nullfusion.py in forward(self, x)\n"}
+,{"stream_name":"stderr","time":137.325041524,"data":"    111     def __init__(self,in_dim,out_dim):\n"}
+,{"stream_name":"stderr","time":137.325045587,"data":"    112         super().__init__(); self.proj=nn.Linear(in_dim,out_dim)\n"}
+,{"stream_name":"stderr","time":137.325050612,"data":"--\u003e 113     def forward(self,x): return self.proj(x)\n"}
+,{"stream_name":"stderr","time":137.325054764,"data":"    114 \n"}
+,{"stream_name":"stderr","time":137.325058646,"data":"    115 class MultiScaleSwinUNet(nn.Module):\n"}
+,{"stream_name":"stderr","time":137.325066941,"data":"\n"}
+,{"stream_name":"stderr","time":137.325071133,"data":"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _wrapped_call_impl(self, *args, **kwargs)\n"}
+,{"stream_name":"stderr","time":137.325075537,"data":"   1774             return self._compiled_call_impl(*args, **kwargs)  # type: ignore[misc]\n"}
+,{"stream_name":"stderr","time":137.325079693,"data":"   1775         else:\n"}
+,{"stream_name":"stderr","time":137.325083731,"data":"-\u003e 1776             return self._call_impl(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":137.325088673,"data":"   1777 \n"}
+,{"stream_name":"stderr","time":137.325097229,"data":"   1778     # torchrec tests the code consistency with the following code\n"}
+,{"stream_name":"stderr","time":137.325111931,"data":"\n"}
+,{"stream_name":"stderr","time":137.325116738,"data":"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py in _call_impl(self, *args, **kwargs)\n"}
+,{"stream_name":"stderr","time":137.325121877,"data":"   1785                 or _global_backward_pre_hooks or _global_backward_hooks\n"}
+,{"stream_name":"stderr","time":137.325126269,"data":"   1786                 or _global_forward_hooks or _global_forward_pre_hooks):\n"}
+,{"stream_name":"stderr","time":137.325130966,"data":"-\u003e 1787             return forward_call(*args, **kwargs)\n"}
+,{"stream_name":"stderr","time":137.325135856,"data":"   1788 \n"}
+,{"stream_name":"stderr","time":137.325140361,"data":"   1789         result = None\n"}
+,{"stream_name":"stderr","time":137.325144461,"data":"\n"}
+,{"stream_name":"stderr","time":137.325148411,"data":"/usr/local/lib/python3.12/dist-packages/torch/nn/modules/linear.py in forward(self, input)\n"}
+,{"stream_name":"stderr","time":137.325152755,"data":"    132         Runs the forward pass.\n"}
+,{"stream_name":"stderr","time":137.325156787,"data":"    133         \"\"\"\n"}
+,{"stream_name":"stderr","time":137.325160894,"data":"--\u003e 134         return F.linear(input, self.weight, self.bias)\n"}
+,{"stream_name":"stderr","time":137.325165183,"data":"    135 \n"}
+,{"stream_name":"stderr","time":137.325169067,"data":"    136     def extra_repr(self) -\u003e str:\n"}
+,{"stream_name":"stderr","time":137.325173216,"data":"\n"}
+,{"stream_name":"stderr","time":137.325178254,"data":"RuntimeError: mat1 and mat2 shapes cannot be multiplied (2048x96 and 192x96)\n"}
+,{"stream_name":"stderr","time":137.325182398,"data":"\n"}
+,{"stream_name":"stderr","time":139.765158632,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":139.765196353,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":139.933165061,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":139.933192205,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":140.588146194,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":140.932892318,"data":"[NbConvertApp] Writing 60549 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":143.601572577,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":144.601468573,"data":"[NbConvertApp] Writing 488759 bytes to __results__.html\n"}
+]

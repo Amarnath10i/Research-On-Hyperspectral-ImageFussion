@@ -1,0 +1,110 @@
+[{"stream_name":"stderr","time":6.240422963,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.24047632,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.240480904,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.240483426,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":6.801977917,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.802009223,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.802015832,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.802022687,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":9.6826425,"data":"Requirement already satisfied: scipy in /usr/local/lib/python3.12/dist-packages (1.16.3)\r\n"}
+,{"stream_name":"stdout","time":9.682680045,"data":"Requirement already satisfied: numpy\u003c2.6,\u003e=1.25.2 in /usr/local/lib/python3.12/dist-packages (from scipy) (2.0.2)\r\n"}
+,{"stream_name":"stdout","time":11.942949865,"data":"Setup done\n"}
+,{"stream_name":"stdout","time":11.963189939,"data":"Writing train_nullfusion_pp_v2.py\n"}
+,{"stream_name":"stdout","time":16.675805069,"data":"Library OK\n"}
+,{"stream_name":"stdout","time":16.675846356,"data":"Device: cuda\n"}
+,{"stream_name":"stdout","time":16.675851424,"data":"GPU: Tesla P100-PCIE-16GB 17.1 GB sm_60\n"}
+,{"stream_name":"stdout","time":16.675855277,"data":"Built for: sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120\n"}
+,{"stream_name":"stdout","time":16.675858472,"data":"\n"}
+,{"stream_name":"stdout","time":16.675861517,"data":"*** GPU sm_60 incompatible with this PyTorch — falling back to CPU ***\n"}
+,{"stream_name":"stdout","time":16.675865551,"data":"For GPU: Settings -\u003e Accelerator -\u003e GPU T4 x2 -\u003e Save -\u003e Re-run\n"}
+,{"stream_name":"stdout","time":16.675869136,"data":"Model: NullFusion++ v2 — 1.70M params\n"}
+,{"stream_name":"stderr","time":16.676645426,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":16.676667669,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
+,{"stream_name":"stderr","time":16.676672806,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
+,{"stream_name":"stderr","time":16.676677896,"data":"    (7.0) - (12.0)\n"}
+,{"stream_name":"stderr","time":16.676682599,"data":"    \n"}
+,{"stream_name":"stderr","time":16.676687167,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":16.67669167,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":16.676696439,"data":"    Please install PyTorch with a following CUDA\n"}
+,{"stream_name":"stderr","time":16.676701265,"data":"    configurations:  12.6 following instructions at\n"}
+,{"stream_name":"stderr","time":16.676706346,"data":"    https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":16.676710917,"data":"    \n"}
+,{"stream_name":"stderr","time":16.676715885,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":16.676720358,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":16.676738937,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
+,{"stream_name":"stderr","time":16.676742821,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
+,{"stream_name":"stderr","time":16.676746482,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":16.676750487,"data":"\n"}
+,{"stream_name":"stderr","time":16.676753714,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":16.676756991,"data":"\n"}
+,{"stream_name":"stderr","time":16.676760441,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":16.676764713,"data":"    Found GPU0 Tesla P100-PCIE-16GB which is of cuda capability 6.0.\n"}
+,{"stream_name":"stderr","time":16.67676838,"data":"    Minimum and Maximum cuda capability supported by this version of PyTorch is\n"}
+,{"stream_name":"stderr","time":16.676771956,"data":"    (7.0) - (12.0)\n"}
+,{"stream_name":"stderr","time":16.676775805,"data":"    \n"}
+,{"stream_name":"stderr","time":16.676778909,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":16.676782122,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":16.676785392,"data":"    Please install PyTorch with a following CUDA\n"}
+,{"stream_name":"stderr","time":16.676788766,"data":"    configurations:  12.6 following instructions at\n"}
+,{"stream_name":"stderr","time":16.676792332,"data":"    https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":16.67679559,"data":"    \n"}
+,{"stream_name":"stderr","time":16.676798581,"data":"  queued_call()\n"}
+,{"stream_name":"stderr","time":16.676802069,"data":"/usr/local/lib/python3.12/dist-packages/torch/cuda/__init__.py:435: UserWarning: \n"}
+,{"stream_name":"stderr","time":16.676805576,"data":"Tesla P100-PCIE-16GB with CUDA capability sm_60 is not compatible with the current PyTorch installation.\n"}
+,{"stream_name":"stderr","time":16.67680902,"data":"The current PyTorch install supports CUDA capabilities sm_70 sm_75 sm_80 sm_86 sm_90 sm_100 sm_120.\n"}
+,{"stream_name":"stderr","time":16.676812632,"data":"If you want to use the Tesla P100-PCIE-16GB GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/\n"}
+,{"stream_name":"stderr","time":16.676816412,"data":"\n"}
+,{"stream_name":"stderr","time":16.676819925,"data":"  queued_call()\n"}
+,{"stream_name":"stdout","time":16.708359394,"data":"[Data] Found HSI cube: /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat\n"}
+,{"stream_name":"stdout","time":16.708381671,"data":"[Data] Size: 1.48 GB\n"}
+,{"stream_name":"stdout","time":16.708387002,"data":"[Data] Loading: /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat\n"}
+,{"stream_name":"stderr","time":19.396180674,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":19.396251635,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":19.396260813,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":19.396350951,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":19.396446805,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":19.396635218,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":19.396925726,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":19.396939902,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":19.396944023,"data":"Exception encountered at \"In [4]\":\n"}
+,{"stream_name":"stderr","time":19.396947688,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":19.396951191,"data":"NotImplementedError                       Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":19.396955074,"data":"/tmp/ipykernel_23/3847666465.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":19.396958926,"data":"     35     raise FileNotFoundError('Cannot find Chikusei .mat file. Check dataset is added to notebook.')\n"}
+,{"stream_name":"stderr","time":19.396963053,"data":"     36 \n"}
+,{"stream_name":"stderr","time":19.396967131,"data":"---\u003e 37 train_ds = lib.ChikuseiDS(DATA_ROOT, 'train', 128, 4, patch_size)\n"}
+,{"stream_name":"stderr","time":19.396970386,"data":"     38 test_ds = lib.ChikuseiDS(DATA_ROOT, 'test', 128, 4, patch_size)\n"}
+,{"stream_name":"stderr","time":19.39697368,"data":"     39 \n"}
+,{"stream_name":"stderr","time":19.396977423,"data":"\n"}
+,{"stream_name":"stderr","time":19.396980751,"data":"/kaggle/working/train_nullfusion_pp_v2.py in __init__(self, root, split, bands, scale, patch)\n"}
+,{"stream_name":"stderr","time":19.396984153,"data":"    285             raise FileNotFoundError(f'No .mat files found under {root}')\n"}
+,{"stream_name":"stderr","time":19.396987536,"data":"    286         print(f'[Data] Loading: {mat_path}')\n"}
+,{"stream_name":"stderr","time":19.396991105,"data":"--\u003e 287         data=loadmat(mat_path)\n"}
+,{"stream_name":"stderr","time":19.39699456,"data":"    288         for key,val in data.items():\n"}
+,{"stream_name":"stderr","time":19.396997831,"data":"    289             if not key.startswith('__') and hasattr(val,'shape'):\n"}
+,{"stream_name":"stderr","time":19.397001883,"data":"\n"}
+,{"stream_name":"stderr","time":19.397005116,"data":"/usr/local/lib/python3.12/dist-packages/scipy/io/matlab/_mio.py in loadmat(file_name, mdict, appendmat, spmatrix, **kwargs)\n"}
+,{"stream_name":"stderr","time":19.397008749,"data":"    232     variable_names = kwargs.pop('variable_names', None)\n"}
+,{"stream_name":"stderr","time":19.39701219,"data":"    233     with _open_file_context(file_name, appendmat) as f:\n"}
+,{"stream_name":"stderr","time":19.397015967,"data":"--\u003e 234         MR, _ = mat_reader_factory(f, **kwargs)\n"}
+,{"stream_name":"stderr","time":19.397019673,"data":"    235         matfile_dict = MR.get_variables(variable_names)\n"}
+,{"stream_name":"stderr","time":19.397023025,"data":"    236     if spmatrix:\n"}
+,{"stream_name":"stderr","time":19.397026964,"data":"\n"}
+,{"stream_name":"stderr","time":19.397030057,"data":"/usr/local/lib/python3.12/dist-packages/scipy/io/matlab/_mio.py in mat_reader_factory(file_name, appendmat, **kwargs)\n"}
+,{"stream_name":"stderr","time":19.397033575000002,"data":"     78         return MatFile5Reader(byte_stream, **kwargs), file_opened\n"}
+,{"stream_name":"stderr","time":19.397036831,"data":"     79     elif mjv == 2:\n"}
+,{"stream_name":"stderr","time":19.397039985,"data":"---\u003e 80         raise NotImplementedError('Please use HDF reader for matlab v7.3 '\n"}
+,{"stream_name":"stderr","time":19.397043401,"data":"     81                                   'files, e.g. h5py')\n"}
+,{"stream_name":"stderr","time":19.397057735,"data":"     82     else:\n"}
+,{"stream_name":"stderr","time":19.397061578,"data":"\n"}
+,{"stream_name":"stderr","time":19.397064883,"data":"NotImplementedError: Please use HDF reader for matlab v7.3 files, e.g. h5py\n"}
+,{"stream_name":"stderr","time":19.397068198,"data":"\n"}
+,{"stream_name":"stderr","time":21.494057793,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":21.494087606,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":21.634213624,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":21.63423779,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":22.206576493,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":22.498023743,"data":"[NbConvertApp] Writing 45411 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":24.781207756,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":25.684729759,"data":"[NbConvertApp] Writing 510655 bytes to __results__.html\n"}
+]
