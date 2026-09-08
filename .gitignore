@@ -5,19 +5,19 @@ kaggle.json
 *.key
 .env
 
-# Run outputs
-daetf_out/
-kaggle_logs/
-kaggle_ckpt_continuum/
-kaggle_ckpt_zero/
-proposal1/results/*.pth
-proposal1/results/*.npy
+# Run outputs / checkpoints (large, gitignored)
+results/checkpoints/**
+results/archive/**
+archive/**
 results.json
+# Method training outputs
+methods/*/results/*.pth
+methods/*/results/*.npy
 # Kaggle run folders: ignore everything except the final multi-dataset results
-kaggle_runs/*
-!kaggle_runs/multidataset/
-kaggle_runs/multidataset/*
-!kaggle_runs/multidataset/out/
+results/kaggle_runs/*
+!results/kaggle_runs/multidataset/
+results/kaggle_runs/multidataset/*
+!results/kaggle_runs/multidataset/out/
 
 # Python
 __pycache__/
