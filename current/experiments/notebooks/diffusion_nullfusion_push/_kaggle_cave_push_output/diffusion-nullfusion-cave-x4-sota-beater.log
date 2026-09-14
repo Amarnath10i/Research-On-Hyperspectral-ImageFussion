@@ -1,0 +1,59 @@
+[{"stream_name":"stderr","time":5.6971501270000005,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":5.697189305,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":5.6971959519999995,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":5.697200247,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":6.23565716,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.235685481,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.235688746,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.235691264,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":10.989575838,"data":"Setup done\n"}
+,{"stream_name":"stdout","time":11.01274207,"data":"Writing train_diffusion_nullfusion_cave.py\n"}
+,{"stream_name":"stdout","time":15.271926003,"data":"Library OK\n"}
+,{"stream_name":"stdout","time":15.271991804,"data":"Device: cuda\n"}
+,{"stream_name":"stdout","time":15.271997586,"data":"GPU: Tesla T4 15.6GB sm_75\n"}
+,{"stream_name":"stdout","time":15.485013955,"data":"Model: Diffusion-NullFusion CAVE — 5.39M params\n"}
+,{"stream_name":"stdout","time":15.485063655,"data":"Config: patch=80 batch=2 dim=64 ckpt=True\n"}
+,{"stream_name":"stdout","time":15.520018318,"data":"DATA_ROOT: /kaggle/input/datasets/liptee/hyperspectral-image-restoration-based-on-cave\n"}
+,{"stream_name":"stderr","time":17.83676397,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":17.836800805,"data":"  File \"\u003cstring\u003e\", line 1, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":17.836807229,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 131, in execute_notebook\n"}
+,{"stream_name":"stderr","time":17.836904215,"data":"    raise_for_execution_errors(nb, output_path)\n"}
+,{"stream_name":"stderr","time":17.836921812,"data":"  File \"/usr/local/lib/python3.12/dist-packages/papermill/execute.py\", line 251, in raise_for_execution_errors\n"}
+,{"stream_name":"stderr","time":17.837134664,"data":"    raise error\n"}
+,{"stream_name":"stderr","time":17.837380929,"data":"papermill.exceptions.PapermillExecutionError: \n"}
+,{"stream_name":"stderr","time":17.837389114,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":17.837393136,"data":"Exception encountered at \"In [4]\":\n"}
+,{"stream_name":"stderr","time":17.837396766,"data":"---------------------------------------------------------------------------\n"}
+,{"stream_name":"stderr","time":17.837400336,"data":"FileNotFoundError                         Traceback (most recent call last)\n"}
+,{"stream_name":"stderr","time":17.837403743,"data":"/tmp/ipykernel_23/66247306.py in \u003ccell line: 0\u003e()\n"}
+,{"stream_name":"stderr","time":17.837407519,"data":"     32 print(f'DATA_ROOT: {DATA_ROOT}')\n"}
+,{"stream_name":"stderr","time":17.837410936,"data":"     33 \n"}
+,{"stream_name":"stderr","time":17.837414402,"data":"---\u003e 34 train_ds = lib.CAVEDataset(DATA_ROOT, 'train', 31, 4, patch_size)\n"}
+,{"stream_name":"stderr","time":17.837417969,"data":"     35 test_ds = lib.CAVEDataset(DATA_ROOT, 'test', 31, 4, patch_size)\n"}
+,{"stream_name":"stderr","time":17.837421529,"data":"     36 \n"}
+,{"stream_name":"stderr","time":17.837436139,"data":"\n"}
+,{"stream_name":"stderr","time":17.837440504,"data":"/kaggle/working/train_diffusion_nullfusion_cave.py in __init__(self, root, split, bands, scale, patch_size, max_dim)\n"}
+,{"stream_name":"stderr","time":17.837444977,"data":"    260         self.patch_size=patch_size; self.is_train=split.lower()=='train'\n"}
+,{"stream_name":"stderr","time":17.83744956,"data":"    261         self.srf=nike_d700_srf(bands); self.kernel=gaussian_kernel2d(9,1.2)\n"}
+,{"stream_name":"stderr","time":17.837453228,"data":"--\u003e 262         self.scenes=self._discover(root,split)\n"}
+,{"stream_name":"stderr","time":17.837456651,"data":"    263         self._cache={n:self._load(p,bands,max_dim) for n,p in self.scenes}\n"}
+,{"stream_name":"stderr","time":17.837460184,"data":"    264         exp=20 if self.is_train else 12\n"}
+,{"stream_name":"stderr","time":17.837463816,"data":"\n"}
+,{"stream_name":"stderr","time":17.837466956,"data":"/kaggle/working/train_diffusion_nullfusion_cave.py in _discover(self, root, split)\n"}
+,{"stream_name":"stderr","time":17.837470463,"data":"    276             for bn in ('band_01.png','Band_01.png','BAND_01.png'):\n"}
+,{"stream_name":"stderr","time":17.837474003,"data":"    277                 if os.path.isfile(os.path.join(e.path,bn)): scenes.append((e.name,e.path)); break\n"}
+,{"stream_name":"stderr","time":17.837477605,"data":"--\u003e 278         if not scenes: raise FileNotFoundError(f'no scenes under {sd}')\n"}
+,{"stream_name":"stderr","time":17.837481154,"data":"    279         return scenes\n"}
+,{"stream_name":"stderr","time":17.837484464,"data":"    280     def _load(self,d,bands,max_dim):\n"}
+,{"stream_name":"stderr","time":17.837487869,"data":"\n"}
+,{"stream_name":"stderr","time":17.837491188,"data":"FileNotFoundError: no scenes under /kaggle/input/datasets/liptee/hyperspectral-image-restoration-based-on-cave/Train\n"}
+,{"stream_name":"stderr","time":17.837504687,"data":"\n"}
+,{"stream_name":"stderr","time":19.865859346,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":19.86588958,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":20.008444724,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":20.008470759,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":20.593362939,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":20.879282731,"data":"[NbConvertApp] Writing 51508 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":23.182225034,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":24.083648652,"data":"[NbConvertApp] Writing 536619 bytes to __results__.html\n"}
+]

@@ -1085,13 +1085,30 @@ def main():
         "MIMO-SST (2022)": 50.98,
         "CoFusion (2026)": 50.67,
         "PSRT (2023)": 50.47,
-        "NullFusion v4 (ours)": 50.31,
     }
+    our_prev_best = 50.31  # NullFusion v4 — our previous method
 
     print(f"\nTraining: {args.epochs} epochs, {args.time_budget_h}h budget")
     print(f"Diffusion T={args.T}, DDIM steps={args.ddim_steps}, samples={args.num_samples}")
     print(f"Effective batch: {args.batch_size * args.grad_accum}, Steps/epoch: {args.steps_per_epoch}")
     print("-" * 70)
+
+    # ---- Smoke test: run 1 loss step on synthetic data to catch NaN early ----
+    print("[SMOKE] Running 1-step loss on synthetic data...")
+    model.eval()
+    _sgt = torch.rand(2, args.bands, args.patch, args.patch, device=device)
+    _slr = torch.rand(2, args.bands, args.patch // args.scale, args.patch // args.scale, device=device)
+    _smsi = torch.rand(2, 3, args.patch, args.patch, device=device)
+    with torch.no_grad():
+        _sloss, _slogs = total_loss(model, _sgt, _slr, _smsi, schedule)
+    print(f"[SMOKE] loss={_sloss.item():.6f} finite={math.isfinite(_sloss.item())}")
+    for k, v in _slogs.items():
+        print(f"  {k}: {v:.6f} finite={math.isfinite(v)}")
+    if not math.isfinite(_sloss.item()):
+        print("[SMOKE] FAILED — NaN/inf detected in smoke test! Aborting.")
+        sys.exit(1)
+    print("[SMOKE] PASSED — all losses finite.\n")
+    model.train()
 
     for epoch in range(start_epoch, args.epochs + 1):
         if (time.time() - T0) > LIMIT:
@@ -1185,6 +1202,9 @@ def main():
 
             print(f"  >>> Test@{epoch}: PSNR {mp:.4f} | SSIM {ms_:.4f} | "
                   f"SAM {ma:.3f} | ERGAS {me:.3f}{marker}")
+            print(f"    vs NullFusion v4 (our prev best, {our_prev_best:.2f} dB): "
+                  f"delta={mp - our_prev_best:+.2f} dB"
+                  + (" <<< BEAT" if mp > our_prev_best else ""))
             for name, target in targets.items():
                 d = mp - target
                 m_ = " <<< BEAT" if d > 0 else ""
