@@ -27,11 +27,11 @@ class NullFusionConfig:
     sigma: float = 1.2
     cg_steps: int = 80
     ridge: float = 1e-6
-    width: int = 96
-    enc_depth: int = 4
-    prior_depth: int = 8
+    width: int = 128
+    enc_depth: int = 6
+    prior_depth: int = 12
     use_attn: bool = True
-    cross_attn_heads: int = 4
+    cross_attn_heads: int = 8
     rank: int = 31
     base: str = "pinv"
     clamp: bool = False

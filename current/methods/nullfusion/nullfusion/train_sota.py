@@ -76,6 +76,9 @@ class TrainConfig:
     max_dim = 512
     val_patch = 200
     val_overlap = 32
+    # Chikusei-specific overrides
+    chikusei = False
+    chikusei_epochs = 2000
 
 
 def build_model(cfg: TrainConfig, device):
@@ -235,11 +238,20 @@ def train(cfg: TrainConfig, device, root=None, smoke=False):
         scenes = None
         spec_train = [(f"s{i}", None) for i in range(4)]
     else:
-        spec_root = discover_dataset(["CAVE"], required=True)
-        splits = available_splits(spec_root)
-        train_pairs = find_pairs(spec_root, splits.get("Train", "Train"))
-        test_scenes = list_hsi(spec_root, splits.get("Test", "Test"))
-        print(f"[data] CAVE train={len(train_pairs)} test={len(test_scenes)}")
+        if cfg.chikusei:
+            spec_root = discover_dataset(["Chikusei"], required=True)
+            splits = available_splits(spec_root)
+            train_pairs = find_pairs(spec_root, splits.get("Train", "Train"))
+            test_scenes = list_hsi(spec_root, splits.get("Test", "Test"))
+            print(f"[data] Chikusei train={len(train_pairs)} test={len(test_scenes)}")
+            # Override epochs for Chikusei
+            cfg.iters = cfg.chikusei_epochs
+        else:
+            spec_root = discover_dataset(["CAVE"], required=True)
+            splits = available_splits(spec_root)
+            train_pairs = find_pairs(spec_root, splits.get("Train", "Train"))
+            test_scenes = list_hsi(spec_root, splits.get("Test", "Test"))
+            print(f"[data] CAVE train={len(train_pairs)} test={len(test_scenes)}")
 
     cache = {}
 
@@ -250,24 +262,38 @@ def train(cfg: TrainConfig, device, root=None, smoke=False):
             cache[stem] = load_hsi(hp, cfg.bands)
         return torch.from_numpy(cache[stem]).float()
 
-    def sample_batch():
-        lrs, msis, gts = [], [], []
+def sample_batch():
+        lrs, msis, gts = [], []
         for _ in range(cfg.batch):
             if smoke:
                 gt = torch.rand(1, cfg.bands, cfg.patch, cfg.patch)
             else:
-                stem, hp, _ = random.choice(train_pairs)
-                hsi = get_hsi(stem, hp)
-                H, W = hsi.shape[1], hsi.shape[2]
-                p = min(cfg.patch, H, W)
-                Hp = (H // p) * p
-                y = random.randrange(0, H - Hp + 1)
-                x = random.randrange(0, W - Hp + 1)
-                gt = hsi[:, y:y + p, x:x + p].unsqueeze(0)
-                if random.random() < 0.5:
-                    gt = gt.flip(3)
-                if random.random() < 0.5:
-                    gt = gt.flip(2)
+                if cfg.chikusei:
+                    stem, hp, _ = random.choice(train_pairs)
+                    hsi = get_hsi(stem, hp)
+                    H, W = hsi.shape[1], hsi.shape[2]
+                    p = min(cfg.patch, H, W)
+                    Hp = (H // p) * p
+                    y = random.randrange(0, H - Hp + 1)
+                    x = random.randrange(0, W - Hp + 1)
+                    gt = hsi[:, y:y + p, x:x + p].unsqueeze(0)
+                    if random.random() < 0.5:
+                        gt = gt.flip(3)
+                    if random.random() < 0.5:
+                        gt = gt.flip(2)
+                else:
+                    stem, hp, _ = random.choice(train_pairs)
+                    hsi = get_hsi(stem, hp)
+                    H, W = hsi.shape[1], hsi.shape[2]
+                    p = min(cfg.patch, H, W)
+                    Hp = (H // p) * p
+                    y = random.randrange(0, H - Hp + 1)
+                    x = random.randrange(0, W - Hp + 1)
+                    gt = hsi[:, y:y + p, x:x + p].unsqueeze(0)
+                    if random.random() < 0.5:
+                        gt = gt.flip(3)
+                    if random.random() < 0.5:
+                        gt = gt.flip(2)
             gt = gt.to(device)
             yH, yM = simulate_obs(gt, net.op, srf_t,
                                  noise=random.uniform(0, 0.02))
@@ -350,11 +376,12 @@ def train(cfg: TrainConfig, device, root=None, smoke=False):
             net.load_state_dict(best_state)
         mean = validate(net, cfg, device, srf_t, test_scenes)
         print("=" * 60)
-        print(f"FINAL CAVE TEST: PSNR={mean['psnr']:.3f} SSIM={mean['ssim']:.4f} "
+        dataset_name = "Chikusei" if cfg.chikusei else "CAVE"
+        print(f"FINAL {dataset_name} TEST: PSNR={mean['psnr']:.3f} SSIM={mean['ssim']:.4f} "
               f"SAM={mean['sam']:.3f} ERGAS={mean['ergas']:.3f}")
         print("=" * 60)
         with open("sota_results.json", "w") as f:
-            json.dump({"protocol": "CAVE x4, Nikon D700 SRF, Wald blur",
+            json.dump({"protocol": f"{dataset_name} x4, Nikon D700 SRF, Wald blur",
                        "nparams": nparams, "mean": mean, "history": history}, f, indent=2)
         print("saved sota_results.json")
 
