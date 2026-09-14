@@ -805,23 +805,27 @@ def total_loss(model, gt, yH, yM, schedule,
                w_char=1.0, w_ssim=0.5, w_sam=0.05, w_grad=0.2,
                w_noise=1.0, w_phys=0.1, min_snr_gamma=5.0):
     H_hr, W_hr = yM.shape[-2], yM.shape[-1]
-    cond, base = model._conditioning(yH, yM, H_hr, W_hr)
 
-    # null-space target
-    x0 = model.op.project_null(gt - base)
+    # CG solver and null-space projection must run in float32 —
+    # iterative linear solvers are numerically unstable in float16.
+    with torch.amp.autocast("cuda", enabled=False):
+        cond, base = model._conditioning(yH.float(), yM.float(), H_hr, W_hr)
+        x0 = model.op.project_null(gt.float() - base)
 
-    # diffusion loss
+    # diffusion loss (UNet forward is OK in AMP)
     l_noise = diffusion_loss(model, x0, cond, schedule, min_snr_gamma)
 
-    # reconstruction losses on full output
-    pred = base + x0
-    l_char = charbonnier_loss(pred, gt)
-    l_ssim = ssim_loss(pred.clamp(0, 1), gt)
-    l_sam = sam_loss(pred, gt)
-    l_grad = gradient_loss(pred, gt)
+    # reconstruction losses — float32 for SSIM/SAM/gradient stability
+    with torch.amp.autocast("cuda", enabled=False):
+        pred = (base + x0).float()
+        gt32 = gt.float()
+        l_char = charbonnier_loss(pred, gt32)
+        l_ssim = ssim_loss(pred.clamp(0, 1), gt32)
+        l_sam = sam_loss(pred, gt32)
+        l_grad = gradient_loss(pred, gt32)
 
-    # physics consistency
-    l_phys = physics_loss(pred, yH, yM, model.op)
+        # physics consistency
+        l_phys = physics_loss(pred, yH.float(), yM.float(), model.op)
 
     total = (w_noise * l_noise + w_phys * l_phys
              + w_char * l_char + w_ssim * l_ssim
@@ -1060,7 +1064,7 @@ def main():
                             betas=(0.9, 0.999))
     ema = EMA(model, 0.999)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
-        opt, T_0=2000, T_mult=2, eta_min=1e-6,
+        opt, T_0=500, T_mult=2, eta_min=1e-6,
     )
     use_amp = device.type == "cuda"
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
