@@ -189,9 +189,11 @@ class CombinedOperator(nn.Module):
         return self.adjoint(zH, zM, out_hw)
 
     def project_null(self, v):
-        out_hw = (v.shape[-2], v.shape[-1])
-        yH, yM = self.forward(v)
-        return v - self.pinv(yH, yM, out_hw)
+        with torch.no_grad():
+            out_hw = (v.shape[-2], v.shape[-1])
+            yH, yM = self.forward(v)
+            proj = self.pinv(yH, yM, out_hw)
+        return v - proj
 
 
 # ---------------------------------------------------------------------------
@@ -492,7 +494,8 @@ class DiffusionNullFusion(nn.Module):
         )
 
     def _conditioning(self, yH, yM, H_hr, W_hr):
-        base = self.op.pinv(yH, yM, (H_hr, W_hr))
+        with torch.no_grad():
+            base = self.op.pinv(yH, yM, (H_hr, W_hr))
         obs = F.interpolate(yH, (H_hr, W_hr), mode="bicubic", align_corners=False)
         cond = self.cond_proj(torch.cat([yM, obs], dim=1))
         cond = cond + self.sensor_embed()
@@ -633,8 +636,10 @@ class CAVEDataset(Dataset):
                 for i in range(flat.shape[1]):
                     res[:, i] = np.interp(xd, xs, flat[:, i])
                 arr = res.reshape(bands, H_, W_)
+            arr = np.nan_to_num(arr, nan=0.0, posinf=1.0, neginf=0.0)
             if arr.max() > 1.0:
                 arr = arr / arr.max()
+            arr = np.clip(arr, 0.0, 1.0)
             return arr.astype(np.float32)
         raise ValueError(f"No 3D array in {mat_path}")
 
@@ -805,27 +810,22 @@ def total_loss(model, gt, yH, yM, schedule,
                w_char=1.0, w_ssim=0.5, w_sam=0.05, w_grad=0.2,
                w_noise=1.0, w_phys=0.1, min_snr_gamma=5.0):
     H_hr, W_hr = yM.shape[-2], yM.shape[-1]
+    gt32 = gt.float()
+    yH32 = yH.float()
+    yM32 = yM.float()
 
-    # CG solver and null-space projection must run in float32 —
-    # iterative linear solvers are numerically unstable in float16.
-    with torch.amp.autocast("cuda", enabled=False):
-        cond, base = model._conditioning(yH.float(), yM.float(), H_hr, W_hr)
-        x0 = model.op.project_null(gt.float() - base)
+    with torch.no_grad():
+        cond, base = model._conditioning(yH32, yM32, H_hr, W_hr)
+        x0 = model.op.project_null(gt32 - base)
 
-    # diffusion loss (UNet forward is OK in AMP)
-    l_noise = diffusion_loss(model, x0, cond, schedule, min_snr_gamma)
+    l_noise = diffusion_loss(model, x0.detach(), cond.detach(), schedule, min_snr_gamma)
 
-    # reconstruction losses — float32 for SSIM/SAM/gradient stability
-    with torch.amp.autocast("cuda", enabled=False):
-        pred = (base + x0).float()
-        gt32 = gt.float()
-        l_char = charbonnier_loss(pred, gt32)
-        l_ssim = ssim_loss(pred.clamp(0, 1), gt32)
-        l_sam = sam_loss(pred, gt32)
-        l_grad = gradient_loss(pred, gt32)
-
-        # physics consistency
-        l_phys = physics_loss(pred, yH.float(), yM.float(), model.op)
+    pred = (base + x0).detach().requires_grad_(True)
+    l_char = charbonnier_loss(pred, gt32)
+    l_ssim = ssim_loss(pred.clamp(0, 1), gt32)
+    l_sam = sam_loss(pred, gt32)
+    l_grad = gradient_loss(pred, gt32)
+    l_phys = physics_loss(pred, yH32, yM32, model.op)
 
     total = (w_noise * l_noise + w_phys * l_phys
              + w_char * l_char + w_ssim * l_ssim
@@ -1064,9 +1064,9 @@ def main():
                             betas=(0.9, 0.999))
     ema = EMA(model, 0.999)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
-        opt, T_0=500, T_mult=2, eta_min=1e-6,
+        opt, T_0=200, T_mult=2, eta_min=1e-6,
     )
-    use_amp = device.type == "cuda"
+    use_amp = False
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
 
     # Checkpoint
@@ -1077,11 +1077,15 @@ def main():
     LIMIT = args.time_budget_h * 3600
 
     targets = {
-        "FeINFN (2026)": 52.47,
+        "FeINFN (2024)": 52.47,
+        "BDT (2023)": 52.30,
+        "3DT-Net (2023)": 51.38,
+        "DSPNet (2023)": 51.18,
+        "DHIF (2022)": 51.07,
+        "MIMO-SST (2022)": 50.98,
         "CoFusion (2026)": 50.67,
-        "NullFusion v4": 50.31,
-        "SMGU-Net (2025)": 49.83,
-        "PSRT (2023)": 47.99,
+        "PSRT (2023)": 50.47,
+        "NullFusion v4 (ours)": 50.31,
     }
 
     print(f"\nTraining: {args.epochs} epochs, {args.time_budget_h}h budget")
@@ -1100,6 +1104,7 @@ def main():
         total = 0
         t0 = time.time()
         opt.zero_grad()
+        _debug = epoch <= 3
 
         for step in range(args.steps_per_epoch):
             batch = [train_ds[random.randrange(len(train_ds))]
@@ -1132,8 +1137,15 @@ def main():
         avg = total / args.steps_per_epoch
 
         if epoch % 5 == 0 or epoch == 1:
-            print(f"Epoch {epoch:5d}/{args.epochs} | Loss {avg:.5f} | "
+            print(f"Epoch {epoch:5d}/{args.epochs} | Loss {avg:.6f} | "
                   f"LR {scheduler.get_last_lr()[0]:.2e} | {dt:.1f}s")
+            if _debug and not math.isfinite(avg):
+                print("[NaN DETECTED] Checking data batch for NaN/inf...")
+                _b = train_ds[random.randrange(len(train_ds))]
+                _gt = _b["gt"]; _lr = _b["lr"]; _msi = _b["msi"]
+                print(f"  gt: range=[{_gt.min():.4f}, {_gt.max():.4f}] nan={_gt.isnan().any()} inf={_gt.isinf().any()}")
+                print(f"  lr: range=[{_lr.min():.4f}, {_lr.max():.4f}] nan={_lr.isnan().any()} inf={_lr.isinf().any()}")
+                print(f"  msi: range=[{_msi.min():.4f}, {_msi.max():.4f}] nan={_msi.isnan().any()} inf={_msi.isinf().any()}")
 
         # Evaluation
         if epoch % args.eval_every == 0 or epoch == args.epochs:
