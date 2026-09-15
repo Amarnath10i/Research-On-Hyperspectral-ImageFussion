@@ -727,21 +727,36 @@ def physics_loss(pred, yH, yM, op):
 
 def total_loss(model, gt, yH, yM, schedule,
                w_char=1.0, w_ssim=0.5, w_sam=0.05, w_grad=0.2,
-               w_noise=1.0, w_phys=0.1, min_snr_gamma=5.0):
+               w_noise=0.001, w_phys=0.1, min_snr_gamma=5.0,
+               recon_warmup=0):
     H_hr, W_hr = yM.shape[-2], yM.shape[-1]
     gt32 = gt.float()
     yH32 = yH.float()
     yM32 = yM.float()
+    B = gt.shape[0]
+
+    cond, base = model._conditioning(yH32, yM32, H_hr, W_hr)
 
     with torch.no_grad():
-        cond, base = model._conditioning(yH32, yM32, H_hr, W_hr)
-        x0 = model.op.project_null(gt32 - base)
+        x0 = model.op.project_null(gt32 - base.detach())
 
     x0 = x0.clamp(-5.0, 5.0)
 
-    l_noise = diffusion_loss(model, x0.detach(), cond.detach(), schedule, min_snr_gamma)
+    t = torch.randint(0, schedule.T, (B,), device=device)
+    noise = torch.randn_like(x0)
+    x_t = schedule.add_noise(x0, noise, t)
+    x_t = x_t.clamp(-5.0, 5.0)
 
-    pred = (base + x0).detach().clamp(-1.0, 2.0).requires_grad_(True)
+    eps_pred = model(x_t, t, cond)
+
+    per_sample = F.mse_loss(eps_pred, noise, reduction="none").flatten(1).mean(1)
+    ab = schedule.alpha_bar[t].clamp(1e-5, 1 - 1e-5)
+    snr = ab / (1 - ab)
+    w_snr = (snr.clamp(max=min_snr_gamma) / snr).detach()
+    l_noise = (per_sample * w_snr).mean()
+
+    x0_hat = (x_t - (1 - ab).sqrt() * eps_pred) / ab.sqrt()
+    pred = (base + x0_hat).clamp(-1.0, 2.0)
     l_char = charbonnier_loss(pred, gt32)
     l_ssim = ssim_loss(pred.clamp(0, 1), gt32)
     l_sam = sam_loss(pred, gt32)
@@ -764,6 +779,8 @@ def total_loss(model, gt, yH, yM, schedule,
         else:
             w = {"noise": w_noise, "phys": w_phys, "char": w_char,
                  "ssim": w_ssim, "sam": w_sam, "grad": w_grad}[name]
+            if name == "noise" and recon_warmup > 0:
+                w = 0.0
             total = total + w * val
         logs[name] = val.item()
 
@@ -955,6 +972,8 @@ def main():
     parser.add_argument("--cond_dim", type=int, default=64)
     parser.add_argument("--cg_steps", type=int, default=20)
     parser.add_argument("--save_dir", type=str, default="/kaggle/working/diffusion_nullfusion")
+    parser.add_argument("--recon_warmup", type=int, default=50,
+                        help="Epochs of reconstruction-only training before adding diffusion loss")
     args = parser.parse_args()
 
     os.makedirs(args.save_dir, exist_ok=True)
@@ -1023,6 +1042,8 @@ def main():
     print(f"\nTraining: {args.epochs} epochs, {args.time_budget_h}h budget")
     print(f"Diffusion T={args.T}, DDIM steps={args.ddim_steps}, samples={args.num_samples}")
     print(f"Effective batch: {args.batch_size * args.grad_accum}, Steps/epoch: {args.steps_per_epoch}")
+    print(f"Loss weights: noise=0.001, char=1.0, ssim=0.5, sam=0.05, grad=0.2, phys=0.1")
+    print(f"Recon warmup: {args.recon_warmup} epochs (noise disabled)")
     print("-" * 70)
 
     # ---- Smoke test with real data ----
@@ -1076,7 +1097,8 @@ def main():
             yH = torch.stack([b["lr"] for b in batch], 0).to(device)
             yM = torch.stack([b["msi"] for b in batch], 0).to(device)
 
-            loss, logs = total_loss(model, gt, yH, yM, schedule)
+            loss, logs = total_loss(model, gt, yH, yM, schedule,
+                                    recon_warmup=max(0, args.recon_warmup - epoch))
 
             is_nan = not math.isfinite(loss.item()) or logs.get("nan_flag", 0) > 0
 
@@ -1129,7 +1151,7 @@ def main():
                     out = model.inference(
                         item["lr"].unsqueeze(0).to(device),
                         item["msi"].unsqueeze(0).to(device),
-                        num_samples=1, ddim_steps=20,
+                        num_samples=3, ddim_steps=50,
                     )
                     pred_np = out["out"][0].cpu().numpy().clip(0, 1)
                     gt_np = item["gt"].numpy()
