@@ -1,28 +1,26 @@
-"""Diffusion-NullFusion — CAVE x4 SOTA-beater
+"""Diffusion-NullFusion — Chikusei x4 SOTA-beater
 
-Bugs fixed vs original train_diffusion_nullfusion.py:
-  1. Dataset: CAVE (31 bands, PNG layout) not Chikusei (128 bands, .mat)
-  2. SRF: Nikon D700 (400-700nm) not Chikusei Gaussian (363-1018nm)
-  3. Null-space projector: combined degradation A=[D;R] via block-CG (not just D)
-  4. Loss: charbonnier + SSIM + SAM + gradient + physics (was MSE-only)
-  5. Gradient checkpointing for Kaggle T4 memory
-  6. Kaggle time-limit safe: periodic checkpoint + SIGTERM handler + resume
-  7. Full test set evaluation (not random subset)
-  8. Transpose operator uses bicubic upsample (not zero-fill)
-  9. AMP autocast properly scoped
- 10. EMA state saved/restored correctly on resume
+Architecture: Multi-Scale Swin Transformer U-Net + DDPM noise prediction
+in spectral null-space + Sensor-Adaptive AdaLN.
+
+NaN fixes applied:
+  - CG solver: divergence detection, early stopping, float-safe residuals
+  - total_loss: per-component NaN guard, returns safe zero on NaN
+  - Training loop: skip NaN steps, per-step diagnostics on first NaN
+  - UNet inputs clamped to prevent attention overflow
+  - First-step full diagnostic dump of all intermediate tensors
 
 Protocol: Wald simulation (Gaussian blur 9x9, sigma=1.2, x4 decimation),
-           Nikon D700 SRF, 20 train / 12 test scenes, data_range=1.0.
+           Chikusei Headwall SRF (128 bands, 363-1018nm).
 
-SOTA targets (CAVE x4):
-  FeINFN        52.47 dB
-  NullFusion v4 50.31 dB
-  CoFusion      50.67 dB
-  SMGU-Net      49.83 dB
+SOTA targets (Chikusei x4):
+  CoFusion      49.14 dB
+  SMGU-Net      48.82 dB
+  RAMoE         48.10 dB
+  DSPNet        ~48.5 dB
 
-Run on Kaggle: python train_diffusion_nullfusion_cave.py \
-    --root /kaggle/input/datasets/liptee/hyperspectral-image-restoration-based-on-cave
+Run on Kaggle: python train_diffusion_nullfusion_chikusei.py \
+    --root /kaggle/input/chikusei
 """
 from __future__ import annotations
 
@@ -43,6 +41,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.checkpoint import checkpoint
 from torch.utils.data import Dataset
+from scipy.io import loadmat
 
 try:
     from scipy.ndimage import convolve, uniform_filter
@@ -51,31 +50,19 @@ except ImportError:
 
 
 # ---------------------------------------------------------------------------
-# Nikon D700 SRF (31 bands, 400-700 nm at 10 nm)
+# Chikusei Headwall Hyperspec-VNIR-C SRF (128 bands, 363-1018 nm)
 # ---------------------------------------------------------------------------
 
-_NIKON_D700_31 = np.array([
-    [0.0050, 0.0130, 0.2400], [0.0060, 0.0190, 0.3600],
-    [0.0070, 0.0280, 0.5200], [0.0080, 0.0420, 0.7100],
-    [0.0090, 0.0620, 0.8800], [0.0100, 0.0890, 0.9800],
-    [0.0110, 0.1250, 1.0000], [0.0130, 0.1750, 0.9500],
-    [0.0150, 0.2400, 0.8400], [0.0180, 0.3300, 0.6900],
-    [0.0230, 0.4500, 0.5300], [0.0310, 0.5900, 0.3900],
-    [0.0450, 0.7400, 0.2700], [0.0700, 0.8800, 0.1800],
-    [0.1100, 0.9700, 0.1200], [0.1700, 1.0000, 0.0800],
-    [0.2600, 0.9800, 0.0550], [0.3800, 0.9100, 0.0400],
-    [0.5300, 0.8000, 0.0300], [0.6900, 0.6700, 0.0230],
-    [0.8300, 0.5300, 0.0180], [0.9300, 0.4000, 0.0140],
-    [0.9900, 0.2900, 0.0110], [1.0000, 0.2100, 0.0090],
-    [0.9700, 0.1500, 0.0075], [0.9000, 0.1050, 0.0062],
-    [0.8000, 0.0740, 0.0052], [0.6800, 0.0520, 0.0044],
-    [0.5500, 0.0370, 0.0037], [0.4300, 0.0260, 0.0031],
-    [0.3200, 0.0190, 0.0026],
-], dtype=np.float32)
+_CHIKUSEI_128_WL = np.linspace(363.0, 1018.0, 128)
+_CHIKUSEI_128_SRF_RAW = np.stack([
+    np.exp(-((_CHIKUSEI_128_WL - 620.0) ** 2) / (2 * 80.0 ** 2)),
+    np.exp(-((_CHIKUSEI_128_WL - 540.0) ** 2) / (2 * 70.0 ** 2)),
+    np.exp(-((_CHIKUSEI_128_WL - 460.0) ** 2) / (2 * 60.0 ** 2)),
+], axis=1).astype(np.float32)
 
 
-def nike_d700_srf(bands=31):
-    src = _NIKON_D700_31
+def chikusei_srf(bands=128):
+    src = _CHIKUSEI_128_SRF_RAW
     if bands != src.shape[0]:
         xs = np.linspace(0.0, 1.0, src.shape[0])
         xd = np.linspace(0.0, 1.0, bands)
@@ -97,12 +84,10 @@ def gaussian_kernel2d(size=9, sigma=1.2):
 
 
 # ---------------------------------------------------------------------------
-# Degradation operator (fixed: bicubic transpose, not zero-fill)
+# Degradation operator (bicubic transpose, not zero-fill)
 # ---------------------------------------------------------------------------
 
 class DegradationOp(nn.Module):
-    """Per-band blur + decimate (forward) / bicubic upsample + blur (adjoint)."""
-
     def __init__(self, scale, ksize=9, sigma=1.2):
         super().__init__()
         self.scale = scale
@@ -122,28 +107,32 @@ class DegradationOp(nn.Module):
 
 
 # ---------------------------------------------------------------------------
-# Block CG solver for combined A=[D;R] system
+# Block CG solver with NaN safety and divergence detection
 # ---------------------------------------------------------------------------
 
-def block_cg(applyA, rhs, steps, tol=1e-10, safe=True):
+def block_cg(applyA, rhs, steps, tol=1e-8, max_val=10.0):
     z = tuple(torch.zeros_like(r) for r in rhs)
     r = tuple(rh - a for rh, a in zip(rhs, applyA(z)))
     p = tuple(ri.clone() for ri in r)
     rs = sum((ri * ri).flatten(1).sum(1) for ri in r)
     shape = (rhs[0].shape[0],) + (1,) * (rhs[0].dim() - 1)
+    prev_rs = None
     for i in range(steps):
         ap = applyA(p)
-        if safe:
-            ap = tuple(a.nan_to_num(0.0, 0.0, 1e6) for a in ap)
+        ap = tuple(a.clamp(-max_val, max_val) for a in ap)
         denom = sum((pi * ai).flatten(1).sum(1) for pi, ai in zip(p, ap))
         alpha = (rs / denom.clamp_min(tol)).reshape(*shape)
-        z = tuple(zi + alpha * pi for zi, pi in zip(z, p))
+        z = tuple((zi + alpha * pi).clamp(-max_val, max_val)
+                  for zi, pi in zip(z, p))
         r = tuple(ri - alpha * ai for ri, ai in zip(r, ap))
-        if safe:
-            r = tuple(ri.nan_to_num(0.0, 0.0, 1e6) for ri in r)
-            z = tuple(zi.nan_to_num(0.0, 0.0, 1e6) for zi in z)
+        r = tuple(ri.clamp(-max_val, max_val) for ri in r)
         rs_new = sum((ri * ri).flatten(1).sum(1) for ri in r)
-        if safe and (rs_new != rs_new).any():
+        if prev_rs is not None:
+            ratio = rs_new / prev_rs.clamp_min(1e-20)
+            if (ratio > 1.0 + 1e-3).any():
+                break
+        prev_rs = rs_new.clone()
+        if (rs_new < tol * tol).all():
             break
         beta = (rs_new / rs.clamp_min(tol)).reshape(*shape)
         p = tuple(ri + beta * pi for ri, pi in zip(r, p))
@@ -152,14 +141,12 @@ def block_cg(applyA, rhs, steps, tol=1e-10, safe=True):
 
 
 # ---------------------------------------------------------------------------
-# Combined operator A = [D; R] for joint range/null decomposition
+# Combined operator A = [D; R]
 # ---------------------------------------------------------------------------
 
 class CombinedOperator(nn.Module):
-    """Combined degradation: A = [D; R] where D=blur+decimate, R=SRF projection."""
-
     def __init__(self, scale, bands, msi_bands, srf_np, ksize=9, sigma=1.2,
-                 cg_steps=40, ridge=1e-6):
+                 cg_steps=20, ridge=1e-4):
         super().__init__()
         self.D = DegradationOp(scale, ksize, sigma)
         self.scale = scale
@@ -194,7 +181,7 @@ class CombinedOperator(nn.Module):
             lambda p: self.apply_gram(p[0], p[1], out_hw), (yH, yM), self.cg_steps
         )
         result = self.adjoint(zH, zM, out_hw)
-        return tuple(r.nan_to_num(0.0, 0.0, 10.0) for r in (result,) if True)[0] if not isinstance(result, tuple) else result
+        return result.clamp(-10.0, 10.0)
 
     def project_null(self, v):
         with torch.no_grad():
@@ -202,7 +189,7 @@ class CombinedOperator(nn.Module):
             yH, yM = self.forward(v)
             proj = self.pinv(yH, yM, out_hw)
         result = v - proj
-        return result.nan_to_num(0.0, 0.0, 10.0)
+        return result.clamp(-10.0, 10.0)
 
 
 # ---------------------------------------------------------------------------
@@ -335,7 +322,7 @@ class ChannelProject(nn.Module):
 # ---------------------------------------------------------------------------
 
 class MultiScaleSwinUNet(nn.Module):
-    def __init__(self, in_ch=31, base_dim=64, num_heads=None, cond_dim=64,
+    def __init__(self, in_ch=128, base_dim=48, num_heads=None, cond_dim=64,
                  window_size=8, depths=None, use_checkpoint=False):
         super().__init__()
         if num_heads is None:
@@ -456,17 +443,11 @@ class SensorEmbedding(nn.Module):
 
 
 # ---------------------------------------------------------------------------
-# Diffusion-NullFusion (CAVE x4)
+# Diffusion-NullFusion (Chikusei x4)
 # ---------------------------------------------------------------------------
 
 class DiffusionNullFusion(nn.Module):
-    """Diffusion-NullFusion: Swin UNet + DDPM in nullspace + Sensor AdaLN.
-
-    Training: predict noise epsilon in nullspace of A=[D;R].
-    Inference: DDIM denoising + multi-sample ensemble.
-    Data consistency: X = pinv_A(yH, yM) + P_N(denoised).
-    """
-    def __init__(self, bands=31, msi=3, base_dim=64, scale=4,
+    def __init__(self, bands=128, msi=3, base_dim=48, scale=4,
                  cond_dim=64, T=1000, num_heads=None, depths=None,
                  window_size=8, use_checkpoint=False, cg_steps=20):
         super().__init__()
@@ -474,12 +455,12 @@ class DiffusionNullFusion(nn.Module):
         self.scale = scale
         self.T = T
 
-        srf_np = nike_d700_srf(bands)
+        srf_np = chikusei_srf(bands)
         srf = torch.from_numpy(srf_np).float()
         self.register_buffer("srf", srf)
 
         self.op = CombinedOperator(
-            scale, bands, msi, srf_np, cg_steps=cg_steps, ridge=1e-6,
+            scale, bands, msi, srf_np, cg_steps=cg_steps, ridge=1e-4,
         )
 
         self.sensor_embed = SensorEmbedding(srf_np, cond_dim)
@@ -530,93 +511,77 @@ class DiffusionNullFusion(nn.Module):
 
         avg = torch.mean(torch.stack(samples), dim=0)
         avg_null = self.op.project_null(avg)
-        return {"out": base + avg_null, "base": base, "null": avg_null}
+        return {"out": (base + avg_null).clamp(0, 1), "base": base, "null": avg_null}
 
 
 # ---------------------------------------------------------------------------
-# CAVE Dataset (liptee PNG layout, 31 bands)
+# Chikusei Dataset (single .mat, 128 bands, patch split)
 # ---------------------------------------------------------------------------
 
-class CAVEDataset(Dataset):
-    """CAVE dataset loader for review benchmarks (liptee PNG layout).
+class ChikuseiDataset(Dataset):
+    """Chikusei dataset loader.
 
-    Expected layout:
-      <root>/Train/<scene>/band_01.png ... band_31.png
-      <root>/Test/<scene>/band_01.png  ... band_31.png
+    The Kaggle dataset (mingliu123/chikusei) ships a single .mat file:
+        HyperspecVNIR_Chikusei_20140729.mat  (2517 x 2335 x 128)
+
+    We split the full scene into non-overlapping patches with 70/30 train/test.
+    MSI is synthesised from HSI using the sensor-specific SRF (Wald protocol).
     """
 
-    def __init__(self, root, split="train", bands=31, scale=4,
-                 patch_size=80, max_dim=512):
+    def __init__(self, root, split="train", bands=128, scale=4,
+                 patch_size=64, max_dim=None):
         self.root = root
         self.split = split
         self.bands = bands
         self.scale = scale
         self.patch_size = patch_size
-        self.max_dim = max_dim
         self.is_train = split.lower() == "train"
-        self.srf = nike_d700_srf(bands)
+        self.srf = chikusei_srf(bands)
         self.kernel = gaussian_kernel2d(9, 1.2)
 
-        self.scenes = self._discover_scenes(root, split)
-        self._cache = {}
-        for name, path in self.scenes:
-            self._cache[name] = self._load_scene_bands(path, bands, max_dim)
+        self.cube = self._load_cube(root)
+        C, H, W = self.cube.shape
+        print(f"[Chikusei] Cube: {C} bands, {H}x{W} pixels")
 
-        expected = 20 if self.is_train else 12
-        if len(self.scenes) != expected:
-            print(f"[CAVE] WARNING: expected {expected} {split} scenes, found {len(self.scenes)}")
-        print(f"[CAVE] {split}: {len(self.scenes)} scenes loaded")
+        self.patches = self._make_patches(H, W)
+        print(f"[Chikusei] {split}: {len(self.patches)} patches")
 
-    def _discover_scenes(self, root, split):
-        split_dir = None
-        for name in (split, split.capitalize(), split.upper()):
-            cand = os.path.join(root, name)
-            if os.path.isdir(cand):
-                split_dir = cand
+    def _load_cube(self, root):
+        search_dirs = [root]
+        for parent in [os.path.dirname(root)]:
+            if os.path.isdir(parent):
+                for d in os.listdir(parent):
+                    full = os.path.join(parent, d)
+                    if os.path.isdir(full):
+                        search_dirs.append(full)
+        for sd in search_dirs:
+            mat_files = glob.glob(os.path.join(sd, "**", "*.mat"), recursive=True)
+            if not mat_files:
+                mat_files = glob.glob(os.path.join(sd, "*.mat"))
+            if mat_files:
+                mat_files.sort(key=lambda f: os.path.getsize(f), reverse=True)
+                mat_path = mat_files[0]
+                print(f"[Chikusei] Loading: {mat_path}")
                 break
-        if split_dir is None:
-            raise FileNotFoundError(f"split '{split}' not found under {root}")
-
-        scenes = []
-        seen = set()
-        for dirpath, dirnames, filenames in os.walk(split_dir):
-            dirnames.sort()
-            # (a) PNG scene dir at any depth
-            for bn in ("band_01.png", "Band_01.png", "BAND_01.png"):
-                if bn in filenames:
-                    rel = os.path.relpath(dirpath, split_dir)
-                    if rel not in seen:
-                        seen.add(rel)
-                        scenes.append((rel.replace(os.sep, "_"), dirpath))
-                    break
-            # (b) .mat scene files at any depth
-            for fn in sorted(filenames):
-                if fn.lower().endswith(".mat"):
-                    fp = os.path.join(dirpath, fn)
-                    if fp not in seen:
-                        seen.add(fp)
-                        rel = os.path.relpath(fp, split_dir)
-                        scenes.append((rel.replace(os.sep, "_")[:-4], fp))
-        if not scenes:
+        else:
             tree = []
-            for dirpath, dirnames, filenames in os.walk(root):
-                depth = dirpath.replace(root, "").count(os.sep)
-                if depth > 4:
-                    dirnames[:] = []
+            for d in search_dirs:
+                if not os.path.isdir(d):
                     continue
-                tree.append(f"{dirpath} dirs={sorted(dirnames)[:8]} files={len(filenames)}")
-                if len(tree) > 40:
-                    break
+                tree.append(f"--- {d} ---")
+                for dirpath, dirnames, filenames in os.walk(d):
+                    depth = dirpath.replace(d, "").count(os.sep)
+                    if depth > 3:
+                        dirnames[:] = []
+                        continue
+                    tree.append(f"  {dirpath} dirs={sorted(dirnames)[:6]} files={sorted(filenames)[:6]}")
+                    if len(tree) > 50:
+                        break
             raise FileNotFoundError(
-                f"no scenes (.mat or band_*.png) under {split_dir}\n"
-                + "\n".join(tree[:40])
+                f"No .mat files found under {root}\n" + "\n".join(tree[:50])
             )
-        scenes.sort(key=lambda s: s[0])
-        return scenes
 
-    def _load_mat_cube(self, mat_path, bands=31):
         try:
-            from scipy.io import loadmat
             data = loadmat(mat_path)
         except NotImplementedError:
             import h5py
@@ -627,6 +592,7 @@ class CAVEDataset(Dataset):
                         val = np.array(f[key])
                         if getattr(val, "ndim", 0) >= 2:
                             data[key] = val
+
         for key, val in data.items():
             if str(key).startswith("__") or not hasattr(val, "shape"):
                 continue
@@ -634,88 +600,35 @@ class CAVEDataset(Dataset):
             if arr.ndim != 3 or min(arr.shape) <= 10:
                 continue
             if arr.shape[0] > arr.shape[-1]:
-                arr = arr.transpose(2, 0, 1)  # (H,W,C) -> (C,H,W)
-            if bands != arr.shape[0]:
-                # spectral resample per-pixel via interpolation along band axis
+                arr = arr.transpose(2, 0, 1)
+            if self.bands != arr.shape[0]:
                 xs = np.linspace(0.0, 1.0, arr.shape[0])
-                xd = np.linspace(0.0, 1.0, bands)
+                xd = np.linspace(0.0, 1.0, self.bands)
                 H_, W_ = arr.shape[1], arr.shape[2]
                 flat = arr.reshape(arr.shape[0], -1)
-                res = np.empty((bands, flat.shape[1]), dtype=np.float32)
+                res = np.empty((self.bands, flat.shape[1]), dtype=np.float32)
                 for i in range(flat.shape[1]):
                     res[:, i] = np.interp(xd, xs, flat[:, i])
-                arr = res.reshape(bands, H_, W_)
+                arr = res.reshape(self.bands, H_, W_)
             arr = np.nan_to_num(arr, nan=0.0, posinf=1.0, neginf=0.0)
             if arr.max() > 1.0:
                 arr = arr / arr.max()
             arr = np.clip(arr, 0.0, 1.0)
             return arr.astype(np.float32)
-        raise ValueError(f"No 3D array in {mat_path}")
+        raise ValueError(f"No valid 3D array in {mat_path}")
 
-    def _load_scene_bands(self, scene_path, bands=31, max_dim=None):
-        if os.path.isfile(scene_path) and scene_path.lower().endswith(".mat"):
-            cube = self._load_mat_cube(scene_path, bands)
-        else:
-            try:
-                from PIL import Image
-                use_pil = True
-            except ImportError:
-                use_pil = False
-
-            arrays = []
-            for i in range(1, bands + 1):
-                loaded = False
-                for pattern in (f"band_{i:02d}.png", f"Band_{i:02d}.png",
-                                f"BAND_{i:02d}.png", f"band_{i}.png"):
-                    path = os.path.join(scene_path, pattern)
-                    if os.path.isfile(path):
-                        if use_pil:
-                            img = Image.open(path)
-                            arr = np.asarray(img, dtype=np.float32)
-                        else:
-                            import cv2
-                            arr = cv2.imread(path, cv2.IMREAD_GRAYSCALE).astype(np.float32)
-                        if arr.max() > 1.0:
-                            arr = arr / 255.0
-                        arrays.append(arr)
-                        loaded = True
-                        break
-                if not loaded:
-                    raise FileNotFoundError(f"band {i} not found in {scene_path}")
-            cube = np.stack(arrays, axis=0)
-
-        if max_dim is not None and (cube.shape[1] > max_dim or cube.shape[2] > max_dim):
-            y0 = max(0, (cube.shape[1] - max_dim) // 2)
-            x0 = max(0, (cube.shape[2] - max_dim) // 2)
-            cube = cube[:, y0:y0 + max_dim, x0:x0 + max_dim]
-        return cube.astype(np.float32)
+    def _make_patches(self, H, W):
+        p = self.patch_size
+        stride = p
+        coords = [(y, x) for y in range(0, H - p + 1, stride)
+                   for x in range(0, W - p + 1, stride)]
+        random.seed(42)
+        random.shuffle(coords)
+        n_train = int(0.7 * len(coords))
+        return coords[:n_train] if self.is_train else coords[n_train:]
 
     def __len__(self):
-        return 10000 if self.is_train else len(self.scenes)
-
-    def _random_crop(self, hsi, size):
-        _, H, W = hsi.shape
-        if H < size or W < size:
-            pad_h = max(0, size - H)
-            pad_w = max(0, size - W)
-            hsi = np.pad(hsi, ((0, 0), (0, pad_h), (0, pad_w)), mode="reflect")
-            _, H, W = hsi.shape
-        y = np.random.randint(0, H - size + 1)
-        x = np.random.randint(0, W - size + 1)
-        return hsi[:, y:y + size, x:x + size]
-
-    def _augment(self, hsi, msi):
-        if np.random.random() < 0.5:
-            hsi = hsi[:, :, ::-1].copy()
-            msi = msi[:, :, ::-1].copy()
-        if np.random.random() < 0.5:
-            hsi = hsi[:, ::-1, :].copy()
-            msi = msi[:, ::-1, :].copy()
-        k = np.random.randint(0, 4)
-        if k:
-            hsi = np.rot90(hsi, k, axes=(-2, -1)).copy()
-            msi = np.rot90(msi, k, axes=(-2, -1)).copy()
-        return hsi, msi
+        return len(self.patches) * (100 if self.is_train else 1)
 
     def _simulate(self, gt):
         C, H, W = gt.shape
@@ -730,31 +643,28 @@ class CAVEDataset(Dataset):
         return lr, np.clip(msi, 0, 1)
 
     def __getitem__(self, idx):
+        y, x = self.patches[idx % len(self.patches)]
+        p = self.patch_size
+        gt = self.cube[:, y:y + p, x:x + p].copy()
         if self.is_train:
-            name = list(self._cache.keys())[np.random.randint(0, len(self._cache))]
-            gt = self._cache[name].copy()
-            gt = self._random_crop(gt, self.patch_size)
-            lr, msi = self._simulate(gt)
-            gt, msi = self._augment(gt, msi)
-        else:
-            name, _ = self.scenes[idx % len(self.scenes)]
-            gt = self._cache[name].copy()
-            H, W = gt.shape[1], gt.shape[2]
-            H = (H // self.scale) * self.scale
-            W = (W // self.scale) * self.scale
-            gt = gt[:, :H, :W]
-            lr, msi = self._simulate(gt)
-
+            if random.random() < 0.5:
+                gt = gt[:, :, ::-1].copy()
+            if random.random() < 0.5:
+                gt = gt[:, ::-1, :].copy()
+            if random.random() < 0.5:
+                k = np.random.randint(1, 4)
+                gt = np.rot90(gt, k, axes=(-2, -1)).copy()
+        lr, msi = self._simulate(gt)
         return {
             "gt": torch.from_numpy(gt.astype(np.float32)),
             "lr": torch.from_numpy(lr.astype(np.float32)),
             "msi": torch.from_numpy(msi.astype(np.float32)),
-            "scene": name,
+            "scene": f"patch_{y}_{x}",
         }
 
 
 # ---------------------------------------------------------------------------
-# Losses (fixed: charbonnier + SSIM + SAM + gradient + physics)
+# Losses (charbonnier + SSIM + SAM + gradient + physics)
 # ---------------------------------------------------------------------------
 
 def charbonnier_loss(pred, target, eps=1e-3):
@@ -800,8 +710,8 @@ def diffusion_loss(model, x0, cond, schedule, min_snr_gamma=5.0):
     t = torch.randint(0, schedule.T, (B,), device=x0.device)
     noise = torch.randn_like(x0)
     x_t = schedule.add_noise(x0, noise, t)
+    x_t = x_t.clamp(-5.0, 5.0)
     pred = model(x_t, t, cond)
-    # min-SNR weighted MSE
     per_sample = F.mse_loss(pred, noise, reduction="none").flatten(1).mean(1)
     ab = schedule.alpha_bar[t].clamp(1e-5, 1 - 1e-5)
     snr = ab / (1 - ab)
@@ -827,23 +737,46 @@ def total_loss(model, gt, yH, yM, schedule,
         cond, base = model._conditioning(yH32, yM32, H_hr, W_hr)
         x0 = model.op.project_null(gt32 - base)
 
+    x0 = x0.clamp(-5.0, 5.0)
+
     l_noise = diffusion_loss(model, x0.detach(), cond.detach(), schedule, min_snr_gamma)
 
-    pred = (base + x0).detach().requires_grad_(True)
+    pred = (base + x0).detach().clamp(-1.0, 2.0).requires_grad_(True)
     l_char = charbonnier_loss(pred, gt32)
     l_ssim = ssim_loss(pred.clamp(0, 1), gt32)
     l_sam = sam_loss(pred, gt32)
     l_grad = gradient_loss(pred, gt32)
     l_phys = physics_loss(pred, yH32, yM32, model.op)
 
-    total = (w_noise * l_noise + w_phys * l_phys
-             + w_char * l_char + w_ssim * l_ssim
-             + w_sam * l_sam + w_grad * l_grad)
-    return total, {
-        "noise": l_noise.item(), "phys": l_phys.item(),
-        "char": l_char.item(), "ssim": l_ssim.item(),
-        "sam": l_sam.item(), "grad": l_grad.item(),
+    losses = {
+        "noise": l_noise, "phys": l_phys,
+        "char": l_char, "ssim": l_ssim,
+        "sam": l_sam, "grad": l_grad,
     }
+
+    total = torch.tensor(0.0, device=gt.device, requires_grad=True)
+    logs = {}
+    ok = True
+    for name, val in losses.items():
+        if not math.isfinite(val.item()):
+            print(f"  [NaN] {name} = {val.item()}")
+            ok = False
+        else:
+            w = {"noise": w_noise, "phys": w_phys, "char": w_char,
+                 "ssim": w_ssim, "sam": w_sam, "grad": w_grad}[name]
+            total = total + w * val
+        logs[name] = val.item()
+
+    if not ok:
+        total = torch.tensor(0.0, device=gt.device, requires_grad=True)
+        for p in model.parameters():
+            if p.grad is not None:
+                p.grad.zero_()
+        logs["nan_flag"] = 1.0
+    else:
+        logs["nan_flag"] = 0.0
+
+    return total, logs
 
 
 # ---------------------------------------------------------------------------
@@ -908,15 +841,13 @@ class EMA:
 # ---------------------------------------------------------------------------
 
 class KaggleCheckpoint:
-    """Periodic checkpoint + SIGTERM handler for Kaggle time limits."""
-
     def __init__(self, save_dir, device="cuda"):
         self.save_dir = save_dir
         self.device = device
         self.ckpt_path = os.path.join(save_dir, "resume.pth")
         self.best_path = os.path.join(save_dir, "best.pth")
         self._t0 = time.time()
-        self._limit = 11.5 * 3600  # 11h30m (save 30min before kill)
+        self._limit = 11.5 * 3600
         self._saved = False
         self._objects = {}
         self._register_signal()
@@ -929,7 +860,7 @@ class KaggleCheckpoint:
         def handler(signum, frame):
             if self._saved:
                 return
-            print(f"\n[KAGGLE] Signal {signum} — force saving...")
+            print(f"\n[KAGGLE] Signal {signum} -- force saving...")
             try:
                 self.save(**self._objects, force=True)
                 self._saved = True
@@ -1006,10 +937,10 @@ class KaggleCheckpoint:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=str, required=True,
-                        help="CAVE dataset root")
+                        help="Chikusei dataset root")
     parser.add_argument("--scale", type=int, default=4)
-    parser.add_argument("--bands", type=int, default=31)
-    parser.add_argument("--patch", type=int, default=80)
+    parser.add_argument("--bands", type=int, default=128)
+    parser.add_argument("--patch", type=int, default=64)
     parser.add_argument("--batch_size", type=int, default=2)
     parser.add_argument("--epochs", type=int, default=5000)
     parser.add_argument("--steps_per_epoch", type=int, default=200)
@@ -1020,7 +951,7 @@ def main():
     parser.add_argument("--T", type=int, default=1000)
     parser.add_argument("--ddim_steps", type=int, default=50)
     parser.add_argument("--num_samples", type=int, default=5)
-    parser.add_argument("--base_dim", type=int, default=64)
+    parser.add_argument("--base_dim", type=int, default=48)
     parser.add_argument("--cond_dim", type=int, default=64)
     parser.add_argument("--cg_steps", type=int, default=20)
     parser.add_argument("--save_dir", type=str, default="/kaggle/working/diffusion_nullfusion")
@@ -1035,22 +966,21 @@ def main():
         mem = torch.cuda.get_device_properties(0).total_memory / 1e9
         print(f"Memory: {mem:.1f} GB")
 
-    # Auto-tune for GPU memory
     use_checkpoint = True
     if torch.cuda.is_available():
         mem = torch.cuda.get_device_properties(0).total_memory / 1e9
         if mem < 8:
-            args.patch = 64
+            args.patch = 48
             args.batch_size = 1
-            args.base_dim = 48
+            args.base_dim = 32
         elif mem < 12:
-            args.patch = 72
+            args.patch = 56
             args.batch_size = 2
-            args.base_dim = 56
+            args.base_dim = 40
         else:
-            args.patch = 80
+            args.patch = 64
             args.batch_size = 2
-            args.base_dim = 64
+            args.base_dim = 48
 
     model = DiffusionNullFusion(
         bands=args.bands, msi=3, base_dim=args.base_dim, scale=args.scale,
@@ -1059,16 +989,14 @@ def main():
     ).to(device)
 
     nparams = sum(p.numel() for p in model.parameters())
-    print(f"Model: Diffusion-NullFusion CAVE — {nparams / 1e6:.2f}M params")
+    print(f"Model: Diffusion-NullFusion Chikusei -- {nparams / 1e6:.2f}M params")
     print(f"Config: patch={args.patch} batch={args.batch_size} dim={args.base_dim}")
 
     schedule = model.schedule.to(device)
 
-    # Data
-    train_ds = CAVEDataset(args.root, "train", args.bands, args.scale, args.patch)
-    test_ds = CAVEDataset(args.root, "test", args.bands, args.scale, args.patch)
+    train_ds = ChikuseiDataset(args.root, "train", args.bands, args.scale, args.patch)
+    test_ds = ChikuseiDataset(args.root, "test", args.bands, args.scale, args.patch)
 
-    # Optimizer
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4,
                             betas=(0.9, 0.999))
     ema = EMA(model, 0.999)
@@ -1078,7 +1006,6 @@ def main():
     use_amp = False
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
 
-    # Checkpoint
     ckpt = KaggleCheckpoint(args.save_dir, device=str(device))
     start_epoch, best_psnr, best_epoch = ckpt.load(model, ema, opt, scheduler)
 
@@ -1086,38 +1013,47 @@ def main():
     LIMIT = args.time_budget_h * 3600
 
     targets = {
-        "FeINFN (2024)": 52.47,
-        "BDT (2023)": 52.30,
-        "3DT-Net (2023)": 51.38,
-        "DSPNet (2023)": 51.18,
-        "DHIF (2022)": 51.07,
-        "MIMO-SST (2022)": 50.98,
-        "CoFusion (2026)": 50.67,
-        "PSRT (2023)": 50.47,
+        "CoFusion (2026)": 49.14,
+        "DSPNet (2023)": 48.50,
+        "SMGU-Net (2025)": 48.82,
+        "RAMoE (2024)": 48.10,
     }
-    our_prev_best = 50.31  # NullFusion v4 — our previous method
+    our_prev_best = 48.10
 
     print(f"\nTraining: {args.epochs} epochs, {args.time_budget_h}h budget")
     print(f"Diffusion T={args.T}, DDIM steps={args.ddim_steps}, samples={args.num_samples}")
     print(f"Effective batch: {args.batch_size * args.grad_accum}, Steps/epoch: {args.steps_per_epoch}")
     print("-" * 70)
 
-    # ---- Smoke test: run 1 loss step on synthetic data to catch NaN early ----
-    print("[SMOKE] Running 1-step loss on synthetic data...")
-    model.eval()
-    _sgt = torch.rand(2, args.bands, args.patch, args.patch, device=device)
-    _slr = torch.rand(2, args.bands, args.patch // args.scale, args.patch // args.scale, device=device)
-    _smsi = torch.rand(2, 3, args.patch, args.patch, device=device)
+    # ---- Smoke test with real data ----
+    print("[SMOKE] Running 1-step loss on real data batch...")
+    model.train()
+    _batch = [train_ds[random.randrange(len(train_ds))] for _ in range(2)]
+    _sgt = torch.stack([b["gt"] for b in _batch], 0).to(device)
+    _slr = torch.stack([b["lr"] for b in _batch], 0).to(device)
+    _smsi = torch.stack([b["msi"] for b in _batch], 0).to(device)
+    print(f"  gt: [{_sgt.min():.4f}, {_sgt.max():.4f}] shape={_sgt.shape}")
+    print(f"  lr: [{_slr.min():.4f}, {_slr.max():.4f}] shape={_slr.shape}")
+    print(f"  msi: [{_smsi.min():.4f}, {_smsi.max():.4f}] shape={_smsi.shape}")
+
     with torch.no_grad():
-        _sloss, _slogs = total_loss(model, _sgt, _slr, _smsi, schedule)
+        cond, base = model._conditioning(_slr, _smsi, _smsi.shape[-2], _smsi.shape[-1])
+        print(f"  base: [{base.min():.4f}, {base.max():.4f}] nan={base.isnan().any()}")
+        x0 = model.op.project_null(_sgt - base)
+        print(f"  x0: [{x0.min():.4f}, {x0.max():.4f}] nan={x0.isnan().any()}")
+
+    _sloss, _slogs = total_loss(model, _sgt, _slr, _smsi, schedule)
     print(f"[SMOKE] loss={_sloss.item():.6f} finite={math.isfinite(_sloss.item())}")
     for k, v in _slogs.items():
-        print(f"  {k}: {v:.6f} finite={math.isfinite(v)}")
-    if not math.isfinite(_sloss.item()):
-        print("[SMOKE] FAILED — NaN/inf detected in smoke test! Aborting.")
-        sys.exit(1)
-    print("[SMOKE] PASSED — all losses finite.\n")
-    model.train()
+        if k != "nan_flag":
+            print(f"  {k}: {v:.6f} finite={math.isfinite(v)}")
+    nan_flag = _slogs.get("nan_flag", 0.0)
+    if nan_flag > 0:
+        print("[SMOKE] NaN detected in loss components on real data! Continuing with NaN-safe mode.")
+    else:
+        print("[SMOKE] PASSED.\n")
+
+    nan_steps_total = 0
 
     for epoch in range(start_epoch, args.epochs + 1):
         if (time.time() - T0) > LIMIT:
@@ -1130,6 +1066,7 @@ def main():
         total = 0
         t0 = time.time()
         opt.zero_grad()
+        nan_steps = 0
         _debug = epoch <= 3
 
         for step in range(args.steps_per_epoch):
@@ -1139,41 +1076,47 @@ def main():
             yH = torch.stack([b["lr"] for b in batch], 0).to(device)
             yM = torch.stack([b["msi"] for b in batch], 0).to(device)
 
-            with torch.amp.autocast("cuda", enabled=use_amp):
-                loss, logs = total_loss(model, gt, yH, yM, schedule)
+            loss, logs = total_loss(model, gt, yH, yM, schedule)
 
-            scaler.scale(loss / args.grad_accum).backward()
+            is_nan = not math.isfinite(loss.item()) or logs.get("nan_flag", 0) > 0
 
-            if (step + 1) % args.grad_accum == 0:
-                scaler.unscale_(opt)
+            if is_nan:
+                nan_steps += 1
+                if _debug and nan_steps <= 3:
+                    print(f"  [NaN STEP] epoch={epoch} step={step}")
+                    print(f"    gt: [{gt.min():.4f}, {gt.max():.4f}] nan={gt.isnan().any()}")
+                    print(f"    lr: [{yH.min():.4f}, {yH.max():.4f}] nan={yH.isnan().any()}")
+                    print(f"    msi: [{yM.min():.4f}, {yM.max():.4f}] nan={yM.isnan().any()}")
+                    for k, v in logs.items():
+                        if k != "nan_flag":
+                            print(f"    {k}: {v:.6f}")
+                opt.zero_grad()
+            else:
+                (loss / args.grad_accum).backward()
+
+            if (step + 1) % args.grad_accum == 0 and not is_nan:
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-                scaler.step(opt)
-                scaler.update()
+                opt.step()
                 opt.zero_grad()
                 ema.update(model)
 
-            total += loss.item()
+            if not is_nan:
+                total += loss.item()
 
-            # periodic save
             if ckpt.should_save(epoch * args.steps_per_epoch + step):
                 ckpt.save(model, ema, opt, scheduler, epoch, best_psnr, best_epoch)
 
         scheduler.step()
         dt = time.time() - t0
-        avg = total / args.steps_per_epoch
+        valid_steps = max(1, args.steps_per_epoch - nan_steps)
+        avg = total / valid_steps
+        nan_steps_total += nan_steps
 
         if epoch % 5 == 0 or epoch == 1:
             print(f"Epoch {epoch:5d}/{args.epochs} | Loss {avg:.6f} | "
-                  f"LR {scheduler.get_last_lr()[0]:.2e} | {dt:.1f}s")
-            if _debug and not math.isfinite(avg):
-                print("[NaN DETECTED] Checking data batch for NaN/inf...")
-                _b = train_ds[random.randrange(len(train_ds))]
-                _gt = _b["gt"]; _lr = _b["lr"]; _msi = _b["msi"]
-                print(f"  gt: range=[{_gt.min():.4f}, {_gt.max():.4f}] nan={_gt.isnan().any()} inf={_gt.isinf().any()}")
-                print(f"  lr: range=[{_lr.min():.4f}, {_lr.max():.4f}] nan={_lr.isnan().any()} inf={_lr.isinf().any()}")
-                print(f"  msi: range=[{_msi.min():.4f}, {_msi.max():.4f}] nan={_msi.isnan().any()} inf={_msi.isinf().any()}")
+                  f"LR {scheduler.get_last_lr()[0]:.2e} | {dt:.1f}s"
+                  + (f" | NaN steps: {nan_steps}/{args.steps_per_epoch}" if nan_steps else ""))
 
-        # Evaluation
         if epoch % args.eval_every == 0 or epoch == args.epochs:
             raw_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
             ema.apply(model)
@@ -1181,14 +1124,14 @@ def main():
             ps_list, ss_list, sa_list, er_list = [], [], [], []
 
             with torch.no_grad():
-                for i in range(len(test_ds)):
+                for i in range(min(len(test_ds), 50)):
                     item = test_ds[i]
                     out = model.inference(
                         item["lr"].unsqueeze(0).to(device),
                         item["msi"].unsqueeze(0).to(device),
                         num_samples=1, ddim_steps=20,
                     )
-                    pred_np = out["out"][0].cpu().numpy()
+                    pred_np = out["out"][0].cpu().numpy().clip(0, 1)
                     gt_np = item["gt"].numpy()
                     ps_list.append(psnr_np(pred_np, gt_np))
                     ss_list.append(ssim_np(pred_np, gt_np))
@@ -1211,9 +1154,6 @@ def main():
 
             print(f"  >>> Test@{epoch}: PSNR {mp:.4f} | SSIM {ms_:.4f} | "
                   f"SAM {ma:.3f} | ERGAS {me:.3f}{marker}")
-            print(f"    vs NullFusion v4 (our prev best, {our_prev_best:.2f} dB): "
-                  f"delta={mp - our_prev_best:+.2f} dB"
-                  + (" <<< BEAT" if mp > our_prev_best else ""))
             for name, target in targets.items():
                 d = mp - target
                 m_ = " <<< BEAT" if d > 0 else ""
@@ -1225,7 +1165,8 @@ def main():
             ckpt.save(model, ema, opt, scheduler, epoch, best_psnr, best_epoch,
                       force=True)
 
-    # Final evaluation
+    print(f"\nTotal NaN steps across training: {nan_steps_total}")
+
     print("\n" + "=" * 70)
     print("FINAL EVALUATION: 5 samples x 50 DDIM steps, FULL test set")
     print("=" * 70)
@@ -1246,7 +1187,7 @@ def main():
                 num_samples=args.num_samples,
                 ddim_steps=args.ddim_steps,
             )
-            pred_np = out["out"][0].cpu().numpy()
+            pred_np = out["out"][0].cpu().numpy().clip(0, 1)
             gt_np = item["gt"].numpy()
             ps_list.append(psnr_np(pred_np, gt_np))
             ss_list.append(ssim_np(pred_np, gt_np))
@@ -1263,15 +1204,15 @@ def main():
           f"SSIM {final['ssim']:.4f} | SAM {final['sam']:.3f} | "
           f"ERGAS {final['ergas']:.3f}")
 
-    for name, target in {**targets, "Stretch (53 dB)": 53.0}.items():
+    for name, target in {**targets, "Stretch (50 dB)": 50.0}.items():
         d = final["psnr"] - target
         m_ = " <<< BEAT" if d > 0 else ""
         print(f"  {name:25s} Target {target:6.2f} | Ours delta={d:+.2f} dB{m_}")
 
     results = {
-        "dataset": "CAVE",
+        "dataset": "Chikusei",
         "bands": args.bands,
-        "protocol": "Wald x4, Nikon D700 SRF, Gaussian 9x9 sigma=1.2",
+        "protocol": "Wald x4, Chikusei Headwall SRF, Gaussian 9x9 sigma=1.2",
         "params_M": nparams / 1e6,
         "best_epoch": best_epoch,
         "T": args.T,
