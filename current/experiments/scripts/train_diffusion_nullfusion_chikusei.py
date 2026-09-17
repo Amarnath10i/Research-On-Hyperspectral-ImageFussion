@@ -742,20 +742,26 @@ def total_loss(model, gt, yH, yM, schedule,
 
     x0 = x0.clamp(-5.0, 5.0)
 
-    t = torch.randint(0, schedule.T, (B,), device=device)
-    noise = torch.randn_like(x0)
-    x_t = schedule.add_noise(x0, noise, t)
-    x_t = x_t.clamp(-5.0, 5.0)
+    device = gt.device
 
-    eps_pred = model(x_t, t, cond)
+    l_noise = torch.tensor(0.0, device=device)
+    if recon_warmup > 0:
+        t = torch.zeros(B, dtype=torch.long, device=device)
+        eps_pred = model(x0, t, cond)
+        x0_hat = x0 + eps_pred
+    else:
+        t = torch.randint(0, schedule.T, (B,), device=device)
+        noise = torch.randn_like(x0)
+        x_t = schedule.add_noise(x0, noise, t)
+        x_t = x_t.clamp(-5.0, 5.0)
+        eps_pred = model(x_t, t, cond)
+        per_sample = F.mse_loss(eps_pred, noise, reduction="none").flatten(1).mean(1)
+        ab = schedule.alpha_bar[t].clamp(1e-5, 1 - 1e-5)
+        snr = ab / (1 - ab)
+        w_snr = (snr.clamp(max=min_snr_gamma) / snr).detach()
+        l_noise = (per_sample * w_snr).mean()
+        x0_hat = (x_t - (1 - ab).sqrt().view(B, 1, 1, 1) * eps_pred) / ab.sqrt().view(B, 1, 1, 1)
 
-    per_sample = F.mse_loss(eps_pred, noise, reduction="none").flatten(1).mean(1)
-    ab = schedule.alpha_bar[t].clamp(1e-5, 1 - 1e-5)
-    snr = ab / (1 - ab)
-    w_snr = (snr.clamp(max=min_snr_gamma) / snr).detach()
-    l_noise = (per_sample * w_snr).mean()
-
-    x0_hat = (x_t - (1 - ab).sqrt() * eps_pred) / ab.sqrt()
     pred = (base + x0_hat).clamp(-1.0, 2.0)
     l_char = charbonnier_loss(pred, gt32)
     l_ssim = ssim_loss(pred.clamp(0, 1), gt32)
@@ -961,7 +967,7 @@ def main():
     parser.add_argument("--batch_size", type=int, default=2)
     parser.add_argument("--epochs", type=int, default=5000)
     parser.add_argument("--steps_per_epoch", type=int, default=200)
-    parser.add_argument("--lr", type=float, default=2e-4)
+    parser.add_argument("--lr", type=float, default=5e-5)
     parser.add_argument("--grad_accum", type=int, default=4)
     parser.add_argument("--eval_every", type=int, default=20)
     parser.add_argument("--time_budget_h", type=float, default=8.5)
@@ -972,8 +978,8 @@ def main():
     parser.add_argument("--cond_dim", type=int, default=64)
     parser.add_argument("--cg_steps", type=int, default=20)
     parser.add_argument("--save_dir", type=str, default="/kaggle/working/diffusion_nullfusion")
-    parser.add_argument("--recon_warmup", type=int, default=50,
-                        help="Epochs of reconstruction-only training before adding diffusion loss")
+    parser.add_argument("--recon_warmup", type=int, default=500,
+                        help="Epochs of direct reconstruction training before adding diffusion loss")
     args = parser.parse_args()
 
     os.makedirs(args.save_dir, exist_ok=True)
@@ -1043,7 +1049,7 @@ def main():
     print(f"Diffusion T={args.T}, DDIM steps={args.ddim_steps}, samples={args.num_samples}")
     print(f"Effective batch: {args.batch_size * args.grad_accum}, Steps/epoch: {args.steps_per_epoch}")
     print(f"Loss weights: noise=0.001, char=1.0, ssim=0.5, sam=0.05, grad=0.2, phys=0.1")
-    print(f"Recon warmup: {args.recon_warmup} epochs (noise disabled)")
+    print(f"Direct recon: {args.recon_warmup} epochs (clean input, no DDPM formula)")
     print("-" * 70)
 
     # ---- Smoke test with real data ----
