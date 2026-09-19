@@ -110,7 +110,10 @@ class DegradationOp(nn.Module):
 # Block CG solver with NaN safety and divergence detection
 # ---------------------------------------------------------------------------
 
-def block_cg(applyA, rhs, steps, tol=1e-8, max_val=10.0):
+def block_cg(applyA, rhs, steps, tol=1e-6, max_val=100.0):
+    # FIX: removed aggressive per-iteration clamping that broke CG conjugacy
+    # and caused early-break -> inaccurate pinv -> bad base (negative, >1).
+    # Keep only a loose safety clamp on the final result.
     z = tuple(torch.zeros_like(r) for r in rhs)
     r = tuple(rh - a for rh, a in zip(rhs, applyA(z)))
     p = tuple(ri.clone() for ri in r)
@@ -119,25 +122,28 @@ def block_cg(applyA, rhs, steps, tol=1e-8, max_val=10.0):
     prev_rs = None
     for i in range(steps):
         ap = applyA(p)
-        ap = tuple(a.clamp(-max_val, max_val) for a in ap)
         denom = sum((pi * ai).flatten(1).sum(1) for pi, ai in zip(p, ap))
         alpha = (rs / denom.clamp_min(tol)).reshape(*shape)
-        z = tuple((zi + alpha * pi).clamp(-max_val, max_val)
-                  for zi, pi in zip(z, p))
+        # guard only against non-finite / extreme steps, don't clamp routinely
+        alpha = alpha.clamp(-1e3, 1e3)
+        z = tuple(zi + alpha * pi for zi, pi in zip(z, p))
         r = tuple(ri - alpha * ai for ri, ai in zip(r, ap))
-        r = tuple(ri.clamp(-max_val, max_val) for ri in r)
         rs_new = sum((ri * ri).flatten(1).sum(1) for ri in r)
+        if not torch.isfinite(rs_new).all():
+            break
         if prev_rs is not None:
             ratio = rs_new / prev_rs.clamp_min(1e-20)
-            if (ratio > 1.0 + 1e-3).any():
+            # only break on true divergence (2x growth), not 0.1% jitter
+            if (ratio > 2.0).any() or not torch.isfinite(ratio).all():
                 break
         prev_rs = rs_new.clone()
         if (rs_new < tol * tol).all():
             break
         beta = (rs_new / rs.clamp_min(tol)).reshape(*shape)
+        beta = beta.clamp(0.0, 1e3)
         p = tuple(ri + beta * pi for ri, pi in zip(r, p))
         rs = rs_new
-    return z
+    return tuple(zi.clamp(-max_val, max_val) for zi in z)
 
 
 # ---------------------------------------------------------------------------
@@ -180,16 +186,17 @@ class CombinedOperator(nn.Module):
         zH, zM = block_cg(
             lambda p: self.apply_gram(p[0], p[1], out_hw), (yH, yM), self.cg_steps
         )
-        result = self.adjoint(zH, zM, out_hw)
-        return result.clamp(-10.0, 10.0)
+        # FIX: don't clamp to [-10,10] here; caller clamps base to [0,1].
+        return self.adjoint(zH, zM, out_hw)
 
     def project_null(self, v):
         with torch.no_grad():
             out_hw = (v.shape[-2], v.shape[-1])
             yH, yM = self.forward(v)
             proj = self.pinv(yH, yM, out_hw)
-        result = v - proj
-        return result.clamp(-10.0, 10.0)
+        # FIX: null-space detail is small-magnitude, allow [-1,1] (was [-10,10]
+        # which let CG errors through as huge offsets).
+        return (v - proj).clamp(-1.0, 1.0)
 
 
 # ---------------------------------------------------------------------------
@@ -323,7 +330,8 @@ class ChannelProject(nn.Module):
 
 class MultiScaleSwinUNet(nn.Module):
     def __init__(self, in_ch=128, base_dim=48, num_heads=None, cond_dim=64,
-                 window_size=8, depths=None, use_checkpoint=False):
+                 window_size=8, depths=None, use_checkpoint=False,
+                 out_ch=None):
         super().__init__()
         if num_heads is None:
             num_heads = [4, 8, 16]
@@ -332,6 +340,10 @@ class MultiScaleSwinUNet(nn.Module):
 
         dims = [base_dim, base_dim * 2, base_dim * 4]
         self.use_checkpoint = use_checkpoint
+        # FIX: allow in_ch != out_ch so we can concat spatial context
+        # (x_t + base) at input while predicting single noise residual.
+        self.in_ch = in_ch
+        self.out_ch = out_ch if out_ch is not None else in_ch
 
         self.input_proj = nn.Linear(in_ch, dims[0])
         self.enc1 = nn.ModuleList([
@@ -362,7 +374,11 @@ class MultiScaleSwinUNet(nn.Module):
             SwinBlock(dims[0], num_heads[0], cond_dim, window_size)
             for _ in range(depths[4])
         ])
-        self.output_proj = nn.Linear(dims[0], in_ch)
+        self.output_proj = nn.Linear(dims[0], self.out_ch)
+        # FIX: zero-init output so early training starts near identity (stable)
+        nn.init.zeros_(self.output_proj.weight)
+        if self.output_proj.bias is not None:
+            nn.init.zeros_(self.output_proj.bias)
 
     def _run(self, blocks, x, cond):
         for b in blocks:
@@ -419,8 +435,12 @@ class CosineSchedule:
     def ddim_step(self, x_t, eps_pred, t, t_prev):
         ab_t = self.alpha_bar[t].reshape(-1, 1, 1, 1)
         ab_prev = self.alpha_bar[t_prev].reshape(-1, 1, 1, 1)
-        x0_pred = (x_t - torch.sqrt(1 - ab_t) * eps_pred) / torch.sqrt(ab_t)
-        x0_pred = x0_pred.clamp(0, 1)
+        # FIX: training target is null-space detail (zero-mean, can be
+        # negative, magnitude ~0.2). Clamping to [0,1] here destroyed the
+        # null property and biased every DDIM step. Allow [-1,1].
+        eps_pred = eps_pred.clamp(-5.0, 5.0)
+        x0_pred = (x_t - torch.sqrt(1 - ab_t) * eps_pred) / torch.sqrt(ab_t).clamp_min(1e-3)
+        x0_pred = x0_pred.clamp(-1.0, 1.0)
         direction = torch.sqrt(1 - ab_prev) * eps_pred
         return torch.sqrt(ab_prev) * x0_pred + direction
 
@@ -477,23 +497,39 @@ class DiffusionNullFusion(nn.Module):
             nn.Linear(1, cond_dim), nn.GELU(), nn.Linear(cond_dim, cond_dim),
         )
 
+        # FIX: concat [x_t, base] as UNet input so the denoiser gets spatial
+        # context (bicubic/pinv estimate). Without this the net only saw a
+        # global pooled cond vector -> could not recover spatial detail.
         self.unet = MultiScaleSwinUNet(
-            in_ch=bands, base_dim=base_dim, num_heads=num_heads,
+            in_ch=bands * 2, base_dim=base_dim, num_heads=num_heads,
             cond_dim=cond_dim, window_size=window_size, depths=depths,
-            use_checkpoint=use_checkpoint,
+            use_checkpoint=use_checkpoint, out_ch=bands,
         )
 
     def _conditioning(self, yH, yM, H_hr, W_hr):
         with torch.no_grad():
             base = self.op.pinv(yH, yM, (H_hr, W_hr))
+            # FIX: pinv is unconstrained; clamp to valid image range so
+            # x0 = gt - base stays small and well-scaled. This was the
+            # source of base in [-0.11, 0.53] vs gt in [0, 0.27].
+            base = base.clamp(0.0, 1.0)
         obs = F.interpolate(yH, (H_hr, W_hr), mode="bicubic", align_corners=False)
         cond = self.cond_proj(torch.cat([yM, obs], dim=1))
         cond = cond + self.sensor_embed()
         return cond, base
 
-    def forward(self, x_t, t, cond):
-        t_emb = self.time_mlp(t.float().unsqueeze(-1))
-        return self.unet(x_t, cond + t_emb)
+    def forward(self, x_t, t, cond, base_ctx):
+        # FIX: t was fed raw (0..999) into Linear -> huge activations.
+        # Normalize to [0,1]. Handles both [B] train timesteps and 0-d
+        # inference timesteps via reshape instead of unsqueeze(-1).
+        t_norm = t.float().reshape(-1, 1) / float(self.T)
+        t_emb = self.time_mlp(t_norm)
+        if t_emb.dim() == 1:
+            t_emb = t_emb.unsqueeze(0)
+        x_in = torch.cat([x_t, base_ctx], dim=1)
+        # clamp inputs to prevent attention overflow (kept from original)
+        x_in = x_in.clamp(-3.0, 3.0)
+        return self.unet(x_in, cond + t_emb)
 
     @torch.no_grad()
     def inference(self, yH, yM, num_samples=5, ddim_steps=50):
@@ -503,10 +539,13 @@ class DiffusionNullFusion(nn.Module):
         samples = []
         for _ in range(num_samples):
             x_t = torch.randn(1, self.bands, H_hr, W_hr, device=yH.device)
+            # null-detail has std ~0.1-0.2, not 1.0; scale init for stability
+            x_t = x_t * 0.5
             ts = torch.linspace(self.T - 1, 0, ddim_steps, dtype=torch.long, device=yH.device)
             for i in range(len(ts) - 1):
-                eps = self(x_t, ts[i], cond)
-                x_t = self.schedule.ddim_step(x_t, eps, ts[i], ts[i + 1])
+                ti = ts[i].expand(1)
+                eps = self(x_t, ti, cond, base)
+                x_t = self.schedule.ddim_step(x_t, eps, ts[i].expand(1), ts[i + 1].expand(1))
             samples.append(x_t)
 
         avg = torch.mean(torch.stack(samples), dim=0)
@@ -611,8 +650,13 @@ class ChikuseiDataset(Dataset):
                     res[:, i] = np.interp(xd, xs, flat[:, i])
                 arr = res.reshape(self.bands, H_, W_)
             arr = np.nan_to_num(arr, nan=0.0, posinf=1.0, neginf=0.0)
-            if arr.max() > 1.0:
-                arr = arr / arr.max()
+            # FIX: global-max normalization collapsed the signal to [0,0.27]
+            # (one hot pixel sets the scale) -> tiny SNR, huge ERGAS/SAM.
+            # Use 99.9th percentile so the bulk of the data spans [0,1].
+            if arr.max() > 1.0 or arr.max() < 0.99:
+                scale = float(np.percentile(arr, 99.9))
+                scale = scale if scale > 1e-6 else float(arr.max())
+                arr = arr / max(scale, 1e-6)
             arr = np.clip(arr, 0.0, 1.0)
             return arr.astype(np.float32)
         raise ValueError(f"No valid 3D array in {mat_path}")
@@ -705,13 +749,13 @@ def gradient_loss(pred, target):
     return F.l1_loss(dx_p, dx_t) + F.l1_loss(dy_p, dy_t)
 
 
-def diffusion_loss(model, x0, cond, schedule, min_snr_gamma=5.0):
+def diffusion_loss(model, x0, cond, base_ctx, schedule, min_snr_gamma=5.0):
     B = x0.shape[0]
     t = torch.randint(0, schedule.T, (B,), device=x0.device)
     noise = torch.randn_like(x0)
     x_t = schedule.add_noise(x0, noise, t)
-    x_t = x_t.clamp(-5.0, 5.0)
-    pred = model(x_t, t, cond)
+    x_t = x_t.clamp(-3.0, 3.0)
+    pred = model(x_t, t, cond, base_ctx)
     per_sample = F.mse_loss(pred, noise, reduction="none").flatten(1).mean(1)
     ab = schedule.alpha_bar[t].clamp(1e-5, 1 - 1e-5)
     snr = ab / (1 - ab)
@@ -726,9 +770,16 @@ def physics_loss(pred, yH, yM, op):
 
 
 def total_loss(model, gt, yH, yM, schedule,
-               w_char=1.0, w_ssim=0.5, w_sam=0.05, w_grad=0.2,
-               w_noise=0.001, w_phys=0.1, min_snr_gamma=5.0,
-               recon_warmup=0):
+               w_char=0.5, w_ssim=0.25, w_sam=0.02, w_grad=0.1,
+               w_noise=1.0, w_phys=0.1, min_snr_gamma=5.0,
+               recon_warmup=0, warmup_blend=0.0):
+    # FIX summary (addresses 18->20dB stall + loss 0.05->2.6 explosion @ep500):
+    #  (1) warmup previously did x0_hat=x0+net(x0) -> pred~=gt+net -> net
+    #      collapses to zeros; then diffusion phase starts from zero-output.
+    #      Now warmup learns residual from BASE: res=net(base,t0,base).
+    #  (2) w_noise 0.001->1.0 so diffusion objective is not drowned by char.
+    #  (3) single-step x0_hat explodes at high t (divide by sqrt(ab)~0.01);
+    #      clamp it and gate recon losses by SNR (only trust low-t steps).
     H_hr, W_hr = yM.shape[-2], yM.shape[-1]
     gt32 = gt.float()
     yH32 = yH.float()
@@ -736,33 +787,42 @@ def total_loss(model, gt, yH, yM, schedule,
     B = gt.shape[0]
 
     cond, base = model._conditioning(yH32, yM32, H_hr, W_hr)
+    base_det = base.detach()
 
     with torch.no_grad():
-        x0 = model.op.project_null(gt32 - base.detach())
+        x0 = model.op.project_null(gt32 - base_det)
 
-    x0 = x0.clamp(-5.0, 5.0)
+    x0 = x0.clamp(-1.0, 1.0)
 
     device = gt.device
 
     l_noise = torch.tensor(0.0, device=device)
     if recon_warmup > 0:
+        # FIX: direct residual learning from base (non-trivial target).
+        # pred = base + net(base) -> net must learn gt-base detail.
         t = torch.zeros(B, dtype=torch.long, device=device)
-        eps_pred = model(x0, t, cond)
-        x0_hat = x0 + eps_pred
+        res = model(base_det, t, cond, base_det)
+        res = res.clamp(-1.0, 1.0)
+        # optional blend toward diffusion input for smooth handoff
+        x0_hat = (1.0 - warmup_blend) * res + warmup_blend * x0.detach()
     else:
         t = torch.randint(0, schedule.T, (B,), device=device)
         noise = torch.randn_like(x0)
         x_t = schedule.add_noise(x0, noise, t)
-        x_t = x_t.clamp(-5.0, 5.0)
-        eps_pred = model(x_t, t, cond)
+        x_t = x_t.clamp(-3.0, 3.0)
+        eps_pred = model(x_t, t, cond, base_det)
+        eps_pred = eps_pred.clamp(-5.0, 5.0)
         per_sample = F.mse_loss(eps_pred, noise, reduction="none").flatten(1).mean(1)
-        ab = schedule.alpha_bar[t].clamp(1e-5, 1 - 1e-5)
+        ab = schedule.alpha_bar[t].clamp(1e-4, 1 - 1e-5)
         snr = ab / (1 - ab)
         w_snr = (snr.clamp(max=min_snr_gamma) / snr).detach()
         l_noise = (per_sample * w_snr).mean()
-        x0_hat = (x_t - (1 - ab).sqrt().view(B, 1, 1, 1) * eps_pred) / ab.sqrt().view(B, 1, 1, 1)
+        x0_hat = (x_t - (1 - ab).sqrt().view(B, 1, 1, 1)
+                  * eps_pred) / ab.sqrt().view(B, 1, 1, 1).clamp_min(1e-2)
+        # FIX: prevent high-t blowup from dominating char/ssim/grad losses
+        x0_hat = x0_hat.clamp(-1.0, 1.0)
 
-    pred = (base + x0_hat).clamp(-1.0, 2.0)
+    pred = (base + x0_hat).clamp(0.0, 1.0)
     l_char = charbonnier_loss(pred, gt32)
     l_ssim = ssim_loss(pred.clamp(0, 1), gt32)
     l_sam = sam_loss(pred, gt32)
@@ -778,6 +838,14 @@ def total_loss(model, gt, yH, yM, schedule,
     total = torch.tensor(0.0, device=gt.device, requires_grad=True)
     logs = {}
     ok = True
+    # FIX: gate single-step recon losses by noise level. At high t the
+    # one-step x0_hat is garbage; letting char/ssim dominate there caused
+    # the epoch-500 loss explosion (0.05 -> 2.6). Scale by mean sqrt(ab).
+    if recon_warmup > 0:
+        recon_scale = 1.0
+    else:
+        with torch.no_grad():
+            recon_scale = float(ab.sqrt().mean().clamp(0.05, 1.0).item())
     for name, val in losses.items():
         if not math.isfinite(val.item()):
             print(f"  [NaN] {name} = {val.item()}")
@@ -787,8 +855,11 @@ def total_loss(model, gt, yH, yM, schedule,
                  "ssim": w_ssim, "sam": w_sam, "grad": w_grad}[name]
             if name == "noise" and recon_warmup > 0:
                 w = 0.0
+            if name in ("char", "ssim", "sam", "grad") and recon_warmup == 0:
+                w = w * recon_scale
             total = total + w * val
         logs[name] = val.item()
+    logs["recon_scale"] = recon_scale
 
     if not ok:
         total = torch.tensor(0.0, device=gt.device, requires_grad=True)
@@ -967,19 +1038,19 @@ def main():
     parser.add_argument("--batch_size", type=int, default=2)
     parser.add_argument("--epochs", type=int, default=5000)
     parser.add_argument("--steps_per_epoch", type=int, default=200)
-    parser.add_argument("--lr", type=float, default=5e-5)
+    parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--grad_accum", type=int, default=4)
     parser.add_argument("--eval_every", type=int, default=20)
     parser.add_argument("--time_budget_h", type=float, default=8.5)
     parser.add_argument("--T", type=int, default=1000)
     parser.add_argument("--ddim_steps", type=int, default=50)
     parser.add_argument("--num_samples", type=int, default=5)
-    parser.add_argument("--base_dim", type=int, default=48)
+    parser.add_argument("--base_dim", type=int, default=64)
     parser.add_argument("--cond_dim", type=int, default=64)
-    parser.add_argument("--cg_steps", type=int, default=20)
+    parser.add_argument("--cg_steps", type=int, default=30)
     parser.add_argument("--save_dir", type=str, default="/kaggle/working/diffusion_nullfusion")
-    parser.add_argument("--recon_warmup", type=int, default=500,
-                        help="Epochs of direct reconstruction training before adding diffusion loss")
+    parser.add_argument("--recon_warmup", type=int, default=150,
+                        help="Epochs of direct residual training (base->detail) before diffusion")
     args = parser.parse_args()
 
     os.makedirs(args.save_dir, exist_ok=True)
@@ -1005,7 +1076,7 @@ def main():
         else:
             args.patch = 64
             args.batch_size = 2
-            args.base_dim = 48
+            args.base_dim = 64
 
     model = DiffusionNullFusion(
         bands=args.bands, msi=3, base_dim=args.base_dim, scale=args.scale,
@@ -1048,8 +1119,8 @@ def main():
     print(f"\nTraining: {args.epochs} epochs, {args.time_budget_h}h budget")
     print(f"Diffusion T={args.T}, DDIM steps={args.ddim_steps}, samples={args.num_samples}")
     print(f"Effective batch: {args.batch_size * args.grad_accum}, Steps/epoch: {args.steps_per_epoch}")
-    print(f"Loss weights: noise=0.001, char=1.0, ssim=0.5, sam=0.05, grad=0.2, phys=0.1")
-    print(f"Direct recon: {args.recon_warmup} epochs (clean input, no DDPM formula)")
+    print(f"Loss weights: noise=1.0, char=0.5, ssim=0.25, sam=0.02, grad=0.1, phys=0.1 (recon gated by SNR)")
+    print(f"Direct residual warmup: {args.recon_warmup} epochs (base->detail, then diffusion)")
     print("-" * 70)
 
     # ---- Smoke test with real data ----
@@ -1103,8 +1174,16 @@ def main():
             yH = torch.stack([b["lr"] for b in batch], 0).to(device)
             yM = torch.stack([b["msi"] for b in batch], 0).to(device)
 
+            # FIX: smooth handoff - last 20 warmup epochs blend toward
+            # diffusion target so loss doesn't explode at the switch
+            # (this was 0.05 -> 2.6 at epoch 500 in the failed run).
+            rw = max(0, args.recon_warmup - epoch)
+            if 0 < rw <= 20:
+                blend = 1.0 - rw / 20.0
+            else:
+                blend = 0.0
             loss, logs = total_loss(model, gt, yH, yM, schedule,
-                                    recon_warmup=max(0, args.recon_warmup - epoch))
+                                    recon_warmup=rw, warmup_blend=blend)
 
             is_nan = not math.isfinite(loss.item()) or logs.get("nan_flag", 0) > 0
 
