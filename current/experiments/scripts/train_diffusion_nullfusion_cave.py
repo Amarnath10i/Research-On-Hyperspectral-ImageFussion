@@ -817,33 +817,74 @@ def physics_loss(pred, yH, yM, op):
 
 def total_loss(model, gt, yH, yM, schedule,
                w_char=1.0, w_ssim=0.5, w_sam=0.05, w_grad=0.2,
-               w_noise=1.0, w_phys=0.1, min_snr_gamma=5.0):
+               w_noise=0.001, w_phys=0.1, min_snr_gamma=5.0,
+               recon_warmup=0):
     H_hr, W_hr = yM.shape[-2], yM.shape[-1]
     gt32 = gt.float()
     yH32 = yH.float()
     yM32 = yM.float()
+    B = gt32.shape[0]
+    device = gt32.device
 
-    with torch.no_grad():
-        cond, base = model._conditioning(yH32, yM32, H_hr, W_hr)
-        x0 = model.op.project_null(gt32 - base)
+    cond, base = model._conditioning(yH32, yM32, H_hr, W_hr)
+    x0 = model.op.project_null(gt32 - base)
+    x0 = x0.clamp(-5.0, 5.0)
 
-    l_noise = diffusion_loss(model, x0.detach(), cond.detach(), schedule, min_snr_gamma)
+    if recon_warmup > 0:
+        eps_pred = model(x0, torch.zeros(B, dtype=torch.long, device=device), cond)
+        x0_hat = x0 + eps_pred
+        l_noise = torch.tensor(0.0, device=device)
+    else:
+        t = torch.randint(0, schedule.T, (B,), device=device)
+        noise = torch.randn_like(x0)
+        x_t = schedule.add_noise(x0, noise, t)
+        x_t = x_t.clamp(-5.0, 5.0)
+        eps_pred = model(x_t, t, cond)
+        per_sample = F.mse_loss(eps_pred, noise, reduction="none").flatten(1).mean(1)
+        ab = schedule.alpha_bar[t].clamp(1e-5, 1 - 1e-5)
+        snr = ab / (1 - ab)
+        w_snr = (snr.clamp(max=min_snr_gamma) / snr).detach()
+        l_noise = (per_sample * w_snr).mean()
+        x0_hat = (x_t - (1 - ab).sqrt().view(B, 1, 1, 1) * eps_pred) / ab.sqrt().view(B, 1, 1, 1)
 
-    pred = (base + x0).detach().requires_grad_(True)
+    pred = (base + x0_hat).clamp(-1.0, 2.0)
     l_char = charbonnier_loss(pred, gt32)
     l_ssim = ssim_loss(pred.clamp(0, 1), gt32)
     l_sam = sam_loss(pred, gt32)
     l_grad = gradient_loss(pred, gt32)
     l_phys = physics_loss(pred, yH32, yM32, model.op)
 
-    total = (w_noise * l_noise + w_phys * l_phys
-             + w_char * l_char + w_ssim * l_ssim
-             + w_sam * l_sam + w_grad * l_grad)
-    return total, {
-        "noise": l_noise.item(), "phys": l_phys.item(),
-        "char": l_char.item(), "ssim": l_ssim.item(),
-        "sam": l_sam.item(), "grad": l_grad.item(),
+    losses = {
+        "noise": l_noise, "phys": l_phys,
+        "char": l_char, "ssim": l_ssim,
+        "sam": l_sam, "grad": l_grad,
     }
+
+    total = torch.tensor(0.0, device=gt.device, requires_grad=True)
+    logs = {}
+    ok = True
+    for name, val in losses.items():
+        if not math.isfinite(val.item()):
+            print(f"  [NaN] {name} = {val.item()}")
+            ok = False
+        else:
+            w = {"noise": w_noise, "phys": w_phys, "char": w_char,
+                 "ssim": w_ssim, "sam": w_sam, "grad": w_grad}[name]
+            if name == "noise" and recon_warmup > 0:
+                w = 0.0
+            total = total + w * val
+        logs[name] = val.item()
+
+    if not ok:
+        total = torch.tensor(0.0, device=gt.device, requires_grad=True)
+        for p in model.parameters():
+            if p.grad is not None:
+                p.grad.zero_()
+        logs["nan_flag"] = 1.0
+    else:
+        logs["nan_flag"] = 0.0
+
+    return total, logs
 
 
 # ---------------------------------------------------------------------------
@@ -1013,7 +1054,7 @@ def main():
     parser.add_argument("--batch_size", type=int, default=2)
     parser.add_argument("--epochs", type=int, default=5000)
     parser.add_argument("--steps_per_epoch", type=int, default=200)
-    parser.add_argument("--lr", type=float, default=2e-4)
+    parser.add_argument("--lr", type=float, default=5e-5)
     parser.add_argument("--grad_accum", type=int, default=4)
     parser.add_argument("--eval_every", type=int, default=20)
     parser.add_argument("--time_budget_h", type=float, default=8.5)
@@ -1024,6 +1065,8 @@ def main():
     parser.add_argument("--cond_dim", type=int, default=64)
     parser.add_argument("--cg_steps", type=int, default=20)
     parser.add_argument("--save_dir", type=str, default="/kaggle/working/diffusion_nullfusion")
+    parser.add_argument("--recon_warmup", type=int, default=500,
+                        help="Epochs of direct reconstruction training before adding diffusion loss")
     args = parser.parse_args()
 
     os.makedirs(args.save_dir, exist_ok=True)
@@ -1140,7 +1183,8 @@ def main():
             yM = torch.stack([b["msi"] for b in batch], 0).to(device)
 
             with torch.amp.autocast("cuda", enabled=use_amp):
-                loss, logs = total_loss(model, gt, yH, yM, schedule)
+                loss, logs = total_loss(model, gt, yH, yM, schedule,
+                                        recon_warmup=max(0, args.recon_warmup - epoch))
 
             scaler.scale(loss / args.grad_accum).backward()
 

@@ -262,7 +262,7 @@ def train(cfg: TrainConfig, device, root=None, smoke=False):
             cache[stem] = load_hsi(hp, cfg.bands)
         return torch.from_numpy(cache[stem]).float()
 
-def sample_batch():
+    def sample_batch():
         lrs, msis, gts = [], []
         for _ in range(cfg.batch):
             if smoke:
