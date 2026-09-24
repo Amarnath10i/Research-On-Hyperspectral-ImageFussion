@@ -19,10 +19,51 @@ paper, 30.73 dB in another, 40.02 dB in a third and 50.67 dB in a fourth.
 | HDGMamba (TGRS 2026, *noisy inputs*) | trained-noise setting | HDGMamba | 36.555 | 2.359 | 0.924 | 0.977 | AHMNet 35.748 |
 | DIM-HMPF – Detail Injection (TGRS 2026, HSI+MSI+PAN) | Nikon D700 / Gauss σ=2 | DIM-HMPF | 30.7108 | 7.5218 | 5.4223 | 0.8370 (MSSIM) | HMPNet 30.4856 |
 
+## Additional papers found by web search (2025–2026)
+
+| Paper | Chikusei protocol | ×4 best (PSNR / SSIM / SAM / ERGAS) | Other ×4 rows in the same table | Code |
+|---|---|---|---|---|
+| [PIF-Net](https://arxiv.org/abs/2508.00453) (arXiv 2508.00453) | top-left 1000×2000 train, rest cut into 680×680 test tiles; Gaussian 3×3, σ=0.5; also ×2 / ×8 | PIF-Net 51.6257 / 0.9983 / 2.0653 / 1.5401 | SMGU-Net 51.3382, PSRT 50.5377, U2Net 50.5061, Fusformer 50.1466, HSRnet 49.3548, 3DT-Net 48.1940, GSA 31.2757 | not released |
+| [CoFusion](https://arxiv.org/abs/2604.10584) (arXiv 2604.10584) | Wald, Gaussian blur, ×2/×4/×8 (kernel not stated) | CoFusion 50.6742 / 0.9971 / 2.1494 / 1.7252 | SMGU-Net 49.8316, PSRT 49.0346, U2Net 49.0028, FMPM-DNet 48.7125, Fusformer 48.6413, BUGPan 48.3217, HSRnet 47.8521, 3DT-Net 46.6914 | not released |
+| [HyDeFuse](https://arxiv.org/abs/2509.02477) (arXiv 2509.02477) | 540×480 crop, classical methods only | HyDeFuse 42.27 / – / 1.79 / 1.39 | HySure 40.56, bicubic 29.02 | not released |
+| [ASSR-Net](https://arxiv.org/abs/2604.05742) (arXiv 2604.05742) | does **not** evaluate Chikusei (CAVE / Harvard / Gaofen5) | – | – | – |
+| [USP-Mamba](https://arxiv.org/abs/2608.02401) (arXiv 2608.02401) | single-image HSI SR, not HSI–MSI fusion | – | – | – |
+
+**No paper found reports Chikusei ×4 above 56.19 dB.** The TIP'26 Two-Stage Diffusion number is
+still the highest, so the target stands.
+
+**Baselines that could not be located.** CLSNet (2026, the 55.20 dB runner-up) did not turn up in any
+search, so its own Chikusei protocol is unknown. SMGU-Net (Pattern Recognition 2025,
+[paper](https://www.sciencedirect.com/science/article/abs/pii/S0031320324010288)) evaluates Chikusei
+but has no public code. DDIF (Information Fusion 2024) has code at
+[294coder/Dif-PAN](https://github.com/294coder/Dif-PAN), which only ships pansharpening datasets.
+
+### Protocol facts pinned down by the search
+
+* **PSRT metric code** ([shangqideng/PSRT `metrics.py`](https://github.com/shangqideng/PSRT)), which the
+  TIP'26 paper cites as its data source:
+  * `PSNR = 10·log10(max(GT)² / mean((GT−X)²))`: a single PSNR over the whole cube, with the
+    peak set to the GT image's own max.
+  * `SAM`: each cube is first divided by its own max, then the angle is averaged over pixels.
+  * `ERGAS = 100/4 · sqrt(mean_b(RMSE_b² / mean_b²))`.
+
+  PSNR is therefore **not** computed band by band with peak 1. Because the peak is the GT max, it
+  comes out higher than a peak-1 PSNR on dark scenes whose max is below 1, which explains part of
+  the 24–56 dB spread between papers. Our evaluation reports both definitions.
+* **WorldView-2 SRF**: DigitalGlobe's technical note
+  ([PDF](https://wp-cdn.apollomapping.com/web_assets/user_uploads/2014/10/14123451/Spectral_Response_for_DigitalGlobe_Earth_Imaging_Instruments_102214.pdf),
+  Table 5) gives the 5 %-response edges and centre wavelengths:
+  Coastal 396–458 (427), Blue 442–515 (478), Green 506–586 (546), Yellow 584–632 (608),
+  Red 624–694 (659), Red-Edge 699–749 (724), NIR1 765–901 (833), NIR2 856–1043 (949) nm.
+  The full curves are published only as plots, so `hsifuse/ops.py::wv2_srf` builds flat-top bands
+  whose flanks reach 5 % response exactly at these edges.
+
 ## ×8 Chikusei (for reference)
 
 | Paper | Best | PSNR | Runner-up |
 |---|---|---|---|
+| PIF-Net (arXiv 2508.00453) | PIF-Net | 50.0124 | SMGU-Net 49.6582, U2Net 48.8911 |
+| CoFusion (arXiv 2604.10584) | CoFusion | 48.9371 | SMGU-Net 48.1512, U2Net 47.3945 |
 | Region-Aware MoE | RAMoE | 47.21 | DCTransformer 46.03 |
 | LGP-Net – Local/Global Progressive (TGRS 2026) | LGP-Net | 44.96 | BDT 44.47, 3DT 43.78 |
 | SSCNet | SSCNet | 43.7902 | AELF 42.8146 |
