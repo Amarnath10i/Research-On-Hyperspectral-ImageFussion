@@ -40,8 +40,9 @@ Chikusei method with public code ([Hewq77/LGCT](https://github.com/Hewq77/LGCT))
 ### IEEE Xplore full-text search: published Chikusei HSI–MSI fusion papers in top venues
 
 Query: full text contains "Chikusei", title contains "fusion", metadata contains "hyperspectral"
-and "multispectral", years 2023–2026. It returned 108 hits; the table keeps the TPAMI / TIP /
-TNNLS / TGRS / TCSVT / TMM / TCYB / TCI / CVPR ones.
+and "multispectral", years 2023–2026. It returned 108 hits (84 subscription, 24 open access). The table keeps
+only **subscription (non-open-access)** papers from TPAMI / TIP / TNNLS / TGRS / TCSVT / TMM /
+TCYB / TCI / CVPR, using the access type IEEE Xplore reports for each paper.
 
 The papers not marked "yes" still need their Chikusei tables read. That needs the PDFs in
 `literature_survey/chikusei_papers/`, and bulk download from IEEE Xplore was not possible from
