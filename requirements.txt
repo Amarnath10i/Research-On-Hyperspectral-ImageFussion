@@ -3,9 +3,10 @@
 torch>=2.0
 numpy>=1.24
 scipy>=1.10
+h5py>=3.8        # Chikusei .mat is MATLAB v7.3 (HDF5)
 matplotlib>=3.6
 
-# literature_survey/build_lit_excel.py only
+# docs/literature/build_lit_excel.py only
 openpyxl>=3.1
 
 # tools/kaggle_autorun.py only
