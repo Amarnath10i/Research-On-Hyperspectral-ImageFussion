@@ -19,24 +19,101 @@ paper, 30.73 dB in another, 40.02 dB in a third and 50.67 dB in a fourth.
 | HDGMamba (TGRS 2026, *noisy inputs*) | trained-noise setting | HDGMamba | 36.555 | 2.359 | 0.924 | 0.977 | AHMNet 35.748 |
 | DIM-HMPF – Detail Injection (TGRS 2026, HSI+MSI+PAN) | Nikon D700 / Gauss σ=2 | DIM-HMPF | 30.7108 | 7.5218 | 5.4223 | 0.8370 (MSSIM) | HMPNet 30.4856 |
 
-## Additional papers found by web search (2025–2026)
+## Scope: published, peer-reviewed papers only
 
-| Paper | Chikusei protocol | ×4 best (PSNR / SSIM / SAM / ERGAS) | Other ×4 rows in the same table | Code |
-|---|---|---|---|---|
-| [PIF-Net](https://arxiv.org/abs/2508.00453) (arXiv 2508.00453) | top-left 1000×2000 train, rest cut into 680×680 test tiles; Gaussian 3×3, σ=0.5; also ×2 / ×8 | PIF-Net 51.6257 / 0.9983 / 2.0653 / 1.5401 | SMGU-Net 51.3382, PSRT 50.5377, U2Net 50.5061, Fusformer 50.1466, HSRnet 49.3548, 3DT-Net 48.1940, GSA 31.2757 | not released |
-| [CoFusion](https://arxiv.org/abs/2604.10584) (arXiv 2604.10584) | Wald, Gaussian blur, ×2/×4/×8 (kernel not stated) | CoFusion 50.6742 / 0.9971 / 2.1494 / 1.7252 | SMGU-Net 49.8316, PSRT 49.0346, U2Net 49.0028, FMPM-DNet 48.7125, Fusformer 48.6413, BUGPan 48.3217, HSRnet 47.8521, 3DT-Net 46.6914 | not released |
-| [HyDeFuse](https://arxiv.org/abs/2509.02477) (arXiv 2509.02477) | 540×480 crop, classical methods only | HyDeFuse 42.27 / – / 1.79 / 1.39 | HySure 40.56, bicubic 29.02 | not released |
-| [ASSR-Net](https://arxiv.org/abs/2604.05742) (arXiv 2604.05742) | does **not** evaluate Chikusei (CAVE / Harvard / Gaofen5) | – | – | – |
-| [USP-Mamba](https://arxiv.org/abs/2608.02401) (arXiv 2608.02401) | single-image HSI SR, not HSI–MSI fusion | – | – | – |
+This survey counts only peer-reviewed journal and conference papers. arXiv-only preprints
+(PIF-Net, CoFusion, HyDeFuse and others) are excluded. All 10 papers in the local folder are
+IEEE TGRS / TIP 2026 publications.
 
-**No paper found reports Chikusei ×4 above 56.19 dB.** The TIP'26 Two-Stage Diffusion number is
-still the highest, so the target stands.
+**The highest published Chikusei ×4 number is still the TIP'26 Two-Stage Diffusion result,
+56.19 dB**, so the target stands.
 
-**Baselines that could not be located.** CLSNet (2026, the 55.20 dB runner-up) did not turn up in any
-search, so its own Chikusei protocol is unknown. SMGU-Net (Pattern Recognition 2025,
-[paper](https://www.sciencedirect.com/science/article/abs/pii/S0031320324010288)) evaluates Chikusei
-but has no public code. DDIF (Information Fusion 2024) has code at
-[294coder/Dif-PAN](https://github.com/294coder/Dif-PAN), which only ships pansharpening datasets.
+The runner-ups in that table are also published: SMGU-Net (Pattern Recognition 2025), MIMO-SST
+(IEEE TGRS 2024, [10419133](https://ieeexplore.ieee.org/document/10419133)), DDIF (Information
+Fusion 2024; code at [294coder/Dif-PAN](https://github.com/294coder/Dif-PAN), pansharpening data
+only), DCT and AMSF (IEEE TGRS 2025, [10824890](https://ieeexplore.ieee.org/document/10824890)).
+CLSNet (2026) could not be located.
+
+LGCT (IEEE TGRS 2024, [10742406](https://ieeexplore.ieee.org/document/10742406)) is a published
+Chikusei method with public code ([Hewq77/LGCT](https://github.com/Hewq77/LGCT)).
+
+### IEEE Xplore full-text search: published Chikusei HSI–MSI fusion papers in top venues
+
+Query: full text contains "Chikusei", title contains "fusion", metadata contains "hyperspectral"
+and "multispectral", years 2023–2026. It returned 108 hits; the table keeps the TPAMI / TIP /
+TNNLS / TGRS / TCSVT / TMM / TCYB / TCI / CVPR ones.
+
+The papers not marked "yes" still need their Chikusei tables read. That needs the PDFs in
+`literature_survey/chikusei_papers/`, and bulk download from IEEE Xplore was not possible from
+this session.
+
+| Year | Venue | Title | Cites | In local folder | IEEE |
+|---|---|---|---|---|---|
+| 2026 | TGRS | Diffusion-Driven Mutual Enhancement of Matching and Fusion for Reference-Based Hyperspectral Image Super-Resolution | 17 |  | [11358932](https://ieeexplore.ieee.org/document/11358932) |
+| 2026 | TGRS | Region-Aware MoE Network for Hyperspectral and Multispectral Image Fusion | 8 | yes | [11471838](https://ieeexplore.ieee.org/document/11471838) |
+| 2026 | TGRS | Leveraging Modal Interaction and Window Dilation in Attention Network for Hyperspectral and Multispectral Remote Sensing Image Fusion | 2 | yes | [11370239](https://ieeexplore.ieee.org/document/11370239) |
+| 2026 | TGRS | A Stagewise Spectral-Structural Coordinated Reconstruction Network for Hyperspectral and Multispectral Image Fusion | 1 | yes | [11612934](https://ieeexplore.ieee.org/document/11612934) |
+| 2026 | TIP | Coupled Diffusion Posterior Sampling for Unsupervised Hyperspectral and Multispectral Images Fusion | 1 | yes | [11321074](https://ieeexplore.ieee.org/document/11321074) |
+| 2026 | TGRS | S2TA-Fuse: Semantic-Superpixel Tokenized Attention for Spatial–Spectral Fusion | 1 |  | [11363600](https://ieeexplore.ieee.org/document/11363600) |
+| 2026 | TGRS | A Detail Injection-Based Fusion Framework for Hyperspectral, Multispectral, and Panchromatic Remote Sensing Images | 0 | yes | [11480191](https://ieeexplore.ieee.org/document/11480191) |
+| 2026 | TIP | A Two-Stage Conditional Diffusion Model With Differential Attention for Hyperspectral and Multispectral Image Fusion | 0 | yes | [11658817](https://ieeexplore.ieee.org/document/11658817) |
+| 2026 | TMM | Arbitrary-Scale Fusion Operator for High-Resolution Hyperspectral Imaging | 0 |  | [11364051](https://ieeexplore.ieee.org/document/11364051) |
+| 2026 | TGRS | Block Term Decomposition-Guided Frequency Mamba Modulation for Hyperspectral Image Fusion | 0 |  | [11550081](https://ieeexplore.ieee.org/document/11550081) |
+| 2026 | TIP | Blur-Resistant Hyperspectral Image Super-Resolution via Dual-Degradation Fusion Model | 0 |  | [11623387](https://ieeexplore.ieee.org/document/11623387) |
+| 2026 | TCI | Constrained Conditional Denoising Diffusion for Hyperspectral-Multispectral Fusion | 0 |  | [11297763](https://ieeexplore.ieee.org/document/11297763) |
+| 2026 | TCYB | FK-Net: Frequency-Aware and Kernelizable Mamba–Transformer for Multispectral and Hyperspectral Image Fusion | 0 |  | [11692970](https://ieeexplore.ieee.org/document/11692970) |
+| 2026 | TGRS | GSFL: Graph-Based Spatial–Frequency Learning for Multispectral and Hyperspectral Image Fusion | 0 |  | [11618738](https://ieeexplore.ieee.org/document/11618738) |
+| 2026 | TGRS | HDGMamba: High-Frequency Dynamic Guided Mamba for Robust Multispectral-Hyperspectral Image Fusion | 0 | yes | [11523545](https://ieeexplore.ieee.org/document/11523545) |
+| 2026 | TGRS | Hyperspectral and Multispectral Image Fusion via Coupled Tensor Wheel Decomposition | 0 |  | [11538234](https://ieeexplore.ieee.org/document/11538234) |
+| 2026 | TGRS | Local–Global Progressive Network for Hyperspectral and Multispectral Image Fusion | 0 | yes | [11589378](https://ieeexplore.ieee.org/document/11589378) |
+| 2026 | TCSVT | MoEformer: a Frequency-Guided Mixture of Experts Transformer for Hyperspectral and Multispectral Image Fusion | 0 |  | [11690674](https://ieeexplore.ieee.org/document/11690674) |
+| 2026 | TGRS | MosyMamba: Modal-Synergy Mamba Network for Hyperspectral and Multispectral Image Fusion | 0 | yes | [11614875](https://ieeexplore.ieee.org/document/11614875) |
+| 2026 | TGRS | PMHIF-Net: A Prior-Guided Mamba Hierarchical Interactive Fusion Network for Hyperspectral and Multispectral Image Fusion | 0 | yes | [11655942](https://ieeexplore.ieee.org/document/11655942) |
+| 2026 | TGRS | SCALMU: Synthetically Trained Coupling of Adaptive Learned Multiplicative Updates for Hyperspectral–Multispectral Fusion | 0 |  | [11605969](https://ieeexplore.ieee.org/document/11605969) |
+| 2026 | TGRS | TDP-Net: Unsupervised HSI-MSI Fusion via Tucker Decomposition With Generative Diffusion Priors | 0 |  | [11660849](https://ieeexplore.ieee.org/document/11660849) |
+| 2026 | TGRS | TM-MOE: A Degradation-Aware Transformer-Mamba MoE for Hyperspectral and Multispectral Image Fusion | 0 |  | [11494874](https://ieeexplore.ieee.org/document/11494874) |
+| 2026 | TGRS | Unsupervised Deformable Bilinear Fusion Network for Unregistered Hyperspectral Image Super-Resolution | 0 |  | [11627931](https://ieeexplore.ieee.org/document/11627931) |
+| 2025 | TCSVT | Cyclic Cross-Modality Interaction for Hyperspectral and Multispectral Image Fusion | 57 |  | [10681101](https://ieeexplore.ieee.org/document/10681101) |
+| 2025 | TGRS | Mamba Collaborative Implicit Neural Representation for Hyperspectral and Multispectral Remote Sensing Image Fusion | 54 |  | [10869490](https://ieeexplore.ieee.org/document/10869490) |
+| 2025 | TPAMI | An Efficient Image Fusion Network Exploiting Unifying Language and Mask Guidance | 28 |  | [11091495](https://ieeexplore.ieee.org/document/11091495) |
+| 2025 | TPAMI | Self-Learning Hyperspectral and Multispectral Image Fusion via Adaptive Residual Guided Subspace Diffusion Model | 24 |  | [11092683](https://ieeexplore.ieee.org/document/11092683) |
+| 2025 | TNNLS | Unsupervised Hyperspectral and Multispectral Image Blind Fusion Based on Deep Tucker Decomposition Network With Spatial–Spectral Manifold Learning | 24 |  | [10705122](https://ieeexplore.ieee.org/document/10705122) |
+| 2025 | TGRS | SSDT: Multiscale Spatial–Spectral Dilated Transformer for Hyperspectral and Multispectral Image Fusion | 23 |  | [11165009](https://ieeexplore.ieee.org/document/11165009) |
+| 2025 | TGRS | An Asymptotic Multiscale Symmetric Fusion Network for Hyperspectral and Multispectral Image Fusion | 19 |  | [10824890](https://ieeexplore.ieee.org/document/10824890) |
+| 2025 | TGRS | GFHMP: Gradual Fusion Framework of Hyperspectral, Multispectral, and Panchromatic Images Using a Novel Spatial–Spectral Cross-Fusion Network | 18 |  | [11126176](https://ieeexplore.ieee.org/document/11126176) |
+| 2025 | TNNLS | Advancing Hyperspectral and Multispectral Image Fusion: An Information-Aware Transformer-Based Unfolding Network | 16 |  | [10536168](https://ieeexplore.ieee.org/document/10536168) |
+| 2025 | TGRS | Adaptive Expert Learning for Hyperspectral and Multispectral Image Fusion | 15 |  | [11202498](https://ieeexplore.ieee.org/document/11202498) |
+| 2025 | TGRS | CESFusion: Cross-Frequency Enhanced Spatial—Spectral Fusion Network for Hyperspectral and Multispectral Image Fusion | 11 |  | [10975030](https://ieeexplore.ieee.org/document/10975030) |
+| 2025 | TGRS | Dilated Transformation-Guided Unsupervised Multimodal Learning for Hyperspectral and Multispectral Image Fusion | 8 |  | [11271725](https://ieeexplore.ieee.org/document/11271725) |
+| 2025 | TGRS | RAMSF: A Novel Generic Framework for Optical Remote Sensing Multimodal Spatial-Spectral Fusion | 8 |  | [10934049](https://ieeexplore.ieee.org/document/10934049) |
+| 2025 | TGRS | Integrated Fusion for Panchromatic, Multispectral, Hyperspectral Remote Sensing Images: Insights From Multispectral Images | 6 |  | [11097365](https://ieeexplore.ieee.org/document/11097365) |
+| 2025 | TGRS | Progressive Synergistic Registration and Fusion Diffusion Network for Unregistered Hyperspectral and Multispectral Image Fusion | 6 |  | [10976398](https://ieeexplore.ieee.org/document/10976398) |
+| 2025 | TPAMI | Building Non-Uniform Degradation Model for Position-Aware Hyperspectral Image Fusion | 5 |  | [11230110](https://ieeexplore.ieee.org/document/11230110) |
+| 2025 | TGRS | AEWFNet: Adaptive Enhancement and Wavelet Convolution for Hyperspectral and Multispectral Image Fusion | 4 |  | [11245613](https://ieeexplore.ieee.org/document/11245613) |
+| 2025 | TGRS | Hyperspectral and Multispectral Image Fusion With Functional Data Analysis Techniques | 4 |  | [11002560](https://ieeexplore.ieee.org/document/11002560) |
+| 2025 | TGRS | Spatial–Spectral Cross Mamba Network for Hyperspectral and Multispectral Image Fusion | 3 |  | [11153570](https://ieeexplore.ieee.org/document/11153570) |
+| 2025 | TGRS | A Progressive Registration-Fusion Co-Optimization A-Mamba Network: Toward Deep Unregistered Hyperspectral and Multispectral Fusion | 1 |  | [11006139](https://ieeexplore.ieee.org/document/11006139) |
+| 2025 | TGRS | A Progressive Spatial–Spectral Interactive Network for Integrated Fusion of Panchromatic, Multispectral, and Hyperspectral Images | 0 |  | [11129110](https://ieeexplore.ieee.org/document/11129110) |
+| 2025 | TGRS | Unsupervised Model-Embedded Two-Stage Diffusion Method for Multispectral and Hyperspectral Image Fusion | 0 |  | [11165469](https://ieeexplore.ieee.org/document/11165469) |
+| 2024 | TGRS | Unsupervised Hybrid Network of Transformer and CNN for Blind Hyperspectral and Multispectral Image Fusion | 77 |  | [10415455](https://ieeexplore.ieee.org/document/10415455) |
+| 2024 | TGRS | MIMO-SST: Multi-Input Multi-Output Spatial-Spectral Transformer for Hyperspectral and Multispectral Image Fusion | 58 |  | [10419133](https://ieeexplore.ieee.org/document/10419133) |
+| 2024 | TNNLS | Interpretable Model-Driven Deep Network for Hyperspectral, Multispectral, and Panchromatic Image Fusion | 40 |  | [10138912](https://ieeexplore.ieee.org/document/10138912) |
+| 2024 | TNNLS | Unsupervised Deep Tensor Network for Hyperspectral–Multispectral Image Fusion | 40 |  | [10115230](https://ieeexplore.ieee.org/document/10115230) |
+| 2024 | TGRS | LGCT: Local-Global Collaborative Transformer for Fusion of Hyperspectral and Multispectral Images | 38 |  | [10742406](https://ieeexplore.ieee.org/document/10742406) |
+| 2024 | TGRS | A Coupled Tensor Double-Factor Method for Hyperspectral and Multispectral Image Fusion | 34 |  | [10500430](https://ieeexplore.ieee.org/document/10500430) |
+| 2024 | TGRS | Progressive Multi-Iteration Registration-Fusion Co-Optimization Network for Unregistered Hyperspectral Image Super-Resolution | 29 |  | [10546322](https://ieeexplore.ieee.org/document/10546322) |
+| 2024 | TGRS | Domain Transform Model Driven by Deep Learning for Anti-Noise Hyperspectral and Multispectral Image Fusion | 15 |  | [10335620](https://ieeexplore.ieee.org/document/10335620) |
+| 2024 | TGRS | CODE-IF: A Convex/Deep Image Fusion Algorithm for Efficient Hyperspectral Super-Resolution | 14 |  | [10493051](https://ieeexplore.ieee.org/document/10493051) |
+| 2024 | TCI | INF3: Implicit Neural Feature Fusion Function for Multispectral and Hyperspectral Image Fusion | 14 |  | [10750035](https://ieeexplore.ieee.org/document/10750035) |
+| 2024 | TGRS | All in One: A Unified Network for Hyperspectral Image Fusion | 13 |  | [10557664](https://ieeexplore.ieee.org/document/10557664) |
+| 2024 | TGRS | Deep Unfolding Network Enhanced by Transformer Priors for Unregistered Hyperspectral and Multispectral Image Fusion | 12 |  | [10681157](https://ieeexplore.ieee.org/document/10681157) |
+| 2024 | TGRS | A Self-Supervised Spaceborne Multispectral and Hyperspectral Image Fusion Unrolling Network | 11 |  | [10555311](https://ieeexplore.ieee.org/document/10555311) |
+| 2024 | TGRS | MMIF: Interpretable Hyperspectral and Multispectral Image Fusion via Maximum Mutual Information | 6 |  | [10360850](https://ieeexplore.ieee.org/document/10360850) |
+| 2023 | TGRS | Decoupled-and-Coupled Networks: Self-Supervised Hyperspectral Image Super-Resolution With Subpixel Fusion | 193 |  | [10285378](https://ieeexplore.ieee.org/document/10285378) |
+| 2023 | TGRS | PSRT: Pyramid Shuffle-and-Reshuffle Transformer for Multispectral and Hyperspectral Image Fusion | 164 |  | [10044141](https://ieeexplore.ieee.org/document/10044141) |
+| 2023 | TGRS | Dual Spatial–Spectral Pyramid Network With Transformer for Hyperspectral Image Fusion | 47 |  | [10264151](https://ieeexplore.ieee.org/document/10264151) |
+| 2023 | TGRS | Stereo Cross-Attention Network for Unregistered Hyperspectral and Multispectral Image Fusion | 14 |  | [10250890](https://ieeexplore.ieee.org/document/10250890) |
+| 2023 | TGRS | MGFEI-Net: Multiscale Grouping Feedback Embedded Integrated Network for Panchromatic, Multispectral, and Hyperspectral Image Fusion | 8 |  | [10292795](https://ieeexplore.ieee.org/document/10292795) |
 
 ### Protocol facts pinned down by the search
 
@@ -62,8 +139,6 @@ but has no public code. DDIF (Information Fusion 2024) has code at
 
 | Paper | Best | PSNR | Runner-up |
 |---|---|---|---|
-| PIF-Net (arXiv 2508.00453) | PIF-Net | 50.0124 | SMGU-Net 49.6582, U2Net 48.8911 |
-| CoFusion (arXiv 2604.10584) | CoFusion | 48.9371 | SMGU-Net 48.1512, U2Net 47.3945 |
 | Region-Aware MoE | RAMoE | 47.21 | DCTransformer 46.03 |
 | LGP-Net – Local/Global Progressive (TGRS 2026) | LGP-Net | 44.96 | BDT 44.47, 3DT 43.78 |
 | SSCNet | SSCNet | 43.7902 | AELF 42.8146 |
