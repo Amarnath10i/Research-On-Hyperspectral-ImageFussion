@@ -1,0 +1,122 @@
+0.00s - Debugger warning: It seems that frozen modules are being used, which may
+0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+0.00s - to python to disable frozen modules.
+0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+0.00s - Debugger warning: It seems that frozen modules are being used, which may
+0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+0.00s - to python to disable frozen modules.
+0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+Thu Sep 24 08:03:30 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.159.04             Driver Version: 580.159.04     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |
+| N/A   48C    P8             10W /   70W |       0MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   1  Tesla T4                       Off |   00000000:00:05.0 Off |                    0 |
+| N/A   47C    P8             10W /   70W |       0MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+548c3df (HEAD) feat(chikusei): PUFormer (physics-unfolded transformer) + TIP'26 x4 protocol pipeline
+2.10.0+cu128 Tesla T4
+train (128, 1632, 2048) test (8, 128, 256, 256) val (64, 128, 64, 64)  (170s)
+puformer: 10.13M params on cuda
+bicubic test: {'PSNR': 33.6333, 'PSNR_psrt': 28.199, 'MPSNR_peak1': 35.251, 'SSIM': 0.7404, 'SAM': 4.4061, 'ERGAS': 9.0115, 'RMSE_DN': 321.8118, 'CC': 0.8408}
+it   2000 loss 0.00163 lr 2.99e-04 val PSNR 53.887 SAM 1.109 best 53.887 (0.30 h)
+it   4000 loss 0.00097 lr 2.98e-04 val PSNR 55.898 SAM 0.898 best 55.898 (0.52 h)
+it   6000 loss 0.00092 lr 2.95e-04 val PSNR 56.757 SAM 0.830 best 56.757 (0.73 h)
+it   8000 loss 0.00083 lr 2.92e-04 val PSNR 57.157 SAM 0.803 best 57.157 (0.94 h)
+it  10000 loss 0.00078 lr 2.89e-04 val PSNR 57.408 SAM 0.784 best 57.408 (1.15 h)
+it  12000 loss 0.00088 lr 2.84e-04 val PSNR 57.595 SAM 0.772 best 57.595 (1.36 h)
+it  14000 loss 0.00084 lr 2.79e-04 val PSNR 57.750 SAM 0.761 best 57.750 (1.57 h)
+it  16000 loss 0.00070 lr 2.73e-04 val PSNR 57.859 SAM 0.754 best 57.859 (1.78 h)
+it  18000 loss 0.00077 lr 2.67e-04 val PSNR 57.946 SAM 0.748 best 57.946 (1.99 h)
+it  20000 loss 0.00072 lr 2.60e-04 val PSNR 58.022 SAM 0.743 best 58.022 (2.20 h)
+it  22000 loss 0.00084 lr 2.52e-04 val PSNR 58.083 SAM 0.738 best 58.083 (2.42 h)
+it  24000 loss 0.00079 lr 2.44e-04 val PSNR 58.133 SAM 0.735 best 58.133 (2.63 h)
+it  26000 loss 0.00074 lr 2.35e-04 val PSNR 58.183 SAM 0.731 best 58.183 (2.84 h)
+it  28000 loss 0.00074 lr 2.26e-04 val PSNR 58.234 SAM 0.727 best 58.234 (3.05 h)
+it  30000 loss 0.00071 lr 2.17e-04 val PSNR 58.279 SAM 0.723 best 58.279 (3.26 h)
+it  32000 loss 0.00070 lr 2.07e-04 val PSNR 58.323 SAM 0.720 best 58.323 (3.47 h)
+it  34000 loss 0.00070 lr 1.97e-04 val PSNR 58.351 SAM 0.717 best 58.351 (3.68 h)
+it  36000 loss 0.00071 lr 1.86e-04 val PSNR 58.380 SAM 0.715 best 58.380 (3.89 h)
+it  38000 loss 0.00071 lr 1.76e-04 val PSNR 58.407 SAM 0.713 best 58.407 (4.11 h)
+it  40000 loss 0.00068 lr 1.65e-04 val PSNR 58.429 SAM 0.711 best 58.429 (4.32 h)
+it  42000 loss 0.00078 lr 1.54e-04 val PSNR 58.444 SAM 0.710 best 58.444 (4.53 h)
+it  44000 loss 0.00067 lr 1.43e-04 val PSNR 58.466 SAM 0.708 best 58.466 (4.74 h)
+it  46000 loss 0.00068 lr 1.33e-04 val PSNR 58.482 SAM 0.707 best 58.482 (4.95 h)
+it  48000 loss 0.00063 lr 1.22e-04 val PSNR 58.499 SAM 0.706 best 58.499 (5.16 h)
+it  50000 loss 0.00073 lr 1.12e-04 val PSNR 58.505 SAM 0.705 best 58.505 (5.37 h)
+it  52000 loss 0.00072 lr 1.01e-04 val PSNR 58.512 SAM 0.705 best 58.512 (5.58 h)
+it  54000 loss 0.00073 lr 9.11e-05 val PSNR 58.524 SAM 0.704 best 58.524 (5.79 h)
+it  56000 loss 0.00078 lr 8.14e-05 val PSNR 58.522 SAM 0.705 best 58.524 (6.00 h)
+it  58000 loss 0.00062 lr 7.20e-05 val PSNR 58.542 SAM 0.703 best 58.542 (6.22 h)
+it  60000 loss 0.00077 lr 6.30e-05 val PSNR 58.554 SAM 0.702 best 58.554 (6.43 h)
+it  62000 loss 0.00067 lr 5.44e-05 val PSNR 58.560 SAM 0.702 best 58.560 (6.64 h)
+it  64000 loss 0.00068 lr 4.63e-05 val PSNR 58.573 SAM 0.701 best 58.573 (6.85 h)
+it  66000 loss 0.00071 lr 3.88e-05 val PSNR 58.576 SAM 0.701 best 58.576 (7.06 h)
+it  68000 loss 0.00080 lr 3.18e-05 val PSNR 58.579 SAM 0.701 best 58.579 (7.27 h)
+it  70000 loss 0.00068 lr 2.54e-05 val PSNR 58.581 SAM 0.700 best 58.581 (7.49 h)
+it  72000 loss 0.00075 lr 1.97e-05 val PSNR 58.584 SAM 0.700 best 58.584 (7.70 h)
+it  74000 loss 0.00062 lr 1.47e-05 val PSNR 58.592 SAM 0.700 best 58.592 (7.91 h)
+it  76000 loss 0.00071 lr 1.04e-05 val PSNR 58.597 SAM 0.699 best 58.597 (8.12 h)
+it  78000 loss 0.00073 lr 6.77e-06 val PSNR 58.594 SAM 0.700 best 58.597 (8.33 h)
+it  80000 loss 0.00074 lr 3.91e-06 val PSNR 58.596 SAM 0.699 best 58.597 (8.55 h)
+it  82000 loss 0.00070 lr 1.83e-06 val PSNR 58.594 SAM 0.700 best 58.597 (8.76 h)
+it  84000 loss 0.00073 lr 5.22e-07 val PSNR 58.595 SAM 0.700 best 58.597 (8.97 h)
+it  86000 loss 0.00070 lr 3.00e-07 val PSNR 58.596 SAM 0.700 best 58.597 (9.19 h)
+it  88000 loss 0.00075 lr 3.00e-07 val PSNR 58.596 SAM 0.699 best 58.597 (9.40 h)
+it  88946 loss 0.00068 lr 3.00e-07 val PSNR 58.596 SAM 0.699 best 58.597 (9.50 h)
+time budget reached
+TEST: {'PSNR': 57.9943, 'PSNR_psrt': 52.56, 'MPSNR_peak1': 65.2864, 'SSIM': 0.9969, 'SAM': 0.7281, 'ERGAS': 1.3561, 'RMSE_DN': 19.3466, 'CC': 0.9966}
+nominal {'gsa': (43.1966, 2.73, 40.3555), 'fixed': (57.9953, 0.728, 42.4623)}
+sigma=1.5 {'gsa': (44.0502, 2.5694, 40.9785), 'fixed': (53.4626, 0.9723, 42.902), 'swap': (55.1737, 0.758, 43.6461)}
+sigma=2.5 {'gsa': (42.7742, 2.8166, 40.0675), 'fixed': (55.8545, 0.8122, 42.1582), 'swap': (57.1327, 0.742, 42.2016)}
+sigma=3.0 {'gsa': (42.5448, 2.8659, 39.9145), 'fixed': (54.0521, 0.9006, 41.9801), 'swap': (56.1413, 0.7619, 42.1346)}
+srf_shift=-8nm {'gsa': (42.8636, 2.9095, 40.3185), 'fixed': (52.0301, 1.3142, 42.1341), 'swap': (52.4584, 1.3247, 42.4338)}
+srf_shift=+8nm {'gsa': (43.2888, 2.6779, 40.367), 'fixed': (51.8795, 1.3054, 42.3515), 'swap': (52.3552, 1.301, 42.4306)}
+noise 40dB {'gsa': 43.0353, 'fixed': 53.3391}
+noise 35dB {'gsa': 42.7067, 'fixed': 49.5536}
+noise 30dB {'gsa': 41.8358, 'fixed': 45.112}
+train (128, 1632, 2048) test (8, 128, 256, 256) val (64, 128, 64, 64)  (1s)
+ssrnet: 0.44M params on cuda
+bicubic test: {'PSNR': 33.6333, 'PSNR_psrt': 28.199, 'MPSNR_peak1': 35.251, 'SSIM': 0.7404, 'SAM': 4.4061, 'ERGAS': 9.0115, 'RMSE_DN': 321.8118, 'CC': 0.8408}
+it   2000 loss 0.00738 lr 9.86e-04 val PSNR 44.102 SAM 3.419 best 44.102 (0.04 h)
+it   4000 loss 0.00544 lr 9.57e-04 val PSNR 45.818 SAM 2.942 best 45.818 (0.06 h)
+it   6000 loss 0.00419 lr 9.05e-04 val PSNR 46.638 SAM 2.806 best 46.638 (0.08 h)
+it   8000 loss 0.00490 lr 8.35e-04 val PSNR 46.141 SAM 3.013 best 46.638 (0.11 h)
+it  10000 loss 0.00642 lr 7.50e-04 val PSNR 47.185 SAM 2.697 best 47.185 (0.13 h)
+it  12000 loss 0.00453 lr 6.55e-04 val PSNR 47.101 SAM 2.760 best 47.185 (0.15 h)
+it  14000 loss 0.00430 lr 5.52e-04 val PSNR 47.445 SAM 2.683 best 47.445 (0.17 h)
+it  16000 loss 0.00290 lr 4.48e-04 val PSNR 47.859 SAM 2.573 best 47.859 (0.19 h)
+it  18000 loss 0.00263 lr 3.46e-04 val PSNR 48.344 SAM 2.439 best 48.344 (0.21 h)
+it  20000 loss 0.00207 lr 2.50e-04 val PSNR 48.786 SAM 2.320 best 48.786 (0.24 h)
+it  22000 loss 0.00219 lr 1.65e-04 val PSNR 49.383 SAM 2.154 best 49.383 (0.26 h)
+it  24000 loss 0.00178 lr 9.55e-05 val PSNR 49.983 SAM 2.012 best 49.983 (0.28 h)
+it  26000 loss 0.00149 lr 4.32e-05 val PSNR 50.512 SAM 1.897 best 50.512 (0.30 h)
+it  28000 loss 0.00139 lr 1.09e-05 val PSNR 50.813 SAM 1.830 best 50.813 (0.32 h)
+it  30000 loss 0.00133 lr 1.00e-06 val PSNR 50.956 SAM 1.798 best 50.956 (0.35 h)
+TEST: {'PSNR': 49.9841, 'PSNR_psrt': 44.5498, 'MPSNR_peak1': 53.8301, 'SSIM': 0.9922, 'SAM': 1.7606, 'ERGAS': 2.4684, 'RMSE_DN': 48.8305, 'CC': 0.9911}
+/kaggle/working/out/puformer/results.json 10.132068 {'PSNR': 57.9943, 'PSNR_psrt': 52.56, 'MPSNR_peak1': 65.2864, 'SSIM': 0.9969, 'SAM': 0.7281, 'ERGAS': 1.3561, 'RMSE_DN': 19.3466, 'CC': 0.9966}
+/kaggle/working/out/ssrnet/results.json 0.442752 {'PSNR': 49.9841, 'PSNR_psrt': 44.5498, 'MPSNR_peak1': 53.8301, 'SSIM': 0.9922, 'SAM': 1.7606, 'ERGAS': 2.4684, 'RMSE_DN': 48.8305, 'CC': 0.9911}
+/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+[NbConvertApp] Writing 17074 bytes to __notebook__.ipynb
+[NbConvertApp] Converting notebook __notebook__.ipynb to html
+[NbConvertApp] Writing 293659 bytes to __results__.html

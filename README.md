@@ -8,6 +8,7 @@ The repository has two tracks:
 
 1. **Chikusei SOTA track (active).** [PUFormer](methods/puformer/), a physics-unfolded
    transformer that targets the best published Chikusei ×4 result (56.19 dB, IEEE TIP 2026).
+   First full run: 57.99 dB.
    It adds evaluations that published papers skip: consistency with the input observations,
    robustness to blur/SRF mismatch with a test-time operator swap, and robustness to noise.
 2. **Theory track.** Identifiability and ambiguity of the fusion problem: admissible ambiguity
@@ -19,12 +20,16 @@ The repository has two tracks:
 
 ## Chikusei ×4: where things stand
 
-| | PSNR ↑ | SAM ↓ | ERGAS ↓ | Source |
-|---|---|---|---|---|
-| Two-Stage Cond. Diffusion (IEEE TIP 2026), current published SOTA | **56.19** | 0.72 | 1.52 | [survey](docs/CHIKUSEI_SOTA_SURVEY.md) |
-| CLSNet (2026) | 55.20 | 0.78 | 1.63 | reported in TIP 2026 |
-| SMGU-Net (Pattern Recognition 2025) | 54.52 | 0.87 | 1.64 | reported in TIP 2026 |
-| **PUFormer (ours)** | *training* | | | [methods/puformer](methods/puformer/) |
+| | PSNR ↑ | SSIM ↑ | SAM ↓ | ERGAS ↓ | RMSE (DN) ↓ | Source |
+|---|---|---|---|---|---|---|
+| **PUFormer (ours)** | **57.99** | 0.9969 | 0.728 | **1.356** | **19.35** | [results](results/puformer_chikusei_x4/) |
+| Two-Stage Cond. Diffusion (IEEE TIP 2026), previous published SOTA | 56.19 | **0.9982** | **0.720** | 1.516 | 25.73 | [survey](docs/CHIKUSEI_SOTA_SURVEY.md) |
+| CLSNet (2026) | 55.20 | 0.9979 | 0.784 | 1.632 | 29.06 | reported in TIP 2026 |
+| SMGU-Net (Pattern Recognition 2025) | 54.52 | 0.9977 | 0.872 | 1.641 | 31.29 | reported in TIP 2026 |
+
+PUFormer (10.13 M parameters, 88,946 iterations on one T4) is 1st of 18 on PSNR, ERGAS, CC and
+RMSE against the full TIP'26 Table IV, 2nd on SAM, and behind on SSIM. The comparison, its caveats
+and the robustness study are in [results/puformer_chikusei_x4](results/puformer_chikusei_x4/).
 
 Protocol: WorldView-2 8-band MSI, Gaussian 7×7 blur with σ = 2, ×4 downsampling, 8 test tiles of
 256×256. The survey covers only peer-reviewed, subscription IEEE papers:

@@ -166,6 +166,16 @@ Numbers to beat under that protocol:
 | DCT (2024) | 52.1998 | 0.9977 | 0.9239 | 1.7448 |
 | PSRT (2023) | 50.6722 | 0.9952 | 1.2733 | 2.0107 |
 
+The full Chikusei block of Table IV (all 17 methods, with Q2n, CC, SCC and RMSE in DN) is in
+[results/puformer_chikusei_x4/tip26_table4_comparison.csv](../results/puformer_chikusei_x4/tip26_table4_comparison.csv).
+**The TIP'26 PSNR uses a fixed dataset-level peak, not PSRT's per-image peak.** For every row,
+`RMSE·10^(PSNR/20)` gives a nearly constant 16.6k–17.1k DN. That is despite the paper citing PSRT
+as its data source.
+
+**Our result (2026-09-24):** PUFormer reaches 57.99 dB / SSIM 0.9969 / SAM 0.728 / ERGAS 1.356 /
+RMSE 19.35 DN. It is 1st on PSNR, ERGAS, CC and RMSE, 2nd on SAM and about 11th on SSIM; see
+[results/puformer_chikusei_x4](../results/puformer_chikusei_x4/).
+
 Our earlier in-repo Chikusei results, for context: KrylovNet 43.69 dB (3-Gaussian SRF protocol).
 The diffusion-NullFusion and NullFusion-PP-v2 Chikusei Kaggle runs all crashed before
 producing a test number (shape mismatches, a missing dataset path, and the MATLAB v7.3 `.mat`
