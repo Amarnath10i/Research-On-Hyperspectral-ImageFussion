@@ -3,8 +3,10 @@
 Headline PSNR (`PSNR`): 10 log10(1 / MSE) over the whole cube, i.e. peak = the dataset's
 global max (data are divided by it). This matches TIP'26 Table IV: its RMSE column is
 in raw DN, and 20 log10(max_DN / RMSE_DN) reproduces its PSNR column to within ~1 dB.
-Also reported: `PSNR_psrt` (peak = each test image's own max, PSRT metrics.py) and
-`MPSNR_peak1` (band-wise mean, peak 1).
+Also reported: `PSNR_psrt` (peak = each test image's own max, PSRT metrics.py),
+`MPSNR_peak1` (band-wise mean, peak 1) and `SSIM_psrt` (PSRT cal_ssim.py: fixed
+C1 = 0.01^2, C2 = 0.03^2, i.e. data range 1, zero padding). Headline `SSIM` uses data
+range = the image's own max, which is stricter on dark images.
 """
 from __future__ import annotations
 
@@ -67,7 +69,20 @@ def ssim(gt, x, win=11, sigma=1.5):
     return float(m.mean())
 
 
-ALL = dict(PSNR=psnr, PSNR_psrt=psnr_psrt, MPSNR_peak1=mpsnr_peak1, SSIM=ssim, SAM=sam,
+def ssim_psrt(gt, x, win=11, sigma=1.5):
+    """SSIM exactly as PSRT's cal_ssim.py: data range 1, zero padding, mean over bands and pixels."""
+    ax = torch.arange(win, dtype=gt.dtype, device=gt.device) - win // 2
+    g = torch.exp(-ax ** 2 / (2 * sigma ** 2)); g = g / g.sum()
+    k = (g[:, None] * g[None, :])[None, None].expand(gt.shape[0], 1, win, win)
+    f = lambda t: F.conv2d(t[None], k, padding=win // 2, groups=gt.shape[0])[0]
+    c1, c2 = 0.01 ** 2, 0.03 ** 2
+    mu1, mu2 = f(gt), f(x)
+    s11, s22, s12 = f(gt * gt) - mu1 ** 2, f(x * x) - mu2 ** 2, f(gt * x) - mu1 * mu2
+    m = ((2 * mu1 * mu2 + c1) * (2 * s12 + c2)) / ((mu1 ** 2 + mu2 ** 2 + c1) * (s11 + s22 + c2))
+    return float(m.mean())
+
+
+ALL = dict(PSNR=psnr, PSNR_psrt=psnr_psrt, MPSNR_peak1=mpsnr_peak1, SSIM=ssim, SSIM_psrt=ssim_psrt, SAM=sam,
            ERGAS=ergas, RMSE_DN=rmse_dn, CC=cc)
 
 

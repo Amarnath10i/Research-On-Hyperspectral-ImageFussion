@@ -72,3 +72,19 @@ python train.py --mat /path/to/HyperspecVNIR_Chikusei_20140729.mat --model pufor
 python eval_gaps.py --mat /path/to/... --ckpt out/puformer/best_ema.pt --out out/puformer
 # Kaggle: python kaggle/build_notebook.py --commit <sha> ; then push kaggle/ with the Kaggle API
 ```
+
+### Training options
+
+| Flag | Meaning |
+|---|---|
+| `--epochs N` | Train for N epochs. An epoch is one pass-equivalent over the training area: 800 patches of 64², i.e. 800/bs iterations. Overrides `--iters` |
+| `--eval_epochs E` | Every E epochs: score validation (used for model selection) and test (logged only), and save `last.pt` |
+| `--snap_epochs S` | Also keep an EMA snapshot `ema_ep#####.pt` every S epochs |
+| `--hours H` | Stop at H hours of wall-clock time, save, and exit cleanly |
+| `--resume path/last.pt` | Continue an earlier session (Kaggle: mount the previous kernel's output). The cosine schedule then counts iterations only |
+| `--init_ckpt best_ema.pt` | Warm start (fine-tune) from earlier weights |
+| `--w_sam`, `--w_ssim` | Add a SAM (radians) and a (1 − SSIM) loss term to L1 |
+| `--gpus` | GPUs to use, split with DataParallel (default: all visible) |
+
+The final test is reported twice: plain, and with a 2-fold self-ensemble (identity + transpose).
+Flips are not used because they would shift the ×4 sampling grid.
