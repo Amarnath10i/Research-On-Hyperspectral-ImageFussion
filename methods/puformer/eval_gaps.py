@@ -22,11 +22,12 @@ import numpy as np
 import torch
 
 from hsifuse.baselines import gsa
-from hsifuse.data import find_mat, load_chikusei, make_pairs, split
+from hsifuse import metrics
+from hsifuse.data import load_dataset, make_pairs
 from hsifuse.evaluation import consistency
 from hsifuse.metrics import evaluate
 from hsifuse.models import build
-from hsifuse.ops import Degradation, wv2_srf
+from hsifuse.ops import Degradation, dataset_srf
 
 
 @torch.no_grad()
@@ -47,6 +48,7 @@ def score(gt, pred, lr, ms, deg):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--mat", required=True)
+    p.add_argument("--dataset", default="chikusei", choices=["chikusei", "pavia"])
     p.add_argument("--cache", default="")
     p.add_argument("--ckpt", required=True)
     p.add_argument("--model", default="puformer")
@@ -57,11 +59,10 @@ def main():
     a = p.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
 
-    path = a.mat if a.mat.endswith(".mat") else find_mat(a.mat)
-    _, te, _ = split(np.asarray(load_chikusei(path, a.cache or None)))
+    _, te, _, metrics.DN_SCALE = load_dataset(a.dataset, a.mat, a.cache or None)
     gt = torch.from_numpy(te).to(dev)
 
-    base = Degradation(wv2_srf(), pad=a.pad).to(dev)
+    base = Degradation(dataset_srf(a.dataset), pad=a.pad).to(dev)
     model = build(a.model, base, **(dict(width=a.width, stages=a.stages) if a.model == "puformer" else {})).to(dev)
     model.load_state_dict(torch.load(a.ckpt, map_location=dev))
     model.eval()
@@ -73,7 +74,7 @@ def main():
                [(f"srf_shift={d:+d}nm", 2.0, d) for d in (-8, 8)]
     res = {}
     for name, sigma, shift in settings:
-        true = Degradation(wv2_srf(shift_nm=shift), sigma=sigma, pad=a.pad).to(dev)
+        true = Degradation(dataset_srf(a.dataset, shift_nm=shift), sigma=sigma, pad=a.pad).to(dev)
         lr, ms, _ = make_pairs(gt, true)
         row = {"gsa": score(gt, gsa(lr, ms, true).clamp(0, 1), lr, ms, true)}
         model.deg = base
