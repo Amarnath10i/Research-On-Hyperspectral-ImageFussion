@@ -3,9 +3,12 @@
     LR-HSI  Y_H = S(K * X)      K: Gaussian 7x7, sigma=2;  S: x4 decimation
     HR-MSI  Y_M = R X           R: WorldView-2 8-band spectral response
 
-The same operators are used for data simulation and inside the network's
-data-consistency steps, so D / Dt and R / Rt are exact adjoint pairs
-(zero padding inside the network; reflect padding when simulating whole images).
+Data are simulated per image with reflect padding at the image border. The network's
+data-consistency steps use the same operators, and D / Dt and R / Rt are exact adjoint
+pairs for either border mode:
+    pad="reflect"  D is exactly the simulation operator (D X = Y_H for the true X), and
+                   Dt is its exact adjoint (reflect padding folded back onto the border)
+    pad="zeros"    legacy: zero padding inside the network (used by the first 57.99 dB run)
 """
 from __future__ import annotations
 
@@ -47,30 +50,60 @@ def gaussian_kernel(size: int = 7, sigma: float = 2.0) -> np.ndarray:
     return (k / k.sum()).astype(np.float32)
 
 
+def reflect_pad_adjoint(g: torch.Tensor, p: int) -> torch.Tensor:
+    """Adjoint of F.pad(x, (p, p, p, p), mode="reflect"): (.., H+2p, W+2p) -> (.., H, W).
+
+    Padded row j < p is a copy of row p - j, padded row H+p+m is a copy of row H-2-m,
+    so their values are added back onto those rows (then the same for columns).
+    """
+    h = g.shape[-2] - 2 * p
+    out = g[..., p:p + h, :].clone()
+    out[..., 1:p + 1, :] += g[..., :p, :].flip(-2)
+    out[..., h - 1 - p:h - 1, :] += g[..., h + p:, :].flip(-2)
+    w = out.shape[-1] - 2 * p
+    res = out[..., p:p + w].clone()
+    res[..., 1:p + 1] += out[..., :p].flip(-1)
+    res[..., w - 1 - p:w - 1] += out[..., w + p:].flip(-1)
+    return res
+
+
 class Degradation(nn.Module):
     """Differentiable D (blur + decimate), its adjoint Dt, spectral R and Rt."""
 
-    def __init__(self, srf: np.ndarray, scale: int = 4, ksize: int = 7, sigma: float = 2.0):
+    def __init__(self, srf: np.ndarray, scale: int = 4, ksize: int = 7, sigma: float = 2.0, pad: str = "zeros"):
         super().__init__()
-        self.scale, self.ksize = scale, ksize
+        assert pad in ("zeros", "reflect"), pad
+        self.scale, self.ksize, self.pad = scale, ksize, pad
         self.register_buffer("k", torch.from_numpy(gaussian_kernel(ksize, sigma))[None, None])
         self.register_buffer("srf", torch.from_numpy(srf))  # (B, M)
 
+    def _k(self, x: torch.Tensor) -> torch.Tensor:
+        return self.k.expand(x.shape[1], 1, -1, -1).to(x.dtype)
+
     def blur(self, x: torch.Tensor, pad_mode: str = "zeros") -> torch.Tensor:
+        """Full-resolution blur (used by the robustness study and GSA)."""
         c, p = x.shape[1], self.ksize // 2
         if pad_mode != "zeros":
             x = F.pad(x, (p, p, p, p), mode=pad_mode)
             p = 0
-        return F.conv2d(x, self.k.expand(c, 1, -1, -1).to(x.dtype), padding=p, groups=c)
+        return F.conv2d(x, self._k(x), padding=p, groups=c)
 
-    def D(self, x: torch.Tensor, pad_mode: str = "zeros") -> torch.Tensor:
-        return self.blur(x, pad_mode)[..., :: self.scale, :: self.scale]
+    def D(self, x: torch.Tensor, pad_mode: str | None = None) -> torch.Tensor:
+        """Blur, then keep every scale-th pixel starting at 0 (a strided conv, same result)."""
+        mode, p = pad_mode or self.pad, self.ksize // 2
+        if mode != "zeros":
+            x = F.pad(x, (p, p, p, p), mode=mode)
+            p = 0
+        return F.conv2d(x, self._k(x), stride=self.scale, padding=p, groups=x.shape[1])
 
     def Dt(self, y: torch.Tensor) -> torch.Tensor:
-        n, c, h, w = y.shape
-        up = y.new_zeros(n, c, h * self.scale, w * self.scale)
-        up[..., :: self.scale, :: self.scale] = y
-        return self.blur(up)  # kernel is symmetric, so blur is self-adjoint
+        """Exact adjoint of D (with this operator's border mode)."""
+        s, p = self.scale, self.ksize // 2
+        op = s - 1  # output_padding: gives exactly scale * h rows (zeros) / scale * h + 2p (reflect)
+        if self.pad == "zeros":
+            return F.conv_transpose2d(y, self._k(y), stride=s, padding=p, output_padding=op, groups=y.shape[1])
+        full = F.conv_transpose2d(y, self._k(y), stride=s, output_padding=op, groups=y.shape[1])
+        return reflect_pad_adjoint(full, p)
 
     def R(self, x: torch.Tensor) -> torch.Tensor:
         return torch.einsum("nbhw,bm->nmhw", x, self.srf.to(x.dtype))
