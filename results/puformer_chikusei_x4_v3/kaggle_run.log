@@ -1,0 +1,332 @@
+code sha256 e0e35e17357d5956418051b7ee8c818ec9055e1e9618ec2e49e944ebb605a969 from git 8003f49+local changes: ['eval_gaps.py', 'hsifuse', 'selfcheck.py', 'test.py', 'train.py']
+index, name, memory.total [MiB]
+0, Tesla T4, 15360 MiB
+1, Tesla T4, 15360 MiB
+               total        used        free      shared  buff/cache   available
+Mem:              31           0          25           0           4          30
+4
+/tmp/ipykernel_23/3291716816.py:11: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.
+  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)
+
+/tmp/ipykernel_23/3291716816.py:11: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.
+  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)
+2.10.0+cu128 2
+/kaggle/input
+/kaggle/input/datasets
+/kaggle/input/datasets/mingliu123
+/kaggle/input/datasets/mingliu123/chikusei
+/kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729_Ground_Truth.mat
+/kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat
+/kaggle/input/datasets/amarnath10chinu
+/kaggle/input/datasets/amarnath10chinu/puformer-chikusei-x4-init
+/kaggle/input/datasets/amarnath10chinu/puformer-chikusei-x4-init/best_ema.pt
+[exit 0 after 0.00 h of the session]
+warm start: /kaggle/input/datasets/amarnath10chinu/puformer-chikusei-x4-init/best_ema.pt | GPUs: 2 | deadline in 11.0 h
+(128, 2048, 2048) float32 154 s
+[exit 0 after 0.04 h of the session]
+[ok] D/Dt adjoint (zeros) rel err 1.6e-16
+[ok] Dt == autograd VJP of D (zeros) 
+[ok] R/Rt adjoint (zeros) 
+[ok] D/Dt adjoint (reflect) rel err 1.5e-16
+[ok] Dt == autograd VJP of D (reflect) 
+[ok] R/Rt adjoint (reflect) 
+[ok] strided D == blur + decimate (zeros) 
+[ok] strided Dt == zero-insert + blur (zeros) 
+[ok] reflect D == simulation operator 
+[ok] reflect D == blur(reflect) + decimate 
+[ok] onions_quality fast == literal (n=2) max diff 4.9e-16
+[ok] onions_quality fast == literal (n=4) max diff 2.4e-16
+[ok] onions_quality fast == literal (n=8) max diff 2.1e-16
+[ok] onions_quality fast == literal (n=16) max diff 2.2e-16
+[ok] onions_quality fast == literal (n=128) max diff 2.2e-16
+[ok] Q2n(x, x) == 1 1.000000000000
+[ok] SCC(x, x) == 1 
+[ok] Q2n fast == literal on an image 0.997605
+[ok] Q2n non-multiple of the block size runs 
+   metrics on a noisy image: {'PSNR': 39.9934, 'PSNR_psrt': 35.5564, 'MPSNR_peak1': 39.9944, 'SSIM': 0.9975, 'SSIM_psrt': 0.9978, 'SAM': 1.5071, 'ERGAS': 0.7147, 'RMSE_DN': 151.4451, 'CC': 0.9976, 'SCC': 0.9991, 'Q2n': 0.9976}
+[ok] PUFormer forward/backward (zeros) 
+[ok] PUFormer forward/backward (reflect) 
+all checks passed
+[exit 0 after 0.05 h of the session]
+VAL: {'PSNR': 58.5963, 'PSNR_psrt': 49.1261, 'MPSNR_peak1': 66.8977, 'SSIM': 0.9952, 'SSIM_psrt': 0.9991, 'SAM': 0.6995, 'ERGAS': 1.4377, 'RMSE_DN': 18.3261, 'CC': 0.9936, 'SCC': 0.9995}
+TEST: {'PSNR': 57.9944, 'PSNR_psrt': 52.56, 'MPSNR_peak1': 65.2864, 'SSIM': 0.9969, 'SSIM_psrt': 0.9989, 'SAM': 0.7281, 'ERGAS': 1.356, 'RMSE_DN': 19.3466, 'CC': 0.9966, 'SCC': 0.9991, 'Q2n': 0.9929}
+TEST (self-ensemble): {'PSNR': 58.0213, 'PSNR_psrt': 52.5869, 'MPSNR_peak1': 65.3413, 'SSIM': 0.9969, 'SSIM_psrt': 0.9989, 'SAM': 0.726, 'ERGAS': 1.3533, 'RMSE_DN': 19.2936, 'CC': 0.9966, 'SCC': 0.9991, 'Q2n': 0.9929}
+consistency: {'cons_H_dB': 76.6869272123962, 'cons_M_dB': 74.97013225886718}
+[exit 0 after 0.06 h of the session]
+[W925 15:05:28.845916256 socket.cpp:207] [c10d] The hostname of the client socket cannot be retrieved. err=-3
+[W925 15:05:30.067298375 socket.cpp:207] [c10d] The hostname of the client socket cannot be retrieved. err=-3
+[W925 15:05:30.079416041 socket.cpp:207] [c10d] The hostname of the client socket cannot be retrieved. err=-3
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[rank0]:[W925 15:05:30.115133293 ProcessGroupNCCL.cpp:5138] Guessing device ID based on global rank. This can cause a hang if rank to GPU mapping is heterogeneous. You can specify device_id in init_process_group()
+train (128, 1632, 2048) test (8, 128, 256, 256) val (64, 128, 64, 64)  (1s)
+warm start from /kaggle/input/datasets/amarnath10chinu/puformer-chikusei-x4-init/best_ema.pt
+puformer (reflect borders): 10.13M params on 2 x cuda; batch 8 x 2; epoch = 50 iters; eval every 2000 iters; deadline in inf h; schedule by time
+PROBE 38.98 samples/s 2.436 it/s world 2, GPU 6.5 GB, RSS 2.27 GB, host free 26.3 GB
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[exit 0 after 0.10 h of the session]
+train (128, 1632, 2048) test (8, 128, 256, 256) val (64, 128, 64, 64)  (1s)
+warm start from /kaggle/input/datasets/amarnath10chinu/puformer-chikusei-x4-init/best_ema.pt
+puformer (reflect borders): 10.13M params on 1 x cuda; batch 8 x 1; epoch = 100 iters; eval every 2000 iters; deadline in inf h; schedule by time
+PROBE 19.48 samples/s 2.435 it/s world 1, GPU 6.5 GB, RSS 2.05 GB, host free 28.5 GB
+[exit 0 after 0.13 h of the session]
+samples/s: {2: 38.98, 1: 19.48} -> DDP
+[W925 15:09:13.415767453 socket.cpp:207] [c10d] The hostname of the client socket cannot be retrieved. err=-3
+[W925 15:09:15.676223891 socket.cpp:207] [c10d] The hostname of the client socket cannot be retrieved. err=-3
+[W925 15:09:15.686890714 socket.cpp:207] [c10d] The hostname of the client socket cannot be retrieved. err=-3
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[rank0]:[W925 15:09:15.703911005 ProcessGroupNCCL.cpp:5138] Guessing device ID based on global rank. This can cause a hang if rank to GPU mapping is heterogeneous. You can specify device_id in init_process_group()
+train (128, 1632, 2048) test (8, 128, 256, 256) val (64, 128, 64, 64)  (1s)
+warm start from /kaggle/input/datasets/amarnath10chinu/puformer-chikusei-x4-init/best_ema.pt
+puformer (reflect borders): 10.13M params on 2 x cuda; batch 8 x 2; epoch = 50 iters; eval every 2000 iters; deadline in 10.87 h; schedule by time
+bicubic test: {'PSNR': 33.6333, 'PSNR_psrt': 28.199, 'MPSNR_peak1': 35.251, 'SSIM': 0.7404, 'SSIM_psrt': 0.85, 'SAM': 4.4061, 'ERGAS': 9.0115, 'RMSE_DN': 321.8118, 'CC': 0.8408, 'SCC': 0.7648}
+start: ep     0.0 it      0 loss nan lr 0.00e+00 val PSNR 49.515 SSIM 0.9946 SAM 0.857 | test PSNR 54.238 SSIM 0.9968/0.9985 SAM 0.7727 ERGAS 1.4736 RMSE 29.54 SCC 0.9989 | best val 49.515 (0.00 h)
+  it 500 loss 0.00187 lr 7.50e-05 2.11 it/s (x16 patches) cosine end ~82511 it, GPU 6.8 GB, RSS 2.39 GB, host free 26.2 GB
+  it 1000 loss 0.00184 lr 1.50e-04 2.42 it/s (x16 patches) cosine end ~88095 it, GPU 6.8 GB, RSS 2.39 GB, host free 26.2 GB
+  it 1500 loss 0.00183 lr 1.50e-04 2.43 it/s (x16 patches) cosine end ~90294 it, GPU 6.8 GB, RSS 2.39 GB, host free 26.3 GB
+ep    40.0 it   2000 loss 0.00182 lr 1.50e-04 val PSNR 58.603 SSIM 0.9952 SAM 0.698 | test PSNR 58.055 SSIM 0.9969/0.9989 SAM 0.7231 ERGAS 1.3452 RMSE 19.22 SCC 0.9991 | best val 58.603 (0.24 h)
+  it 2500 loss 0.00181 lr 1.50e-04 2.40 it/s (x16 patches) cosine end ~91738 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.3 GB
+  it 3000 loss 0.00180 lr 1.50e-04 2.43 it/s (x16 patches) cosine end ~92298 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.3 GB
+  it 3500 loss 0.00180 lr 1.49e-04 2.43 it/s (x16 patches) cosine end ~92704 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep    80.0 it   4000 loss 0.00180 lr 1.49e-04 val PSNR 58.624 SSIM 0.9953 SAM 0.696 | test PSNR 58.071 SSIM 0.9969/0.9989 SAM 0.7217 ERGAS 1.3435 RMSE 19.19 SCC 0.9992 | best val 58.624 (0.47 h)
+  it 4500 loss 0.00180 lr 1.49e-04 2.40 it/s (x16 patches) cosine end ~92981 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 5000 loss 0.00179 lr 1.49e-04 2.43 it/s (x16 patches) cosine end ~93199 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 5500 loss 0.00179 lr 1.49e-04 2.43 it/s (x16 patches) cosine end ~93374 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+ep   120.0 it   6000 loss 0.00179 lr 1.48e-04 val PSNR 58.626 SSIM 0.9953 SAM 0.696 | test PSNR 58.092 SSIM 0.9969/0.9989 SAM 0.7202 ERGAS 1.3399 RMSE 19.14 SCC 0.9992 | best val 58.626 (0.70 h)
+  it 6500 loss 0.00179 lr 1.48e-04 2.40 it/s (x16 patches) cosine end ~93466 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 7000 loss 0.00179 lr 1.48e-04 2.43 it/s (x16 patches) cosine end ~93588 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 7500 loss 0.00179 lr 1.48e-04 2.43 it/s (x16 patches) cosine end ~93684 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep   160.0 it   8000 loss 0.00179 lr 1.47e-04 val PSNR 58.645 SSIM 0.9953 SAM 0.694 | test PSNR 58.096 SSIM 0.9969/0.9989 SAM 0.7198 ERGAS 1.3392 RMSE 19.14 SCC 0.9992 | best val 58.645 (0.93 h)
+  it 8500 loss 0.00179 lr 1.47e-04 2.40 it/s (x16 patches) cosine end ~93697 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 9000 loss 0.00179 lr 1.47e-04 2.43 it/s (x16 patches) cosine end ~93777 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 9500 loss 0.00179 lr 1.46e-04 2.43 it/s (x16 patches) cosine end ~93847 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+ep   200.0 it  10000 loss 0.00178 lr 1.46e-04 val PSNR 58.650 SSIM 0.9953 SAM 0.694 | test PSNR 58.105 SSIM 0.9969/0.9989 SAM 0.7191 ERGAS 1.3374 RMSE 19.12 SCC 0.9992 | best val 58.650 (1.16 h)
+  it 10500 loss 0.00178 lr 1.45e-04 2.40 it/s (x16 patches) cosine end ~93846 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 11000 loss 0.00177 lr 1.45e-04 2.43 it/s (x16 patches) cosine end ~93896 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 11500 loss 0.00177 lr 1.45e-04 2.43 it/s (x16 patches) cosine end ~93948 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+ep   240.0 it  12000 loss 0.00178 lr 1.44e-04 val PSNR 58.671 SSIM 0.9953 SAM 0.692 | test PSNR 58.100 SSIM 0.9969/0.9989 SAM 0.7201 ERGAS 1.3393 RMSE 19.14 SCC 0.9992 | best val 58.671 (1.39 h)
+  it 12500 loss 0.00177 lr 1.44e-04 2.40 it/s (x16 patches) cosine end ~93947 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 13000 loss 0.00178 lr 1.43e-04 2.43 it/s (x16 patches) cosine end ~93991 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 13500 loss 0.00177 lr 1.43e-04 2.43 it/s (x16 patches) cosine end ~94032 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep   280.0 it  14000 loss 0.00177 lr 1.42e-04 val PSNR 58.671 SSIM 0.9953 SAM 0.692 | test PSNR 58.121 SSIM 0.9969/0.9989 SAM 0.7174 ERGAS 1.3355 RMSE 19.09 SCC 0.9992 | best val 58.671 (1.62 h)
+  it 14500 loss 0.00177 lr 1.41e-04 2.40 it/s (x16 patches) cosine end ~94028 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 15000 loss 0.00176 lr 1.41e-04 2.43 it/s (x16 patches) cosine end ~94067 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.3 GB
+  it 15500 loss 0.00177 lr 1.40e-04 2.43 it/s (x16 patches) cosine end ~94103 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.3 GB
+ep   320.0 it  16000 loss 0.00177 lr 1.40e-04 val PSNR 58.673 SSIM 0.9953 SAM 0.692 | test PSNR 58.116 SSIM 0.9969/0.9989 SAM 0.7180 ERGAS 1.3371 RMSE 19.10 SCC 0.9992 | best val 58.673 (1.85 h)
+  it 16500 loss 0.00177 lr 1.39e-04 2.40 it/s (x16 patches) cosine end ~94090 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 17000 loss 0.00177 lr 1.38e-04 2.43 it/s (x16 patches) cosine end ~94118 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 17500 loss 0.00177 lr 1.38e-04 2.43 it/s (x16 patches) cosine end ~94148 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.3 GB
+ep   360.0 it  18000 loss 0.00177 lr 1.37e-04 val PSNR 58.680 SSIM 0.9953 SAM 0.692 | test PSNR 58.113 SSIM 0.9969/0.9989 SAM 0.7187 ERGAS 1.3389 RMSE 19.11 SCC 0.9992 | best val 58.680 (2.08 h)
+  it 18500 loss 0.00176 lr 1.36e-04 2.40 it/s (x16 patches) cosine end ~94133 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 19000 loss 0.00176 lr 1.35e-04 2.43 it/s (x16 patches) cosine end ~94156 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 19500 loss 0.00176 lr 1.35e-04 2.43 it/s (x16 patches) cosine end ~94182 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+ep   400.0 it  20000 loss 0.00176 lr 1.34e-04 val PSNR 58.690 SSIM 0.9953 SAM 0.691 | test PSNR 58.124 SSIM 0.9969/0.9989 SAM 0.7176 ERGAS 1.3375 RMSE 19.09 SCC 0.9992 | best val 58.690 (2.31 h)
+  it 20500 loss 0.00174 lr 1.33e-04 2.40 it/s (x16 patches) cosine end ~94170 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 21000 loss 0.00175 lr 1.32e-04 2.43 it/s (x16 patches) cosine end ~94192 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.3 GB
+  it 21500 loss 0.00175 lr 1.32e-04 2.43 it/s (x16 patches) cosine end ~94215 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.3 GB
+ep   440.0 it  22000 loss 0.00175 lr 1.31e-04 val PSNR 58.693 SSIM 0.9953 SAM 0.691 | test PSNR 58.123 SSIM 0.9969/0.9989 SAM 0.7174 ERGAS 1.3370 RMSE 19.09 SCC 0.9992 | best val 58.693 (2.54 h)
+  it 22500 loss 0.00174 lr 1.30e-04 2.40 it/s (x16 patches) cosine end ~94198 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 23000 loss 0.00174 lr 1.29e-04 2.43 it/s (x16 patches) cosine end ~94213 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.3 GB
+  it 23500 loss 0.00174 lr 1.28e-04 2.43 it/s (x16 patches) cosine end ~94228 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep   480.0 it  24000 loss 0.00174 lr 1.27e-04 val PSNR 58.700 SSIM 0.9953 SAM 0.690 | test PSNR 58.125 SSIM 0.9969/0.9989 SAM 0.7176 ERGAS 1.3372 RMSE 19.09 SCC 0.9992 | best val 58.700 (2.77 h)
+  it 24500 loss 0.00173 lr 1.26e-04 2.40 it/s (x16 patches) cosine end ~94211 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 25000 loss 0.00173 lr 1.25e-04 2.42 it/s (x16 patches) cosine end ~94223 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 25500 loss 0.00174 lr 1.24e-04 2.43 it/s (x16 patches) cosine end ~94237 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep   520.0 it  26000 loss 0.00174 lr 1.24e-04 val PSNR 58.706 SSIM 0.9953 SAM 0.690 | test PSNR 58.134 SSIM 0.9969/0.9989 SAM 0.7166 ERGAS 1.3348 RMSE 19.07 SCC 0.9992 | best val 58.706 (3.00 h)
+  it 26500 loss 0.00173 lr 1.23e-04 2.40 it/s (x16 patches) cosine end ~94218 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 27000 loss 0.00173 lr 1.22e-04 2.43 it/s (x16 patches) cosine end ~94231 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 27500 loss 0.00173 lr 1.21e-04 2.43 it/s (x16 patches) cosine end ~94247 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep   560.0 it  28000 loss 0.00173 lr 1.20e-04 val PSNR 58.712 SSIM 0.9953 SAM 0.690 | test PSNR 58.133 SSIM 0.9969/0.9989 SAM 0.7170 ERGAS 1.3355 RMSE 19.08 SCC 0.9992 | best val 58.712 (3.23 h)
+  it 28500 loss 0.00173 lr 1.19e-04 2.40 it/s (x16 patches) cosine end ~94230 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.3 GB
+  it 29000 loss 0.00173 lr 1.18e-04 2.43 it/s (x16 patches) cosine end ~94243 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 29500 loss 0.00173 lr 1.17e-04 2.43 it/s (x16 patches) cosine end ~94254 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep   600.0 it  30000 loss 0.00173 lr 1.16e-04 val PSNR 58.709 SSIM 0.9953 SAM 0.690 | test PSNR 58.134 SSIM 0.9969/0.9989 SAM 0.7170 ERGAS 1.3355 RMSE 19.08 SCC 0.9992 | best val 58.712 (3.46 h)
+  it 30500 loss 0.00172 lr 1.14e-04 2.40 it/s (x16 patches) cosine end ~94243 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 31000 loss 0.00173 lr 1.13e-04 2.43 it/s (x16 patches) cosine end ~94253 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 31500 loss 0.00173 lr 1.12e-04 2.43 it/s (x16 patches) cosine end ~94264 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep   640.0 it  32000 loss 0.00173 lr 1.11e-04 val PSNR 58.715 SSIM 0.9953 SAM 0.690 | test PSNR 58.132 SSIM 0.9969/0.9989 SAM 0.7172 ERGAS 1.3359 RMSE 19.08 SCC 0.9992 | best val 58.715 (3.70 h)
+  it 32500 loss 0.00173 lr 1.10e-04 2.40 it/s (x16 patches) cosine end ~94251 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 33000 loss 0.00173 lr 1.09e-04 2.43 it/s (x16 patches) cosine end ~94265 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 33500 loss 0.00173 lr 1.08e-04 2.43 it/s (x16 patches) cosine end ~94276 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep   680.0 it  34000 loss 0.00172 lr 1.07e-04 val PSNR 58.712 SSIM 0.9953 SAM 0.690 | test PSNR 58.136 SSIM 0.9969/0.9989 SAM 0.7170 ERGAS 1.3350 RMSE 19.07 SCC 0.9992 | best val 58.715 (3.93 h)
+  it 34500 loss 0.00173 lr 1.06e-04 2.39 it/s (x16 patches) cosine end ~94258 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 35000 loss 0.00172 lr 1.05e-04 2.43 it/s (x16 patches) cosine end ~94267 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 35500 loss 0.00173 lr 1.03e-04 2.43 it/s (x16 patches) cosine end ~94278 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.3 GB
+ep   720.0 it  36000 loss 0.00172 lr 1.02e-04 val PSNR 58.712 SSIM 0.9953 SAM 0.690 | test PSNR 58.135 SSIM 0.9969/0.9989 SAM 0.7173 ERGAS 1.3360 RMSE 19.08 SCC 0.9992 | best val 58.715 (4.16 h)
+  it 36500 loss 0.00172 lr 1.01e-04 2.40 it/s (x16 patches) cosine end ~94264 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.3 GB
+  it 37000 loss 0.00171 lr 9.99e-05 2.43 it/s (x16 patches) cosine end ~94276 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 37500 loss 0.00171 lr 9.87e-05 2.43 it/s (x16 patches) cosine end ~94286 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep   760.0 it  38000 loss 0.00171 lr 9.75e-05 val PSNR 58.714 SSIM 0.9953 SAM 0.690 | test PSNR 58.139 SSIM 0.9969/0.9989 SAM 0.7171 ERGAS 1.3360 RMSE 19.07 SCC 0.9992 | best val 58.715 (4.39 h)
+  it 38500 loss 0.00170 lr 9.63e-05 2.39 it/s (x16 patches) cosine end ~94268 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 39000 loss 0.00171 lr 9.51e-05 2.43 it/s (x16 patches) cosine end ~94277 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 39500 loss 0.00171 lr 9.39e-05 2.43 it/s (x16 patches) cosine end ~94287 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.3 GB
+ep   800.0 it  40000 loss 0.00171 lr 9.27e-05 val PSNR 58.714 SSIM 0.9953 SAM 0.690 | test PSNR 58.143 SSIM 0.9969/0.9989 SAM 0.7168 ERGAS 1.3362 RMSE 19.06 SCC 0.9992 | best val 58.715 (4.62 h)
+  it 40500 loss 0.00171 lr 9.15e-05 2.40 it/s (x16 patches) cosine end ~94279 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 41000 loss 0.00171 lr 9.02e-05 2.43 it/s (x16 patches) cosine end ~94287 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 41500 loss 0.00171 lr 8.90e-05 2.43 it/s (x16 patches) cosine end ~94295 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep   840.0 it  42000 loss 0.00171 lr 8.78e-05 val PSNR 58.719 SSIM 0.9953 SAM 0.690 | test PSNR 58.145 SSIM 0.9969/0.9989 SAM 0.7170 ERGAS 1.3363 RMSE 19.06 SCC 0.9992 | best val 58.719 (4.85 h)
+  it 42500 loss 0.00170 lr 8.66e-05 2.40 it/s (x16 patches) cosine end ~94281 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 43000 loss 0.00171 lr 8.53e-05 2.43 it/s (x16 patches) cosine end ~94288 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 43500 loss 0.00171 lr 8.41e-05 2.43 it/s (x16 patches) cosine end ~94295 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep   880.0 it  44000 loss 0.00171 lr 8.29e-05 val PSNR 58.722 SSIM 0.9953 SAM 0.689 | test PSNR 58.147 SSIM 0.9969/0.9989 SAM 0.7171 ERGAS 1.3367 RMSE 19.06 SCC 0.9992 | best val 58.722 (5.08 h)
+  it 44500 loss 0.00171 lr 8.16e-05 2.40 it/s (x16 patches) cosine end ~94285 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 45000 loss 0.00171 lr 8.04e-05 2.43 it/s (x16 patches) cosine end ~94293 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 45500 loss 0.00170 lr 7.91e-05 2.43 it/s (x16 patches) cosine end ~94303 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep   920.0 it  46000 loss 0.00170 lr 7.79e-05 val PSNR 58.713 SSIM 0.9953 SAM 0.690 | test PSNR 58.147 SSIM 0.9969/0.9989 SAM 0.7170 ERGAS 1.3367 RMSE 19.05 SCC 0.9992 | best val 58.722 (5.31 h)
+  it 46500 loss 0.00170 lr 7.66e-05 2.40 it/s (x16 patches) cosine end ~94290 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 47000 loss 0.00170 lr 7.54e-05 2.43 it/s (x16 patches) cosine end ~94298 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 47500 loss 0.00170 lr 7.41e-05 2.43 it/s (x16 patches) cosine end ~94305 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep   960.0 it  48000 loss 0.00170 lr 7.29e-05 val PSNR 58.721 SSIM 0.9953 SAM 0.690 | test PSNR 58.146 SSIM 0.9969/0.9989 SAM 0.7172 ERGAS 1.3369 RMSE 19.06 SCC 0.9992 | best val 58.722 (5.54 h)
+  it 48500 loss 0.00171 lr 7.16e-05 2.40 it/s (x16 patches) cosine end ~94293 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 49000 loss 0.00170 lr 7.04e-05 2.43 it/s (x16 patches) cosine end ~94301 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 49500 loss 0.00170 lr 6.91e-05 2.43 it/s (x16 patches) cosine end ~94308 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep  1000.0 it  50000 loss 0.00170 lr 6.79e-05 val PSNR 58.721 SSIM 0.9953 SAM 0.690 | test PSNR 58.145 SSIM 0.9969/0.9989 SAM 0.7174 ERGAS 1.3374 RMSE 19.06 SCC 0.9992 | best val 58.722 (5.77 h)
+  it 50500 loss 0.00170 lr 6.66e-05 2.40 it/s (x16 patches) cosine end ~94301 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 51000 loss 0.00170 lr 6.54e-05 2.43 it/s (x16 patches) cosine end ~94309 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 51500 loss 0.00170 lr 6.42e-05 2.43 it/s (x16 patches) cosine end ~94317 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep  1040.0 it  52000 loss 0.00170 lr 6.30e-05 val PSNR 58.721 SSIM 0.9953 SAM 0.690 | test PSNR 58.148 SSIM 0.9969/0.9989 SAM 0.7172 ERGAS 1.3372 RMSE 19.06 SCC 0.9992 | best val 58.722 (6.00 h)
+  it 52500 loss 0.00169 lr 6.17e-05 2.40 it/s (x16 patches) cosine end ~94310 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 53000 loss 0.00169 lr 6.05e-05 2.43 it/s (x16 patches) cosine end ~94318 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 53500 loss 0.00169 lr 5.93e-05 2.43 it/s (x16 patches) cosine end ~94324 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+ep  1080.0 it  54000 loss 0.00169 lr 5.81e-05 val PSNR 58.720 SSIM 0.9953 SAM 0.690 | test PSNR 58.148 SSIM 0.9969/0.9989 SAM 0.7172 ERGAS 1.3370 RMSE 19.06 SCC 0.9992 | best val 58.722 (6.23 h)
+  it 54500 loss 0.00170 lr 5.68e-05 2.40 it/s (x16 patches) cosine end ~94318 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 55000 loss 0.00170 lr 5.56e-05 2.43 it/s (x16 patches) cosine end ~94324 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 55500 loss 0.00170 lr 5.45e-05 2.43 it/s (x16 patches) cosine end ~94332 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+ep  1120.0 it  56000 loss 0.00170 lr 5.33e-05 val PSNR 58.716 SSIM 0.9953 SAM 0.690 | test PSNR 58.147 SSIM 0.9969/0.9989 SAM 0.7174 ERGAS 1.3372 RMSE 19.06 SCC 0.9992 | best val 58.722 (6.46 h)
+  it 56500 loss 0.00170 lr 5.21e-05 2.40 it/s (x16 patches) cosine end ~94326 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 57000 loss 0.00170 lr 5.09e-05 2.44 it/s (x16 patches) cosine end ~94334 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 57500 loss 0.00170 lr 4.97e-05 2.44 it/s (x16 patches) cosine end ~94343 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep  1160.0 it  58000 loss 0.00169 lr 4.86e-05 val PSNR 58.718 SSIM 0.9953 SAM 0.690 | test PSNR 58.146 SSIM 0.9969/0.9989 SAM 0.7175 ERGAS 1.3378 RMSE 19.06 SCC 0.9992 | best val 58.722 (6.69 h)
+  it 58500 loss 0.00168 lr 4.74e-05 2.40 it/s (x16 patches) cosine end ~94338 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 59000 loss 0.00168 lr 4.62e-05 2.43 it/s (x16 patches) cosine end ~94346 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 59500 loss 0.00169 lr 4.51e-05 2.44 it/s (x16 patches) cosine end ~94354 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep  1200.0 it  60000 loss 0.00169 lr 4.40e-05 val PSNR 58.721 SSIM 0.9953 SAM 0.690 | test PSNR 58.146 SSIM 0.9969/0.9989 SAM 0.7175 ERGAS 1.3378 RMSE 19.06 SCC 0.9992 | best val 58.722 (6.92 h)
+  it 60500 loss 0.00169 lr 4.28e-05 2.41 it/s (x16 patches) cosine end ~94350 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 61000 loss 0.00169 lr 4.17e-05 2.44 it/s (x16 patches) cosine end ~94358 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 61500 loss 0.00169 lr 4.06e-05 2.44 it/s (x16 patches) cosine end ~94366 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep  1240.0 it  62000 loss 0.00169 lr 3.95e-05 val PSNR 58.717 SSIM 0.9953 SAM 0.690 | test PSNR 58.146 SSIM 0.9969/0.9989 SAM 0.7178 ERGAS 1.3381 RMSE 19.06 SCC 0.9992 | best val 58.722 (7.15 h)
+  it 62500 loss 0.00169 lr 3.84e-05 2.41 it/s (x16 patches) cosine end ~94362 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 63000 loss 0.00169 lr 3.73e-05 2.43 it/s (x16 patches) cosine end ~94369 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 63500 loss 0.00169 lr 3.62e-05 2.44 it/s (x16 patches) cosine end ~94377 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep  1280.0 it  64000 loss 0.00169 lr 3.52e-05 val PSNR 58.717 SSIM 0.9953 SAM 0.690 | test PSNR 58.145 SSIM 0.9969/0.9989 SAM 0.7179 ERGAS 1.3383 RMSE 19.07 SCC 0.9992 | best val 58.722 (7.38 h)
+  it 64500 loss 0.00168 lr 3.41e-05 2.41 it/s (x16 patches) cosine end ~94373 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 65000 loss 0.00168 lr 3.31e-05 2.44 it/s (x16 patches) cosine end ~94380 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 65500 loss 0.00168 lr 3.21e-05 2.43 it/s (x16 patches) cosine end ~94387 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep  1320.0 it  66000 loss 0.00168 lr 3.11e-05 val PSNR 58.717 SSIM 0.9953 SAM 0.690 | test PSNR 58.147 SSIM 0.9969/0.9989 SAM 0.7179 ERGAS 1.3384 RMSE 19.06 SCC 0.9992 | best val 58.722 (7.60 h)
+  it 66500 loss 0.00168 lr 3.00e-05 2.41 it/s (x16 patches) cosine end ~94383 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 67000 loss 0.00168 lr 2.91e-05 2.44 it/s (x16 patches) cosine end ~94389 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 67500 loss 0.00169 lr 2.81e-05 2.43 it/s (x16 patches) cosine end ~94396 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+ep  1360.0 it  68000 loss 0.00169 lr 2.71e-05 val PSNR 58.720 SSIM 0.9953 SAM 0.690 | test PSNR 58.147 SSIM 0.9969/0.9989 SAM 0.7180 ERGAS 1.3388 RMSE 19.06 SCC 0.9992 | best val 58.722 (7.83 h)
+  it 68500 loss 0.00169 lr 2.62e-05 2.40 it/s (x16 patches) cosine end ~94389 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 69000 loss 0.00169 lr 2.52e-05 2.43 it/s (x16 patches) cosine end ~94394 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 69500 loss 0.00169 lr 2.43e-05 2.44 it/s (x16 patches) cosine end ~94400 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+ep  1400.0 it  70000 loss 0.00169 lr 2.34e-05 val PSNR 58.717 SSIM 0.9953 SAM 0.690 | test PSNR 58.146 SSIM 0.9969/0.9989 SAM 0.7181 ERGAS 1.3389 RMSE 19.06 SCC 0.9992 | best val 58.722 (8.06 h)
+  it 70500 loss 0.00168 lr 2.25e-05 2.40 it/s (x16 patches) cosine end ~94395 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 71000 loss 0.00168 lr 2.16e-05 2.43 it/s (x16 patches) cosine end ~94400 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 71500 loss 0.00168 lr 2.08e-05 2.43 it/s (x16 patches) cosine end ~94406 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+ep  1440.0 it  72000 loss 0.00168 lr 1.99e-05 val PSNR 58.717 SSIM 0.9953 SAM 0.690 | test PSNR 58.144 SSIM 0.9969/0.9989 SAM 0.7181 ERGAS 1.3390 RMSE 19.07 SCC 0.9992 | best val 58.722 (8.29 h)
+  it 72500 loss 0.00168 lr 1.91e-05 2.40 it/s (x16 patches) cosine end ~94401 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 73000 loss 0.00168 lr 1.82e-05 2.43 it/s (x16 patches) cosine end ~94406 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 73500 loss 0.00168 lr 1.74e-05 2.43 it/s (x16 patches) cosine end ~94412 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+ep  1480.0 it  74000 loss 0.00168 lr 1.67e-05 val PSNR 58.716 SSIM 0.9953 SAM 0.690 | test PSNR 58.145 SSIM 0.9969/0.9989 SAM 0.7182 ERGAS 1.3392 RMSE 19.07 SCC 0.9992 | best val 58.722 (8.52 h)
+  it 74500 loss 0.00169 lr 1.59e-05 2.40 it/s (x16 patches) cosine end ~94407 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 75000 loss 0.00169 lr 1.51e-05 2.43 it/s (x16 patches) cosine end ~94412 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 75500 loss 0.00169 lr 1.44e-05 2.43 it/s (x16 patches) cosine end ~94418 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+ep  1520.0 it  76000 loss 0.00169 lr 1.37e-05 val PSNR 58.716 SSIM 0.9953 SAM 0.690 | test PSNR 58.146 SSIM 0.9969/0.9989 SAM 0.7182 ERGAS 1.3393 RMSE 19.07 SCC 0.9992 | best val 58.722 (8.75 h)
+  it 76500 loss 0.00168 lr 1.29e-05 2.40 it/s (x16 patches) cosine end ~94413 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 77000 loss 0.00168 lr 1.22e-05 2.44 it/s (x16 patches) cosine end ~94418 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 77500 loss 0.00168 lr 1.16e-05 2.43 it/s (x16 patches) cosine end ~94422 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+ep  1560.0 it  78000 loss 0.00168 lr 1.09e-05 val PSNR 58.716 SSIM 0.9953 SAM 0.690 | test PSNR 58.146 SSIM 0.9969/0.9989 SAM 0.7181 ERGAS 1.3397 RMSE 19.06 SCC 0.9992 | best val 58.722 (8.98 h)
+  it 78500 loss 0.00169 lr 1.03e-05 2.40 it/s (x16 patches) cosine end ~94416 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 79000 loss 0.00168 lr 9.66e-06 2.43 it/s (x16 patches) cosine end ~94421 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 79500 loss 0.00168 lr 9.06e-06 2.43 it/s (x16 patches) cosine end ~94425 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep  1600.0 it  80000 loss 0.00168 lr 8.48e-06 val PSNR 58.715 SSIM 0.9953 SAM 0.690 | test PSNR 58.145 SSIM 0.9969/0.9989 SAM 0.7183 ERGAS 1.3398 RMSE 19.07 SCC 0.9992 | best val 58.722 (9.21 h)
+  it 80500 loss 0.00168 lr 7.90e-06 2.40 it/s (x16 patches) cosine end ~94421 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 81000 loss 0.00168 lr 7.36e-06 2.43 it/s (x16 patches) cosine end ~94424 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 81500 loss 0.00168 lr 6.83e-06 2.44 it/s (x16 patches) cosine end ~94429 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep  1640.0 it  82000 loss 0.00168 lr 6.33e-06 val PSNR 58.714 SSIM 0.9953 SAM 0.691 | test PSNR 58.146 SSIM 0.9969/0.9989 SAM 0.7183 ERGAS 1.3397 RMSE 19.07 SCC 0.9992 | best val 58.722 (9.44 h)
+  it 82500 loss 0.00169 lr 5.83e-06 2.40 it/s (x16 patches) cosine end ~94423 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 83000 loss 0.00168 lr 5.36e-06 2.43 it/s (x16 patches) cosine end ~94427 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 83500 loss 0.00168 lr 4.91e-06 2.43 it/s (x16 patches) cosine end ~94430 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep  1680.0 it  84000 loss 0.00168 lr 4.47e-06 val PSNR 58.716 SSIM 0.9953 SAM 0.690 | test PSNR 58.145 SSIM 0.9969/0.9989 SAM 0.7183 ERGAS 1.3397 RMSE 19.07 SCC 0.9992 | best val 58.722 (9.67 h)
+  it 84500 loss 0.00168 lr 4.05e-06 2.40 it/s (x16 patches) cosine end ~94425 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 85000 loss 0.00168 lr 3.66e-06 2.43 it/s (x16 patches) cosine end ~94428 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 85500 loss 0.00168 lr 3.29e-06 2.43 it/s (x16 patches) cosine end ~94433 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep  1720.0 it  86000 loss 0.00168 lr 2.94e-06 val PSNR 58.717 SSIM 0.9953 SAM 0.690 | test PSNR 58.145 SSIM 0.9969/0.9989 SAM 0.7183 ERGAS 1.3397 RMSE 19.07 SCC 0.9992 | best val 58.722 (9.90 h)
+  it 86500 loss 0.00169 lr 2.59e-06 2.40 it/s (x16 patches) cosine end ~94428 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 87000 loss 0.00168 lr 2.28e-06 2.43 it/s (x16 patches) cosine end ~94432 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 87500 loss 0.00168 lr 1.99e-06 2.43 it/s (x16 patches) cosine end ~94437 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep  1760.0 it  88000 loss 0.00168 lr 1.72e-06 val PSNR 58.717 SSIM 0.9953 SAM 0.690 | test PSNR 58.146 SSIM 0.9969/0.9989 SAM 0.7183 ERGAS 1.3397 RMSE 19.07 SCC 0.9992 | best val 58.722 (10.13 h)
+  it 88500 loss 0.00168 lr 1.46e-06 2.40 it/s (x16 patches) cosine end ~94433 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 89000 loss 0.00168 lr 1.22e-06 2.43 it/s (x16 patches) cosine end ~94437 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+  it 89500 loss 0.00168 lr 1.01e-06 2.43 it/s (x16 patches) cosine end ~94442 it, GPU 6.8 GB, RSS 2.41 GB, host free 26.2 GB
+ep  1800.0 it  90000 loss 0.00168 lr 8.19e-07 val PSNR 58.716 SSIM 0.9953 SAM 0.690 | test PSNR 58.146 SSIM 0.9969/0.9989 SAM 0.7183 ERGAS 1.3397 RMSE 19.07 SCC 0.9992 | best val 58.722 (10.36 h)
+  it 90500 loss 0.00167 lr 6.42e-07 2.40 it/s (x16 patches) cosine end ~94437 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 91000 loss 0.00167 lr 4.91e-07 2.43 it/s (x16 patches) cosine end ~94441 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 91500 loss 0.00168 lr 3.60e-07 2.43 it/s (x16 patches) cosine end ~94445 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep  1840.0 it  92000 loss 0.00167 lr 2.49e-07 val PSNR 58.716 SSIM 0.9953 SAM 0.690 | test PSNR 58.146 SSIM 0.9969/0.9989 SAM 0.7183 ERGAS 1.3397 RMSE 19.07 SCC 0.9992 | best val 58.722 (10.59 h)
+  it 92500 loss 0.00168 lr 1.56e-07 2.40 it/s (x16 patches) cosine end ~94439 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 93000 loss 0.00168 lr 1.50e-07 2.43 it/s (x16 patches) cosine end ~94443 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+  it 93500 loss 0.00168 lr 1.50e-07 2.43 it/s (x16 patches) cosine end ~94447 it, GPU 6.8 GB, RSS 2.40 GB, host free 26.2 GB
+ep  1880.0 it  94000 loss 0.00168 lr 1.50e-07 val PSNR 58.716 SSIM 0.9953 SAM 0.690 | test PSNR 58.146 SSIM 0.9969/0.9989 SAM 0.7183 ERGAS 1.3397 RMSE 19.07 SCC 0.9992 | best val 58.722 (10.82 h)
+ep  1889.0 it  94450 loss 0.00167 lr 1.50e-07 val PSNR 58.716 SSIM 0.9953 SAM 0.690 | test PSNR 58.146 SSIM 0.9969/0.9989 SAM 0.7183 ERGAS 1.3397 RMSE 19.07 SCC 0.9992 | best val 58.722 (10.87 h)
+time budget reached at it 94450 (epoch 1889.0); continue with --resume <out>/last.pt
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+TEST: {'PSNR': 58.1467, 'PSNR_psrt': 52.7123, 'MPSNR_peak1': 66.2576, 'SSIM': 0.9969, 'SSIM_psrt': 0.9989, 'SAM': 0.7171, 'ERGAS': 1.3367, 'RMSE_DN': 19.0558, 'CC': 0.9967, 'SCC': 0.9992, 'Q2n': 0.993}
+TEST (self-ensemble): {'PSNR': 58.2016, 'PSNR_psrt': 52.7673, 'MPSNR_peak1': 66.3251, 'SSIM': 0.997, 'SSIM_psrt': 0.9989, 'SAM': 0.7126, 'ERGAS': 1.3304, 'RMSE_DN': 18.9377, 'CC': 0.9967, 'SCC': 0.9992, 'Q2n': 0.9931}
+consistency: {'cons_H_dB': 85.52138056975753, 'cons_M_dB': 88.9502303717963} | self-ensemble: {'cons_H_dB': 86.00166742690828, 'cons_M_dB': 89.52866176361059}
+[exit 0 after 11.01 h of the session]
+nominal {'gsa': (43.1966, 2.73, 45.4103), 'fixed': (58.1466, 0.7171, 85.5217)}
+sigma=1.5 {'gsa': (44.0502, 2.5694, 46.1352), 'fixed': (50.6778, 1.1465, 54.2002), 'swap': (57.9725, 0.731, 80.4977)}
+sigma=2.5 {'gsa': (42.7742, 2.8166, 45.0671), 'fixed': (54.2631, 0.8764, 61.8314), 'swap': (58.0506, 0.7245, 82.6746)}
+sigma=3.0 {'gsa': (42.5448, 2.8659, 44.8843), 'fixed': (51.6864, 1.03, 58.4216), 'swap': (57.8893, 0.7366, 80.7881)}
+srf_shift=-8nm {'gsa': (42.8636, 2.9095, 45.2776), 'fixed': (53.0065, 1.2013, 58.2003), 'swap': (52.5365, 1.3144, 71.6901)}
+srf_shift=+8nm {'gsa': (43.2888, 2.6779, 45.4512), 'fixed': (53.0274, 1.1877, 58.1467), 'swap': (52.4689, 1.2838, 70.052)}
+noise 40dB {'gsa': 43.0353, 'fixed': 53.0252}
+noise 35dB {'gsa': 42.7067, 'fixed': 49.1138}
+noise 30dB {'gsa': 41.8358, 'fixed': 44.6175}
+[exit 0 after 11.03 h of the session]
+/kaggle/working/out/first_run/results.json {}
+  val {'PSNR': 58.5963, 'PSNR_psrt': 49.1261, 'MPSNR_peak1': 66.8977, 'SSIM': 0.9952, 'SSIM_psrt': 0.9991, 'SAM': 0.6995, 'ERGAS': 1.4377, 'RMSE_DN': 18.3261, 'CC': 0.9936, 'SCC': 0.9995}
+  test {'PSNR': 57.9944, 'PSNR_psrt': 52.56, 'MPSNR_peak1': 65.2864, 'SSIM': 0.9969, 'SSIM_psrt': 0.9989, 'SAM': 0.7281, 'ERGAS': 1.356, 'RMSE_DN': 19.3466, 'CC': 0.9966, 'SCC': 0.9991, 'Q2n': 0.9929}
+  test_tta {'PSNR': 58.0213, 'PSNR_psrt': 52.5869, 'MPSNR_peak1': 65.3413, 'SSIM': 0.9969, 'SSIM_psrt': 0.9989, 'SAM': 0.726, 'ERGAS': 1.3533, 'RMSE_DN': 19.2936, 'CC': 0.9966, 'SCC': 0.9991, 'Q2n': 0.9929}
+  consistency {'cons_H_dB': 76.6869, 'cons_M_dB': 74.9701}
+  consistency_tta {'cons_H_dB': 76.7501, 'cons_M_dB': 75.0376}
+/kaggle/working/out/puformer/results.json {'iters': 94450, 'epochs': 1889.0, 'gpus': 2, 'best_val_PSNR': 58.721660027737606, 'train_hours': 10.886}
+  test {'PSNR': 58.1467, 'PSNR_psrt': 52.7123, 'MPSNR_peak1': 66.2576, 'SSIM': 0.9969, 'SSIM_psrt': 0.9989, 'SAM': 0.7171, 'ERGAS': 1.3367, 'RMSE_DN': 19.0558, 'CC': 0.9967, 'SCC': 0.9992, 'Q2n': 0.993}
+  test_tta {'PSNR': 58.2016, 'PSNR_psrt': 52.7673, 'MPSNR_peak1': 66.3251, 'SSIM': 0.997, 'SSIM_psrt': 0.9989, 'SAM': 0.7126, 'ERGAS': 1.3304, 'RMSE_DN': 18.9377, 'CC': 0.9967, 'SCC': 0.9992, 'Q2n': 0.9931}
+  consistency {'cons_H_dB': 85.5214, 'cons_M_dB': 88.9502}
+  consistency_tta {'cons_H_dB': 86.0017, 'cons_M_dB': 89.5287}
+/kaggle/working/out/first_run:
+total 524312
+drwxr-xr-x 2 root root      4096 Sep 25 15:05 .
+drwxr-xr-x 4 root root      4096 Sep 25 15:09 ..
+-rw-r--r-- 1 root root      7536 Sep 25 15:05 results.json
+-rw-r--r-- 1 root root 268435584 Sep 25 15:05 test_pred.npy
+-rw-r--r-- 1 root root 268435584 Sep 25 15:05 test_pred_tta.npy
+
+/kaggle/working/out/puformer:
+total 763056
+drwxr-xr-x 2 root root      4096 Sep 26 02:03 .
+drwxr-xr-x 4 root root      4096 Sep 25 15:09 ..
+-rw-r--r-- 1 root root  40741885 Sep 25 20:13 best_ema.pt
+-rw-r--r-- 1 root root  40741885 Sep 26 02:01 ema_last.pt
+-rw-r--r-- 1 root root      6539 Sep 26 02:03 gaps.json
+-rw-r--r-- 1 root root     41002 Sep 26 02:01 history.json
+-rw-r--r-- 1 root root 162931773 Sep 26 02:01 last.pt
+-rw-r--r-- 1 root root      7978 Sep 26 02:02 results.json
+-rw-r--r-- 1 root root 268435584 Sep 26 02:02 test_pred.npy
+-rw-r--r-- 1 root root 268435584 Sep 26 02:02 test_pred_tta.npy
+1.3G	/kaggle/working/out
+[exit 0 after 11.03 h of the session]
+/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+[NbConvertApp] Writing 82011 bytes to __notebook__.ipynb
+[NbConvertApp] Converting notebook __notebook__.ipynb to html
+[NbConvertApp] Writing 371910 bytes to __results__.html
