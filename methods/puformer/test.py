@@ -17,16 +17,18 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from hsifuse.data import find_mat, load_chikusei, make_pairs, split
+from hsifuse import metrics
+from hsifuse.data import load_dataset, make_pairs
 from hsifuse.evaluation import final_test, predict
 from hsifuse.metrics import evaluate
 from hsifuse.models import build
-from hsifuse.ops import Degradation, wv2_srf
+from hsifuse.ops import Degradation, dataset_srf
 
 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--mat", required=True)
+    p.add_argument("--dataset", default="chikusei", choices=["chikusei", "pavia"])
     p.add_argument("--cache", default="")
     p.add_argument("--ckpt", required=True)
     p.add_argument("--model", default="puformer")
@@ -40,9 +42,8 @@ def main():
     dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     t0 = time.time()
 
-    path = a.mat if a.mat.endswith(".mat") else find_mat(a.mat)
-    _, te, va = split(np.asarray(load_chikusei(path, a.cache or None)))
-    deg = Degradation(wv2_srf(), pad=a.pad).to(dev)
+    _, te, va, metrics.DN_SCALE = load_dataset(a.dataset, a.mat, a.cache or None)
+    deg = Degradation(dataset_srf(a.dataset), pad=a.pad).to(dev)
     test = make_pairs(torch.from_numpy(te).to(dev), deg)
     val = make_pairs(torch.from_numpy(va).to(dev), deg)
     model = build(a.model, deg, **(dict(width=a.width, stages=a.stages) if a.model == "puformer" else {})).to(dev)

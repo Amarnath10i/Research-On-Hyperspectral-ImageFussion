@@ -161,8 +161,10 @@ class SSRNet(nn.Module):
 
 
 def build(name: str, deg: Degradation, **kw):
+    """Band counts come from the spectral response (B x M) of the degradation."""
+    bands, msi = deg.srf.shape
     if name == "puformer":
-        return PUFormer(deg, **kw)
+        return PUFormer(deg, bands=bands, msi=msi, **kw)
     if name == "ssrnet":
-        return SSRNet()
+        return SSRNet(msi=msi, bands=bands)
     raise ValueError(name)

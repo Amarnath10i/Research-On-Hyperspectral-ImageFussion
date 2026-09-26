@@ -34,20 +34,21 @@ import torch
 import torch.distributed as dist
 import torch.nn.functional as F
 
-from hsifuse.data import PatchSampler, find_mat, load_chikusei, make_pairs, split
+from hsifuse import metrics
+from hsifuse.baselines import gsa
+from hsifuse.data import PatchSampler, load_dataset, make_pairs, split_pavia
 from hsifuse.evaluation import final_test, predict
 from hsifuse.losses import sam_loss, ssim_loss
 from hsifuse.metrics import evaluate
 from hsifuse.models import build
-from hsifuse.ops import Degradation, wv2_srf
-
-TRAIN_PATCHES = (1632 // 64) * (2048 // 64)  # 64x64 patches in the training area
+from hsifuse.ops import Degradation, dataset_srf
 SYNC_EVERY = 50                              # iterations between stop / schedule broadcasts (DDP)
 
 
 def get_args():
     p = argparse.ArgumentParser()
     p.add_argument("--mat", required=True, help=".mat file or a folder containing it")
+    p.add_argument("--dataset", default="chikusei", choices=["chikusei", "pavia"])
     p.add_argument("--cache", default="", help="optional .npy cache of the normalised crop")
     p.add_argument("--model", default="puformer", choices=["puformer", "ssrnet"])
     p.add_argument("--width", type=int, default=48)
@@ -76,6 +77,8 @@ def get_args():
     p.add_argument("--w_sam", type=float, default=0.0, help="weight of the SAM loss (radians)")
     p.add_argument("--w_ssim", type=float, default=0.0, help="weight of the (1 - SSIM) loss")
     p.add_argument("--init_ckpt", default="", help="warm start: model weights (e.g. an earlier best_ema.pt)")
+    p.add_argument("--init_partial", type=int, default=0,
+                   help="load only the tensors whose shapes match (transfer from another dataset)")
     p.add_argument("--resume", default="", help="last.pt from an earlier session (default: <out>/last.pt)")
     p.add_argument("--test_log", type=int, default=1, help="also score the test set at each eval (logged only)")
     p.add_argument("--q2n", type=int, default=1, help="include Q2n in the final test metrics")
@@ -124,22 +127,30 @@ def main():
     torch.backends.cudnn.benchmark = True
     t_start = time.time()
     deadline = a.deadline or (t_start + a.hours * 3600 if a.hours else math.inf)
-    deg = Degradation(wv2_srf(), pad=a.pad).to(dev)
+    deg = Degradation(dataset_srf(a.dataset), pad=a.pad).to(dev)
+    bands = deg.srf.shape[0]
 
     if a.smoke:
-        cube = np.random.rand(128, 2048, 128).astype(np.float32) * 0.2
-        tr, te, va = cube[:, 416:, :], np.stack([cube[:, :64, :64]] * 2), np.stack([cube[:, 272:336, :64]] * 2)
+        if a.dataset == "pavia":
+            tr, te, va = split_pavia(np.random.rand(bands, 1096, 715).astype(np.float32) * 0.2)
+            te, va = te[:, :, :64, :64], va[:2]
+        else:
+            cube = np.random.rand(bands, 2048, 128).astype(np.float32) * 0.2
+            tr, te, va = cube[:, 416:, :], np.stack([cube[:, :64, :64]] * 2), np.stack([cube[:, 272:336, :64]] * 2)
+        peak = 15133.0
     else:
         if world > 1 and not main_proc:
             dist.barrier()                   # rank 0 builds the cache first
-        path = a.mat if a.mat.endswith(".mat") else find_mat(a.mat)
-        cube = load_chikusei(path, a.cache or None)
+        tr, te, va, peak = load_dataset(a.dataset, a.mat, a.cache or None)
         if world > 1 and main_proc:
             dist.barrier()
-        tr, te, va = split(np.asarray(cube))
-    log(f"train {tr.shape} test {te.shape} val {va.shape}  ({time.time() - t_start:.0f}s)")
+    metrics.DN_SCALE = peak                  # RMSE in DN and Q2n use the dataset's own scale
+    shapes = [r.shape for r in tr] if isinstance(tr, list) else tr.shape
+    log(f"{a.dataset}: train {shapes} test {te.shape} val {va.shape}, 1.0 = {peak:.0f} DN  "
+        f"({time.time() - t_start:.0f}s)")
 
-    epoch_iters = max(1, round(TRAIN_PATCHES / (a.bs * world)))
+    train_patches = sum(r.shape[1] * r.shape[2] for r in (tr if isinstance(tr, list) else [tr])) // (a.patch ** 2)
+    epoch_iters = max(1, round(train_patches / (a.bs * world)))
     if a.epochs:
         a.iters = a.epochs * epoch_iters
     if a.eval_epochs:
@@ -150,14 +161,22 @@ def main():
     val = make_pairs(torch.from_numpy(va).to(dev), deg) if main_proc else None
     torch.manual_seed(a.seed + 1000 * rank)  # different patches on every GPU
     sampler = PatchSampler(tr, deg, a.patch, dev)
-    del cube, tr, te, va
+    del tr, te, va
 
     model = build(a.model, deg, **(dict(width=a.width, stages=a.stages) if a.model == "puformer" else {})).to(dev)
     if a.model == "puformer":
         model.amp = bool(a.amp)
     if a.init_ckpt:
-        model.load_state_dict(torch.load(a.init_ckpt, map_location=dev))
-        log(f"warm start from {a.init_ckpt}")
+        state = torch.load(a.init_ckpt, map_location=dev)
+        if a.init_partial:  # transfer across datasets: keep only tensors whose shapes match
+            own = model.state_dict()
+            keep = {k: v for k, v in state.items() if k in own and own[k].shape == v.shape and not k.startswith("deg.")}
+            model.load_state_dict(keep, strict=False)
+            log(f"partial warm start from {a.init_ckpt}: {len(keep)}/{len(own)} tensors "
+                f"({sum(v.numel() for v in keep.values()) / 1e6:.2f}M values)")
+        else:
+            model.load_state_dict(state)
+            log(f"warm start from {a.init_ckpt}")
     n_par = sum(q.numel() for q in model.parameters()) / 1e6
     opt = torch.optim.AdamW(model.parameters(), lr=a.lr, betas=(0.9, 0.99), weight_decay=1e-4)
     scaler = torch.amp.GradScaler("cuda", enabled=bool(a.amp) and dev.type == "cuda")
@@ -221,11 +240,13 @@ def main():
             json.dump(hist, f, indent=1)
         return msg + f" | best val {best:.3f} ({(time.time() - t_start) / 3600:.2f} h)"
 
-    bic = None
+    bic = gsa_res = None
     if main_proc and not a.probe:
         up = F.interpolate(test[0], scale_factor=4, mode="bicubic", align_corners=False)
-        bic = evaluate(test[2], up)
+        bic = evaluate(test[2], up, full=bool(a.q2n))
         log("bicubic test:", {k: round(v, 4) for k, v in bic.items()})
+        gsa_res = evaluate(test[2], gsa(test[0], test[1], deg).clamp(0, 1), full=bool(a.q2n))
+        log("GSA test:", {k: round(v, 4) for k, v in gsa_res.items()})
         if a.eval_init and (a.init_ckpt or resumed) and not any(r["it"] == it for r in hist):
             log("start: " + evaluate_ema(it, float("nan"), 0.0))
 
@@ -315,7 +336,8 @@ def main():
     ema.eval()
     res = final_test(ema, test, deg, a.out, full=bool(a.q2n))
     summary = dict(model=a.model, params_M=n_par, iters=it, epochs=round(it / epoch_iters, 1), epoch_iters=epoch_iters,
-                   gpus=world, best_val_PSNR=best, **res, bicubic_test=bic,
+                   gpus=world, best_val_PSNR=best, **res, bicubic_test=bic, gsa_test=gsa_res,
+                   dataset=a.dataset, dn_scale=metrics.DN_SCALE,
                    train_hours=round((time.time() - t_start) / 3600, 3), args=vars(a))
     with open(os.path.join(a.out, "results.json"), "w") as f:
         json.dump(summary, f, indent=1)

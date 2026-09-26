@@ -27,21 +27,42 @@ WV2_BANDS = [
 ]
 
 
-def wv2_srf(wl: np.ndarray = CHIKUSEI_WL, rolloff_nm: float = 4.0, shift_nm: float = 0.0) -> np.ndarray:
-    """(B, 8) spectral response, columns sum to 1.
+# Pavia Centre (ROSIS): 102 bands over 430-860 nm; bands 11-102 are used (see data.py)
+PAVIA_WL = np.linspace(430.0, 860.0, 102)[10:]
 
-    DigitalGlobe publishes the curves only as plots, so each band is a flat top
-    with logistic flanks that reach 5 % response exactly at the tabulated edges.
-    `shift_nm` moves every band (used to test SRF mismatch).
+# IKONOS MS bands (nm): published spectral ranges, used as the 50 %-response edges
+IKONOS_BANDS = [("blue", 445, 516), ("green", 506, 595), ("red", 632, 698), ("nir", 757, 853)]
+
+
+def band_srf(wl: np.ndarray, bands, rolloff_nm: float = 4.0, shift_nm: float = 0.0, level: float = 0.05) -> np.ndarray:
+    """(B, M) spectral response from band edges, columns sum to 1.
+
+    Each band is a flat top with logistic flanks that reach `level` response exactly at the
+    given edges. `shift_nm` moves every band (used to test SRF mismatch).
     """
-    a = np.log(0.05 / 0.95)  # logistic offset -> value 0.05 at the edge
+    a = np.log(level / (1 - level))  # logistic offset -> value `level` at the edge
     cols = []
-    for _, lo, hi in WV2_BANDS:
+    for _, lo, hi in bands:
         lo, hi = lo + shift_nm, hi + shift_nm
         r = 1 / (1 + np.exp(-((wl - lo) / rolloff_nm + a))) / (1 + np.exp(-((hi - wl) / rolloff_nm + a)))
         cols.append(r)
     srf = np.stack(cols, 1).astype(np.float64)
     return (srf / srf.sum(0, keepdims=True)).astype(np.float32)
+
+
+def wv2_srf(wl: np.ndarray = CHIKUSEI_WL, rolloff_nm: float = 4.0, shift_nm: float = 0.0) -> np.ndarray:
+    """(B, 8) WorldView-2 response. DigitalGlobe publishes the curves only as plots, so the
+    flanks reach 5 % exactly at the tabulated 5 %-response edges."""
+    return band_srf(wl, WV2_BANDS, rolloff_nm, shift_nm, level=0.05)
+
+
+def ikonos_srf(wl: np.ndarray = PAVIA_WL, rolloff_nm: float = 4.0, shift_nm: float = 0.0) -> np.ndarray:
+    """(B, 4) IKONOS-type response (blue, green, red, NIR), 50 % response at the published range edges."""
+    return band_srf(wl, IKONOS_BANDS, rolloff_nm, shift_nm, level=0.5)
+
+
+def dataset_srf(name: str, shift_nm: float = 0.0) -> np.ndarray:
+    return ikonos_srf(shift_nm=shift_nm) if name == "pavia" else wv2_srf(shift_nm=shift_nm)
 
 
 def gaussian_kernel(size: int = 7, sigma: float = 2.0) -> np.ndarray:
