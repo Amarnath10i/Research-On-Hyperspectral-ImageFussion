@@ -8,7 +8,7 @@ The repository has two tracks:
 
 1. **Chikusei SOTA track (active).** [PUFormer](methods/puformer/), a physics-unfolded
    transformer that targets the best published Chikusei ×4 result (56.19 dB, IEEE TIP 2026).
-   First full run: 57.99 dB.
+   Current: 58.20 dB (v3), 1st on 7 of the 8 metrics in TIP'26 Table IV.
    It adds evaluations that published papers skip: consistency with the input observations,
    robustness to blur/SRF mismatch with a test-time operator swap, and robustness to noise.
 2. **Theory track.** Identifiability and ambiguity of the fusion problem: admissible ambiguity
@@ -20,16 +20,20 @@ The repository has two tracks:
 
 ## Chikusei ×4: where things stand
 
-| | PSNR ↑ | SSIM ↑ | SAM ↓ | ERGAS ↓ | RMSE (DN) ↓ | Source |
-|---|---|---|---|---|---|---|
-| **PUFormer (ours)** | **57.99** | 0.9969 | 0.728 | **1.356** | **19.35** | [results](results/puformer_chikusei_x4/) |
-| Two-Stage Cond. Diffusion (IEEE TIP 2026), previous published SOTA | 56.19 | **0.9982** | **0.720** | 1.516 | 25.73 | [survey](docs/CHIKUSEI_SOTA_SURVEY.md) |
-| CLSNet (2026) | 55.20 | 0.9979 | 0.784 | 1.632 | 29.06 | reported in TIP 2026 |
-| SMGU-Net (Pattern Recognition 2025) | 54.52 | 0.9977 | 0.872 | 1.641 | 31.29 | reported in TIP 2026 |
+| | PSNR ↑ | SSIM ↑ | SAM ↓ | ERGAS ↓ | Q2n ↑ | CC ↑ | SCC ↑ | RMSE (DN) ↓ | Source |
+|---|---|---|---|---|---|---|---|---|---|
+| **PUFormer v3 (ours)** | **58.20** | **0.9989** | **0.713** | **1.330** | 0.9931 | **0.9967** | **0.9992** | **18.94** | [results](results/puformer_chikusei_x4_v3/) |
+| PUFormer first run (ours) | 57.99 | 0.9989 | 0.728 | 1.356 | 0.9929 | 0.9966 | 0.9991 | 19.35 | [results](results/puformer_chikusei_x4/) |
+| Two-Stage Cond. Diffusion (IEEE TIP 2026), previous published SOTA | 56.19 | 0.9982 | 0.720 | 1.516 | **0.9969** | 0.9948 | 0.9891 | 25.73 | [survey](docs/CHIKUSEI_SOTA_SURVEY.md) |
+| CLSNet (2026) | 55.20 | 0.9979 | 0.784 | 1.632 | 0.9943 | 0.9941 | 0.9869 | 29.06 | reported in TIP 2026 |
+| SMGU-Net (Pattern Recognition 2025) | 54.52 | 0.9977 | 0.872 | 1.641 | 0.9952 | 0.9939 | 0.9875 | 31.29 | reported in TIP 2026 |
 
-PUFormer (10.13 M parameters, 88,946 iterations on one T4) is 1st of 18 on PSNR, ERGAS, CC and
-RMSE against the full TIP'26 Table IV, 2nd on SAM, and behind on SSIM. The comparison, its caveats
-and the robustness study are in [results/puformer_chikusei_x4](results/puformer_chikusei_x4/).
+PUFormer v3 (10.13 M parameters, fine-tuned 94,450 iterations on 2 × T4, 2-fold self-ensemble) is
+1st of 18 against the full TIP'26 Table IV on PSNR, SSIM, SAM, ERGAS, CC, SCC and RMSE, and 10th
+on Q2n. SSIM here is PSRT's definition (data range 1); with data range = each image's max it is
+0.9970. The Q2n deficit comes from the ultraviolet bands 0–7, which the WorldView-2 MSI does not
+cover; see [results/puformer_chikusei_x4_v3](results/puformer_chikusei_x4_v3/) for the analysis,
+the robustness study and the caveats.
 
 Protocol: WorldView-2 8-band MSI, Gaussian 7×7 blur with σ = 2, ×4 downsampling, 8 test tiles of
 256×256. The survey covers only peer-reviewed, subscription IEEE papers:
