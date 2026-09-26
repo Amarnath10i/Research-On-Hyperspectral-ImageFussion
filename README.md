@@ -57,7 +57,6 @@ Protocol: WorldView-2 8-band MSI, Gaussian 7×7 blur with σ = 2, ×4 downsampli
 │   ├── ason/           Adaptive spectral operator network
 │   └── consistentflow/ (superseded)
 ├── common/hsifusion/   Shared library: datasets, degradation, SRF, metrics, losses, engine
-├── baselines/          Third-party SOTA code used for comparison (BDT, DSPNet, 3DT-Net, MoG-DCN, SSRNet, ...)
 ├── experiments/
 │   ├── scripts/        Training scripts (train_*.py)
 │   ├── notebooks/      Kaggle / Colab notebooks
@@ -66,8 +65,7 @@ Protocol: WorldView-2 8-band MSI, Gaussian 7×7 blur with σ = 2, ×4 downsampli
 ├── docs/               Survey, protocol audit, datasets, architecture notes, theory write-up
 ├── paper/              Manuscript draft, bibliography, table and theorem scripts
 ├── tools/              Notebook builders and Kaggle automation
-├── tests/              Quick model and forward-pass checks
-└── archive/            Superseded notebooks and one-off scripts
+└── tests/              Quick model and forward-pass checks
 ```
 
 Every folder under `methods/` has its own README describing the method, its status and how to run it.
@@ -134,5 +132,4 @@ the repository (see `.gitignore`).
 
 ## License
 
-Research use. Third-party code in `baselines/` keeps its original license (see each subfolder).
-The datasets belong to their respective providers.
+Research use. The datasets belong to their respective providers.
