@@ -20,7 +20,7 @@ import torch
 import torch.nn.functional as F
 
 
-DN_SCALE = 15133.0  # max DN of the central 2048x2048 crop (our normaliser), for RMSE in DN
+DN_SCALE = 15133.0  # DN value that maps to 1 (Chikusei crop max); train.py sets it per dataset
 
 
 def psnr(gt, x):
@@ -175,7 +175,7 @@ def onions_quality(d1, d2, fast=True):
     return torch.where((termine3 == 0)[:, None], degenerate, q)
 
 
-def q2n(gt, x, block=32, shift=32, scale=DN_SCALE, fast=True):
+def q2n(gt, x, block=32, shift=32, scale=None, fast=True):
     """q2n.m (Q_blocks_size = Q_shift = 32). gt, x: (C, H, W) in [0, 1]."""
     c, h, w = gt.shape
     sx, sy = math.ceil(h / shift), math.ceil(w / shift)
@@ -186,7 +186,7 @@ def q2n(gt, x, block=32, shift=32, scale=DN_SCALE, fast=True):
         if e1 or e2:  # mirror-extend right / bottom edges exactly as q2n.m
             im = torch.cat([im, im[:, :, w - e2:].flip(-1)], -1) if e2 else im
             im = torch.cat([im, im[:, h - e1:, :].flip(-2)], -2) if e1 else im
-        im = torch.round((im * scale).clamp(0, 65535))                        # uint16()
+        im = torch.round((im * (scale or DN_SCALE)).clamp(0, 65535))          # uint16()
         nb = 2 ** math.ceil(math.log2(c))
         if nb != c:
             im = torch.cat([im, im.new_zeros(nb - c, *im.shape[1:])], 0)
