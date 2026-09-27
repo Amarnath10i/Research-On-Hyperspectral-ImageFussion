@@ -8,7 +8,8 @@ The repository has two tracks:
 
 1. **Chikusei SOTA track (active).** [PUFormer](methods/puformer/), a physics-unfolded
    transformer that targets the best published Chikusei ×4 result (56.19 dB, IEEE TIP 2026).
-   Current: 58.20 dB (v3), 1st on 7 of the 8 metrics in TIP'26 Table IV.
+   Current: 58.20 dB (v3), 1st on 7 of the 8 metrics in TIP'26 Table IV; on Pavia Centre ×4,
+   50.69 dB (+3.53 dB), 1st on 6 of 8.
    It adds evaluations that published papers skip: consistency with the input observations,
    robustness to blur/SRF mismatch with a test-time operator swap, and robustness to noise.
 2. **Theory track.** Identifiability and ambiguity of the fusion problem: admissible ambiguity
@@ -38,6 +39,22 @@ the robustness study and the caveats.
 Protocol: WorldView-2 8-band MSI, Gaussian 7×7 blur with σ = 2, ×4 downsampling, 8 test tiles of
 256×256. The survey covers only peer-reviewed, subscription IEEE papers:
 [docs/CHIKUSEI_SOTA_SURVEY.md](docs/CHIKUSEI_SOTA_SURVEY.md).
+
+## Pavia Centre ×4
+
+| | PSNR ↑ | SSIM ↑ | SAM ↓ | ERGAS ↓ | Q2n ↑ | CC ↑ | SCC ↑ | RMSE (DN) ↓ | Source |
+|---|---|---|---|---|---|---|---|---|---|
+| **PUFormer (ours)** | **50.69** | **0.9974** | 1.883 | **0.617** | 0.9753 | **0.9994** | **0.9995** | **23.52** | [results](results/puformer_pavia_x4/) |
+| Two-Stage Cond. Diffusion (IEEE TIP 2026) | 47.16 | 0.9972 | **1.454** | 0.826 | 0.9980 | 0.9985 | 0.9976 | 35.71 | TIP'26 Table IV |
+| OTPNet (best reported Q2n) | 45.81 | 0.9967 | 1.657 | 0.947 | **0.9987** | 0.9980 | 0.9968 | 41.51 | reported in TIP 2026 |
+
+Trained from scratch in one Kaggle session (9.99 M parameters, 93,850 iterations on 2 × T4, 2-fold
+self-ensemble): 1st of 18 on PSNR (+3.53 dB), SSIM (PSRT definition), ERGAS, CC, SCC and RMSE (−34 %);
+13th on SAM and 16th on Q2n. Both lost metrics come from one of the four test images, which contains
+the river Ticino; on the other three, Q2n is 0.9987–0.9991 and SAM 1.55–1.68°. Protocol: bands 11–102
+(92), IKONOS 4-band MSI, Gaussian 7×7 blur with σ = 2, ×4, rebuilt from the original scene because the
+PSRT benchmark files that TIP'26 uses could not be downloaded. Details and caveats:
+[results/puformer_pavia_x4](results/puformer_pavia_x4/).
 
 ---
 

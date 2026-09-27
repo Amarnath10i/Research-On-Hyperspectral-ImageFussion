@@ -114,10 +114,10 @@ mismatch. With the matching operator, the first run's checkpoint scores 76.7 dB,
 | 1 | 60.45 | 0.9985 | 0.9994 | 0.643 | 0.972 | 0.9967 |
 | 2 | 60.97 | 0.9987 | 0.9995 | 0.597 | 1.093 | 0.9962 |
 | 3 | 57.10 | 0.9981 | 0.9988 | 0.862 | 1.334 | 0.9917 |
-| 4 | 57.29 | 0.9951 | 0.9986 | 0.726 | 1.305 | 0.9929 |
+| 4 | 57.29 | 0.9951 | 0.9986 | 0.726 | 1.304 | 0.9929 |
 | 5 | 57.51 | 0.9957 | 0.9987 | 0.669 | 1.357 | 0.9913 |
 | 6 | 56.24 | 0.9953 | 0.9984 | 0.830 | 1.449 | 0.9913 |
-| 7 | 56.91 | 0.9947 | 0.9986 | 0.729 | 1.584 | 0.9889 |
+| 7 | 56.90 | 0.9947 | 0.9986 | 0.729 | 1.584 | 0.9889 |
 
 Caveats from the first run still apply: our test tiles follow the protocol as TIP'26 describes it but
 may not be their exact pixels, and every reported row except ours is copied from their table.

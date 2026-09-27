@@ -1,9 +1,12 @@
 """Figures for the PUFormer paper, drawn from the result files in results/ (run from this folder).
 
     python make_figures.py            # writes figures/*.pdf
-The visual comparison and band-wise figures need results/puformer_chikusei_x4_v3/paper_analysis/
-(per_band.json, q2n.json, visual.npz), produced on Kaggle by methods/puformer/paper_analysis.py.
+The visual comparison and band-wise figures need the paper_analysis/ folders of
+results/puformer_chikusei_x4_v3 and results/puformer_pavia_x4 (per_band.json, q2n.json, visual.npz),
+produced on Kaggle by methods/puformer/paper_analysis.py. Set PAVIA_RESULTS to read the Pavia files
+from another folder.
 """
+import csv
 import json
 import os
 
@@ -17,8 +20,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.path.join(HERE, "..", "..", "results")
 V3 = os.path.join(RES, "puformer_chikusei_x4_v3")
 ANA = os.path.join(V3, "paper_analysis")
+PAV = os.environ.get("PAVIA_RESULTS", os.path.join(RES, "puformer_pavia_x4"))
+PANA = os.path.join(PAV, "paper_analysis")
 FIG = os.path.join(HERE, "figures")
 os.makedirs(FIG, exist_ok=True)
+# wavelength ranges without multispectral coverage: below WorldView-2's first band (Chikusei), and
+# between / beyond the IKONOS bands at their 50 % edges (Pavia Centre bands 11-102, 473-860 nm)
+NO_MSI = {"chikusei": [(363, 396)], "pavia": [(595, 632), (698, 757), (853, 860)]}
 
 # validated categorical slots 1-3 (blue, orange, aqua) + neutral inks
 BLUE, ORANGE, AQUA = "#2a78d6", "#eb6834", "#1baf7a"
@@ -60,53 +68,90 @@ def training_curves():
     plt.close(fig)
 
 
+def training_pavia():
+    h = [r for r in load(os.path.join(PAV, "puformer", "history.json")) if r["it"] > 0]
+    res = load(os.path.join(PAV, "puformer", "results.json"))
+    with open(os.path.join(PAV, "tip26_table4_pavia.csv")) as f:
+        tip = list(csv.DictReader(f))
+    x = [r["it"] * 8 * res["gpus"] / 1e6 for r in h]
+    fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.2))
+    for ax, key, ylab, ref in ((axes[0], "PSNR", "PSNR (dB)", max(float(r["PSNR"]) for r in tip)),
+                               (axes[1], "SAM", "SAM (deg)", min(float(r["SAM"]) for r in tip))):
+        ax.plot(x, [r["val_" + key] for r in h], color=BLUE, marker="s", **MARK, label="Validation (used for selection)")
+        ax.plot(x, [r["test_" + key] for r in h], color=ORANGE, marker="o", **MARK, label="Test (logged only)")
+        ax.axhline(ref, color=INK2, lw=0.7, ls=(0, (3, 2)))
+        ax.text(x[0], ref, "best reported test value [TIP'26]", ha="left", va="bottom", color=INK2, fontsize=6.5)
+        ax.set_xlabel("Training patches seen (millions)")
+        ax.set_ylabel(ylab)
+    axes[0].legend(loc="lower right", frameon=False)
+    fig.savefig(os.path.join(FIG, "training_pavia.pdf"))
+    plt.close(fig)
+
+
 def robustness():
-    g = load(os.path.join(V3, "puformer", "gaps.json"))
     rows = [("Blur $\\sigma$=1.5", "sigma=1.5"), ("Blur $\\sigma$=2.5", "sigma=2.5"), ("Blur $\\sigma$=3.0", "sigma=3.0"),
             ("SRF shift $-$8 nm", "srf_shift=-8nm"), ("SRF shift +8 nm", "srf_shift=+8nm"),
             ("Noise 40 dB", "noise_40dB"), ("Noise 35 dB", "noise_35dB"), ("Noise 30 dB", "noise_30dB")]
-    fig, ax = plt.subplots(figsize=(3.45, 2.5))
+    panels = (("Chikusei (PUFormer v3)", load(os.path.join(V3, "puformer", "gaps.json"))),
+              ("Pavia Centre (PUFormer)", load(os.path.join(PAV, "puformer", "gaps.json"))))
+    fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.45), sharey=True)
     y = np.arange(len(rows))[::-1]
-    for (name, key, color, marker) in (("GSA", "gsa", AQUA, "^"), ("PUFormer, training operator", "fixed", ORANGE, "o"),
-                                       ("PUFormer, true operator swapped in", "swap", BLUE, "s")):
-        xs = [g[k][key]["PSNR"] if key in g[k] else np.nan for _, k in rows]
-        ax.plot(xs, y, ls="none", marker=marker, color=color, markersize=4.2, markeredgecolor=SURF, markeredgewidth=0.6, label=name)
-    ax.axvline(g["nominal"]["fixed"]["PSNR"], color=INK2, lw=0.7, ls=(0, (3, 2)))
-    ax.text(g["nominal"]["fixed"]["PSNR"] - 0.3, len(rows) - 0.35, "nominal 58.15", ha="right", color=INK2, fontsize=6.5)
-    ax.set_yticks(y, [r[0] for r in rows])
-    ax.set_xlabel("Test PSNR (dB)")
-    ax.set_xlim(40, 60)
-    ax.grid(axis="y", visible=False)
-    ax.legend(loc="upper center", bbox_to_anchor=(0.38, -0.2), ncol=1, frameon=False)
+    for ax, (title, g) in zip(axes, panels):
+        allx = []
+        for (name, key, color, marker) in (("GSA", "gsa", AQUA, "^"), ("PUFormer, training operator", "fixed", ORANGE, "o"),
+                                           ("PUFormer, true operator swapped in", "swap", BLUE, "s")):
+            xs = [g[k][key]["PSNR"] if key in g[k] else np.nan for _, k in rows]
+            allx += [v for v in xs if v == v]
+            ax.plot(xs, y, ls="none", marker=marker, color=color, markersize=4.2, markeredgecolor=SURF,
+                    markeredgewidth=0.6, label=name)
+        nom = g["nominal"]["fixed"]["PSNR"]
+        lo, hi = np.floor(min(allx) / 2) * 2 - 1, np.ceil(max(allx + [nom]) / 2) * 2 + 1
+        ax.axvline(nom, color=INK2, lw=0.7, ls=(0, (3, 2)))
+        ax.text(nom - 0.02 * (hi - lo), len(rows) - 0.35, f"nominal {nom:.2f}", ha="right", color=INK2, fontsize=6.5)
+        ax.set_xlim(lo, hi)
+        ax.set_title(title, loc="left")
+        ax.set_xlabel("Test PSNR (dB)")
+        ax.grid(axis="y", visible=False)
+    axes[0].set_yticks(y, [r[0] for r in rows])
+    h, l = axes[0].get_legend_handles_labels()
+    fig.legend(h, l, loc="lower center", bbox_to_anchor=(0.55, -0.15), ncol=3, frameon=False)
     fig.savefig(os.path.join(FIG, "robustness.pdf"))
     plt.close(fig)
 
 
 def band_wise():
-    d = load(os.path.join(ANA, "per_band.json"))
-    wl = np.array(d["wavelengths_nm"])
-    fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.2))
-    series = (("GSA", AQUA), ("PUFormer (first run)", ORANGE), ("PUFormer v3", BLUE))
-    for ax, key, ylab in ((axes[0], "psnr", "Band PSNR (dB, peak 1)"), (axes[1], "rmse_dn", "Band RMSE (DN)")):
-        for name, c in series:
-            ax.plot(wl, d["per_band"][name][key], color=c, lw=1.1, label=name)
-        ax.axvspan(363, 396, color=GRID, alpha=0.8, lw=0)
-        ax.set_xlabel("Wavelength (nm)")
-        ax.set_ylabel(ylab)
-        ax.set_xlim(363, 1018)
-    axes[1].set_yscale("log")
-    axes[0].text(366, axes[0].get_ylim()[0] + 1.0, "no MSI\ncoverage", fontsize=6, color=INK2)
-    h, l = axes[0].get_legend_handles_labels()
-    fig.legend(h, l, loc="lower center", bbox_to_anchor=(0.5, -0.17), ncol=3, frameon=False)
+    final = "PUFormer, final model"
+    sets = (("Chikusei", "chikusei", load(os.path.join(ANA, "per_band.json")),
+             (("GSA", "GSA", AQUA), ("PUFormer (first run)", "PUFormer, first run (Chikusei)", ORANGE),
+              ("PUFormer v3", final, BLUE))),
+            ("Pavia Centre", "pavia", load(os.path.join(PANA, "per_band.json")),
+             (("GSA", "GSA", AQUA), ("PUFormer", final, BLUE))))
+    fig, axes = plt.subplots(2, 2, figsize=(7.0, 4.3))
+    for row, (title, ds, d, series) in zip(axes, sets):
+        wl = np.array(d["wavelengths_nm"])
+        for ax, key, ylab in ((row[0], "psnr", "Band PSNR (dB, peak 1)"), (row[1], "rmse_dn", "Band RMSE (DN)")):
+            for name, label, c in series:
+                ax.plot(wl, d["per_band"][name][key], color=c, lw=1.1, label=label)
+            for a, b in NO_MSI[ds]:
+                ax.axvspan(max(a, wl[0]), min(b, wl[-1]), color=GRID, alpha=0.8, lw=0)
+            ax.set_xlabel("Wavelength (nm)")
+            ax.set_ylabel(ylab)
+            ax.set_xlim(wl[0], wl[-1])
+            ax.set_title(title, loc="left")
+        row[1].set_yscale("log")
+    axes[0, 0].text(366, axes[0, 0].get_ylim()[0] + 1.0, "no MSI\ncoverage", fontsize=6, color=INK2)
+    fig.tight_layout(h_pad=1.2)
+    h, l = axes[0, 0].get_legend_handles_labels()
+    fig.legend(h, l, loc="lower center", bbox_to_anchor=(0.5, -0.05), ncol=3, frameon=False)
     fig.savefig(os.path.join(FIG, "bandwise.pdf"))
     plt.close(fig)
 
 
 def q2n_analysis():
     q = load(os.path.join(ANA, "q2n.json"))
-    csv = os.path.join(RES, "puformer_chikusei_x4", "tip26_table4_comparison.csv")
-    import csv as _csv
-    rows = [r for r in _csv.DictReader(open(csv)) if "TIP'26 Table IV" in r["source"]]
+    path = os.path.join(RES, "puformer_chikusei_x4", "tip26_table4_comparison.csv")
+    with open(path) as f:
+        rows = [r for r in csv.DictReader(f) if "TIP'26 Table IV" in r["source"]]
     fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.2))
     rel = np.array(q["relative_error_worst10pct_by_group_of_8_bands"])
     centers = np.linspace(363, 1018, 128).reshape(16, 8).mean(1)
@@ -126,17 +171,15 @@ def q2n_analysis():
     plt.close(fig)
 
 
-def visual():
-    v = np.load(os.path.join(ANA, "visual.npz"))
+def visual_panel(v, tile, out, vmax=60.0):
+    """False colour (top) and mean absolute error map (bottom) of one test image for every method."""
     names = list(v["names"])
-    tile = 6                                             # hardest test tile (lowest PSNR)
     gt = v["gt"][tile].astype(np.float32)
     lo, hi = np.percentile(gt, 1, axis=(0, 1)), np.percentile(gt, 99, axis=(0, 1))
     show = lambda x: np.clip((x.astype(np.float32) - lo) / (hi - lo), 0, 1)
-    fig, axes = plt.subplots(2, len(names) + 1, figsize=(7.0, 2.9))
+    fig, axes = plt.subplots(2, len(names) + 1, figsize=(7.0 * (len(names) + 1) / 5, 2.9))
     axes[0, 0].imshow(show(gt)); axes[0, 0].set_title("Ground truth", fontsize=7)
     axes[1, 0].axis("off")
-    vmax = 60.0
     for i, n in enumerate(names):
         axes[0, i + 1].imshow(show(v[f"rgb_{i}"][tile]))
         axes[0, i + 1].set_title(n.replace("PUFormer ", "PUFormer\n"), fontsize=7)
@@ -146,16 +189,58 @@ def visual():
         ax.set_xticks([]); ax.set_yticks([]); ax.grid(False)
         for s in ax.spines.values():
             s.set_visible(False)
-    cb = fig.colorbar(im, ax=axes[1, 1:].tolist(), fraction=0.02, pad=0.01)
+    cb = fig.colorbar(im, ax=axes[1, 1:].tolist(), fraction=0.02 * 5 / (len(names) + 1), pad=0.01)
     cb.set_label("Mean abs. error (DN)", fontsize=6.5)
     cb.ax.tick_params(labelsize=6)
-    fig.savefig(os.path.join(FIG, "visual.pdf"), dpi=300)
+    fig.savefig(os.path.join(FIG, out), dpi=300)
+    plt.close(fig)
+
+
+def visual():
+    visual_panel(np.load(os.path.join(ANA, "visual.npz")), 6, "visual.pdf")   # hardest Chikusei test image
+
+
+def visual_pavia():
+    per = load(os.path.join(PAV, "puformer", "results.json"))["test_per_image_tta"]
+    tile = int(np.argmin([m["PSNR"] for m in per]))                             # hardest test image
+    visual_panel(np.load(os.path.join(PANA, "visual.npz")), tile, "visual_pavia.pdf")
+    return tile
+
+
+def sam_pavia():
+    """The four Pavia Centre test images: false colour with water outlined (NDWI > 0), and PUFormer's angle map."""
+    v = np.load(os.path.join(PANA, "visual.npz"))
+    m = np.load(os.path.join(PAV, "sam_analysis", "sam_maps.npz"))
+    per = load(os.path.join(PAV, "puformer", "results.json"))["test_per_image_tta"]
+    n = v["gt"].shape[0]
+    fig, axes = plt.subplots(2, n, figsize=(7.0, 3.9))
+    for i in range(n):
+        gt = v["gt"][i].astype(np.float32)
+        lo, hi = np.percentile(gt, 1, axis=(0, 1)), np.percentile(gt, 99, axis=(0, 1))
+        axes[0, i].imshow(np.clip((gt - lo) / (hi - lo), 0, 1))
+        if m["water"][i].any():
+            axes[0, i].contour(m["water"][i].astype(np.float32), levels=[0.5], colors=[AQUA], linewidths=0.6)
+        axes[0, i].set_title(f"Image {i + 1}", fontsize=7)
+        im = axes[1, i].imshow(m["puformer"][i].astype(np.float32), cmap="magma", vmin=0, vmax=5)
+        axes[1, i].set_xlabel(f"SAM {per[i]['SAM']:.2f}$^\\circ$, Q2n {per[i]['Q2n']:.4f}", fontsize=6.5)
+    for ax in axes.flat:
+        ax.set_xticks([]); ax.set_yticks([]); ax.grid(False)
+        for s in ax.spines.values():
+            s.set_visible(False)
+    cb = fig.colorbar(im, ax=axes[1, :].tolist(), fraction=0.02, pad=0.01)
+    cb.set_label("Spectral angle (deg)", fontsize=6.5)
+    cb.ax.tick_params(labelsize=6)
+    fig.savefig(os.path.join(FIG, "sam_pavia.pdf"), dpi=300)
     plt.close(fig)
 
 
 if __name__ == "__main__":
     training_curves()
+    training_pavia()
+    sam_pavia()
     robustness()
-    if os.path.exists(os.path.join(ANA, "per_band.json")):
-        band_wise(); q2n_analysis(); visual()
+    band_wise()
+    q2n_analysis()
+    visual()
+    print("Pavia visual: test image", visual_pavia() + 1)
     print("figures:", sorted(os.listdir(FIG)))

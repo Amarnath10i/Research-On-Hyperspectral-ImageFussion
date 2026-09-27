@@ -1,0 +1,314 @@
+0.00s - Debugger warning: It seems that frozen modules are being used, which may
+0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+0.00s - to python to disable frozen modules.
+0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+0.00s - Debugger warning: It seems that frozen modules are being used, which may
+0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+0.00s - to python to disable frozen modules.
+0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+index, name, memory.total [MiB]
+0, Tesla T4, 15360 MiB
+1, Tesla T4, 15360 MiB
+               total        used        free      shared  buff/cache   available
+Mem:              31           0          25           0           4          30
+code sha256 0d5e9027c01c114c661750f9dca978fd6b90d772d15fc6031c6573845c187bb1 from git d7c5222+local changes
+index, name, memory.total [MiB]
+0, Tesla T4, 15360 MiB
+1, Tesla T4, 15360 MiB
+               total        used        free      shared  buff/cache   available
+Mem:              31           0          25           0           4          30
+Pavia: '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat' | GPUs: 2
+/tmp/ipykernel_23/4216836631.py:10: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.
+  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)
+
+/tmp/ipykernel_23/4216836631.py:10: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.
+  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)
+[ok] D/Dt adjoint (zeros) rel err 1.6e-16
+[ok] Dt == autograd VJP of D (zeros) 
+[ok] R/Rt adjoint (zeros) 
+[ok] D/Dt adjoint (reflect) rel err 1.5e-16
+[ok] Dt == autograd VJP of D (reflect) 
+[ok] R/Rt adjoint (reflect) 
+[ok] strided D == blur + decimate (zeros) 
+[ok] strided Dt == zero-insert + blur (zeros) 
+[ok] reflect D == simulation operator 
+[ok] reflect D == blur(reflect) + decimate 
+[ok] onions_quality fast == literal (n=2) max diff 4.9e-16
+[ok] onions_quality fast == literal (n=4) max diff 2.4e-16
+[ok] onions_quality fast == literal (n=8) max diff 2.1e-16
+[ok] onions_quality fast == literal (n=16) max diff 2.2e-16
+[ok] onions_quality fast == literal (n=128) max diff 2.2e-16
+[ok] Q2n(x, x) == 1 1.000000000000
+[ok] SCC(x, x) == 1 
+[ok] Q2n fast == literal on an image 0.997605
+[ok] Q2n non-multiple of the block size runs 
+   metrics on a noisy image: {'PSNR': 39.9934, 'PSNR_psrt': 35.5564, 'MPSNR_peak1': 39.9944, 'SSIM': 0.9975, 'SSIM_psrt': 0.9978, 'SAM': 1.5071, 'ERGAS': 0.7147, 'RMSE_DN': 151.4451, 'CC': 0.9976, 'SCC': 0.9991, 'Q2n': 0.9976}
+[ok] PUFormer forward/backward (zeros) 
+[ok] PUFormer forward/backward (reflect) 
+all checks passed
+[exit 0 after 0.01 h]
+pavia: train [(92, 424, 715), (92, 512, 187)] test (4, 92, 64, 64) val (2, 92, 64, 64), 1.0 = 15133 DN  (1s)
+puformer (reflect borders): 0.85M params on 1 x cpu; batch 2 x 1; epoch = 48 iters; eval every 3 iters; deadline in inf h; schedule by time
+bicubic test: {'PSNR': 24.8809, 'PSNR_psrt': 10.9015, 'MPSNR_peak1': 24.8814, 'SSIM': 0.029, 'SSIM_psrt': 0.2959, 'SAM': 29.4615, 'ERGAS': 14.2464, 'RMSE_DN': 862.7396, 'CC': 0.1587, 'SCC': 0.5685, 'Q2n': 0.0483}
+GSA test: {'PSNR': 24.9301, 'PSNR_psrt': 10.9507, 'MPSNR_peak1': 24.9308, 'SSIM': 0.0412, 'SSIM_psrt': 0.3046, 'SAM': 29.314, 'ERGAS': 14.166, 'RMSE_DN': 857.8644, 'CC': 0.1936, 'SCC': 0.5739, 'Q2n': 0.059}
+ep     0.1 it      3 loss 0.05281 lr 9.00e-07 val PSNR 25.068 SSIM 0.0694 SAM 28.844 | test PSNR 25.053 SSIM 0.0698/0.3237 SAM 28.8579 ERGAS 13.9667 RMSE 845.79 SCC 0.6553 | best val 25.068 (0.01 h)
+ep     0.1 it      6 loss 0.05285 lr 1.80e-06 val PSNR 25.068 SSIM 0.0694 SAM 28.844 | test PSNR 25.053 SSIM 0.0698/0.3237 SAM 28.8579 ERGAS 13.9667 RMSE 845.79 SCC 0.6554 | best val 25.068 (0.01 h)
+TEST: {'PSNR': 25.0533, 'PSNR_psrt': 11.0738, 'MPSNR_peak1': 25.054, 'SSIM': 0.0698, 'SSIM_psrt': 0.3237, 'SAM': 28.8579, 'ERGAS': 13.9667, 'RMSE_DN': 845.7896, 'CC': 0.2543, 'SCC': 0.6553, 'Q2n': 0.103}
+TEST (self-ensemble): {'PSNR': 25.0533, 'PSNR_psrt': 11.0738, 'MPSNR_peak1': 25.054, 'SSIM': 0.0698, 'SSIM_psrt': 0.3237, 'SAM': 28.8579, 'ERGAS': 13.9667, 'RMSE_DN': 845.7896, 'CC': 0.2543, 'SCC': 0.6553, 'Q2n': 0.103}
+consistency: {'cons_H_dB': 53.59947985170673, 'cons_M_dB': 38.98376137675592} | self-ensemble: {'cons_H_dB': 53.59947945965311, 'cons_M_dB': 38.98376216063972}
+[exit 0 after 0.02 h]
+[W926 20:27:57.799979931 socket.cpp:207] [c10d] The hostname of the client socket cannot be retrieved. err=-3
+[W926 20:27:59.099729265 socket.cpp:207] [c10d] The hostname of the client socket cannot be retrieved. err=-3
+[W926 20:27:59.100021426 socket.cpp:207] [c10d] The hostname of the client socket cannot be retrieved. err=-3
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[rank0]:[W926 20:28:04.276244790 ProcessGroupNCCL.cpp:5138] Guessing device ID based on global rank. This can cause a hang if rank to GPU mapping is heterogeneous. You can specify device_id in init_process_group()
+pavia: train [(92, 424, 715), (92, 512, 187)] test (4, 92, 256, 256) val (63, 92, 64, 64), 1.0 = 8000 DN  (5s)
+puformer (reflect borders): 9.99M params on 2 x cuda; batch 8 x 2; epoch = 6 iters; eval every 1000 iters; deadline in 10.18 h; schedule by time
+bicubic test: {'PSNR': 25.5166, 'PSNR_psrt': 25.1078, 'MPSNR_peak1': 25.8716, 'SSIM': 0.6282, 'SSIM_psrt': 0.6427, 'SAM': 6.5546, 'ERGAS': 9.8525, 'RMSE_DN': 436.3207, 'CC': 0.8174, 'SCC': 0.7526, 'Q2n': 0.6806}
+GSA test: {'PSNR': 34.7757, 'PSNR_psrt': 34.3668, 'MPSNR_peak1': 35.1931, 'SSIM': 0.9438, 'SSIM_psrt': 0.945, 'SAM': 5.2291, 'ERGAS': 3.4939, 'RMSE_DN': 157.9259, 'CC': 0.9958, 'SCC': 0.9922, 'Q2n': 0.9276}
+ep   166.7 it   1000 loss 0.01638 lr 3.00e-04 val PSNR 43.290 SSIM 0.9926 SAM 2.124 | test PSNR 45.843 SSIM 0.9947/0.9951 SAM 2.4296 ERGAS 1.0389 RMSE 41.29 SCC 0.9981 | best val 43.290 (0.12 h)
+ep   333.3 it   2000 loss 0.00678 lr 3.00e-04 val PSNR 46.086 SSIM 0.9952 SAM 1.728 | test PSNR 48.382 SSIM 0.9963/0.9967 SAM 2.1031 ERGAS 0.7581 RMSE 30.73 SCC 0.9990 | best val 46.086 (0.23 h)
+ep   500.0 it   3000 loss 0.00582 lr 2.99e-04 val PSNR 47.126 SSIM 0.9959 SAM 1.572 | test PSNR 49.256 SSIM 0.9966/0.9970 SAM 2.0029 ERGAS 0.6982 RMSE 27.81 SCC 0.9992 | best val 47.126 (0.34 h)
+ep   666.7 it   4000 loss 0.00553 lr 2.99e-04 val PSNR 47.624 SSIM 0.9961 SAM 1.504 | test PSNR 49.649 SSIM 0.9967/0.9971 SAM 1.9660 ERGAS 0.6736 RMSE 26.61 SCC 0.9993 | best val 47.624 (0.45 h)
+ep   833.3 it   5000 loss 0.00537 lr 2.98e-04 val PSNR 47.837 SSIM 0.9962 SAM 1.474 | test PSNR 49.840 SSIM 0.9968/0.9972 SAM 1.9491 ERGAS 0.6618 RMSE 26.02 SCC 0.9994 | best val 47.837 (0.56 h)
+ep  1000.0 it   6000 loss 0.00532 lr 2.97e-04 val PSNR 47.976 SSIM 0.9963 SAM 1.454 | test PSNR 50.011 SSIM 0.9968/0.9972 SAM 1.9379 ERGAS 0.6524 RMSE 25.50 SCC 0.9994 | best val 47.976 (0.66 h)
+ep  1166.7 it   7000 loss 0.00520 lr 2.96e-04 val PSNR 48.100 SSIM 0.9963 SAM 1.439 | test PSNR 50.255 SSIM 0.9969/0.9973 SAM 1.9280 ERGAS 0.6407 RMSE 24.75 SCC 0.9994 | best val 48.100 (0.77 h)
+ep  1333.3 it   8000 loss 0.00514 lr 2.95e-04 val PSNR 48.198 SSIM 0.9964 SAM 1.427 | test PSNR 50.415 SSIM 0.9969/0.9973 SAM 1.9207 ERGAS 0.6329 RMSE 24.28 SCC 0.9995 | best val 48.198 (0.88 h)
+ep  1500.0 it   9000 loss 0.00512 lr 2.93e-04 val PSNR 48.270 SSIM 0.9964 SAM 1.418 | test PSNR 50.498 SSIM 0.9969/0.9973 SAM 1.9157 ERGAS 0.6286 RMSE 24.05 SCC 0.9995 | best val 48.270 (0.99 h)
+ep  1666.7 it  10000 loss 0.00505 lr 2.92e-04 val PSNR 48.325 SSIM 0.9964 SAM 1.410 | test PSNR 50.542 SSIM 0.9969/0.9973 SAM 1.9119 ERGAS 0.6261 RMSE 23.93 SCC 0.9995 | best val 48.325 (1.10 h)
+ep  1833.3 it  11000 loss 0.00496 lr 2.90e-04 val PSNR 48.362 SSIM 0.9964 SAM 1.405 | test PSNR 50.567 SSIM 0.9969/0.9973 SAM 1.9088 ERGAS 0.6246 RMSE 23.86 SCC 0.9995 | best val 48.362 (1.21 h)
+ep  2000.0 it  12000 loss 0.00507 lr 2.88e-04 val PSNR 48.387 SSIM 0.9964 SAM 1.402 | test PSNR 50.570 SSIM 0.9969/0.9973 SAM 1.9073 ERGAS 0.6241 RMSE 23.85 SCC 0.9995 | best val 48.387 (1.31 h)
+ep  2166.7 it  13000 loss 0.00499 lr 2.86e-04 val PSNR 48.411 SSIM 0.9965 SAM 1.398 | test PSNR 50.587 SSIM 0.9969/0.9973 SAM 1.9043 ERGAS 0.6230 RMSE 23.81 SCC 0.9995 | best val 48.411 (1.42 h)
+ep  2333.3 it  14000 loss 0.00495 lr 2.84e-04 val PSNR 48.436 SSIM 0.9965 SAM 1.394 | test PSNR 50.596 SSIM 0.9969/0.9973 SAM 1.9022 ERGAS 0.6223 RMSE 23.78 SCC 0.9995 | best val 48.436 (1.53 h)
+ep  2500.0 it  15000 loss 0.00494 lr 2.81e-04 val PSNR 48.452 SSIM 0.9965 SAM 1.391 | test PSNR 50.603 SSIM 0.9969/0.9973 SAM 1.9007 ERGAS 0.6218 RMSE 23.76 SCC 0.9995 | best val 48.452 (1.64 h)
+ep  2666.7 it  16000 loss 0.00487 lr 2.79e-04 val PSNR 48.464 SSIM 0.9965 SAM 1.389 | test PSNR 50.613 SSIM 0.9969/0.9974 SAM 1.8994 ERGAS 0.6212 RMSE 23.73 SCC 0.9995 | best val 48.464 (1.75 h)
+ep  2833.3 it  17000 loss 0.00497 lr 2.76e-04 val PSNR 48.477 SSIM 0.9965 SAM 1.387 | test PSNR 50.616 SSIM 0.9969/0.9974 SAM 1.8985 ERGAS 0.6210 RMSE 23.73 SCC 0.9995 | best val 48.477 (1.86 h)
+ep  3000.0 it  18000 loss 0.00480 lr 2.73e-04 val PSNR 48.484 SSIM 0.9965 SAM 1.386 | test PSNR 50.623 SSIM 0.9970/0.9974 SAM 1.8979 ERGAS 0.6208 RMSE 23.70 SCC 0.9995 | best val 48.484 (1.97 h)
+ep  3166.7 it  19000 loss 0.00487 lr 2.70e-04 val PSNR 48.500 SSIM 0.9965 SAM 1.385 | test PSNR 50.634 SSIM 0.9970/0.9974 SAM 1.8968 ERGAS 0.6202 RMSE 23.67 SCC 0.9995 | best val 48.500 (2.07 h)
+ep  3333.3 it  20000 loss 0.00488 lr 2.67e-04 val PSNR 48.512 SSIM 0.9965 SAM 1.383 | test PSNR 50.645 SSIM 0.9970/0.9974 SAM 1.8960 ERGAS 0.6195 RMSE 23.64 SCC 0.9995 | best val 48.512 (2.18 h)
+ep  3500.0 it  21000 loss 0.00482 lr 2.64e-04 val PSNR 48.524 SSIM 0.9965 SAM 1.382 | test PSNR 50.649 SSIM 0.9970/0.9974 SAM 1.8955 ERGAS 0.6192 RMSE 23.63 SCC 0.9995 | best val 48.524 (2.29 h)
+ep  3666.7 it  22000 loss 0.00495 lr 2.61e-04 val PSNR 48.531 SSIM 0.9965 SAM 1.381 | test PSNR 50.647 SSIM 0.9970/0.9974 SAM 1.8956 ERGAS 0.6193 RMSE 23.63 SCC 0.9995 | best val 48.531 (2.40 h)
+ep  3833.3 it  23000 loss 0.00481 lr 2.57e-04 val PSNR 48.535 SSIM 0.9965 SAM 1.380 | test PSNR 50.652 SSIM 0.9970/0.9974 SAM 1.8953 ERGAS 0.6191 RMSE 23.62 SCC 0.9995 | best val 48.535 (2.51 h)
+ep  4000.0 it  24000 loss 0.00488 lr 2.54e-04 val PSNR 48.535 SSIM 0.9965 SAM 1.380 | test PSNR 50.657 SSIM 0.9970/0.9974 SAM 1.8954 ERGAS 0.6189 RMSE 23.60 SCC 0.9995 | best val 48.535 (2.62 h)
+ep  4166.7 it  25000 loss 0.00482 lr 2.50e-04 val PSNR 48.538 SSIM 0.9965 SAM 1.380 | test PSNR 50.660 SSIM 0.9970/0.9974 SAM 1.8950 ERGAS 0.6188 RMSE 23.59 SCC 0.9995 | best val 48.538 (2.73 h)
+ep  4333.3 it  26000 loss 0.00485 lr 2.46e-04 val PSNR 48.541 SSIM 0.9965 SAM 1.380 | test PSNR 50.655 SSIM 0.9970/0.9974 SAM 1.8951 ERGAS 0.6190 RMSE 23.61 SCC 0.9995 | best val 48.541 (2.83 h)
+ep  4500.0 it  27000 loss 0.00472 lr 2.42e-04 val PSNR 48.547 SSIM 0.9965 SAM 1.379 | test PSNR 50.656 SSIM 0.9970/0.9974 SAM 1.8946 ERGAS 0.6190 RMSE 23.61 SCC 0.9995 | best val 48.547 (2.94 h)
+ep  4666.7 it  28000 loss 0.00487 lr 2.39e-04 val PSNR 48.550 SSIM 0.9965 SAM 1.379 | test PSNR 50.652 SSIM 0.9970/0.9974 SAM 1.8945 ERGAS 0.6192 RMSE 23.62 SCC 0.9995 | best val 48.550 (3.05 h)
+ep  4833.3 it  29000 loss 0.00479 lr 2.34e-04 val PSNR 48.551 SSIM 0.9965 SAM 1.378 | test PSNR 50.654 SSIM 0.9970/0.9974 SAM 1.8942 ERGAS 0.6191 RMSE 23.61 SCC 0.9995 | best val 48.551 (3.16 h)
+ep  5000.0 it  30000 loss 0.00479 lr 2.30e-04 val PSNR 48.552 SSIM 0.9965 SAM 1.378 | test PSNR 50.653 SSIM 0.9970/0.9974 SAM 1.8944 ERGAS 0.6191 RMSE 23.61 SCC 0.9995 | best val 48.552 (3.27 h)
+ep  5166.7 it  31000 loss 0.00475 lr 2.26e-04 val PSNR 48.556 SSIM 0.9965 SAM 1.378 | test PSNR 50.653 SSIM 0.9970/0.9974 SAM 1.8942 ERGAS 0.6190 RMSE 23.62 SCC 0.9995 | best val 48.556 (3.37 h)
+ep  5333.3 it  32000 loss 0.00482 lr 2.22e-04 val PSNR 48.561 SSIM 0.9965 SAM 1.377 | test PSNR 50.652 SSIM 0.9970/0.9974 SAM 1.8942 ERGAS 0.6191 RMSE 23.62 SCC 0.9995 | best val 48.561 (3.48 h)
+ep  5500.0 it  33000 loss 0.00472 lr 2.17e-04 val PSNR 48.562 SSIM 0.9965 SAM 1.377 | test PSNR 50.651 SSIM 0.9970/0.9974 SAM 1.8940 ERGAS 0.6192 RMSE 23.62 SCC 0.9995 | best val 48.562 (3.59 h)
+ep  5666.7 it  34000 loss 0.00470 lr 2.13e-04 val PSNR 48.565 SSIM 0.9965 SAM 1.377 | test PSNR 50.653 SSIM 0.9970/0.9974 SAM 1.8940 ERGAS 0.6191 RMSE 23.61 SCC 0.9995 | best val 48.565 (3.70 h)
+ep  5833.3 it  35000 loss 0.00471 lr 2.08e-04 val PSNR 48.567 SSIM 0.9965 SAM 1.377 | test PSNR 50.653 SSIM 0.9970/0.9974 SAM 1.8944 ERGAS 0.6192 RMSE 23.61 SCC 0.9995 | best val 48.567 (3.80 h)
+ep  6000.0 it  36000 loss 0.00473 lr 2.04e-04 val PSNR 48.569 SSIM 0.9965 SAM 1.377 | test PSNR 50.650 SSIM 0.9970/0.9974 SAM 1.8947 ERGAS 0.6194 RMSE 23.62 SCC 0.9995 | best val 48.569 (3.91 h)
+ep  6166.7 it  37000 loss 0.00468 lr 1.99e-04 val PSNR 48.571 SSIM 0.9965 SAM 1.377 | test PSNR 50.648 SSIM 0.9970/0.9974 SAM 1.8946 ERGAS 0.6195 RMSE 23.63 SCC 0.9995 | best val 48.571 (4.02 h)
+ep  6333.3 it  38000 loss 0.00470 lr 1.94e-04 val PSNR 48.573 SSIM 0.9965 SAM 1.377 | test PSNR 50.645 SSIM 0.9970/0.9974 SAM 1.8946 ERGAS 0.6197 RMSE 23.64 SCC 0.9995 | best val 48.573 (4.13 h)
+ep  6500.0 it  39000 loss 0.00461 lr 1.89e-04 val PSNR 48.576 SSIM 0.9965 SAM 1.377 | test PSNR 50.644 SSIM 0.9970/0.9974 SAM 1.8945 ERGAS 0.6198 RMSE 23.64 SCC 0.9995 | best val 48.576 (4.24 h)
+ep  6666.7 it  40000 loss 0.00461 lr 1.84e-04 val PSNR 48.577 SSIM 0.9965 SAM 1.376 | test PSNR 50.643 SSIM 0.9970/0.9974 SAM 1.8945 ERGAS 0.6198 RMSE 23.64 SCC 0.9995 | best val 48.577 (4.34 h)
+ep  6833.3 it  41000 loss 0.00467 lr 1.80e-04 val PSNR 48.577 SSIM 0.9965 SAM 1.376 | test PSNR 50.636 SSIM 0.9970/0.9974 SAM 1.8950 ERGAS 0.6202 RMSE 23.66 SCC 0.9995 | best val 48.577 (4.45 h)
+ep  7000.0 it  42000 loss 0.00464 lr 1.75e-04 val PSNR 48.578 SSIM 0.9965 SAM 1.376 | test PSNR 50.633 SSIM 0.9970/0.9974 SAM 1.8952 ERGAS 0.6204 RMSE 23.67 SCC 0.9995 | best val 48.578 (4.56 h)
+ep  7166.7 it  43000 loss 0.00462 lr 1.70e-04 val PSNR 48.579 SSIM 0.9965 SAM 1.376 | test PSNR 50.630 SSIM 0.9970/0.9974 SAM 1.8955 ERGAS 0.6206 RMSE 23.68 SCC 0.9995 | best val 48.579 (4.67 h)
+ep  7333.3 it  44000 loss 0.00467 lr 1.65e-04 val PSNR 48.579 SSIM 0.9965 SAM 1.376 | test PSNR 50.629 SSIM 0.9970/0.9974 SAM 1.8959 ERGAS 0.6207 RMSE 23.68 SCC 0.9995 | best val 48.579 (4.78 h)
+ep  7500.0 it  45000 loss 0.00460 lr 1.60e-04 val PSNR 48.577 SSIM 0.9965 SAM 1.376 | test PSNR 50.630 SSIM 0.9970/0.9974 SAM 1.8960 ERGAS 0.6207 RMSE 23.68 SCC 0.9995 | best val 48.579 (4.88 h)
+ep  7666.7 it  46000 loss 0.00460 lr 1.55e-04 val PSNR 48.578 SSIM 0.9965 SAM 1.376 | test PSNR 50.628 SSIM 0.9970/0.9974 SAM 1.8962 ERGAS 0.6209 RMSE 23.68 SCC 0.9995 | best val 48.579 (4.99 h)
+ep  7833.3 it  47000 loss 0.00457 lr 1.50e-04 val PSNR 48.577 SSIM 0.9965 SAM 1.376 | test PSNR 50.627 SSIM 0.9970/0.9974 SAM 1.8964 ERGAS 0.6209 RMSE 23.69 SCC 0.9995 | best val 48.579 (5.10 h)
+ep  8000.0 it  48000 loss 0.00469 lr 1.45e-04 val PSNR 48.576 SSIM 0.9965 SAM 1.376 | test PSNR 50.628 SSIM 0.9970/0.9974 SAM 1.8966 ERGAS 0.6210 RMSE 23.68 SCC 0.9995 | best val 48.579 (5.21 h)
+ep  8166.7 it  49000 loss 0.00468 lr 1.40e-04 val PSNR 48.574 SSIM 0.9965 SAM 1.376 | test PSNR 50.624 SSIM 0.9969/0.9974 SAM 1.8971 ERGAS 0.6213 RMSE 23.70 SCC 0.9995 | best val 48.579 (5.31 h)
+ep  8333.3 it  50000 loss 0.00463 lr 1.35e-04 val PSNR 48.575 SSIM 0.9965 SAM 1.376 | test PSNR 50.622 SSIM 0.9969/0.9974 SAM 1.8972 ERGAS 0.6214 RMSE 23.70 SCC 0.9995 | best val 48.579 (5.42 h)
+ep  8500.0 it  51000 loss 0.00461 lr 1.30e-04 val PSNR 48.573 SSIM 0.9965 SAM 1.376 | test PSNR 50.621 SSIM 0.9969/0.9974 SAM 1.8974 ERGAS 0.6215 RMSE 23.70 SCC 0.9995 | best val 48.579 (5.53 h)
+ep  8666.7 it  52000 loss 0.00455 lr 1.25e-04 val PSNR 48.572 SSIM 0.9965 SAM 1.376 | test PSNR 50.620 SSIM 0.9969/0.9974 SAM 1.8977 ERGAS 0.6216 RMSE 23.70 SCC 0.9995 | best val 48.579 (5.64 h)
+ep  8833.3 it  53000 loss 0.00456 lr 1.20e-04 val PSNR 48.570 SSIM 0.9965 SAM 1.376 | test PSNR 50.618 SSIM 0.9969/0.9974 SAM 1.8984 ERGAS 0.6217 RMSE 23.71 SCC 0.9995 | best val 48.579 (5.75 h)
+ep  9000.0 it  54000 loss 0.00464 lr 1.15e-04 val PSNR 48.568 SSIM 0.9965 SAM 1.376 | test PSNR 50.617 SSIM 0.9969/0.9974 SAM 1.8985 ERGAS 0.6218 RMSE 23.71 SCC 0.9995 | best val 48.579 (5.85 h)
+ep  9166.7 it  55000 loss 0.00456 lr 1.10e-04 val PSNR 48.569 SSIM 0.9965 SAM 1.377 | test PSNR 50.616 SSIM 0.9969/0.9974 SAM 1.8988 ERGAS 0.6219 RMSE 23.72 SCC 0.9995 | best val 48.579 (5.96 h)
+ep  9333.3 it  56000 loss 0.00459 lr 1.06e-04 val PSNR 48.569 SSIM 0.9965 SAM 1.376 | test PSNR 50.616 SSIM 0.9969/0.9974 SAM 1.8991 ERGAS 0.6219 RMSE 23.71 SCC 0.9995 | best val 48.579 (6.07 h)
+ep  9500.0 it  57000 loss 0.00460 lr 1.01e-04 val PSNR 48.566 SSIM 0.9965 SAM 1.377 | test PSNR 50.612 SSIM 0.9969/0.9974 SAM 1.8997 ERGAS 0.6221 RMSE 23.72 SCC 0.9995 | best val 48.579 (6.18 h)
+ep  9666.7 it  58000 loss 0.00460 lr 9.61e-05 val PSNR 48.565 SSIM 0.9965 SAM 1.377 | test PSNR 50.610 SSIM 0.9969/0.9974 SAM 1.9002 ERGAS 0.6223 RMSE 23.73 SCC 0.9995 | best val 48.579 (6.28 h)
+ep  9833.3 it  59000 loss 0.00455 lr 9.15e-05 val PSNR 48.563 SSIM 0.9965 SAM 1.377 | test PSNR 50.608 SSIM 0.9969/0.9974 SAM 1.9008 ERGAS 0.6225 RMSE 23.74 SCC 0.9995 | best val 48.579 (6.39 h)
+ep 10000.0 it  60000 loss 0.00463 lr 8.70e-05 val PSNR 48.563 SSIM 0.9965 SAM 1.377 | test PSNR 50.606 SSIM 0.9969/0.9974 SAM 1.9012 ERGAS 0.6226 RMSE 23.74 SCC 0.9995 | best val 48.579 (6.50 h)
+ep 10166.7 it  61000 loss 0.00460 lr 8.25e-05 val PSNR 48.564 SSIM 0.9965 SAM 1.377 | test PSNR 50.604 SSIM 0.9969/0.9974 SAM 1.9014 ERGAS 0.6227 RMSE 23.75 SCC 0.9995 | best val 48.579 (6.61 h)
+ep 10333.3 it  62000 loss 0.00449 lr 7.80e-05 val PSNR 48.564 SSIM 0.9965 SAM 1.377 | test PSNR 50.601 SSIM 0.9969/0.9974 SAM 1.9019 ERGAS 0.6229 RMSE 23.75 SCC 0.9995 | best val 48.579 (6.72 h)
+ep 10500.0 it  63000 loss 0.00458 lr 7.37e-05 val PSNR 48.563 SSIM 0.9965 SAM 1.377 | test PSNR 50.601 SSIM 0.9969/0.9974 SAM 1.9023 ERGAS 0.6229 RMSE 23.76 SCC 0.9995 | best val 48.579 (6.82 h)
+ep 10666.7 it  64000 loss 0.00453 lr 6.94e-05 val PSNR 48.563 SSIM 0.9965 SAM 1.377 | test PSNR 50.599 SSIM 0.9969/0.9974 SAM 1.9027 ERGAS 0.6231 RMSE 23.76 SCC 0.9995 | best val 48.579 (6.93 h)
+ep 10833.3 it  65000 loss 0.00451 lr 6.53e-05 val PSNR 48.563 SSIM 0.9965 SAM 1.377 | test PSNR 50.597 SSIM 0.9969/0.9974 SAM 1.9032 ERGAS 0.6232 RMSE 23.77 SCC 0.9995 | best val 48.579 (7.04 h)
+ep 11000.0 it  66000 loss 0.00452 lr 6.12e-05 val PSNR 48.562 SSIM 0.9965 SAM 1.377 | test PSNR 50.595 SSIM 0.9969/0.9974 SAM 1.9036 ERGAS 0.6233 RMSE 23.77 SCC 0.9995 | best val 48.579 (7.15 h)
+ep 11166.7 it  67000 loss 0.00451 lr 5.72e-05 val PSNR 48.562 SSIM 0.9965 SAM 1.377 | test PSNR 50.593 SSIM 0.9969/0.9973 SAM 1.9040 ERGAS 0.6235 RMSE 23.78 SCC 0.9995 | best val 48.579 (7.25 h)
+ep 11333.3 it  68000 loss 0.00454 lr 5.34e-05 val PSNR 48.561 SSIM 0.9965 SAM 1.377 | test PSNR 50.592 SSIM 0.9969/0.9973 SAM 1.9044 ERGAS 0.6235 RMSE 23.78 SCC 0.9995 | best val 48.579 (7.36 h)
+ep 11500.0 it  69000 loss 0.00454 lr 4.96e-05 val PSNR 48.562 SSIM 0.9965 SAM 1.378 | test PSNR 50.592 SSIM 0.9969/0.9973 SAM 1.9048 ERGAS 0.6235 RMSE 23.78 SCC 0.9995 | best val 48.579 (7.47 h)
+ep 11666.7 it  70000 loss 0.00462 lr 4.59e-05 val PSNR 48.562 SSIM 0.9965 SAM 1.378 | test PSNR 50.591 SSIM 0.9969/0.9973 SAM 1.9051 ERGAS 0.6236 RMSE 23.78 SCC 0.9995 | best val 48.579 (7.58 h)
+ep 11833.3 it  71000 loss 0.00454 lr 4.24e-05 val PSNR 48.562 SSIM 0.9965 SAM 1.378 | test PSNR 50.589 SSIM 0.9969/0.9973 SAM 1.9056 ERGAS 0.6237 RMSE 23.79 SCC 0.9995 | best val 48.579 (7.69 h)
+ep 12000.0 it  72000 loss 0.00446 lr 3.90e-05 val PSNR 48.563 SSIM 0.9965 SAM 1.378 | test PSNR 50.587 SSIM 0.9969/0.9973 SAM 1.9060 ERGAS 0.6238 RMSE 23.79 SCC 0.9995 | best val 48.579 (7.79 h)
+ep 12166.7 it  73000 loss 0.00450 lr 3.57e-05 val PSNR 48.563 SSIM 0.9965 SAM 1.378 | test PSNR 50.585 SSIM 0.9969/0.9973 SAM 1.9063 ERGAS 0.6240 RMSE 23.80 SCC 0.9995 | best val 48.579 (7.90 h)
+ep 12333.3 it  74000 loss 0.00456 lr 3.25e-05 val PSNR 48.564 SSIM 0.9965 SAM 1.378 | test PSNR 50.584 SSIM 0.9969/0.9973 SAM 1.9064 ERGAS 0.6241 RMSE 23.80 SCC 0.9995 | best val 48.579 (8.01 h)
+ep 12500.0 it  75000 loss 0.00456 lr 2.95e-05 val PSNR 48.564 SSIM 0.9965 SAM 1.378 | test PSNR 50.584 SSIM 0.9969/0.9973 SAM 1.9067 ERGAS 0.6241 RMSE 23.80 SCC 0.9995 | best val 48.579 (8.12 h)
+ep 12666.7 it  76000 loss 0.00451 lr 2.66e-05 val PSNR 48.564 SSIM 0.9965 SAM 1.378 | test PSNR 50.584 SSIM 0.9969/0.9973 SAM 1.9068 ERGAS 0.6241 RMSE 23.80 SCC 0.9995 | best val 48.579 (8.23 h)
+ep 12833.3 it  77000 loss 0.00450 lr 2.38e-05 val PSNR 48.564 SSIM 0.9965 SAM 1.378 | test PSNR 50.583 SSIM 0.9969/0.9973 SAM 1.9072 ERGAS 0.6242 RMSE 23.80 SCC 0.9995 | best val 48.579 (8.33 h)
+ep 13000.0 it  78000 loss 0.00452 lr 2.12e-05 val PSNR 48.563 SSIM 0.9965 SAM 1.378 | test PSNR 50.583 SSIM 0.9969/0.9973 SAM 1.9074 ERGAS 0.6242 RMSE 23.80 SCC 0.9995 | best val 48.579 (8.44 h)
+ep 13166.7 it  79000 loss 0.00455 lr 1.87e-05 val PSNR 48.563 SSIM 0.9965 SAM 1.378 | test PSNR 50.582 SSIM 0.9969/0.9973 SAM 1.9077 ERGAS 0.6242 RMSE 23.80 SCC 0.9995 | best val 48.579 (8.55 h)
+ep 13333.3 it  80000 loss 0.00445 lr 1.63e-05 val PSNR 48.563 SSIM 0.9965 SAM 1.378 | test PSNR 50.582 SSIM 0.9969/0.9973 SAM 1.9077 ERGAS 0.6243 RMSE 23.80 SCC 0.9995 | best val 48.579 (8.66 h)
+ep 13500.0 it  81000 loss 0.00446 lr 1.41e-05 val PSNR 48.563 SSIM 0.9965 SAM 1.378 | test PSNR 50.581 SSIM 0.9969/0.9973 SAM 1.9079 ERGAS 0.6243 RMSE 23.81 SCC 0.9995 | best val 48.579 (8.77 h)
+ep 13666.7 it  82000 loss 0.00446 lr 1.21e-05 val PSNR 48.562 SSIM 0.9965 SAM 1.378 | test PSNR 50.580 SSIM 0.9969/0.9973 SAM 1.9082 ERGAS 0.6244 RMSE 23.81 SCC 0.9995 | best val 48.579 (8.87 h)
+ep 13833.3 it  83000 loss 0.00451 lr 1.02e-05 val PSNR 48.562 SSIM 0.9965 SAM 1.378 | test PSNR 50.579 SSIM 0.9969/0.9973 SAM 1.9083 ERGAS 0.6244 RMSE 23.81 SCC 0.9995 | best val 48.579 (8.98 h)
+ep 14000.0 it  84000 loss 0.00453 lr 8.44e-06 val PSNR 48.562 SSIM 0.9965 SAM 1.378 | test PSNR 50.579 SSIM 0.9969/0.9973 SAM 1.9083 ERGAS 0.6245 RMSE 23.81 SCC 0.9995 | best val 48.579 (9.09 h)
+ep 14166.7 it  85000 loss 0.00457 lr 6.86e-06 val PSNR 48.562 SSIM 0.9965 SAM 1.379 | test PSNR 50.578 SSIM 0.9969/0.9973 SAM 1.9085 ERGAS 0.6245 RMSE 23.82 SCC 0.9995 | best val 48.579 (9.20 h)
+ep 14333.3 it  86000 loss 0.00451 lr 5.40e-06 val PSNR 48.562 SSIM 0.9965 SAM 1.379 | test PSNR 50.578 SSIM 0.9969/0.9973 SAM 1.9086 ERGAS 0.6246 RMSE 23.81 SCC 0.9995 | best val 48.579 (9.31 h)
+ep 14500.0 it  87000 loss 0.00450 lr 4.12e-06 val PSNR 48.562 SSIM 0.9965 SAM 1.379 | test PSNR 50.578 SSIM 0.9969/0.9973 SAM 1.9087 ERGAS 0.6246 RMSE 23.81 SCC 0.9995 | best val 48.579 (9.42 h)
+ep 14666.7 it  88000 loss 0.00456 lr 3.00e-06 val PSNR 48.562 SSIM 0.9965 SAM 1.379 | test PSNR 50.578 SSIM 0.9969/0.9973 SAM 1.9087 ERGAS 0.6246 RMSE 23.82 SCC 0.9995 | best val 48.579 (9.53 h)
+ep 14833.3 it  89000 loss 0.00456 lr 2.07e-06 val PSNR 48.562 SSIM 0.9965 SAM 1.379 | test PSNR 50.577 SSIM 0.9969/0.9973 SAM 1.9089 ERGAS 0.6246 RMSE 23.82 SCC 0.9995 | best val 48.579 (9.64 h)
+ep 15000.0 it  90000 loss 0.00447 lr 1.30e-06 val PSNR 48.562 SSIM 0.9965 SAM 1.379 | test PSNR 50.577 SSIM 0.9969/0.9973 SAM 1.9089 ERGAS 0.6246 RMSE 23.82 SCC 0.9995 | best val 48.579 (9.76 h)
+ep 15166.7 it  91000 loss 0.00453 lr 7.12e-07 val PSNR 48.562 SSIM 0.9965 SAM 1.379 | test PSNR 50.577 SSIM 0.9969/0.9973 SAM 1.9089 ERGAS 0.6246 RMSE 23.82 SCC 0.9995 | best val 48.579 (9.87 h)
+ep 15333.3 it  92000 loss 0.00449 lr 3.00e-07 val PSNR 48.562 SSIM 0.9965 SAM 1.379 | test PSNR 50.577 SSIM 0.9969/0.9973 SAM 1.9089 ERGAS 0.6246 RMSE 23.82 SCC 0.9995 | best val 48.579 (9.98 h)
+ep 15500.0 it  93000 loss 0.00454 lr 3.00e-07 val PSNR 48.562 SSIM 0.9965 SAM 1.379 | test PSNR 50.577 SSIM 0.9969/0.9973 SAM 1.9089 ERGAS 0.6246 RMSE 23.82 SCC 0.9995 | best val 48.579 (10.09 h)
+ep 15641.7 it  93850 loss 0.00453 lr 3.00e-07 val PSNR 48.562 SSIM 0.9965 SAM 1.379 | test PSNR 50.577 SSIM 0.9969/0.9973 SAM 1.9089 ERGAS 0.6246 RMSE 23.82 SCC 0.9995 | best val 48.579 (10.18 h)
+time budget reached at it 93850 (epoch 15641.7); continue with --resume <out>/last.pt
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+TEST: {'PSNR': 50.6299, 'PSNR_psrt': 50.221, 'MPSNR_peak1': 51.1139, 'SSIM': 0.997, 'SSIM_psrt': 0.9974, 'SAM': 1.8955, 'ERGAS': 0.6206, 'RMSE_DN': 23.68, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9751}
+TEST (self-ensemble): {'PSNR': 50.6915, 'PSNR_psrt': 50.2826, 'MPSNR_peak1': 51.1668, 'SSIM': 0.997, 'SSIM_psrt': 0.9974, 'SAM': 1.8833, 'ERGAS': 0.617, 'RMSE_DN': 23.5154, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9753}
+consistency: {'cons_H_dB': 79.19380910901688, 'cons_M_dB': 76.8789132373538} | self-ensemble: {'cons_H_dB': 79.88054536161769, 'cons_M_dB': 77.61005839018762}
+[exit 0 after 10.21 h]
+checkpoints: ['best_ema.pt', 'ema_ep02000.pt', 'ema_ep04000.pt', 'ema_ep06000.pt', 'ema_ep08000.pt', 'ema_ep10000.pt', 'ema_ep12000.pt', 'ema_ep14000.pt', 'ema_last.pt', 'last.pt']
+VAL: {'PSNR': 48.5786, 'PSNR_psrt': 46.676, 'MPSNR_peak1': 49.2614, 'SSIM': 0.9965, 'SSIM_psrt': 0.9975, 'SAM': 1.3763, 'ERGAS': 0.8194, 'RMSE_DN': 35.0451, 'CC': 0.9986, 'SCC': 0.9994}
+TEST: {'PSNR': 50.6299, 'PSNR_psrt': 50.2211, 'MPSNR_peak1': 51.114, 'SSIM': 0.997, 'SSIM_psrt': 0.9974, 'SAM': 1.8955, 'ERGAS': 0.6206, 'RMSE_DN': 23.6799, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9751}
+TEST (self-ensemble): {'PSNR': 50.6915, 'PSNR_psrt': 50.2826, 'MPSNR_peak1': 51.1668, 'SSIM': 0.997, 'SSIM_psrt': 0.9974, 'SAM': 1.8833, 'ERGAS': 0.617, 'RMSE_DN': 23.5155, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9753}
+consistency: {'cons_H_dB': 79.19346331488629, 'cons_M_dB': 76.87874579707139}
+[exit 0 after 10.22 h]
+nominal {'gsa': (34.7757, 5.2291, 37.4847), 'fixed': (50.6299, 1.8955, 79.1935)}
+sigma=1.5 {'gsa': (35.5943, 4.9938, 38.1565), 'fixed': (43.8045, 2.7544, 47.8162), 'swap': (50.5646, 1.9049, 76.656)}
+sigma=2.5 {'gsa': (34.3622, 5.3578, 37.1599), 'fixed': (47.2995, 2.1439, 55.7682), 'swap': (50.5867, 1.9017, 77.68)}
+sigma=3.0 {'gsa': (34.1347, 5.4316, 36.9851), 'fixed': (44.874, 2.3744, 52.4648), 'swap': (50.5204, 1.9105, 76.3656)}
+srf_shift=-8nm {'gsa': (34.5801, 5.3586, 37.3946), 'fixed': (49.4559, 1.9887, 60.4444), 'swap': (49.7468, 2.0251, 71.7093)}
+srf_shift=+8nm {'gsa': (34.7933, 5.1965, 37.4914), 'fixed': (49.6161, 1.9872, 61.2563), 'swap': (49.8213, 2.02, 74.0549)}
+noise 40dB {'gsa': 34.7068, 'fixed': 47.546}
+noise 35dB {'gsa': 34.5659, 'fixed': 44.3579}
+noise 30dB {'gsa': 34.163, 'fixed': 40.1755}
+[exit 0 after 10.23 h]
+predictions: {'Bicubic': (4, 92, 256, 256), 'GSA': (4, 92, 256, 256), 'PUFormer': (4, 92, 256, 256)} from /kaggle/working/out/pavia/test/test_pred_tta.npy []
+Bicubic {'PSNR': 25.5166, 'PSNR_psrt': 25.1078, 'MPSNR_peak1': 25.8716, 'SSIM': 0.6282, 'SSIM_psrt': 0.6427, 'SAM': 6.5546, 'ERGAS': 9.8525, 'RMSE_DN': 436.3207, 'CC': 0.8174, 'SCC': 0.7526, 'Q2n': 0.6806}
+GSA {'PSNR': 34.7757, 'PSNR_psrt': 34.3668, 'MPSNR_peak1': 35.1931, 'SSIM': 0.9438, 'SSIM_psrt': 0.945, 'SAM': 5.2291, 'ERGAS': 3.4939, 'RMSE_DN': 157.9259, 'CC': 0.9958, 'SCC': 0.9922, 'Q2n': 0.9276}
+PUFormer {'PSNR': 50.6915, 'PSNR_psrt': 50.2826, 'MPSNR_peak1': 51.1668, 'SSIM': 0.997, 'SSIM_psrt': 0.9974, 'SAM': 1.8833, 'ERGAS': 0.617, 'RMSE_DN': 23.5155, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9753}
+Traceback (most recent call last):
+  File "/kaggle/working/code/paper_analysis.py", line 140, in <module>
+    main()
+  File "/kaggle/working/code/paper_analysis.py", line 95, in main
+    qs, stds, errs = zip(*[block_q(gt[i], p[i]) for i in range(n_img)])
+                           ^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/code/paper_analysis.py", line 46, in block_q
+    return onions_quality(G, P).norm(dim=1), G.std(1), (G - P).pow(2).mean(1).sqrt()
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/code/hsifuse/metrics.py", line 169, in onions_quality
+    qv = f * _onion_mean_product(d1, d2)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/code/hsifuse/metrics.py", line 139, in _onion_mean_product
+    idx, sign = _onion_table(n)
+                ^^^^^^^^^^^^^^^
+  File "/kaggle/working/code/hsifuse/metrics.py", line 128, in _onion_table
+    prod = onion_mult(e[:, None, :].expand(n, n, n), e[None, :, :].expand(n, n, n))  # (i, j, k)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/kaggle/working/code/hsifuse/metrics.py", line 118, in onion_mult
+    return torch.cat([onion_mult(a, c) - onion_mult(d, _conj(b)), onion_mult(_conj(a), d) + onion_mult(c, b)], -1)
+                      ^^^^^^^^^^^^^^^^
+  File "/kaggle/working/code/hsifuse/metrics.py", line 118, in onion_mult
+    return torch.cat([onion_mult(a, c) - onion_mult(d, _conj(b)), onion_mult(_conj(a), d) + onion_mult(c, b)], -1)
+                      ^^^^^^^^^^^^^^^^
+  File "/kaggle/working/code/hsifuse/metrics.py", line 118, in onion_mult
+    return torch.cat([onion_mult(a, c) - onion_mult(d, _conj(b)), onion_mult(_conj(a), d) + onion_mult(c, b)], -1)
+                      ^^^^^^^^^^^^^^^^
+  [Previous line repeated 2 more times]
+RuntimeError: The size of tensor a (2) must match the size of tensor b (4) at non-singleton dimension 2
+[exit 1 after 10.33 h]
+/kaggle/working/out/pavia:
+total 698384
+drwxr-xr-x 4 root root      4096 Sep 27 06:40 .
+drwxr-xr-x 3 root root      4096 Sep 26 20:26 ..
+-rw-r--r-- 1 root root  40158077 Sep 27 01:08 best_ema.pt
+-rw-r--r-- 1 root root  40159847 Sep 26 21:46 ema_ep02000.pt
+-rw-r--r-- 1 root root  40159847 Sep 26 23:05 ema_ep04000.pt
+-rw-r--r-- 1 root root  40159847 Sep 27 00:22 ema_ep06000.pt
+-rw-r--r-- 1 root root  40159847 Sep 27 01:40 ema_ep08000.pt
+-rw-r--r-- 1 root root  40159847 Sep 27 02:57 ema_ep10000.pt
+-rw-r--r-- 1 root root  40159847 Sep 27 04:15 ema_ep12000.pt
+-rw-r--r-- 1 root root  40159847 Sep 27 05:33 ema_ep14000.pt
+-rw-r--r-- 1 root root  40158077 Sep 27 06:39 ema_last.pt
+-rw-r--r-- 1 root root      6538 Sep 27 06:40 gaps.json
+-rw-r--r-- 1 root root     78710 Sep 27 06:39 history.json
+-rw-r--r-- 1 root root 160632125 Sep 27 06:39 last.pt
+drwxr-xr-x 2 root root      4096 Sep 27 06:46 paper_analysis
+-rw-r--r-- 1 root root      5522 Sep 27 06:39 results.json
+drwxr-xr-x 2 root root      4096 Sep 27 06:40 test
+-rw-r--r-- 1 root root  96469120 Sep 27 06:39 test_pred.npy
+-rw-r--r-- 1 root root  96469120 Sep 27 06:39 test_pred_tta.npy
+
+/kaggle/working/out/pavia/paper_analysis:
+total 28
+drwxr-xr-x 2 root root  4096 Sep 27 06:46 .
+drwxr-xr-x 4 root root  4096 Sep 27 06:40 ..
+-rw-r--r-- 1 root root 19152 Sep 27 06:46 per_band.json
+
+/kaggle/working/out/pavia/test:
+total 188440
+drwxr-xr-x 2 root root     4096 Sep 27 06:40 .
+drwxr-xr-x 4 root root     4096 Sep 27 06:40 ..
+-rw-r--r-- 1 root root     4638 Sep 27 06:40 results.json
+-rw-r--r-- 1 root root 96469120 Sep 27 06:40 test_pred.npy
+-rw-r--r-- 1 root root 96469120 Sep 27 06:40 test_pred_tta.npy
+867M	/kaggle/working/out/pavia
+/kaggle/working/out/pavia/results.json {'iters': 93850, 'epochs': 15641.7, 'best_val_PSNR': 48.578632853348985, 'train_hours': 10.19, 'dn_scale': 8000.0}
+  test {'PSNR': 50.6299, 'PSNR_psrt': 50.221, 'MPSNR_peak1': 51.1139, 'SSIM': 0.997, 'SSIM_psrt': 0.9974, 'SAM': 1.8955, 'ERGAS': 0.6206, 'RMSE_DN': 23.68, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9751}
+  test_tta {'PSNR': 50.6915, 'PSNR_psrt': 50.2826, 'MPSNR_peak1': 51.1668, 'SSIM': 0.997, 'SSIM_psrt': 0.9974, 'SAM': 1.8833, 'ERGAS': 0.617, 'RMSE_DN': 23.5154, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9753}
+  gsa_test {'PSNR': 34.7757, 'PSNR_psrt': 34.3668, 'MPSNR_peak1': 35.1931, 'SSIM': 0.9438, 'SSIM_psrt': 0.945, 'SAM': 5.2291, 'ERGAS': 3.4939, 'RMSE_DN': 157.9259, 'CC': 0.9958, 'SCC': 0.9922, 'Q2n': 0.9276}
+  bicubic_test {'PSNR': 25.5166, 'PSNR_psrt': 25.1078, 'MPSNR_peak1': 25.8716, 'SSIM': 0.6282, 'SSIM_psrt': 0.6427, 'SAM': 6.5546, 'ERGAS': 9.8525, 'RMSE_DN': 436.3207, 'CC': 0.8174, 'SCC': 0.7526, 'Q2n': 0.6806}
+  consistency_tta {'cons_H_dB': 79.8805, 'cons_M_dB': 77.6101}
+  vs TIP26 best: {'PSNR': 'WIN 50.6915/47.1597', 'SSIM': 'lose 0.9970/0.9972', 'SAM': 'lose 1.8833/1.4542', 'ERGAS': 'WIN 0.6170/0.8262', 'Q2n': 'lose 0.9753/0.998', 'CC': 'WIN 0.9994/0.9985', 'SCC': 'WIN 0.9995/0.9976', 'RMSE_DN': 'WIN 23.5154/35.7086'} | SSIM_psrt 0.9974
+/kaggle/working/out/pavia/test/results.json {}
+  val {'PSNR': 48.5786, 'PSNR_psrt': 46.676, 'MPSNR_peak1': 49.2614, 'SSIM': 0.9965, 'SSIM_psrt': 0.9975, 'SAM': 1.3763, 'ERGAS': 0.8194, 'RMSE_DN': 35.0451, 'CC': 0.9986, 'SCC': 0.9994}
+  test {'PSNR': 50.6299, 'PSNR_psrt': 50.2211, 'MPSNR_peak1': 51.114, 'SSIM': 0.997, 'SSIM_psrt': 0.9974, 'SAM': 1.8955, 'ERGAS': 0.6206, 'RMSE_DN': 23.6799, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9751}
+  test_tta {'PSNR': 50.6915, 'PSNR_psrt': 50.2826, 'MPSNR_peak1': 51.1668, 'SSIM': 0.997, 'SSIM_psrt': 0.9974, 'SAM': 1.8833, 'ERGAS': 0.617, 'RMSE_DN': 23.5155, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9753}
+  bicubic_test {'PSNR': 25.5166, 'PSNR_psrt': 25.1078, 'MPSNR_peak1': 25.8716, 'SSIM': 0.6282, 'SSIM_psrt': 0.6427, 'SAM': 6.5546, 'ERGAS': 9.8525, 'RMSE_DN': 436.3207, 'CC': 0.8174, 'SCC': 0.7526}
+  consistency_tta {'cons_H_dB': 79.8817, 'cons_M_dB': 77.6116}
+  vs TIP26 best: {'PSNR': 'WIN 50.6915/47.1597', 'SSIM': 'lose 0.9970/0.9972', 'SAM': 'lose 1.8833/1.4542', 'ERGAS': 'WIN 0.6170/0.8262', 'Q2n': 'lose 0.9753/0.998', 'CC': 'WIN 0.9994/0.9985', 'SCC': 'WIN 0.9995/0.9976', 'RMSE_DN': 'WIN 23.5155/35.7086'} | SSIM_psrt 0.9974
+/kaggle/working/out/pavia:
+total 698384
+drwxr-xr-x 4 root root      4096 Sep 27 06:40 .
+drwxr-xr-x 3 root root      4096 Sep 26 20:26 ..
+-rw-r--r-- 1 root root  40158077 Sep 27 01:08 best_ema.pt
+-rw-r--r-- 1 root root  40159847 Sep 26 21:46 ema_ep02000.pt
+-rw-r--r-- 1 root root  40159847 Sep 26 23:05 ema_ep04000.pt
+-rw-r--r-- 1 root root  40159847 Sep 27 00:22 ema_ep06000.pt
+-rw-r--r-- 1 root root  40159847 Sep 27 01:40 ema_ep08000.pt
+-rw-r--r-- 1 root root  40159847 Sep 27 02:57 ema_ep10000.pt
+-rw-r--r-- 1 root root  40159847 Sep 27 04:15 ema_ep12000.pt
+-rw-r--r-- 1 root root  40159847 Sep 27 05:33 ema_ep14000.pt
+-rw-r--r-- 1 root root  40158077 Sep 27 06:39 ema_last.pt
+-rw-r--r-- 1 root root      6538 Sep 27 06:40 gaps.json
+-rw-r--r-- 1 root root     78710 Sep 27 06:39 history.json
+-rw-r--r-- 1 root root 160632125 Sep 27 06:39 last.pt
+drwxr-xr-x 2 root root      4096 Sep 27 06:46 paper_analysis
+-rw-r--r-- 1 root root      5522 Sep 27 06:39 results.json
+drwxr-xr-x 2 root root      4096 Sep 27 06:40 test
+-rw-r--r-- 1 root root  96469120 Sep 27 06:39 test_pred.npy
+-rw-r--r-- 1 root root  96469120 Sep 27 06:39 test_pred_tta.npy
+
+/kaggle/working/out/pavia/paper_analysis:
+total 28
+drwxr-xr-x 2 root root  4096 Sep 27 06:46 .
+drwxr-xr-x 4 root root  4096 Sep 27 06:40 ..
+-rw-r--r-- 1 root root 19152 Sep 27 06:46 per_band.json
+
+/kaggle/working/out/pavia/test:
+total 188440
+drwxr-xr-x 2 root root     4096 Sep 27 06:40 .
+drwxr-xr-x 4 root root     4096 Sep 27 06:40 ..
+-rw-r--r-- 1 root root     4638 Sep 27 06:40 results.json
+-rw-r--r-- 1 root root 96469120 Sep 27 06:40 test_pred.npy
+-rw-r--r-- 1 root root 96469120 Sep 27 06:40 test_pred_tta.npy
+867M	/kaggle/working/out/pavia
+/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+[NbConvertApp] Writing 76616 bytes to __notebook__.ipynb
+[NbConvertApp] Converting notebook __notebook__.ipynb to html
+[NbConvertApp] Writing 366256 bytes to __results__.html

@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import glob
 import json
+import math
 import os
 
 import numpy as np
@@ -39,11 +40,14 @@ def uiqi(g, x):
 
 
 def block_q(g, p, block=32):
+    """Q2n of every 32x32 block (as in q2n), with the per-band GT std and RMSE of the block."""
     c = g.shape[0]
+    nb = 2 ** math.ceil(math.log2(c))           # q2n.m pads the bands with zeros up to a power of two
     q = lambda im: torch.round((im.double() * metrics.DN_SCALE).clamp(0, 65535))
     bl = lambda im: im.unfold(1, block, block).unfold(2, block, block).permute(1, 2, 0, 3, 4).reshape(-1, c, block * block)
+    pad = lambda z: torch.cat([z, z.new_zeros(*z.shape[:2], nb - c)], 2) if nb != c else z
     G, P = bl(q(g)).transpose(1, 2), bl(q(p)).transpose(1, 2)
-    return onions_quality(G, P).norm(dim=1), G.std(1), (G - P).pow(2).mean(1).sqrt()
+    return onions_quality(pad(G), pad(P)).norm(dim=1), G.std(1), (G - P).pow(2).mean(1).sqrt()
 
 
 def main():

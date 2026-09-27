@@ -4,6 +4,12 @@ Goal: beat the best **published** Chikusei ×4 result, 56.19 dB PSNR from TIP 20
 (Two-Stage Conditional Diffusion), under that paper's protocol. Literature review:
 [docs/CHIKUSEI_SOTA_SURVEY.md](../../docs/CHIKUSEI_SOTA_SURVEY.md). It covers only peer-reviewed, subscription IEEE papers.
 
+The same code also runs Pavia Centre ×4 (`--dataset pavia`: bands 11–102, IKONOS 4-band SRF, 4 test
+tiles of 256²). Result: 50.69 dB against the best reported 47.16 dB, 1st on 6 of 8 metrics; see
+[results/puformer_pavia_x4](../../results/puformer_pavia_x4/). `kaggle/build_pavia_notebook.py` writes the
+one-session notebook (train, test, robustness), `kaggle/build_analysis_notebook.py --dataset pavia` the
+CPU analysis kernel (`paper_analysis.py`, `sam_analysis.py`).
+
 ## Protocol (TIP'26, Table II / Sec. IV-B)
 
 | Item | Setting |

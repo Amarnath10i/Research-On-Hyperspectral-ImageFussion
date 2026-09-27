@@ -1,0 +1,161 @@
+0.00s - Debugger warning: It seems that frozen modules are being used, which may
+0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+0.00s - to python to disable frozen modules.
+0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+0.00s - Debugger warning: It seems that frozen modules are being used, which may
+0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off
+0.00s - to python to disable frozen modules.
+0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.
+4
+               total        used        free      shared  buff/cache   available
+Mem:              31           0          26           0           4          30
+/kaggle/input/notebooks/amarnath10chinu/puformer-pavia-x4/out/pavia/test_pred.npy
+/kaggle/input/notebooks/amarnath10chinu/puformer-pavia-x4/out/pavia/test_pred_tta.npy
+/kaggle/input/notebooks/amarnath10chinu/puformer-pavia-x4/out/pavia/test/test_pred.npy
+/kaggle/input/notebooks/amarnath10chinu/puformer-pavia-x4/out/pavia/test/test_pred_tta.npy
+/tmp/ipykernel_17/1222351452.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.
+  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall('/kaggle/working/code')
+
+/tmp/ipykernel_17/1222351452.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.
+  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall('/kaggle/working/code')
+code sha256 e8454c58b33fa66daa63b06d03ef6bcbbb383b9dcebfbdc41ea752366e783480 from git 5e5d772+local changes
+4
+               total        used        free      shared  buff/cache   available
+Mem:              31           0          26           0           4          30
+/kaggle/input/notebooks/amarnath10chinu/puformer-pavia-x4/out/pavia/test_pred.npy
+/kaggle/input/notebooks/amarnath10chinu/puformer-pavia-x4/out/pavia/test_pred_tta.npy
+/kaggle/input/notebooks/amarnath10chinu/puformer-pavia-x4/out/pavia/test/test_pred.npy
+/kaggle/input/notebooks/amarnath10chinu/puformer-pavia-x4/out/pavia/test/test_pred_tta.npy
+predictions: {'Bicubic': (4, 92, 256, 256), 'GSA': (4, 92, 256, 256), 'PUFormer': (4, 92, 256, 256)} from /kaggle/input/notebooks/amarnath10chinu/puformer-pavia-x4/out/pavia/test/test_pred_tta.npy []
+Bicubic {'PSNR': 25.5166, 'PSNR_psrt': 25.1078, 'MPSNR_peak1': 25.8716, 'SSIM': 0.6282, 'SSIM_psrt': 0.6427, 'SAM': 6.5546, 'ERGAS': 9.8525, 'RMSE_DN': 436.3207, 'CC': 0.8174, 'SCC': 0.7526, 'Q2n': 0.6806}
+GSA {'PSNR': 34.7757, 'PSNR_psrt': 34.3668, 'MPSNR_peak1': 35.1931, 'SSIM': 0.9438, 'SSIM_psrt': 0.945, 'SAM': 5.2291, 'ERGAS': 3.4939, 'RMSE_DN': 157.9259, 'CC': 0.9958, 'SCC': 0.9922, 'Q2n': 0.9276}
+PUFormer {'PSNR': 50.6915, 'PSNR_psrt': 50.2826, 'MPSNR_peak1': 51.1668, 'SSIM': 0.997, 'SSIM_psrt': 0.9974, 'SAM': 1.8833, 'ERGAS': 0.617, 'RMSE_DN': 23.5155, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9753}
+Q2n analysis: {'Q2n': 0.9753330803071565, 'bands_0_7_exact': 0.978831403113335, 'bands_0_7_104_127_exact': 0.9874023402986335}
+done
+prediction: /kaggle/input/notebooks/amarnath10chinu/puformer-pavia-x4/out/pavia/test/test_pred_tta.npy (4, 92, 256, 256)
+/kaggle/working/code/sam_analysis.py:108: RuntimeWarning: overflow encountered in cast
+  np.savez_compressed(os.path.join(a.out, "sam_maps.npz"), water=water.numpy(), norm_dn=norm.float().numpy().astype(np.float16),
+{
+ "zero_pixels": [
+  0,
+  0,
+  0,
+  0
+ ],
+ "sam": {
+  "Bicubic": {
+   "all_pixels": 6.554581652576704,
+   "nonzero_pixels": 6.554581652576704,
+   "per_image": [
+    6.398483068307472,
+    5.286734657760967,
+    6.598185168616544,
+    7.934923715621835
+   ]
+  },
+  "GSA": {
+   "all_pixels": 5.229069701507107,
+   "nonzero_pixels": 5.2290697015071075,
+   "per_image": [
+    5.428712139462756,
+    5.067713945773275,
+    4.8114726478620184,
+    5.608380072930378
+   ]
+  },
+  "PUFormer": {
+   "all_pixels": 1.8832501843734426,
+   "nonzero_pixels": 1.883250184373443,
+   "per_image": [
+    1.545909658194535,
+    2.7223087943881996,
+    1.6768198731904136,
+    1.5879624117206226
+   ]
+  }
+ },
+ "darkest_share": {
+  "Bicubic": {
+   "0.05": 0.17040435210646893,
+   "0.1": 0.221738676571225,
+   "0.2": 0.3078340466433186
+  },
+  "GSA": {
+   "0.05": 0.19152250192816683,
+   "0.1": 0.2729969800547313,
+   "0.2": 0.42613515008080577
+  },
+  "PUFormer": {
+   "0.05": 0.2310888050035275,
+   "0.1": 0.3378121665394515,
+   "0.2": 0.5277911966466482
+  }
+ }
+}
+water share: [0.1093, 0.6314, 0.0683, 0.1254] {'Bicubic': (6.666663747116609, 6.520420909074357), 'GSA': (6.980878583807731, 4.6951477210243215), 'PUFormer': (2.953393086256491, 1.5570885674608619)}
+noise floor: 1.0105574778741873 by decile [3.816, 2.162, 1.403, 0.658, 0.485, 0.401, 0.354, 0.316, 0.281, 0.229]
+by brightness: {'norm_dn_median': [2024.962, 2488.704, 3901.937, 8483.524, 11231.872, 13542.342, 15290.496, 17101.261, 19214.481, 22512.732], 'Bicubic': [14.534, 5.643, 9.875, 7.265, 5.668, 4.822, 4.432, 4.458, 4.168, 4.68], 'GSA': [14.275, 8.008, 8.726, 5.098, 3.657, 2.882, 2.49, 2.408, 2.272, 2.476], 'PUFormer': [6.362, 3.578, 2.665, 1.414, 1.077, 0.909, 0.813, 0.745, 0.675, 0.594]}
+-rw-r--r-- 1 root root 37869 Sep 27 07:28 /kaggle/working/__notebook__.ipynb
+
+/kaggle/working/code:
+total 64
+drwxr-xr-x 3 root root  4096 Sep 27 07:22 .
+drwxr-xr-x 5 root root  4096 Sep 27 07:29 ..
+-rw-r--r-- 1 root root  4290 Jan  1  1970 eval_gaps.py
+drwxr-xr-x 3 root root  4096 Sep 27 07:22 hsifuse
+-rw-r--r-- 1 root root  7928 Jan  1  1970 paper_analysis.py
+-rw-r--r-- 1 root root  7052 Jan  1  1970 sam_analysis.py
+-rw-r--r-- 1 root root  3669 Jan  1  1970 selfcheck.py
+-rw-r--r-- 1 root root  2888 Jan  1  1970 test.py
+-rw-r--r-- 1 root root 18492 Jan  1  1970 train.py
+
+/kaggle/working/paper_analysis:
+total 6436
+drwxr-xr-x 2 root root    4096 Sep 27 07:28 .
+drwxr-xr-x 5 root root    4096 Sep 27 07:29 ..
+-rw-r--r-- 1 root root   19150 Sep 27 07:27 per_band.json
+-rw-r--r-- 1 root root    6752 Sep 27 07:28 q2n.json
+-rw-r--r-- 1 root root 6550696 Sep 27 07:28 visual.npz
+
+/kaggle/working/sam_analysis:
+total 2172
+drwxr-xr-x 2 root root    4096 Sep 27 07:29 .
+drwxr-xr-x 5 root root    4096 Sep 27 07:29 ..
+-rw-r--r-- 1 root root    5482 Sep 27 07:29 sam.json
+-rw-r--r-- 1 root root 2205291 Sep 27 07:29 sam_maps.npz
+-rw-r--r-- 1 root root 37869 Sep 27 07:28 /kaggle/working/__notebook__.ipynb
+
+/kaggle/working/code:
+total 64
+drwxr-xr-x 3 root root  4096 Sep 27 07:22 .
+drwxr-xr-x 5 root root  4096 Sep 27 07:29 ..
+-rw-r--r-- 1 root root  4290 Jan  1  1970 eval_gaps.py
+drwxr-xr-x 3 root root  4096 Sep 27 07:22 hsifuse
+-rw-r--r-- 1 root root  7928 Jan  1  1970 paper_analysis.py
+-rw-r--r-- 1 root root  7052 Jan  1  1970 sam_analysis.py
+-rw-r--r-- 1 root root  3669 Jan  1  1970 selfcheck.py
+-rw-r--r-- 1 root root  2888 Jan  1  1970 test.py
+-rw-r--r-- 1 root root 18492 Jan  1  1970 train.py
+
+/kaggle/working/paper_analysis:
+total 6436
+drwxr-xr-x 2 root root    4096 Sep 27 07:28 .
+drwxr-xr-x 5 root root    4096 Sep 27 07:29 ..
+-rw-r--r-- 1 root root   19150 Sep 27 07:27 per_band.json
+-rw-r--r-- 1 root root    6752 Sep 27 07:28 q2n.json
+-rw-r--r-- 1 root root 6550696 Sep 27 07:28 visual.npz
+
+/kaggle/working/sam_analysis:
+total 2172
+drwxr-xr-x 2 root root    4096 Sep 27 07:29 .
+drwxr-xr-x 5 root root    4096 Sep 27 07:29 ..
+-rw-r--r-- 1 root root    5482 Sep 27 07:29 sam.json
+-rw-r--r-- 1 root root 2205291 Sep 27 07:29 sam_maps.npz
+/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\|'
+  cells[i][c] = re.sub('\\\\\|', '|', cell)
+/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\_'
+  text = re.sub(r'_', '\_', text) # Escape underscores in display text
+[NbConvertApp] Converting notebook __notebook__.ipynb to notebook
+[NbConvertApp] Writing 42348 bytes to __notebook__.ipynb
+[NbConvertApp] Converting notebook __notebook__.ipynb to html
+[NbConvertApp] Writing 317612 bytes to __results__.html
