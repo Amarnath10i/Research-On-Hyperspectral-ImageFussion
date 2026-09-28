@@ -147,8 +147,12 @@ the repository (see `.gitignore`).
 }
 ```
 
+## Paper
+
+The PUFormer manuscript (IEEE journal format), with the Chikusei and Pavia Centre results, is in
+[paper/puformer/main.pdf](paper/puformer/main.pdf); its sources and build notes are in
+[paper/puformer/](paper/puformer/).
+
 ## License
 
 Research use. The datasets belong to their respective providers.
-
-Last updated: 2026-09-28.
