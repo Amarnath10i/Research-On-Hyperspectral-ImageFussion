@@ -25,8 +25,9 @@ PREDS = os.environ.get("Q1_PREDS", "")
 DATASETS = {"chikusei": ("Chikusei", (4, 8, 16)), "pavia": ("Pavia Centre", (4, 8, 16)),
             "cave": ("CAVE", (4, 8)), "harvard": ("Harvard", (4, 8))}
 METHODS = [("ssrnet", "SSR-NET"), ("psrt", "PSRT"), ("dct", "DCT"), ("mimformer", "MIMFormer"),
-           ("puformer", "PUFormer")]
-COLOR = {"ssrnet": "#8c8b86", "psrt": AQUA, "dct": ORANGE, "mimformer": "#7d52c7", "puformer": BLUE, "gsa": INK2}
+           ("dhif", "DHIF-Net"), ("puformer", "PUFormer")]
+COLOR = {"ssrnet": "#8c8b86", "psrt": AQUA, "dct": ORANGE, "mimformer": "#7d52c7", "dhif": "#c2410c",
+         "puformer": BLUE, "gsa": INK2}
 FALSE_RGB = {"chikusei": (60, 40, 20), "pavia": (57, 34, 3), "cave": (25, 15, 5), "harvard": (25, 15, 5)}
 
 

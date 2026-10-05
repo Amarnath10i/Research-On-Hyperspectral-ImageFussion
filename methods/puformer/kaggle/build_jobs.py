@@ -196,10 +196,16 @@ def main():
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--quick", action="store_true", help="with --smoke: only the four networks on CAVE x4 and Pavia x16")
     ap.add_argument("--debug", action="store_true", help="PSRT trajectory, memory of DCT / MIMFormer, PUFormer x8/x16")
+    ap.add_argument("--dhif_cpu", action="store_true", help="CPU smoke run of the DHIF-Net adapter (no GPU quota)")
     ap.add_argument("--user", default="amarnath10chinu")
     a = ap.parse_args()
     jobs = all_jobs()
-    if a.debug:
+    if a.dhif_cpu:
+        slug = "puf-dhif-cpu"
+        few = " --iters 4 --eval_every 2 --log_every 1 --q2n 0 --bs 2"
+        queues = [[dict(jobs[n], name=n + "-cpu", args=jobs[n]["args"] + few, robust=False)
+                   for n in ("bench-cave-x4-dhif", "bench-pavia-x8-dhif", "bench-pavia-x16-dhif")]]
+    elif a.debug:
         slug = "puf-debug"
         long = " --iters 400 --warmup 0 --eval_every 100 --log_every 50"
 
@@ -219,15 +225,17 @@ def main():
     b64, sha = code_blob()
     out = os.path.join(HERE, "sessions", slug)
     os.makedirs(out, exist_ok=True)
-    cells = [SETUP.format(b64=b64, sha=sha, rev=git_rev(), queues=repr(queues), smoke=a.smoke or a.debug),
+    cells = [SETUP.format(b64=b64, sha=sha, rev=git_rev(), queues=repr(queues), smoke=a.smoke or a.debug or a.dhif_cpu),
              PREP.format()] + ([PSRT_PROBE] if a.debug else []) + [RUN.format(), SUMMARY.format()]
     name = f"{slug}.ipynb"
     with open(os.path.join(out, name), "w", newline="\n") as f:
         json.dump(notebook(cells), f, indent=1)
     used = sorted({j["dataset"] for q in queues for j in q})
     meta = dict(id=f"{a.user}/{slug}", title=slug, code_file=name, language="python", kernel_type="notebook",
-                is_private=True, enable_gpu=True, enable_internet=True, machine_shape="NvidiaTeslaT4",
+                is_private=True, enable_gpu=not a.dhif_cpu, enable_internet=True, machine_shape="NvidiaTeslaT4",
                 dataset_sources=[DATASETS[d] for d in used], competition_sources=[], kernel_sources=[])
+    if a.dhif_cpu:
+        meta.pop("machine_shape")
     with open(os.path.join(out, "kernel-metadata.json"), "w", newline="\n") as f:
         json.dump(meta, f, indent=1)
     print(f"wrote sessions/{slug}/{name} for {meta['id']}: " + " | ".join(",".join(j["name"] for j in q) for q in queues))

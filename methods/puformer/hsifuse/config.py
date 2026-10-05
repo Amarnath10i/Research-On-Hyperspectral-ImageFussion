@@ -5,7 +5,7 @@ from . import metrics
 from .ops import Degradation, LearnedDegradation, dataset_srf
 
 DATASETS = ["chikusei", "pavia", "cave", "harvard"]
-MODELS = ["puformer", "ssrnet", "psrt", "dct", "mimformer", "fusformer"]
+MODELS = ["puformer", "ssrnet", "psrt", "dct", "mimformer", "fusformer", "dhif"]
 
 
 def add_ablation_args(p):

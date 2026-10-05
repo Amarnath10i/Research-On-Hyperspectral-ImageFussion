@@ -22,7 +22,9 @@ DATASETS = {"chikusei": ("Chikusei", (4, 8, 16)), "pavia": ("Pavia Centre", (4, 
             "cave": ("CAVE", (4, 8)), "harvard": ("Harvard", (4, 8))}
 METHODS = [("bicubic", "Bicubic", None), ("gsa", "GSA", "aiazzi2007gsa"), ("ssrnet", "SSR-NET", "zhang2021ssrnet"),
            ("psrt", "PSRT", "deng2023psrt"), ("dct", "DCT", "ma2024reciprocal"),
-           ("mimformer", "MIMFormer", "li2024mimformer"), ("puformer", "PUFormer", None)]
+           ("mimformer", "MIMFormer", "li2024mimformer"), ("dhif", "DHIF-Net", "huang2022dhif"),
+           ("puformer", "PUFormer", None)]
+BASELINES = ("ssrnet", "psrt", "dct", "mimformer", "dhif")      # the retrained published networks
 # (key, label, decimals, higher is better)
 SHORT = [("PSNR", "PSNR", 2, True), ("SSIM", "SSIM", 4, True), ("SAM", "SAM", 3, False), ("ERGAS", "ERGAS", 3, False)]
 FULL = SHORT + [("CC", "CC", 4, True), ("SCC", "SCC", 4, True), ("Q2n", "Q2n", 4, True), ("RMSE_DN", "RMSE", 2, False)]
@@ -46,7 +48,7 @@ MODULE_COLS = [("step", "Data step"), ("res", "Res.\\ input"), ("op", "Operator 
 def modules(v):
     """Module cells of variant v; the changed module is in bold."""
     m = dict(FULL_MODULES, **CHANGES[v])
-    return [f"\\textbf{{{m[k]}}}" if k in CHANGES[v] and m[k] != N else m[k] for k, _ in MODULE_COLS]
+    return [f"\\textbf{{{m[k]}}}" if k in CHANGES[v] else m[k] for k, _ in MODULE_COLS]
 NUM = {}
 
 
@@ -121,7 +123,15 @@ def bench_table(ds):
         f" & {head} \\\\", rule, f"Method & {sub} \\\\", "\\midrule", *body, "\\bottomrule", "\\end{tabular}}",
         "\\end{table*}"])
     for s in scales:
-        p, others = per[s]["puformer"], [per[s][m] for m in ("ssrnet", "psrt", "dct", "mimformer") if per[s][m]]
+        for m, *_ in METHODS:
+            if per[s][m]:
+                NUM[f"{ds}{s}-{m}-psnr"] = f"{per[s][m]['PSNR']:.2f}"
+                NUM[f"{ds}{s}-{m}-sam"] = f"{per[s][m]['SAM']:.3f}"
+        it = {m: (load(f"bench-{ds}-x{s}-{m}") or {}).get("iters") for m, *_ in METHODS}
+        for m, v in it.items():
+            if v:
+                NUM[f"{ds}{s}-{m}-iters"] = f"{v:,}".replace(",", "{,}")
+        p, others = per[s]["puformer"], [per[s][m] for m in BASELINES if per[s][m]]
         if p and others:
             bo = max(others, key=lambda r: r["PSNR"])
             NUM[f"{ds}{s}-gain"] = f"{p['PSNR'] - bo['PSNR']:.2f}"
@@ -177,8 +187,17 @@ def fixed_psnr(g):
     return min(vals) if vals else None
 
 
+def _psnr_of(r, seeds=()):
+    """PSNR of a variant: the mean over its seeds when it has more than one, else its single run."""
+    runs = [x for x in seeds if x]
+    if len(runs) > 1:
+        return _mean_std([x["test"]["PSNR"] for x in runs])[0]
+    return None if r is None else r["test"]["PSNR"]
+
+
 def _abl_row(idx, v, r, g, ref, seeds=()):
-    """One row of the module-grid ablation table: index, module settings, then the metrics."""
+    """One row of the module-grid ablation table: index, module settings, then the metrics.
+    `ref` is the reference PSNR (full model, seed mean when available); Delta compares like with like."""
     mods = " & ".join(modules(v))
     if r is None:
         return f"({idx}) & {mods} & " + " & ".join(["--"] * 7) + " \\\\"
@@ -187,7 +206,7 @@ def _abl_row(idx, v, r, g, ref, seeds=()):
     if len([x for x in seeds if x]) > 1:
         mu, sd = _mean_std([x["test"]["PSNR"] for x in seeds if x])
         psnr = f"{mu:.2f}$\\pm${sd:.2f}"
-    d = "--" if ref is None or v == "full" else f"{t['PSNR'] - ref['test']['PSNR']:+.2f}"
+    d = "--" if ref is None or v == "full" else f"{_psnr_of(r, seeds) - ref:+.2f}"
     return (f"({idx}) & {mods} & {r['params_M']:.2f} & {psnr} & {d} & {fmt(t['SAM'], 3)} & {fmt(t['ERGAS'], 3)} & "
             f"{fmt(c['cons_H_dB'], 1)}/{fmt(c['cons_M_dB'], 1)} & {fmt(swap_psnr(g), 2)} \\\\")
 
@@ -202,15 +221,19 @@ def _abl_numbers(prefix, v, r, g, ref, seeds=()):
     NUM[f"{prefix}-{v}-consM"] = f"{c['cons_M_dB']:.1f}"
     NUM[f"{prefix}-{v}-params"] = f"{r['params_M']:.2f}"
     if ref is not None and v != "full":
-        NUM[f"{prefix}-{v}-delta"] = f"{t['PSNR'] - ref['test']['PSNR']:+.2f}"
+        dv = _psnr_of(r, seeds) - ref
+        NUM[f"{prefix}-{v}-delta"] = f"{dv:+.2f}"
+        NUM[f"{prefix}-{v}-absdelta"] = f"{abs(dv):.2f}"            # for prose ("costs 0.17 dB")
     if len([x for x in seeds if x]) > 1:
         mu, sd = _mean_std([x["test"]["PSNR"] for x in seeds if x])
         NUM[f"{prefix}-{v}-mean"], NUM[f"{prefix}-{v}-std"] = f"{mu:.2f}", f"{sd:.2f}"
         NUM[f"{prefix}-{v}-nseeds"] = str(len([x for x in seeds if x]))
     if swap_psnr(g) is not None:
         NUM[f"{prefix}-{v}-swap"] = f"{swap_psnr(g):.2f}"
+        NUM[f"{prefix}-{v}-swaploss"] = f"{t['PSNR'] - swap_psnr(g):.2f}"
     if fixed_psnr(g) is not None:
         NUM[f"{prefix}-{v}-fixed"] = f"{fixed_psnr(g):.2f}"
+        NUM[f"{prefix}-{v}-fixedloss"] = f"{t['PSNR'] - fixed_psnr(g):.2f}"
 
 
 def ablation_table():
@@ -224,7 +247,8 @@ def ablation_table():
               ("chikusei", "kabl", "Chikusei $\\times$4", ["full", "nophys", "zeros", "learned", "nomem", "k1", "conv"]),
               ("cave", "cabl", "CAVE $\\times$4", ["full", "nophys", "zeros", "learned"]))
     for b, (ds, prefix, title, variants) in enumerate(blocks):
-        ref = load(abl_job(ds, "full"))
+        full_seeds = [load(abl_job(ds, "full", sd)) for sd in (0, 1, 2)] if ds == "pavia" else ()
+        ref = _psnr_of(load(abl_job(ds, "full")), full_seeds)
         body.append(f"\\multicolumn{{{nmod + 8}}}{{@{{}}l}}{{\\textit{{{title}}}}} \\\\")
         for v in variants:
             r, g = load(abl_job(ds, v)), load(abl_job(ds, v), "gaps.json")
@@ -237,6 +261,8 @@ def ablation_table():
                 body.append("\\cmidrule(l){1-%d}" % (nmod + 8))
         if b < len(blocks) - 1:
             body.append("\\midrule")
+    if "abl-full-mean" in NUM and "abl-zeros-mean" in NUM:
+        NUM["abl-seed-gain"] = f"{float(NUM['abl-full-mean']) - float(NUM['abl-zeros-mean']):.2f}"
     write("q1_ablation.tex", [
         "\\begin{table*}[t]", "\\centering",
         "\\caption{Ablation study: each row changes one module of the full model (bold; \\checkmark: used, --: "
@@ -268,6 +294,62 @@ def complexity_table():
         "\\end{tabular}", "\\end{table}"])
 
 
+def blind_table():
+    """Blur estimated from the test pair (blind_eval.py): PSNR with the training, estimated and true operator."""
+    body = []
+    for ds, title in (("pavia", "Pavia Centre"), ("chikusei", "Chikusei")):
+        b = load(f"blind-{ds}-x4", "blind.json")
+        if not b:
+            continue
+        body.append(f"\\multicolumn{{7}}{{@{{}}l}}{{\\textit{{{title} $\\times$4}}}} \\\\")
+        for key, r in b["blind"].items():
+            noisy = ",snr=" in key
+            lab = f"{r['sigma_true']:.1f}" + (" + noise" if noisy else "")
+            cells = [fmt(r.get("sigma_abs_err"), 3), fmt(r.get("exact_fixed"), 2), fmt(r.get("exact_estimated"), 2),
+                     fmt(r.get("exact_oracle"), 2), fmt(r.get("zeros_estimated"), 2), fmt(r.get("learned_fixed"), 2)]
+            body.append(f"{lab} & " + " & ".join(cells) + " \\\\")
+            tag = f"{ds}-s{r['sigma_true']:g}" + ("-noise" if noisy else "")
+            for k in ("exact_fixed", "exact_estimated", "exact_oracle", "zeros_estimated", "learned_fixed"):
+                if r.get(k) is not None:
+                    NUM[f"blind-{tag}-{k}"] = f"{r[k]:.2f}"
+            NUM[f"blind-{tag}-sigerr"] = f"{r['sigma_abs_err']:.3f}"
+        worst = {k: min(r[k] for r in b["blind"].values() if r.get(k) is not None)
+                 for k in ("exact_fixed", "exact_estimated", "zeros_estimated", "learned_fixed")
+                 if any(r.get(k) is not None for r in b["blind"].values())}
+        for k, v in worst.items():
+            NUM[f"blind-{ds}-worst-{k}"] = f"{v:.2f}"
+        for name, v in b.get("fixed_point_residual", {}).items():
+            NUM[f"fp-{ds}-{name}-test"] = f"{100 * v['test']:.2f}"
+            NUM[f"fp-{ds}-{name}-crop"] = f"{100 * v['crop64']:.2f}"
+    if not body:
+        write("q1_blind.tex", ["% blind.json not available yet"])
+        return
+    write("q1_blind.tex", [
+        "\\begin{table}[t]", "\\centering",
+        "\\caption{Blur estimated from the test pair itself. $|\\Delta\\sigma|$: mean error of the estimated blur "
+        "width; PSNR (dB) with the training operator (fixed), the estimated and the true blur given to the model, "
+        "for the exact operator, the zero-border model (estimated) and the learned operator. Noise: 35~dB SNR on both "
+        "inputs.}",
+        "\\label{tab:blind}", "\\setlength{\\tabcolsep}{3pt}", "\\resizebox{\\columnwidth}{!}{%",
+        "\\begin{tabular}{@{}lcccccc@{}}", "\\toprule",
+        " & & \\multicolumn{3}{c}{Exact operator} & Zero border & Learned \\\\",
+        "\\cmidrule(lr){3-5}",
+        "Test blur $\\sigma$ & $|\\Delta\\sigma|$ & fixed & estimated & true & estimated & fixed \\\\", "\\midrule",
+        *body,
+        "\\bottomrule", "\\end{tabular}}", "\\end{table}"])
+
+
+def long_numbers():
+    for m in ("puformer", "mimformer"):
+        r = load(f"long-pavia-x4-{m}")
+        if r:
+            NUM[f"long-{m}-psnr"] = f"{r['test']['PSNR']:.2f}"
+            NUM[f"long-{m}-iters"] = f"{r['iters']:,}".replace(",", "{,}")
+    a, b = load("long-pavia-x4-puformer"), load("long-pavia-x4-mimformer")
+    if a and b:
+        NUM["long-gap"] = f"{a['test']['PSNR'] - b['test']['PSNR']:.2f}"
+
+
 def significance():
     """Paired Wilcoxon signed-rank test of per-image PSNR, PUFormer vs the best other method, per setting."""
     try:
@@ -278,7 +360,7 @@ def significance():
     for ds, (_, scales) in DATASETS.items():
         for s in scales:
             p = load(f"bench-{ds}-x{s}-puformer")
-            others = [(m, load(f"bench-{ds}-x{s}-{m}")) for m in ("ssrnet", "psrt", "dct", "mimformer")]
+            others = [(m, load(f"bench-{ds}-x{s}-{m}")) for m in BASELINES]
             others = [(m, r) for m, r in others if r]
             if not p or not others:
                 continue
@@ -296,12 +378,35 @@ def significance():
     NUM["settings-allwin"], NUM["settings-total"] = str(wins), str(total)
 
 
+def win_counts():
+    """In how many finished settings PUFormer has the best PSNR / SAM / ERGAS among the retrained methods."""
+    done = {"PSNR": 0, "SAM": 0, "ERGAS": 0}
+    n = 0
+    for ds, (_, scales) in DATASETS.items():
+        for s in scales:
+            p = method_metrics(ds, s, "puformer")
+            others = [method_metrics(ds, s, m) for m in BASELINES]
+            others = [o for o in others if o]
+            if not p or not others:
+                continue
+            n += 1
+            done["PSNR"] += p["PSNR"] > max(o["PSNR"] for o in others)
+            done["SAM"] += p["SAM"] < min(o["SAM"] for o in others)
+            done["ERGAS"] += p["ERGAS"] < min(o["ERGAS"] for o in others)
+    NUM["settings-done"] = str(n)
+    for k, v in done.items():
+        NUM[f"wins-{k}"] = str(v)
+
+
 def main():
     for ds in DATASETS:
         bench_table(ds)
+    win_counts()
     full_table()
     ablation_table()
     complexity_table()
+    blind_table()
+    long_numbers()
     significance()
     write("q1_numbers.tex", [f"\\expandafter\\def\\csname qone@{k}\\endcsname{{{v}}}" for k, v in sorted(NUM.items())])
     print(f"{len(NUM)} numbers;", ", ".join(f"{k}={v}" for k, v in sorted(NUM.items())[:40]))

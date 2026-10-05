@@ -31,6 +31,7 @@ REPOS = {
     "dct": ("https://github.com/qingma2016/DCTransformer", "DCTransformer"),
     "mimformer": ("https://github.com/meiruni/MIMFormer", "MIMFormer"),
     "fusformer": ("https://github.com/J-FHu/Fusformer", "Fusformer"),
+    "dhif": ("https://github.com/TaoHuang95/DHIF-Net", "DHIF-Net"),
 }
 # official optimiser settings (all use an L1 loss): lr, weight decay, gradient clipping (0 = off)
 RECIPES = {
@@ -38,6 +39,7 @@ RECIPES = {
     "dct": dict(lr=1e-4, wd=0.0, clip=0.0),
     "mimformer": dict(lr=1e-4, wd=0.0, clip=0.0),
     "fusformer": dict(lr=1e-3, wd=0.0, clip=0.0),
+    "dhif": dict(lr=3e-4, wd=0.0, clip=0.0),
 }
 
 
@@ -134,6 +136,19 @@ def build_external(name: str, bands: int, msi: int, scale: int) -> nn.Module:
         net.headY[0] = nn.Conv2d(msi, 64, 3, stride=1, padding=1)  # RGB (3) -> M bands
         net.body = Checkpointed(net.body)                          # the shared body runs three times per forward
         return External(net, lambda n, yh, ym: n(yh, ym), scale)
+    if name == "dhif":
+        # model-guided unfolding with learned operators: R, R^T as 3x3 convolutions, B, B^T as strided
+        # (transposed) convolutions; the official code covers x8 and x16, x4 uses one stage of its x16 pair
+        m = _load(os.path.join(root, "CAVE", "Model.py"), "dhif_model")
+        net = m.HSI_Fusion(Ch=bands, stages=4, sf=scale)
+        net.RT = nn.Sequential(nn.Conv2d(msi, bands, 3, 1, 1), nn.LeakyReLU())
+        net.R = nn.Sequential(nn.Conv2d(bands, msi, 3, 1, 1), nn.LeakyReLU())
+        net.conv = nn.Conv2d(bands + msi, 64, 3, 1, 1)
+        if scale == 4:
+            net.B = nn.Sequential(nn.Conv2d(bands, bands, 6, 4, 1), nn.LeakyReLU())
+            net.BT = nn.Sequential(nn.ConvTranspose2d(bands, bands, 6, 4, 1), nn.LeakyReLU())
+        net._initialize_weights()
+        return External(net, lambda n, yh, ym: n(ym, yh), scale)
     if name == "mimformer":
         m = _load(os.path.join(root, "models", "MIMFormer_CPW.py"), "mimformer_cpw")
         net = m.MIMFormer(hsi_chans=bands, msi_chans=msi, scale_factor=scale)

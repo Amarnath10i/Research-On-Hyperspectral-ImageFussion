@@ -15,7 +15,7 @@ from __future__ import annotations
 HOURS = 4.0                    # training budget of every benchmark / ablation job (one T4)
 SSR_HOURS = 1.5                # SSR-NET converges long before that
 SETTINGS = [(d, s) for d in ("pavia", "chikusei") for s in (4, 8, 16)] + [(d, s) for d in ("cave", "harvard") for s in (4, 8)]
-METHODS = ["puformer", "psrt", "dct", "mimformer", "ssrnet"]
+METHODS = ["puformer", "psrt", "dct", "mimformer", "ssrnet", "dhif"]
 
 # PUFormer flags of each ablation variant (the full model has none)
 ABLATIONS = {
@@ -73,6 +73,10 @@ def all_jobs():
         for v in ("full", "zeros"):
             n = f"seed{seed}-pavia-x4-{v}"
             jobs[n] = job(n, "pavia", 4, "puformer", ABLATIONS[v], seed=seed)
+    # a longer budget for PUFormer and the strongest baseline: does the gap survive 8 h of training?
+    for m in ("puformer", "mimformer"):
+        n = f"long-pavia-x4-{m}"
+        jobs[n] = job(n, "pavia", 4, m, hours=8.0)
     return jobs
 
 
@@ -107,6 +111,13 @@ SESSIONS = {
     "puf-c01": (["abl-chikusei-x4-zeros"], ["abl-chikusei-x4-learned"]),
     "puf-c02": (["abl-chikusei-x4-nophys"], ["abl-chikusei-x4-nomem"]),
     "puf-c03": (["abl-chikusei-x4-k1"], ["abl-chikusei-x4-conv"]),
+    # DHIF-Net (model-guided unfolding with learned operators), then the longer-budget check
+    "puf-d01": (["bench-pavia-x4-dhif"], ["bench-chikusei-x4-dhif"]),
+    "puf-d02": (["bench-cave-x4-dhif"], ["bench-chikusei-x8-dhif"]),
+    "puf-d03": (["bench-pavia-x8-dhif"], ["bench-cave-x8-dhif"]),
+    "puf-d04": (["bench-harvard-x4-dhif"], ["bench-harvard-x8-dhif"]),
+    "puf-d05": (["bench-pavia-x16-dhif"], ["bench-chikusei-x16-dhif"]),
+    "puf-L01": (["long-pavia-x4-puformer"], ["long-pavia-x4-mimformer"]),
     "puf-t01": (["bench-cave-x4-puformer"], ["bench-cave-x4-mimformer"]),
     "puf-t02": (["bench-cave-x4-psrt"], ["bench-cave-x4-dct"]),
     "puf-t03": (["bench-pavia-x8-puformer"], ["bench-pavia-x8-mimformer"]),
