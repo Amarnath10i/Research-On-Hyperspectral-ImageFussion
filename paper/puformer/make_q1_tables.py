@@ -220,20 +220,22 @@ def ablation_table():
     head = "\\# & " + " & ".join(lab for _, lab in MODULE_COLS) + \
            " & Params (M) & PSNR & $\\Delta$ & SAM & ERGAS & Cons. (dB) & Swap \\\\"
     body, i = [], 0
-    for ds, title, variants in (("pavia", "Pavia Centre $\\times$4", [v for v, _ in ABL]),
-                                ("cave", "CAVE $\\times$4", ["full", "nophys", "zeros", "learned"])):
+    blocks = (("pavia", "abl", "Pavia Centre $\\times$4", [v for v, _ in ABL]),
+              ("chikusei", "kabl", "Chikusei $\\times$4", ["full", "nophys", "zeros", "learned", "nomem", "k1", "conv"]),
+              ("cave", "cabl", "CAVE $\\times$4", ["full", "nophys", "zeros", "learned"]))
+    for b, (ds, prefix, title, variants) in enumerate(blocks):
         ref = load(abl_job(ds, "full"))
         body.append(f"\\multicolumn{{{nmod + 8}}}{{@{{}}l}}{{\\textit{{{title}}}}} \\\\")
         for v in variants:
             r, g = load(abl_job(ds, v)), load(abl_job(ds, v), "gaps.json")
             seeds = [load(abl_job(ds, v, sd)) for sd in (0, 1, 2)] if ds == "pavia" and v in ("full", "zeros") else ()
             body.append(_abl_row(letters[i], v, r, g, ref, seeds))
-            _abl_numbers("abl" if ds == "pavia" else "cabl", v, r, g, ref, seeds)
-            NUM[f"{'abl' if ds == 'pavia' else 'cabl'}-{v}-row"] = letters[i]
+            _abl_numbers(prefix, v, r, g, ref, seeds)
+            NUM[f"{prefix}-{v}-row"] = letters[i]
             i += 1
             if v == "full":
                 body.append("\\cmidrule(l){1-%d}" % (nmod + 8))
-        if ds == "pavia":
+        if b < len(blocks) - 1:
             body.append("\\midrule")
     write("q1_ablation.tex", [
         "\\begin{table*}[t]", "\\centering",

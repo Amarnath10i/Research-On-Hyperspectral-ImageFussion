@@ -65,6 +65,10 @@ def all_jobs():
     for v in ("nophys", "zeros", "learned"):
         n = f"abl-cave-x4-{v}"
         jobs[n] = job(n, "cave", 4, "puformer", ABLATIONS[v], robust=True)
+    # Chikusei x4: the operator rows and the modules that were removable on Pavia Centre
+    for v in ("nophys", "zeros", "learned", "nomem", "k1", "conv"):
+        n = f"abl-chikusei-x4-{v}"
+        jobs[n] = job(n, "chikusei", 4, "puformer", ABLATIONS[v], robust=v in ("zeros", "learned"))
     for seed in (1, 2):
         for v in ("full", "zeros"):
             n = f"seed{seed}-pavia-x4-{v}"
@@ -99,6 +103,10 @@ SESSIONS = {
     "puf-s14": (["bench-pavia-x8-ssrnet", "bench-chikusei-x8-ssrnet", "bench-cave-x8-ssrnet"],
                 ["bench-harvard-x4-ssrnet", "bench-harvard-x8-ssrnet"]),
     # --- one job per GPU (~4.5 h sessions, so two fit the remaining weekly quota of an account) ---
+    # Chikusei x4 ablation first (main dataset)
+    "puf-c01": (["abl-chikusei-x4-zeros"], ["abl-chikusei-x4-learned"]),
+    "puf-c02": (["abl-chikusei-x4-nophys"], ["abl-chikusei-x4-nomem"]),
+    "puf-c03": (["abl-chikusei-x4-k1"], ["abl-chikusei-x4-conv"]),
     "puf-t01": (["bench-cave-x4-puformer"], ["bench-cave-x4-mimformer"]),
     "puf-t02": (["bench-cave-x4-psrt"], ["bench-cave-x4-dct"]),
     "puf-t03": (["bench-pavia-x8-puformer"], ["bench-pavia-x8-mimformer"]),
