@@ -1,0 +1,18 @@
+chikusei x4: train (128, 1632, 2048) test (8, 128, 256, 256) val (64, 128, 64, 64), 1.0 = 15133 DN  (3s)
+[external] dct: https://github.com/qingma2016/DCTransformer @ bd75b1576988ef46964966a111e9b9650b1101ee
+/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+/usr/local/lib/python3.13/dist-packages/torch/functional.py:505: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /pytorch/aten/src/ATen/native/TensorShape.cpp:4381.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+dct (reflect borders): 8.46M params on 1 x cuda; batch 8 x 1; epoch = 102 iters; eval every 1000 iters; deadline in 4.00 h; schedule by time
+bicubic test: {'PSNR': 33.6333, 'PSNR_psrt': 28.199, 'MPSNR_peak1': 35.251, 'SSIM': 0.7404, 'SSIM_psrt': 0.85, 'SAM': 4.4061, 'ERGAS': 9.0115, 'RMSE_DN': 321.8118, 'CC': 0.8408, 'SCC': 0.7648, 'Q2n': 0.6914}
+GSA test: {'PSNR': 43.1966, 'PSNR_psrt': 37.7622, 'MPSNR_peak1': 44.8193, 'SSIM': 0.9778, 'SSIM_psrt': 0.9859, 'SAM': 2.73, 'ERGAS': 3.2791, 'RMSE_DN': 107.6883, 'CC': 0.9905, 'SCC': 0.9922, 'Q2n': 0.9596}
+ep     9.8 it   1000 loss 0.01292 lr 1.00e-04 val PSNR 45.129 SSIM 0.9691 SAM 2.748 | best val 45.129 (0.84 h)
+ep    19.6 it   2000 loss 0.00308 lr 6.35e-05 val PSNR 49.836 SSIM 0.9867 SAM 1.674 | best val 49.836 (1.66 h)
+ep    29.4 it   3000 loss 0.00180 lr 3.16e-05 val PSNR 52.060 SSIM 0.9900 SAM 1.358 | best val 52.060 (2.49 h)
+ep    39.2 it   4000 loss 0.00132 lr 7.24e-06 val PSNR 53.097 SSIM 0.9912 SAM 1.224 | best val 53.097 (3.31 h)
+ep    47.5 it   4850 loss 0.00118 lr 1.00e-07 val PSNR 53.431 SSIM 0.9916 SAM 1.183 | best val 53.431 (4.01 h)
+time budget reached at it 4850 (epoch 47.5); continue with --resume <out>/last.pt
+TEST: {'PSNR': 53.1825, 'PSNR_psrt': 47.7481, 'MPSNR_peak1': 55.4972, 'SSIM': 0.9945, 'SSIM_psrt': 0.9977, 'SAM': 1.1333, 'ERGAS': 2.0662, 'RMSE_DN': 33.5849, 'CC': 0.993, 'SCC': 0.9978, 'Q2n': 0.9871}
+TEST (self-ensemble): {'PSNR': 53.3884, 'PSNR_psrt': 47.954, 'MPSNR_peak1': 55.9121, 'SSIM': 0.9947, 'SSIM_psrt': 0.9978, 'SAM': 1.0999, 'ERGAS': 2.043, 'RMSE_DN': 32.7615, 'CC': 0.9932, 'SCC': 0.9979, 'Q2n': 0.9877}
+consistency: {'cons_H_dB': 61.61958930168581, 'cons_M_dB': 59.16284468770468} | self-ensemble: {'cons_H_dB': 61.77025615956916, 'cons_M_dB': 59.41513543066729}

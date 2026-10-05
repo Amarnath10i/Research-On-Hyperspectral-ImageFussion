@@ -1,0 +1,404 @@
+[{"stream_name":"stderr","time":7.448120619,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.448195066,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.448199629,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.448202151,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":8.060013663,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.060053107,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.060056908,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.060059366,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":9.212732584,"data":"code sha256 026ccba7f80a560bb1080b50aaccb5fbee43d0b1bfedce41aedf1ddda228f7c4 from git 958249a+local changes\n"}
+,{"stream_name":"stdout","time":9.241550543,"data":"index, name, memory.total [MiB]\n"}
+,{"stream_name":"stdout","time":9.241573415,"data":"0, Tesla T4, 15360 MiB\n"}
+,{"stream_name":"stdout","time":9.24157853,"data":"1, Tesla T4, 15360 MiB\n"}
+,{"stream_name":"stdout","time":9.264861725,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":9.26488378,"data":"Mem:              31           1          25           0           5          30\n"}
+,{"stream_name":"stdout","time":9.269252396,"data":"4\n"}
+,{"stream_name":"stdout","time":9.30367963,"data":"index, name, memory.total [MiB]\n"}
+,{"stream_name":"stdout","time":9.303696211,"data":"0, Tesla T4, 15360 MiB\n"}
+,{"stream_name":"stdout","time":9.303701387,"data":"1, Tesla T4, 15360 MiB\n"}
+,{"stream_name":"stdout","time":9.30370583,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":9.303710276,"data":"Mem:              31           1          25           0           5          30\n"}
+,{"stream_name":"stdout","time":9.303714505,"data":"4\n"}
+,{"stream_name":"stdout","time":9.303718177,"data":"data: {'chikusei': None, 'pavia': '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat', 'cave': '/x', 'harvard': '/x'}\n"}
+,{"stream_name":"stderr","time":9.304763661,"data":"/tmp/ipykernel_23/1518117615.py:8: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":9.304789335,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":9.304795778,"data":"\n"}
+,{"stream_name":"stderr","time":9.304799636,"data":"/tmp/ipykernel_23/1518117615.py:8: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":9.304803375,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":16.820102263,"data":"[ok] D/Dt adjoint (zeros) rel err 1.6e-16\n"}
+,{"stream_name":"stdout","time":17.02255082,"data":"[ok] D/Dt adjoint (zeros) rel err 1.6e-16\n"}
+,{"stream_name":"stdout","time":17.162705765,"data":"[ok] Dt == autograd VJP of D (zeros) \n"}
+,{"stream_name":"stdout","time":17.198231133,"data":"[ok] R/Rt adjoint (zeros) \n"}
+,{"stream_name":"stdout","time":17.237188314,"data":"[ok] D/Dt adjoint (reflect) rel err 1.5e-16\n"}
+,{"stream_name":"stdout","time":17.283169224,"data":"[ok] Dt == autograd VJP of D (reflect) \n"}
+,{"stream_name":"stdout","time":17.29002172,"data":"[ok] R/Rt adjoint (reflect) \n"}
+,{"stream_name":"stdout","time":17.343057811,"data":"[ok] strided D == blur + decimate (zeros) \n"}
+,{"stream_name":"stdout","time":17.365826059,"data":"[ok] Dt == autograd VJP of D (zeros) \n"}
+,{"stream_name":"stdout","time":17.365893384,"data":"[ok] R/Rt adjoint (zeros) \n"}
+,{"stream_name":"stdout","time":17.365899646,"data":"[ok] D/Dt adjoint (reflect) rel err 1.5e-16\n"}
+,{"stream_name":"stdout","time":17.365903048,"data":"[ok] Dt == autograd VJP of D (reflect) \n"}
+,{"stream_name":"stdout","time":17.365906381,"data":"[ok] R/Rt adjoint (reflect) \n"}
+,{"stream_name":"stdout","time":17.365909622,"data":"[ok] strided D == blur + decimate (zeros) \n"}
+,{"stream_name":"stdout","time":17.368601578,"data":"[ok] strided Dt == zero-insert + blur (zeros) \n"}
+,{"stream_name":"stdout","time":17.385487566,"data":"[ok] reflect D == simulation operator \n"}
+,{"stream_name":"stdout","time":17.417065431,"data":"[ok] reflect D == blur(reflect) + decimate \n"}
+,{"stream_name":"stdout","time":17.459194217,"data":"[ok] onions_quality fast == literal (n=2) max diff 4.9e-16\n"}
+,{"stream_name":"stdout","time":17.466594264,"data":"[ok] onions_quality fast == literal (n=4) max diff 2.4e-16\n"}
+,{"stream_name":"stdout","time":17.474730349,"data":"[ok] onions_quality fast == literal (n=8) max diff 2.1e-16\n"}
+,{"stream_name":"stdout","time":17.502823167,"data":"[ok] onions_quality fast == literal (n=16) max diff 2.2e-16\n"}
+,{"stream_name":"stdout","time":17.571199292,"data":"[ok] strided Dt == zero-insert + blur (zeros) \n"}
+,{"stream_name":"stdout","time":17.571234554,"data":"[ok] reflect D == simulation operator \n"}
+,{"stream_name":"stdout","time":17.571240225,"data":"[ok] reflect D == blur(reflect) + decimate \n"}
+,{"stream_name":"stdout","time":17.571244,"data":"[ok] onions_quality fast == literal (n=2) max diff 4.9e-16\n"}
+,{"stream_name":"stdout","time":17.571247699,"data":"[ok] onions_quality fast == literal (n=4) max diff 2.4e-16\n"}
+,{"stream_name":"stdout","time":17.571251334,"data":"[ok] onions_quality fast == literal (n=8) max diff 2.1e-16\n"}
+,{"stream_name":"stdout","time":17.571255009,"data":"[ok] onions_quality fast == literal (n=16) max diff 2.2e-16\n"}
+,{"stream_name":"stdout","time":20.823987168,"data":"[ok] onions_quality fast == literal (n=128) max diff 2.2e-16\n"}
+,{"stream_name":"stdout","time":21.026164574,"data":"[ok] onions_quality fast == literal (n=128) max diff 2.2e-16\n"}
+,{"stream_name":"stdout","time":21.677591927,"data":"[ok] Q2n(x, x) == 1 1.000000000000\n"}
+,{"stream_name":"stdout","time":21.709128498,"data":"[ok] SCC(x, x) == 1 \n"}
+,{"stream_name":"stdout","time":21.879805773,"data":"[ok] Q2n(x, x) == 1 1.000000000000\n"}
+,{"stream_name":"stdout","time":21.879855197,"data":"[ok] SCC(x, x) == 1 \n"}
+,{"stream_name":"stdout","time":23.794797747,"data":"[ok] Q2n fast == literal on an image 0.997605\n"}
+,{"stream_name":"stdout","time":23.997201115,"data":"[ok] Q2n fast == literal on an image 0.997605\n"}
+,{"stream_name":"stdout","time":24.187279773,"data":"[ok] Q2n non-multiple of the block size runs \n"}
+,{"stream_name":"stdout","time":24.39109934,"data":"[ok] Q2n non-multiple of the block size runs \n"}
+,{"stream_name":"stdout","time":24.996320255,"data":"   metrics on a noisy image: {'PSNR': 39.9934, 'PSNR_psrt': 35.5564, 'MPSNR_peak1': 39.9944, 'SSIM': 0.9975, 'SSIM_psrt': 0.9978, 'SAM': 1.5071, 'ERGAS': 0.7147, 'RMSE_DN': 151.4451, 'CC': 0.9976, 'SCC': 0.9991, 'Q2n': 0.9976}\n"}
+,{"stream_name":"stdout","time":25.007896051,"data":"[ok] x8 D/Dt adjoint (zeros) rel err 0.0e+00\n"}
+,{"stream_name":"stdout","time":25.022588983,"data":"[ok] x8 D/Dt adjoint (reflect) rel err 1.5e-16\n"}
+,{"stream_name":"stdout","time":25.049700806,"data":"[ok] x8 reflect D == blur(reflect) + decimate \n"}
+,{"stream_name":"stdout","time":25.086508815,"data":"[ok] learned D/Dt, R/Rt adjoint (x4) \n"}
+,{"stream_name":"stdout","time":25.104588093,"data":"[ok] learned D/Dt, R/Rt adjoint (x8) \n"}
+,{"stream_name":"stdout","time":25.198728769,"data":"   metrics on a noisy image: {'PSNR': 39.9934, 'PSNR_psrt': 35.5564, 'MPSNR_peak1': 39.9944, 'SSIM': 0.9975, 'SSIM_psrt': 0.9978, 'SAM': 1.5071, 'ERGAS': 0.7147, 'RMSE_DN': 151.4451, 'CC': 0.9976, 'SCC': 0.9991, 'Q2n': 0.9976}\n"}
+,{"stream_name":"stdout","time":25.198758503,"data":"[ok] x8 D/Dt adjoint (zeros) rel err 0.0e+00\n"}
+,{"stream_name":"stdout","time":25.198762476,"data":"[ok] x8 D/Dt adjoint (reflect) rel err 1.5e-16\n"}
+,{"stream_name":"stdout","time":25.198765961,"data":"[ok] x8 reflect D == blur(reflect) + decimate \n"}
+,{"stream_name":"stdout","time":25.198769329,"data":"[ok] learned D/Dt, R/Rt adjoint (x4) \n"}
+,{"stream_name":"stdout","time":25.198772453,"data":"[ok] learned D/Dt, R/Rt adjoint (x8) \n"}
+,{"stream_name":"stdout","time":26.232804295,"data":"[ok] PUFormer forward/backward (x4, zeros, exact, {}) \n"}
+,{"stream_name":"stdout","time":26.435928686,"data":"[ok] PUFormer forward/backward (x4, zeros, exact, {}) \n"}
+,{"stream_name":"stdout","time":27.062166785,"data":"[ok] PUFormer forward/backward (x4, reflect, exact, {}) \n"}
+,{"stream_name":"stdout","time":27.264940473,"data":"[ok] PUFormer forward/backward (x4, reflect, exact, {}) \n"}
+,{"stream_name":"stdout","time":27.811844798,"data":"[ok] PUFormer forward/backward (x8, reflect, exact, {}) \n"}
+,{"stream_name":"stdout","time":28.015161543,"data":"[ok] PUFormer forward/backward (x8, reflect, exact, {}) \n"}
+,{"stream_name":"stdout","time":28.407822833,"data":"[ok] PUFormer forward/backward (x4, reflect, exact, {'physics': False}) \n"}
+,{"stream_name":"stdout","time":28.611133994,"data":"[ok] PUFormer forward/backward (x4, reflect, exact, {'physics': False}) \n"}
+,{"stream_name":"stdout","time":29.11165489,"data":"[ok] PUFormer forward/backward (x4, reflect, exact, {'res_input': False}) \n"}
+,{"stream_name":"stdout","time":29.314971239,"data":"[ok] PUFormer forward/backward (x4, reflect, exact, {'res_input': False}) \n"}
+,{"stream_name":"stdout","time":29.827271668,"data":"[ok] PUFormer forward/backward (x4, reflect, exact, {'memory': False}) \n"}
+,{"stream_name":"stdout","time":30.030304527,"data":"[ok] PUFormer forward/backward (x4, reflect, exact, {'memory': False}) \n"}
+,{"stream_name":"stdout","time":30.603773753,"data":"[ok] PUFormer forward/backward (x4, reflect, exact, {'mixer': 'window'}) \n"}
+,{"stream_name":"stdout","time":30.806687049,"data":"[ok] PUFormer forward/backward (x4, reflect, exact, {'mixer': 'window'}) \n"}
+,{"stream_name":"stdout","time":31.376921361,"data":"[ok] PUFormer forward/backward (x4, reflect, exact, {'mixer': 'conv'}) \n"}
+,{"stream_name":"stdout","time":31.580134124,"data":"[ok] PUFormer forward/backward (x4, reflect, exact, {'mixer': 'conv'}) \n"}
+,{"stream_name":"stdout","time":32.062895876,"data":"[ok] PUFormer forward/backward (x4, reflect, learned, {}) \n"}
+,{"stream_name":"stdout","time":32.062930304,"data":"all checks passed\n"}
+,{"stream_name":"stdout","time":32.264930671,"data":"[ok] PUFormer forward/backward (x4, reflect, learned, {}) \n"}
+,{"stream_name":"stdout","time":32.264976271,"data":"all checks passed\n"}
+,{"stream_name":"stdout","time":37.132105488,"data":"[gpu0] START abl-pavia-x4-k1 budget 4.00 h: --dataset pavia --scale 4 --model puformer --bs 8 --seed 0 --eval_every 1000 --log_every 1000 --test_log 0 --pad reflect --w_sam 0.05 --w_ssim 0.1 --stages 1\n"}
+,{"stream_name":"stdout","time":37.133876561,"data":"[gpu1] START abl-pavia-x4-conv budget 4.00 h: --dataset pavia --scale 4 --model puformer --bs 8 --seed 0 --eval_every 1000 --log_every 1000 --test_log 0 --pad reflect --w_sam 0.05 --w_ssim 0.1 --mixer conv\n"}
+,{"stream_name":"stdout","time":42.288170455,"data":"[gpu1] pavia x4: train [(92, 424, 715), (92, 512, 187)] test (4, 92, 256, 256) val (63, 92, 64, 64), 1.0 = 8000 DN  (3s)\n"}
+,{"stream_name":"stdout","time":42.295698251,"data":"[gpu0] pavia x4: train [(92, 424, 715), (92, 512, 187)] test (4, 92, 256, 256) val (63, 92, 64, 64), 1.0 = 8000 DN  (3s)\n"}
+,{"stream_name":"stdout","time":48.237209973,"data":"[gpu0] puformer (reflect borders): 3.33M params on 1 x cuda; batch 8 x 1; epoch = 12 iters; eval every 1000 iters; deadline in 4.00 h; schedule by time\n"}
+,{"stream_name":"stdout","time":48.2959409,"data":"[gpu1] puformer (reflect borders): 9.94M params on 1 x cuda; batch 8 x 1; epoch = 12 iters; eval every 1000 iters; deadline in 4.00 h; schedule by time\n"}
+,{"stream_name":"stdout","time":55.623903201,"data":"[gpu0] bicubic test: {'PSNR': 25.5166, 'PSNR_psrt': 25.1078, 'MPSNR_peak1': 25.8716, 'SSIM': 0.6282, 'SSIM_psrt': 0.6427, 'SAM': 6.5539, 'ERGAS': 9.8525, 'RMSE_DN': 436.3207, 'CC': 0.8174, 'SCC': 0.7526, 'Q2n': 0.6806}\n"}
+,{"stream_name":"stdout","time":55.766118783,"data":"[gpu1] bicubic test: {'PSNR': 25.5166, 'PSNR_psrt': 25.1078, 'MPSNR_peak1': 25.8716, 'SSIM': 0.6282, 'SSIM_psrt': 0.6427, 'SAM': 6.5539, 'ERGAS': 9.8525, 'RMSE_DN': 436.3207, 'CC': 0.8174, 'SCC': 0.7526, 'Q2n': 0.6806}\n"}
+,{"stream_name":"stdout","time":59.508263259,"data":"[gpu0] GSA test: {'PSNR': 34.7757, 'PSNR_psrt': 34.3668, 'MPSNR_peak1': 35.1931, 'SSIM': 0.9438, 'SSIM_psrt': 0.945, 'SAM': 5.2291, 'ERGAS': 3.4939, 'RMSE_DN': 157.9259, 'CC': 0.9958, 'SCC': 0.9922, 'Q2n': 0.9276}\n"}
+,{"stream_name":"stdout","time":59.695234603,"data":"[gpu1] GSA test: {'PSNR': 34.7757, 'PSNR_psrt': 34.3668, 'MPSNR_peak1': 35.1931, 'SSIM': 0.9438, 'SSIM_psrt': 0.945, 'SAM': 5.2291, 'ERGAS': 3.4939, 'RMSE_DN': 157.9259, 'CC': 0.9958, 'SCC': 0.9922, 'Q2n': 0.9276}\n"}
+,{"stream_name":"stdout","time":226.134547463,"data":"[gpu0] ep    83.3 it   1000 loss 0.02361 lr 3.00e-04 val PSNR 37.510 SSIM 0.9793 SAM 3.148 | best val 37.510 (0.05 h)\n"}
+,{"stream_name":"stdout","time":357.392840642,"data":"[gpu0] ep   166.7 it   2000 loss 0.00831 lr 3.00e-04 val PSNR 42.942 SSIM 0.9921 SAM 2.169 | best val 42.942 (0.09 h)\n"}
+,{"stream_name":"stdout","time":400.738179786,"data":"[gpu1] ep    83.3 it   1000 loss 0.01657 lr 3.00e-04 val PSNR 42.818 SSIM 0.9920 SAM 2.174 | best val 42.818 (0.10 h)\n"}
+,{"stream_name":"stdout","time":489.135321011,"data":"[gpu0] ep   250.0 it   3000 loss 0.00669 lr 2.99e-04 val PSNR 44.332 SSIM 0.9934 SAM 2.001 | best val 44.332 (0.13 h)\n"}
+,{"stream_name":"stdout","time":621.084399411,"data":"[gpu0] ep   333.3 it   4000 loss 0.00615 lr 2.99e-04 val PSNR 45.005 SSIM 0.9940 SAM 1.911 | best val 45.005 (0.16 h)\n"}
+,{"stream_name":"stdout","time":706.89955952,"data":"[gpu1] ep   166.7 it   2000 loss 0.00719 lr 2.99e-04 val PSNR 45.632 SSIM 0.9947 SAM 1.807 | best val 45.632 (0.19 h)\n"}
+,{"stream_name":"stdout","time":753.687613566,"data":"[gpu0] ep   416.7 it   5000 loss 0.00558 lr 2.98e-04 val PSNR 45.806 SSIM 0.9950 SAM 1.770 | best val 45.806 (0.20 h)\n"}
+,{"stream_name":"stdout","time":886.062751363,"data":"[gpu0] ep   500.0 it   6000 loss 0.00545 lr 2.98e-04 val PSNR 46.365 SSIM 0.9954 SAM 1.670 | best val 46.365 (0.24 h)\n"}
+,{"stream_name":"stdout","time":1013.599179758,"data":"[gpu1] ep   250.0 it   3000 loss 0.00603 lr 2.97e-04 val PSNR 46.679 SSIM 0.9956 SAM 1.641 | best val 46.679 (0.27 h)\n"}
+,{"stream_name":"stdout","time":1018.191227797,"data":"[gpu0] ep   583.3 it   7000 loss 0.00524 lr 2.97e-04 val PSNR 46.729 SSIM 0.9956 SAM 1.613 | best val 46.729 (0.27 h)\n"}
+,{"stream_name":"stdout","time":1150.193961565,"data":"[gpu0] ep   666.7 it   8000 loss 0.00512 lr 2.96e-04 val PSNR 46.982 SSIM 0.9958 SAM 1.578 | best val 46.982 (0.31 h)\n"}
+,{"stream_name":"stdout","time":1281.960094374,"data":"[gpu0] ep   750.0 it   9000 loss 0.00500 lr 2.95e-04 val PSNR 47.151 SSIM 0.9959 SAM 1.556 | best val 47.151 (0.35 h)\n"}
+,{"stream_name":"stdout","time":1319.86115561,"data":"[gpu1] ep   333.3 it   4000 loss 0.00570 lr 2.94e-04 val PSNR 47.163 SSIM 0.9959 SAM 1.575 | best val 47.163 (0.36 h)\n"}
+,{"stream_name":"stdout","time":1413.747619829,"data":"[gpu0] ep   833.3 it  10000 loss 0.00508 lr 2.93e-04 val PSNR 47.273 SSIM 0.9959 SAM 1.539 | best val 47.273 (0.38 h)\n"}
+,{"stream_name":"stdout","time":1545.638958588,"data":"[gpu0] ep   916.7 it  11000 loss 0.00512 lr 2.92e-04 val PSNR 47.371 SSIM 0.9960 SAM 1.527 | best val 47.371 (0.42 h)\n"}
+,{"stream_name":"stdout","time":1626.102083075,"data":"[gpu1] ep   416.7 it   5000 loss 0.00560 lr 2.91e-04 val PSNR 47.516 SSIM 0.9960 SAM 1.528 | best val 47.516 (0.44 h)\n"}
+,{"stream_name":"stdout","time":1677.535508738,"data":"[gpu0] ep  1000.0 it  12000 loss 0.00490 lr 2.91e-04 val PSNR 47.447 SSIM 0.9960 SAM 1.517 | best val 47.447 (0.46 h)\n"}
+,{"stream_name":"stdout","time":1809.486652337,"data":"[gpu0] ep  1083.3 it  13000 loss 0.00494 lr 2.89e-04 val PSNR 47.520 SSIM 0.9960 SAM 1.509 | best val 47.520 (0.49 h)\n"}
+,{"stream_name":"stdout","time":1932.330269761,"data":"[gpu1] ep   500.0 it   6000 loss 0.00550 lr 2.88e-04 val PSNR 47.779 SSIM 0.9962 SAM 1.491 | best val 47.779 (0.53 h)\n"}
+,{"stream_name":"stdout","time":1941.327892037,"data":"[gpu0] ep  1166.7 it  14000 loss 0.00496 lr 2.88e-04 val PSNR 47.574 SSIM 0.9961 SAM 1.502 | best val 47.574 (0.53 h)\n"}
+,{"stream_name":"stdout","time":2073.128077779,"data":"[gpu0] ep  1250.0 it  15000 loss 0.00481 lr 2.86e-04 val PSNR 47.629 SSIM 0.9961 SAM 1.495 | best val 47.629 (0.57 h)\n"}
+,{"stream_name":"stdout","time":2204.915253275,"data":"[gpu0] ep  1333.3 it  16000 loss 0.00492 lr 2.84e-04 val PSNR 47.678 SSIM 0.9961 SAM 1.488 | best val 47.678 (0.60 h)\n"}
+,{"stream_name":"stdout","time":2238.690278368,"data":"[gpu1] ep   583.3 it   7000 loss 0.00533 lr 2.83e-04 val PSNR 47.957 SSIM 0.9962 SAM 1.468 | best val 47.957 (0.61 h)\n"}
+,{"stream_name":"stdout","time":2336.721037153,"data":"[gpu0] ep  1416.7 it  17000 loss 0.00482 lr 2.82e-04 val PSNR 47.722 SSIM 0.9961 SAM 1.482 | best val 47.722 (0.64 h)\n"}
+,{"stream_name":"stdout","time":2468.567241765,"data":"[gpu0] ep  1500.0 it  18000 loss 0.00482 lr 2.80e-04 val PSNR 47.764 SSIM 0.9961 SAM 1.477 | best val 47.764 (0.67 h)\n"}
+,{"stream_name":"stdout","time":2544.978214749,"data":"[gpu1] ep   666.7 it   8000 loss 0.00534 lr 2.78e-04 val PSNR 48.064 SSIM 0.9963 SAM 1.454 | best val 48.064 (0.70 h)\n"}
+,{"stream_name":"stdout","time":2600.252433474,"data":"[gpu0] ep  1583.3 it  19000 loss 0.00475 lr 2.77e-04 val PSNR 47.802 SSIM 0.9962 SAM 1.472 | best val 47.802 (0.71 h)\n"}
+,{"stream_name":"stdout","time":2732.241766426,"data":"[gpu0] ep  1666.7 it  20000 loss 0.00469 lr 2.75e-04 val PSNR 47.839 SSIM 0.9962 SAM 1.467 | best val 47.839 (0.75 h)\n"}
+,{"stream_name":"stdout","time":2851.679280582,"data":"[gpu1] ep   750.0 it   9000 loss 0.00524 lr 2.73e-04 val PSNR 48.139 SSIM 0.9963 SAM 1.442 | best val 48.139 (0.78 h)\n"}
+,{"stream_name":"stdout","time":2864.121626175,"data":"[gpu0] ep  1750.0 it  21000 loss 0.00476 lr 2.73e-04 val PSNR 47.872 SSIM 0.9962 SAM 1.462 | best val 47.872 (0.78 h)\n"}
+,{"stream_name":"stdout","time":2995.901821925,"data":"[gpu0] ep  1833.3 it  22000 loss 0.00476 lr 2.70e-04 val PSNR 47.903 SSIM 0.9962 SAM 1.458 | best val 47.903 (0.82 h)\n"}
+,{"stream_name":"stdout","time":3127.720955381,"data":"[gpu0] ep  1916.7 it  23000 loss 0.00475 lr 2.68e-04 val PSNR 47.935 SSIM 0.9962 SAM 1.453 | best val 47.935 (0.86 h)\n"}
+,{"stream_name":"stdout","time":3157.985787154,"data":"[gpu1] ep   833.3 it  10000 loss 0.00515 lr 2.67e-04 val PSNR 48.196 SSIM 0.9963 SAM 1.433 | best val 48.196 (0.87 h)\n"}
+,{"stream_name":"stdout","time":3259.558947857,"data":"[gpu0] ep  2000.0 it  24000 loss 0.00474 lr 2.65e-04 val PSNR 47.968 SSIM 0.9962 SAM 1.450 | best val 47.968 (0.89 h)\n"}
+,{"stream_name":"stdout","time":3391.450866174,"data":"[gpu0] ep  2083.3 it  25000 loss 0.00467 lr 2.62e-04 val PSNR 48.001 SSIM 0.9963 SAM 1.446 | best val 48.001 (0.93 h)\n"}
+,{"stream_name":"stdout","time":3464.61122525,"data":"[gpu1] ep   916.7 it  11000 loss 0.00515 lr 2.60e-04 val PSNR 48.240 SSIM 0.9964 SAM 1.425 | best val 48.240 (0.95 h)\n"}
+,{"stream_name":"stdout","time":3523.268882243,"data":"[gpu0] ep  2166.7 it  26000 loss 0.00476 lr 2.59e-04 val PSNR 48.033 SSIM 0.9963 SAM 1.443 | best val 48.033 (0.97 h)\n"}
+,{"stream_name":"stdout","time":3655.113699377,"data":"[gpu0] ep  2250.0 it  27000 loss 0.00470 lr 2.56e-04 val PSNR 48.063 SSIM 0.9963 SAM 1.440 | best val 48.063 (1.00 h)\n"}
+,{"stream_name":"stdout","time":3771.068414147,"data":"[gpu1] ep  1000.0 it  12000 loss 0.00509 lr 2.53e-04 val PSNR 48.271 SSIM 0.9964 SAM 1.420 | best val 48.271 (1.04 h)\n"}
+,{"stream_name":"stdout","time":3786.889493371,"data":"[gpu0] ep  2333.3 it  28000 loss 0.00466 lr 2.53e-04 val PSNR 48.101 SSIM 0.9963 SAM 1.437 | best val 48.101 (1.04 h)\n"}
+,{"stream_name":"stdout","time":3918.706570569,"data":"[gpu0] ep  2416.7 it  29000 loss 0.00479 lr 2.50e-04 val PSNR 48.126 SSIM 0.9963 SAM 1.434 | best val 48.126 (1.08 h)\n"}
+,{"stream_name":"stdout","time":4050.532626673,"data":"[gpu0] ep  2500.0 it  30000 loss 0.00470 lr 2.47e-04 val PSNR 48.154 SSIM 0.9963 SAM 1.432 | best val 48.154 (1.11 h)\n"}
+,{"stream_name":"stdout","time":4077.473375081,"data":"[gpu1] ep  1083.3 it  13000 loss 0.00515 lr 2.46e-04 val PSNR 48.294 SSIM 0.9964 SAM 1.416 | best val 48.294 (1.12 h)\n"}
+,{"stream_name":"stdout","time":4182.34729792,"data":"[gpu0] ep  2583.3 it  31000 loss 0.00472 lr 2.43e-04 val PSNR 48.177 SSIM 0.9963 SAM 1.430 | best val 48.177 (1.15 h)\n"}
+,{"stream_name":"stdout","time":4314.22383216,"data":"[gpu0] ep  2666.7 it  32000 loss 0.00469 lr 2.40e-04 val PSNR 48.195 SSIM 0.9963 SAM 1.429 | best val 48.195 (1.19 h)\n"}
+,{"stream_name":"stdout","time":4383.841818691,"data":"[gpu1] ep  1166.7 it  14000 loss 0.00505 lr 2.38e-04 val PSNR 48.316 SSIM 0.9964 SAM 1.413 | best val 48.316 (1.21 h)\n"}
+,{"stream_name":"stdout","time":4445.899728713,"data":"[gpu0] ep  2750.0 it  33000 loss 0.00471 lr 2.36e-04 val PSNR 48.212 SSIM 0.9963 SAM 1.427 | best val 48.212 (1.22 h)\n"}
+,{"stream_name":"stdout","time":4577.967959246,"data":"[gpu0] ep  2833.3 it  34000 loss 0.00469 lr 2.33e-04 val PSNR 48.231 SSIM 0.9964 SAM 1.425 | best val 48.231 (1.26 h)\n"}
+,{"stream_name":"stdout","time":4690.577581058,"data":"[gpu1] ep  1250.0 it  15000 loss 0.00503 lr 2.30e-04 val PSNR 48.338 SSIM 0.9964 SAM 1.409 | best val 48.338 (1.29 h)\n"}
+,{"stream_name":"stdout","time":4709.912642433,"data":"[gpu0] ep  2916.7 it  35000 loss 0.00466 lr 2.29e-04 val PSNR 48.252 SSIM 0.9964 SAM 1.423 | best val 48.252 (1.30 h)\n"}
+,{"stream_name":"stdout","time":4841.742001391,"data":"[gpu0] ep  3000.0 it  36000 loss 0.00462 lr 2.25e-04 val PSNR 48.270 SSIM 0.9964 SAM 1.422 | best val 48.270 (1.33 h)\n"}
+,{"stream_name":"stdout","time":4973.85699653,"data":"[gpu0] ep  3083.3 it  37000 loss 0.00461 lr 2.22e-04 val PSNR 48.287 SSIM 0.9964 SAM 1.421 | best val 48.287 (1.37 h)\n"}
+,{"stream_name":"stdout","time":4996.913398291,"data":"[gpu1] ep  1333.3 it  16000 loss 0.00507 lr 2.21e-04 val PSNR 48.353 SSIM 0.9964 SAM 1.407 | best val 48.353 (1.38 h)\n"}
+,{"stream_name":"stdout","time":5105.978492856,"data":"[gpu0] ep  3166.7 it  38000 loss 0.00460 lr 2.18e-04 val PSNR 48.299 SSIM 0.9964 SAM 1.419 | best val 48.299 (1.41 h)\n"}
+,{"stream_name":"stdout","time":5238.190891732,"data":"[gpu0] ep  3250.0 it  39000 loss 0.00459 lr 2.14e-04 val PSNR 48.313 SSIM 0.9964 SAM 1.418 | best val 48.313 (1.44 h)\n"}
+,{"stream_name":"stdout","time":5304.363359944,"data":"[gpu1] ep  1416.7 it  17000 loss 0.00495 lr 2.12e-04 val PSNR 48.363 SSIM 0.9964 SAM 1.405 | best val 48.363 (1.46 h)\n"}
+,{"stream_name":"stdout","time":5371.004381747,"data":"[gpu0] ep  3333.3 it  40000 loss 0.00467 lr 2.10e-04 val PSNR 48.324 SSIM 0.9964 SAM 1.417 | best val 48.324 (1.48 h)\n"}
+,{"stream_name":"stdout","time":5503.075947487,"data":"[gpu0] ep  3416.7 it  41000 loss 0.00464 lr 2.06e-04 val PSNR 48.336 SSIM 0.9964 SAM 1.415 | best val 48.336 (1.52 h)\n"}
+,{"stream_name":"stdout","time":5610.963734814,"data":"[gpu1] ep  1500.0 it  18000 loss 0.00501 lr 2.03e-04 val PSNR 48.376 SSIM 0.9964 SAM 1.403 | best val 48.376 (1.55 h)\n"}
+,{"stream_name":"stdout","time":5634.839354079,"data":"[gpu0] ep  3500.0 it  42000 loss 0.00458 lr 2.02e-04 val PSNR 48.350 SSIM 0.9964 SAM 1.414 | best val 48.350 (1.55 h)\n"}
+,{"stream_name":"stdout","time":5766.693299352,"data":"[gpu0] ep  3583.3 it  43000 loss 0.00460 lr 1.98e-04 val PSNR 48.359 SSIM 0.9964 SAM 1.412 | best val 48.359 (1.59 h)\n"}
+,{"stream_name":"stdout","time":5898.742005984,"data":"[gpu0] ep  3666.7 it  44000 loss 0.00474 lr 1.94e-04 val PSNR 48.367 SSIM 0.9964 SAM 1.411 | best val 48.367 (1.63 h)\n"}
+,{"stream_name":"stdout","time":5917.649060055,"data":"[gpu1] ep  1583.3 it  19000 loss 0.00497 lr 1.93e-04 val PSNR 48.383 SSIM 0.9964 SAM 1.402 | best val 48.383 (1.63 h)\n"}
+,{"stream_name":"stdout","time":6030.578084815,"data":"[gpu0] ep  3750.0 it  45000 loss 0.00457 lr 1.89e-04 val PSNR 48.377 SSIM 0.9964 SAM 1.410 | best val 48.377 (1.66 h)\n"}
+,{"stream_name":"stdout","time":6162.331878126,"data":"[gpu0] ep  3833.3 it  46000 loss 0.00452 lr 1.85e-04 val PSNR 48.387 SSIM 0.9964 SAM 1.409 | best val 48.387 (1.70 h)\n"}
+,{"stream_name":"stdout","time":6224.044256085,"data":"[gpu1] ep  1666.7 it  20000 loss 0.00497 lr 1.83e-04 val PSNR 48.396 SSIM 0.9964 SAM 1.400 | best val 48.396 (1.72 h)\n"}
+,{"stream_name":"stdout","time":6294.291294919,"data":"[gpu0] ep  3916.7 it  47000 loss 0.00459 lr 1.81e-04 val PSNR 48.395 SSIM 0.9964 SAM 1.408 | best val 48.395 (1.74 h)\n"}
+,{"stream_name":"stdout","time":6426.110518567,"data":"[gpu0] ep  4000.0 it  48000 loss 0.00452 lr 1.77e-04 val PSNR 48.400 SSIM 0.9964 SAM 1.407 | best val 48.400 (1.77 h)\n"}
+,{"stream_name":"stdout","time":6530.373121996,"data":"[gpu1] ep  1750.0 it  21000 loss 0.00491 lr 1.73e-04 val PSNR 48.404 SSIM 0.9964 SAM 1.399 | best val 48.404 (1.80 h)\n"}
+,{"stream_name":"stdout","time":6557.837696169,"data":"[gpu0] ep  4083.3 it  49000 loss 0.00443 lr 1.73e-04 val PSNR 48.404 SSIM 0.9964 SAM 1.406 | best val 48.404 (1.81 h)\n"}
+,{"stream_name":"stdout","time":6689.668194713,"data":"[gpu0] ep  4166.7 it  50000 loss 0.00464 lr 1.68e-04 val PSNR 48.409 SSIM 0.9964 SAM 1.406 | best val 48.409 (1.85 h)\n"}
+,{"stream_name":"stdout","time":6821.662512912,"data":"[gpu0] ep  4250.0 it  51000 loss 0.00457 lr 1.64e-04 val PSNR 48.413 SSIM 0.9964 SAM 1.405 | best val 48.413 (1.88 h)\n"}
+,{"stream_name":"stdout","time":6837.037360653,"data":"[gpu1] ep  1833.3 it  22000 loss 0.00489 lr 1.64e-04 val PSNR 48.410 SSIM 0.9964 SAM 1.398 | best val 48.410 (1.89 h)\n"}
+,{"stream_name":"stdout","time":6953.449842508,"data":"[gpu0] ep  4333.3 it  52000 loss 0.00458 lr 1.60e-04 val PSNR 48.417 SSIM 0.9964 SAM 1.404 | best val 48.417 (1.92 h)\n"}
+,{"stream_name":"stdout","time":7085.270210181,"data":"[gpu0] ep  4416.7 it  53000 loss 0.00465 lr 1.55e-04 val PSNR 48.422 SSIM 0.9964 SAM 1.403 | best val 48.422 (1.96 h)\n"}
+,{"stream_name":"stdout","time":7143.576252723,"data":"[gpu1] ep  1916.7 it  23000 loss 0.00499 lr 1.53e-04 val PSNR 48.416 SSIM 0.9964 SAM 1.397 | best val 48.416 (1.97 h)\n"}
+,{"stream_name":"stdout","time":7217.137420098,"data":"[gpu0] ep  4500.0 it  54000 loss 0.00447 lr 1.51e-04 val PSNR 48.424 SSIM 0.9964 SAM 1.403 | best val 48.424 (1.99 h)\n"}
+,{"stream_name":"stdout","time":7348.871966784,"data":"[gpu0] ep  4583.3 it  55000 loss 0.00461 lr 1.47e-04 val PSNR 48.426 SSIM 0.9964 SAM 1.402 | best val 48.426 (2.03 h)\n"}
+,{"stream_name":"stdout","time":7449.956517875,"data":"[gpu1] ep  2000.0 it  24000 loss 0.00499 lr 1.43e-04 val PSNR 48.417 SSIM 0.9964 SAM 1.397 | best val 48.417 (2.06 h)\n"}
+,{"stream_name":"stdout","time":7480.78791876,"data":"[gpu0] ep  4666.7 it  56000 loss 0.00454 lr 1.42e-04 val PSNR 48.429 SSIM 0.9964 SAM 1.402 | best val 48.429 (2.07 h)\n"}
+,{"stream_name":"stdout","time":7613.159132964,"data":"[gpu0] ep  4750.0 it  57000 loss 0.00455 lr 1.38e-04 val PSNR 48.429 SSIM 0.9965 SAM 1.401 | best val 48.429 (2.10 h)\n"}
+,{"stream_name":"stdout","time":7745.228271269,"data":"[gpu0] ep  4833.3 it  58000 loss 0.00458 lr 1.34e-04 val PSNR 48.430 SSIM 0.9965 SAM 1.401 | best val 48.430 (2.14 h)\n"}
+,{"stream_name":"stdout","time":7756.427004704,"data":"[gpu1] ep  2083.3 it  25000 loss 0.00496 lr 1.33e-04 val PSNR 48.420 SSIM 0.9964 SAM 1.397 | best val 48.420 (2.14 h)\n"}
+,{"stream_name":"stdout","time":7877.032323804,"data":"[gpu0] ep  4916.7 it  59000 loss 0.00453 lr 1.29e-04 val PSNR 48.431 SSIM 0.9965 SAM 1.400 | best val 48.431 (2.18 h)\n"}
+,{"stream_name":"stdout","time":8009.019668085,"data":"[gpu0] ep  5000.0 it  60000 loss 0.00452 lr 1.25e-04 val PSNR 48.430 SSIM 0.9965 SAM 1.400 | best val 48.431 (2.21 h)\n"}
+,{"stream_name":"stdout","time":8062.341538392,"data":"[gpu1] ep  2166.7 it  26000 loss 0.00494 lr 1.24e-04 val PSNR 48.419 SSIM 0.9964 SAM 1.397 | best val 48.420 (2.23 h)\n"}
+,{"stream_name":"stdout","time":8141.021812712,"data":"[gpu0] ep  5083.3 it  61000 loss 0.00457 lr 1.21e-04 val PSNR 48.430 SSIM 0.9965 SAM 1.400 | best val 48.431 (2.25 h)\n"}
+,{"stream_name":"stdout","time":8273.134760564,"data":"[gpu0] ep  5166.7 it  62000 loss 0.00450 lr 1.17e-04 val PSNR 48.432 SSIM 0.9965 SAM 1.399 | best val 48.432 (2.29 h)\n"}
+,{"stream_name":"stdout","time":8368.367069784,"data":"[gpu1] ep  2250.0 it  27000 loss 0.00493 lr 1.14e-04 val PSNR 48.419 SSIM 0.9964 SAM 1.397 | best val 48.420 (2.31 h)\n"}
+,{"stream_name":"stdout","time":8405.181658453,"data":"[gpu0] ep  5250.0 it  63000 loss 0.00449 lr 1.13e-04 val PSNR 48.432 SSIM 0.9965 SAM 1.399 | best val 48.432 (2.32 h)\n"}
+,{"stream_name":"stdout","time":8537.231246378,"data":"[gpu0] ep  5333.3 it  64000 loss 0.00450 lr 1.08e-04 val PSNR 48.433 SSIM 0.9965 SAM 1.399 | best val 48.433 (2.36 h)\n"}
+,{"stream_name":"stdout","time":8669.260317014,"data":"[gpu0] ep  5416.7 it  65000 loss 0.00448 lr 1.04e-04 val PSNR 48.432 SSIM 0.9965 SAM 1.398 | best val 48.433 (2.40 h)\n"}
+,{"stream_name":"stdout","time":8674.223668323,"data":"[gpu1] ep  2333.3 it  28000 loss 0.00486 lr 1.04e-04 val PSNR 48.421 SSIM 0.9964 SAM 1.396 | best val 48.421 (2.40 h)\n"}
+,{"stream_name":"stdout","time":8801.272203246,"data":"[gpu0] ep  5500.0 it  66000 loss 0.00459 lr 1.00e-04 val PSNR 48.433 SSIM 0.9965 SAM 1.398 | best val 48.433 (2.43 h)\n"}
+,{"stream_name":"stdout","time":8933.627264747,"data":"[gpu0] ep  5583.3 it  67000 loss 0.00446 lr 9.60e-05 val PSNR 48.431 SSIM 0.9965 SAM 1.398 | best val 48.433 (2.47 h)\n"}
+,{"stream_name":"stdout","time":8980.296870105,"data":"[gpu1] ep  2416.7 it  29000 loss 0.00488 lr 9.46e-05 val PSNR 48.420 SSIM 0.9964 SAM 1.396 | best val 48.421 (2.48 h)\n"}
+,{"stream_name":"stdout","time":9066.10708469,"data":"[gpu0] ep  5666.7 it  68000 loss 0.00450 lr 9.20e-05 val PSNR 48.433 SSIM 0.9965 SAM 1.397 | best val 48.433 (2.51 h)\n"}
+,{"stream_name":"stdout","time":9198.874468275,"data":"[gpu0] ep  5750.0 it  69000 loss 0.00435 lr 8.80e-05 val PSNR 48.433 SSIM 0.9965 SAM 1.397 | best val 48.433 (2.54 h)\n"}
+,{"stream_name":"stdout","time":9286.479233899,"data":"[gpu1] ep  2500.0 it  30000 loss 0.00494 lr 8.54e-05 val PSNR 48.420 SSIM 0.9964 SAM 1.396 | best val 48.421 (2.57 h)\n"}
+,{"stream_name":"stdout","time":9331.060682514,"data":"[gpu0] ep  5833.3 it  70000 loss 0.00446 lr 8.41e-05 val PSNR 48.435 SSIM 0.9965 SAM 1.397 | best val 48.435 (2.58 h)\n"}
+,{"stream_name":"stdout","time":9463.80834579,"data":"[gpu0] ep  5916.7 it  71000 loss 0.00450 lr 8.02e-05 val PSNR 48.435 SSIM 0.9965 SAM 1.397 | best val 48.435 (2.62 h)\n"}
+,{"stream_name":"stdout","time":9593.192952159,"data":"[gpu1] ep  2583.3 it  31000 loss 0.00489 lr 7.65e-05 val PSNR 48.419 SSIM 0.9964 SAM 1.396 | best val 48.421 (2.65 h)\n"}
+,{"stream_name":"stdout","time":9596.405467696,"data":"[gpu0] ep  6000.0 it  72000 loss 0.00460 lr 7.64e-05 val PSNR 48.434 SSIM 0.9965 SAM 1.397 | best val 48.435 (2.65 h)\n"}
+,{"stream_name":"stdout","time":9728.949681898,"data":"[gpu0] ep  6083.3 it  73000 loss 0.00445 lr 7.26e-05 val PSNR 48.436 SSIM 0.9965 SAM 1.396 | best val 48.436 (2.69 h)\n"}
+,{"stream_name":"stdout","time":9861.403335778,"data":"[gpu0] ep  6166.7 it  74000 loss 0.00454 lr 6.90e-05 val PSNR 48.440 SSIM 0.9965 SAM 1.396 | best val 48.440 (2.73 h)\n"}
+,{"stream_name":"stdout","time":9900.002468232,"data":"[gpu1] ep  2666.7 it  32000 loss 0.00484 lr 6.79e-05 val PSNR 48.421 SSIM 0.9964 SAM 1.396 | best val 48.421 (2.74 h)\n"}
+,{"stream_name":"stdout","time":9993.713216576,"data":"[gpu0] ep  6250.0 it  75000 loss 0.00452 lr 6.53e-05 val PSNR 48.441 SSIM 0.9965 SAM 1.396 | best val 48.441 (2.77 h)\n"}
+,{"stream_name":"stdout","time":10125.86264529,"data":"[gpu0] ep  6333.3 it  76000 loss 0.00465 lr 6.18e-05 val PSNR 48.439 SSIM 0.9965 SAM 1.396 | best val 48.441 (2.80 h)\n"}
+,{"stream_name":"stdout","time":10206.914292989,"data":"[gpu1] ep  2750.0 it  33000 loss 0.00490 lr 5.97e-05 val PSNR 48.423 SSIM 0.9964 SAM 1.396 | best val 48.423 (2.82 h)\n"}
+,{"stream_name":"stdout","time":10257.81532782,"data":"[gpu0] ep  6416.7 it  77000 loss 0.00453 lr 5.83e-05 val PSNR 48.435 SSIM 0.9965 SAM 1.396 | best val 48.441 (2.84 h)\n"}
+,{"stream_name":"stdout","time":10390.072118646,"data":"[gpu0] ep  6500.0 it  78000 loss 0.00448 lr 5.50e-05 val PSNR 48.437 SSIM 0.9965 SAM 1.396 | best val 48.441 (2.88 h)\n"}
+,{"stream_name":"stdout","time":10514.031613135,"data":"[gpu1] ep  2833.3 it  34000 loss 0.00489 lr 5.19e-05 val PSNR 48.423 SSIM 0.9964 SAM 1.396 | best val 48.423 (2.91 h)\n"}
+,{"stream_name":"stdout","time":10522.504491513,"data":"[gpu0] ep  6583.3 it  79000 loss 0.00451 lr 5.16e-05 val PSNR 48.439 SSIM 0.9965 SAM 1.395 | best val 48.441 (2.91 h)\n"}
+,{"stream_name":"stdout","time":10655.41556124,"data":"[gpu0] ep  6666.7 it  80000 loss 0.00441 lr 4.84e-05 val PSNR 48.440 SSIM 0.9965 SAM 1.395 | best val 48.441 (2.95 h)\n"}
+,{"stream_name":"stdout","time":10787.382835846,"data":"[gpu0] ep  6750.0 it  81000 loss 0.00450 lr 4.52e-05 val PSNR 48.438 SSIM 0.9965 SAM 1.395 | best val 48.441 (2.99 h)\n"}
+,{"stream_name":"stdout","time":10820.740007197,"data":"[gpu1] ep  2916.7 it  35000 loss 0.00479 lr 4.45e-05 val PSNR 48.422 SSIM 0.9964 SAM 1.396 | best val 48.423 (2.99 h)\n"}
+,{"stream_name":"stdout","time":10919.519823518,"data":"[gpu0] ep  6833.3 it  82000 loss 0.00453 lr 4.22e-05 val PSNR 48.438 SSIM 0.9965 SAM 1.395 | best val 48.441 (3.02 h)\n"}
+,{"stream_name":"stdout","time":11052.137094258,"data":"[gpu0] ep  6916.7 it  83000 loss 0.00440 lr 3.92e-05 val PSNR 48.440 SSIM 0.9965 SAM 1.395 | best val 48.441 (3.06 h)\n"}
+,{"stream_name":"stdout","time":11127.365298949,"data":"[gpu1] ep  3000.0 it  36000 loss 0.00485 lr 3.76e-05 val PSNR 48.420 SSIM 0.9964 SAM 1.396 | best val 48.423 (3.08 h)\n"}
+,{"stream_name":"stdout","time":11184.826365271,"data":"[gpu0] ep  7000.0 it  84000 loss 0.00444 lr 3.63e-05 val PSNR 48.439 SSIM 0.9965 SAM 1.395 | best val 48.441 (3.10 h)\n"}
+,{"stream_name":"stdout","time":11317.871438864,"data":"[gpu0] ep  7083.3 it  85000 loss 0.00449 lr 3.35e-05 val PSNR 48.438 SSIM 0.9965 SAM 1.395 | best val 48.441 (3.13 h)\n"}
+,{"stream_name":"stdout","time":11433.723077891,"data":"[gpu1] ep  3083.3 it  37000 loss 0.00481 lr 3.12e-05 val PSNR 48.418 SSIM 0.9964 SAM 1.397 | best val 48.423 (3.17 h)\n"}
+,{"stream_name":"stdout","time":11450.235367934,"data":"[gpu0] ep  7166.7 it  86000 loss 0.00452 lr 3.08e-05 val PSNR 48.438 SSIM 0.9965 SAM 1.395 | best val 48.441 (3.17 h)\n"}
+,{"stream_name":"stdout","time":11582.465647423,"data":"[gpu0] ep  7250.0 it  87000 loss 0.00458 lr 2.83e-05 val PSNR 48.439 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.21 h)\n"}
+,{"stream_name":"stdout","time":11714.811005621,"data":"[gpu0] ep  7333.3 it  88000 loss 0.00454 lr 2.58e-05 val PSNR 48.438 SSIM 0.9965 SAM 1.395 | best val 48.441 (3.24 h)\n"}
+,{"stream_name":"stdout","time":11740.007645326,"data":"[gpu1] ep  3166.7 it  38000 loss 0.00483 lr 2.53e-05 val PSNR 48.417 SSIM 0.9964 SAM 1.397 | best val 48.423 (3.25 h)\n"}
+,{"stream_name":"stdout","time":11847.040480523,"data":"[gpu0] ep  7416.7 it  89000 loss 0.00445 lr 2.34e-05 val PSNR 48.439 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.28 h)\n"}
+,{"stream_name":"stdout","time":11979.378179176,"data":"[gpu0] ep  7500.0 it  90000 loss 0.00460 lr 2.11e-05 val PSNR 48.439 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.32 h)\n"}
+,{"stream_name":"stdout","time":12046.371458817,"data":"[gpu1] ep  3250.0 it  39000 loss 0.00483 lr 2.00e-05 val PSNR 48.417 SSIM 0.9964 SAM 1.397 | best val 48.423 (3.34 h)\n"}
+,{"stream_name":"stdout","time":12111.776647128,"data":"[gpu0] ep  7583.3 it  91000 loss 0.00446 lr 1.90e-05 val PSNR 48.438 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.35 h)\n"}
+,{"stream_name":"stdout","time":12243.902552963,"data":"[gpu0] ep  7666.7 it  92000 loss 0.00450 lr 1.69e-05 val PSNR 48.438 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.39 h)\n"}
+,{"stream_name":"stdout","time":12352.471855293,"data":"[gpu1] ep  3333.3 it  40000 loss 0.00475 lr 1.53e-05 val PSNR 48.417 SSIM 0.9964 SAM 1.397 | best val 48.423 (3.42 h)\n"}
+,{"stream_name":"stdout","time":12375.967049967,"data":"[gpu0] ep  7750.0 it  93000 loss 0.00448 lr 1.50e-05 val PSNR 48.438 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.43 h)\n"}
+,{"stream_name":"stdout","time":12508.34755775,"data":"[gpu0] ep  7833.3 it  94000 loss 0.00440 lr 1.31e-05 val PSNR 48.439 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.46 h)\n"}
+,{"stream_name":"stdout","time":12640.780260812,"data":"[gpu0] ep  7916.7 it  95000 loss 0.00447 lr 1.14e-05 val PSNR 48.439 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.50 h)\n"}
+,{"stream_name":"stdout","time":12659.300959459,"data":"[gpu1] ep  3416.7 it  41000 loss 0.00468 lr 1.12e-05 val PSNR 48.418 SSIM 0.9964 SAM 1.397 | best val 48.423 (3.51 h)\n"}
+,{"stream_name":"stdout","time":12773.124966691,"data":"[gpu0] ep  8000.0 it  96000 loss 0.00451 lr 9.82e-06 val PSNR 48.439 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.54 h)\n"}
+,{"stream_name":"stdout","time":12905.593303334,"data":"[gpu0] ep  8083.3 it  97000 loss 0.00446 lr 8.33e-06 val PSNR 48.438 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.57 h)\n"}
+,{"stream_name":"stdout","time":12965.403085263,"data":"[gpu1] ep  3500.0 it  42000 loss 0.00478 lr 7.71e-06 val PSNR 48.419 SSIM 0.9964 SAM 1.397 | best val 48.423 (3.59 h)\n"}
+,{"stream_name":"stdout","time":13038.089362313,"data":"[gpu0] ep  8166.7 it  98000 loss 0.00454 lr 6.97e-06 val PSNR 48.438 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.61 h)\n"}
+,{"stream_name":"stdout","time":13170.446999093,"data":"[gpu0] ep  8250.0 it  99000 loss 0.00443 lr 5.72e-06 val PSNR 48.438 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.65 h)\n"}
+,{"stream_name":"stdout","time":13271.439067008,"data":"[gpu1] ep  3583.3 it  43000 loss 0.00481 lr 4.85e-06 val PSNR 48.418 SSIM 0.9964 SAM 1.397 | best val 48.423 (3.68 h)\n"}
+,{"stream_name":"stdout","time":13302.983838502,"data":"[gpu0] ep  8333.3 it 100000 loss 0.00459 lr 4.59e-06 val PSNR 48.437 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.68 h)\n"}
+,{"stream_name":"stdout","time":13435.465064577,"data":"[gpu0] ep  8416.7 it 101000 loss 0.00447 lr 3.59e-06 val PSNR 48.438 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.72 h)\n"}
+,{"stream_name":"stdout","time":13567.96100413,"data":"[gpu0] ep  8500.0 it 102000 loss 0.00450 lr 2.70e-06 val PSNR 48.438 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.76 h)\n"}
+,{"stream_name":"stdout","time":13577.940628465,"data":"[gpu1] ep  3666.7 it  44000 loss 0.00481 lr 2.65e-06 val PSNR 48.418 SSIM 0.9964 SAM 1.397 | best val 48.423 (3.76 h)\n"}
+,{"stream_name":"stdout","time":13700.184755388,"data":"[gpu0] ep  8583.3 it 103000 loss 0.00433 lr 1.95e-06 val PSNR 48.438 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.79 h)\n"}
+,{"stream_name":"stdout","time":13832.624805296,"data":"[gpu0] ep  8666.7 it 104000 loss 0.00453 lr 1.31e-06 val PSNR 48.439 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.83 h)\n"}
+,{"stream_name":"stdout","time":13883.899858206,"data":"[gpu1] ep  3750.0 it  45000 loss 0.00479 lr 1.10e-06 val PSNR 48.418 SSIM 0.9964 SAM 1.397 | best val 48.423 (3.85 h)\n"}
+,{"stream_name":"stdout","time":13965.410325406,"data":"[gpu0] ep  8750.0 it 105000 loss 0.00453 lr 8.00e-07 val PSNR 48.439 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.87 h)\n"}
+,{"stream_name":"stdout","time":14097.983261234,"data":"[gpu0] ep  8833.3 it 106000 loss 0.00448 lr 4.14e-07 val PSNR 48.439 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.91 h)\n"}
+,{"stream_name":"stdout","time":14190.258784924,"data":"[gpu1] ep  3833.3 it  46000 loss 0.00478 lr 3.00e-07 val PSNR 48.418 SSIM 0.9964 SAM 1.397 | best val 48.423 (3.93 h)\n"}
+,{"stream_name":"stdout","time":14230.564034996,"data":"[gpu0] ep  8916.7 it 107000 loss 0.00454 lr 3.00e-07 val PSNR 48.439 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.94 h)\n"}
+,{"stream_name":"stdout","time":14362.94696156,"data":"[gpu0] ep  9000.0 it 108000 loss 0.00452 lr 3.00e-07 val PSNR 48.439 SSIM 0.9965 SAM 1.394 | best val 48.441 (3.98 h)\n"}
+,{"stream_name":"stdout","time":14442.864363308,"data":"[gpu0] ep  9050.0 it 108600 loss 0.00453 lr 3.00e-07 val PSNR 48.439 SSIM 0.9965 SAM 1.394 | best val 48.441 (4.00 h)\n"}
+,{"stream_name":"stdout","time":14442.86563082,"data":"[gpu0] time budget reached at it 108600 (epoch 9050.0); continue with --resume \u003cout\u003e/last.pt\n"}
+,{"stream_name":"stdout","time":14450.636012534,"data":"[gpu1] ep  3904.2 it  46850 loss 0.00477 lr 3.00e-07 val PSNR 48.417 SSIM 0.9964 SAM 1.397 | best val 48.423 (4.00 h)\n"}
+,{"stream_name":"stdout","time":14450.637843751,"data":"[gpu1] time budget reached at it 46850 (epoch 3904.2); continue with --resume \u003cout\u003e/last.pt\n"}
+,{"stream_name":"stdout","time":14462.602426894,"data":"[gpu0] TEST: {'PSNR': 50.6027, 'PSNR_psrt': 50.1939, 'MPSNR_peak1': 51.0578, 'SSIM': 0.9969, 'SSIM_psrt': 0.9973, 'SAM': 1.9094, 'ERGAS': 0.6241, 'RMSE_DN': 23.7454, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9748}\n"}
+,{"stream_name":"stdout","time":14462.603476518,"data":"[gpu0] TEST (self-ensemble): {'PSNR': 50.6404, 'PSNR_psrt': 50.2315, 'MPSNR_peak1': 51.097, 'SSIM': 0.9969, 'SSIM_psrt': 0.9973, 'SAM': 1.9014, 'ERGAS': 0.6218, 'RMSE_DN': 23.646, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9749}\n"}
+,{"stream_name":"stdout","time":14462.604481605,"data":"[gpu0] consistency: {'cons_H_dB': 71.3137982611907, 'cons_M_dB': 70.82984472175379} | self-ensemble: {'cons_H_dB': 71.60822766570931, 'cons_M_dB': 71.51716366585775}\n"}
+,{"stream_name":"stdout","time":14464.072695849,"data":"[gpu0] END abl-pavia-x4-k1 rc=0 after 4.02 h\n"}
+,{"stream_name":"stdout","time":14464.249214587,"data":"[gpu0] START abl-pavia-x4-k2 budget 4.00 h: --dataset pavia --scale 4 --model puformer --bs 8 --seed 0 --eval_every 1000 --log_every 1000 --test_log 0 --pad reflect --w_sam 0.05 --w_ssim 0.1 --stages 2\n"}
+,{"stream_name":"stdout","time":14468.357997868,"data":"[gpu0] pavia x4: train [(92, 424, 715), (92, 512, 187)] test (4, 92, 256, 256) val (63, 92, 64, 64), 1.0 = 8000 DN  (2s)\n"}
+,{"stream_name":"stdout","time":14469.595915845,"data":"[gpu0] puformer (reflect borders): 6.66M params on 1 x cuda; batch 8 x 1; epoch = 12 iters; eval every 1000 iters; deadline in 4.00 h; schedule by time\n"}
+,{"stream_name":"stdout","time":14473.067363012,"data":"[gpu1] TEST: {'PSNR': 50.6043, 'PSNR_psrt': 50.1954, 'MPSNR_peak1': 51.119, 'SSIM': 0.9969, 'SSIM_psrt': 0.9973, 'SAM': 1.909, 'ERGAS': 0.6242, 'RMSE_DN': 23.7391, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9758}\n"}
+,{"stream_name":"stdout","time":14473.06811893,"data":"[gpu1] TEST (self-ensemble): {'PSNR': 50.6773, 'PSNR_psrt': 50.2684, 'MPSNR_peak1': 51.1857, 'SSIM': 0.9969, 'SSIM_psrt': 0.9974, 'SAM': 1.8969, 'ERGAS': 0.62, 'RMSE_DN': 23.544, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.976}\n"}
+,{"stream_name":"stdout","time":14473.069290464,"data":"[gpu1] consistency: {'cons_H_dB': 78.47936940077034, 'cons_M_dB': 73.8703383525346} | self-ensemble: {'cons_H_dB': 78.94673332585809, 'cons_M_dB': 74.59852853086363}\n"}
+,{"stream_name":"stdout","time":14474.022413465,"data":"[gpu1] END abl-pavia-x4-conv rc=0 after 4.02 h\n"}
+,{"stream_name":"stdout","time":14474.195437782,"data":"[gpu1] START abl-pavia-x4-window budget 4.00 h: --dataset pavia --scale 4 --model puformer --bs 8 --seed 0 --eval_every 1000 --log_every 1000 --test_log 0 --pad reflect --w_sam 0.05 --w_ssim 0.1 --mixer window\n"}
+,{"stream_name":"stdout","time":14476.649069563,"data":"[gpu0] bicubic test: {'PSNR': 25.5166, 'PSNR_psrt': 25.1078, 'MPSNR_peak1': 25.8716, 'SSIM': 0.6282, 'SSIM_psrt': 0.6427, 'SAM': 6.5539, 'ERGAS': 9.8525, 'RMSE_DN': 436.3207, 'CC': 0.8174, 'SCC': 0.7526, 'Q2n': 0.6806}\n"}
+,{"stream_name":"stdout","time":14478.140966221,"data":"[gpu1] pavia x4: train [(92, 424, 715), (92, 512, 187)] test (4, 92, 256, 256) val (63, 92, 64, 64), 1.0 = 8000 DN  (2s)\n"}
+,{"stream_name":"stdout","time":14479.523870043,"data":"[gpu1] puformer (reflect borders): 9.99M params on 1 x cuda; batch 8 x 1; epoch = 12 iters; eval every 1000 iters; deadline in 4.00 h; schedule by time\n"}
+,{"stream_name":"stdout","time":14480.63593838,"data":"[gpu0] GSA test: {'PSNR': 34.7757, 'PSNR_psrt': 34.3668, 'MPSNR_peak1': 35.1931, 'SSIM': 0.9438, 'SSIM_psrt': 0.945, 'SAM': 5.2291, 'ERGAS': 3.4939, 'RMSE_DN': 157.9259, 'CC': 0.9958, 'SCC': 0.9922, 'Q2n': 0.9276}\n"}
+,{"stream_name":"stdout","time":14486.707974635,"data":"[gpu1] bicubic test: {'PSNR': 25.5166, 'PSNR_psrt': 25.1078, 'MPSNR_peak1': 25.8716, 'SSIM': 0.6282, 'SSIM_psrt': 0.6427, 'SAM': 6.5539, 'ERGAS': 9.8525, 'RMSE_DN': 436.3207, 'CC': 0.8174, 'SCC': 0.7526, 'Q2n': 0.6806}\n"}
+,{"stream_name":"stdout","time":14490.782503274,"data":"[gpu1] GSA test: {'PSNR': 34.7757, 'PSNR_psrt': 34.3668, 'MPSNR_peak1': 35.1931, 'SSIM': 0.9438, 'SSIM_psrt': 0.945, 'SAM': 5.2291, 'ERGAS': 3.4939, 'RMSE_DN': 157.9259, 'CC': 0.9958, 'SCC': 0.9922, 'Q2n': 0.9276}\n"}
+,{"stream_name":"stdout","time":14769.824984041,"data":"[gpu0] ep    83.3 it   1000 loss 0.01856 lr 3.00e-04 val PSNR 41.220 SSIM 0.9891 SAM 2.439 | best val 41.220 (0.08 h)\n"}
+,{"stream_name":"stdout","time":14898.165057957,"data":"[gpu1] ep    83.3 it   1000 loss 0.02348 lr 3.00e-04 val PSNR 41.919 SSIM 0.9914 SAM 2.329 | best val 41.919 (0.12 h)\n"}
+,{"stream_name":"stdout","time":15022.593061972,"data":"[gpu0] ep   166.7 it   2000 loss 0.00710 lr 2.99e-04 val PSNR 44.937 SSIM 0.9940 SAM 1.897 | best val 44.937 (0.15 h)\n"}
+,{"stream_name":"stdout","time":15268.322731991,"data":"[gpu1] ep   166.7 it   2000 loss 0.00761 lr 2.98e-04 val PSNR 45.143 SSIM 0.9943 SAM 1.907 | best val 45.143 (0.22 h)\n"}
+,{"stream_name":"stdout","time":15275.452934108,"data":"[gpu0] ep   250.0 it   3000 loss 0.00608 lr 2.98e-04 val PSNR 46.210 SSIM 0.9953 SAM 1.702 | best val 46.210 (0.22 h)\n"}
+,{"stream_name":"stdout","time":15527.986414864,"data":"[gpu0] ep   333.3 it   4000 loss 0.00552 lr 2.96e-04 val PSNR 47.064 SSIM 0.9958 SAM 1.572 | best val 47.064 (0.29 h)\n"}
+,{"stream_name":"stdout","time":15639.218685667,"data":"[gpu1] ep   250.0 it   3000 loss 0.00652 lr 2.95e-04 val PSNR 46.149 SSIM 0.9952 SAM 1.742 | best val 46.149 (0.32 h)\n"}
+,{"stream_name":"stdout","time":15780.499361431,"data":"[gpu0] ep   416.7 it   5000 loss 0.00527 lr 2.94e-04 val PSNR 47.437 SSIM 0.9960 SAM 1.521 | best val 47.437 (0.37 h)\n"}
+,{"stream_name":"stdout","time":16010.093317458,"data":"[gpu1] ep   333.3 it   4000 loss 0.00607 lr 2.92e-04 val PSNR 46.687 SSIM 0.9956 SAM 1.650 | best val 46.687 (0.43 h)\n"}
+,{"stream_name":"stdout","time":16032.864658772,"data":"[gpu0] ep   500.0 it   6000 loss 0.00513 lr 2.91e-04 val PSNR 47.643 SSIM 0.9961 SAM 1.494 | best val 47.643 (0.44 h)\n"}
+,{"stream_name":"stdout","time":16285.422232746,"data":"[gpu0] ep   583.3 it   7000 loss 0.00509 lr 2.89e-04 val PSNR 47.777 SSIM 0.9962 SAM 1.477 | best val 47.777 (0.51 h)\n"}
+,{"stream_name":"stdout","time":16381.253803011,"data":"[gpu1] ep   416.7 it   5000 loss 0.00580 lr 2.87e-04 val PSNR 46.977 SSIM 0.9957 SAM 1.602 | best val 46.977 (0.53 h)\n"}
+,{"stream_name":"stdout","time":16538.287212314,"data":"[gpu0] ep   666.7 it   8000 loss 0.00509 lr 2.85e-04 val PSNR 47.879 SSIM 0.9962 SAM 1.464 | best val 47.879 (0.58 h)\n"}
+,{"stream_name":"stdout","time":16752.665422474,"data":"[gpu1] ep   500.0 it   6000 loss 0.00559 lr 2.82e-04 val PSNR 47.432 SSIM 0.9960 SAM 1.532 | best val 47.432 (0.63 h)\n"}
+,{"stream_name":"stdout","time":16791.189418258,"data":"[gpu0] ep   750.0 it   9000 loss 0.00501 lr 2.81e-04 val PSNR 47.954 SSIM 0.9963 SAM 1.454 | best val 47.954 (0.65 h)\n"}
+,{"stream_name":"stdout","time":17043.507822739,"data":"[gpu0] ep   833.3 it  10000 loss 0.00507 lr 2.77e-04 val PSNR 48.013 SSIM 0.9963 SAM 1.448 | best val 48.013 (0.72 h)\n"}
+,{"stream_name":"stdout","time":17123.880573268,"data":"[gpu1] ep   583.3 it   7000 loss 0.00541 lr 2.76e-04 val PSNR 47.700 SSIM 0.9961 SAM 1.493 | best val 47.700 (0.74 h)\n"}
+,{"stream_name":"stdout","time":17295.736704859,"data":"[gpu0] ep   916.7 it  11000 loss 0.00491 lr 2.73e-04 val PSNR 48.086 SSIM 0.9963 SAM 1.438 | best val 48.086 (0.79 h)\n"}
+,{"stream_name":"stdout","time":17495.318777422,"data":"[gpu1] ep   666.7 it   8000 loss 0.00532 lr 2.69e-04 val PSNR 47.866 SSIM 0.9962 SAM 1.470 | best val 47.866 (0.84 h)\n"}
+,{"stream_name":"stdout","time":17547.942715659,"data":"[gpu0] ep  1000.0 it  12000 loss 0.00495 lr 2.68e-04 val PSNR 48.150 SSIM 0.9963 SAM 1.430 | best val 48.150 (0.86 h)\n"}
+,{"stream_name":"stdout","time":17800.293572376,"data":"[gpu0] ep  1083.3 it  13000 loss 0.00492 lr 2.62e-04 val PSNR 48.195 SSIM 0.9964 SAM 1.424 | best val 48.195 (0.93 h)\n"}
+,{"stream_name":"stdout","time":17866.544218692,"data":"[gpu1] ep   750.0 it   9000 loss 0.00528 lr 2.61e-04 val PSNR 47.985 SSIM 0.9963 SAM 1.454 | best val 47.985 (0.94 h)\n"}
+,{"stream_name":"stdout","time":18052.436128343,"data":"[gpu0] ep  1166.7 it  14000 loss 0.00491 lr 2.57e-04 val PSNR 48.226 SSIM 0.9964 SAM 1.419 | best val 48.226 (1.00 h)\n"}
+,{"stream_name":"stdout","time":18237.533593075,"data":"[gpu1] ep   833.3 it  10000 loss 0.00520 lr 2.53e-04 val PSNR 48.075 SSIM 0.9963 SAM 1.442 | best val 48.075 (1.04 h)\n"}
+,{"stream_name":"stdout","time":18304.653321536,"data":"[gpu0] ep  1250.0 it  15000 loss 0.00492 lr 2.51e-04 val PSNR 48.265 SSIM 0.9964 SAM 1.414 | best val 48.265 (1.07 h)\n"}
+,{"stream_name":"stdout","time":18556.908221668,"data":"[gpu0] ep  1333.3 it  16000 loss 0.00489 lr 2.44e-04 val PSNR 48.292 SSIM 0.9964 SAM 1.410 | best val 48.292 (1.14 h)\n"}
+,{"stream_name":"stdout","time":18608.937861729,"data":"[gpu1] ep   916.7 it  11000 loss 0.00511 lr 2.43e-04 val PSNR 48.144 SSIM 0.9963 SAM 1.434 | best val 48.144 (1.15 h)\n"}
+,{"stream_name":"stdout","time":18808.905811535,"data":"[gpu0] ep  1416.7 it  17000 loss 0.00481 lr 2.38e-04 val PSNR 48.318 SSIM 0.9964 SAM 1.406 | best val 48.318 (1.21 h)\n"}
+,{"stream_name":"stdout","time":18979.954215489,"data":"[gpu1] ep  1000.0 it  12000 loss 0.00519 lr 2.34e-04 val PSNR 48.212 SSIM 0.9964 SAM 1.426 | best val 48.212 (1.25 h)\n"}
+,{"stream_name":"stdout","time":19061.071416305,"data":"[gpu0] ep  1500.0 it  18000 loss 0.00480 lr 2.31e-04 val PSNR 48.332 SSIM 0.9964 SAM 1.404 | best val 48.332 (1.28 h)\n"}
+,{"stream_name":"stdout","time":19312.911150425,"data":"[gpu0] ep  1583.3 it  19000 loss 0.00485 lr 2.24e-04 val PSNR 48.350 SSIM 0.9964 SAM 1.401 | best val 48.350 (1.35 h)\n"}
+,{"stream_name":"stdout","time":19350.863700391,"data":"[gpu1] ep  1083.3 it  13000 loss 0.00512 lr 2.23e-04 val PSNR 48.268 SSIM 0.9964 SAM 1.420 | best val 48.268 (1.35 h)\n"}
+,{"stream_name":"stdout","time":19564.936955307,"data":"[gpu0] ep  1666.7 it  20000 loss 0.00474 lr 2.17e-04 val PSNR 48.365 SSIM 0.9964 SAM 1.399 | best val 48.365 (1.42 h)\n"}
+,{"stream_name":"stdout","time":19721.954296899,"data":"[gpu1] ep  1166.7 it  14000 loss 0.00508 lr 2.12e-04 val PSNR 48.311 SSIM 0.9964 SAM 1.414 | best val 48.311 (1.46 h)\n"}
+,{"stream_name":"stdout","time":19816.734494546,"data":"[gpu0] ep  1750.0 it  21000 loss 0.00483 lr 2.09e-04 val PSNR 48.377 SSIM 0.9964 SAM 1.398 | best val 48.377 (1.49 h)\n"}
+,{"stream_name":"stdout","time":20068.756314399,"data":"[gpu0] ep  1833.3 it  22000 loss 0.00474 lr 2.02e-04 val PSNR 48.390 SSIM 0.9964 SAM 1.396 | best val 48.390 (1.56 h)\n"}
+,{"stream_name":"stdout","time":20092.944251071,"data":"[gpu1] ep  1250.0 it  15000 loss 0.00505 lr 2.01e-04 val PSNR 48.342 SSIM 0.9964 SAM 1.409 | best val 48.342 (1.56 h)\n"}
+,{"stream_name":"stdout","time":20320.51225768,"data":"[gpu0] ep  1916.7 it  23000 loss 0.00472 lr 1.94e-04 val PSNR 48.405 SSIM 0.9965 SAM 1.394 | best val 48.405 (1.63 h)\n"}
+,{"stream_name":"stdout","time":20463.815006396,"data":"[gpu1] ep  1333.3 it  16000 loss 0.00497 lr 1.90e-04 val PSNR 48.365 SSIM 0.9964 SAM 1.405 | best val 48.365 (1.66 h)\n"}
+,{"stream_name":"stdout","time":20572.46602445,"data":"[gpu0] ep  2000.0 it  24000 loss 0.00476 lr 1.86e-04 val PSNR 48.418 SSIM 0.9965 SAM 1.393 | best val 48.418 (1.70 h)\n"}
+,{"stream_name":"stdout","time":20824.081283162,"data":"[gpu0] ep  2083.3 it  25000 loss 0.00471 lr 1.78e-04 val PSNR 48.435 SSIM 0.9965 SAM 1.392 | best val 48.435 (1.77 h)\n"}
+,{"stream_name":"stdout","time":20834.992446524,"data":"[gpu1] ep  1416.7 it  17000 loss 0.00505 lr 1.78e-04 val PSNR 48.384 SSIM 0.9964 SAM 1.403 | best val 48.384 (1.77 h)\n"}
+,{"stream_name":"stdout","time":21075.786402402,"data":"[gpu0] ep  2166.7 it  26000 loss 0.00471 lr 1.70e-04 val PSNR 48.441 SSIM 0.9965 SAM 1.391 | best val 48.441 (1.84 h)\n"}
+,{"stream_name":"stdout","time":21206.014636655,"data":"[gpu1] ep  1500.0 it  18000 loss 0.00490 lr 1.66e-04 val PSNR 48.400 SSIM 0.9964 SAM 1.401 | best val 48.400 (1.87 h)\n"}
+,{"stream_name":"stdout","time":21327.397659053,"data":"[gpu0] ep  2250.0 it  27000 loss 0.00463 lr 1.61e-04 val PSNR 48.448 SSIM 0.9965 SAM 1.390 | best val 48.448 (1.91 h)\n"}
+,{"stream_name":"stdout","time":21577.159514513,"data":"[gpu1] ep  1583.3 it  19000 loss 0.00497 lr 1.54e-04 val PSNR 48.413 SSIM 0.9964 SAM 1.398 | best val 48.413 (1.97 h)\n"}
+,{"stream_name":"stdout","time":21579.34772683,"data":"[gpu0] ep  2333.3 it  28000 loss 0.00475 lr 1.53e-04 val PSNR 48.458 SSIM 0.9965 SAM 1.389 | best val 48.458 (1.98 h)\n"}
+,{"stream_name":"stdout","time":21831.717109176,"data":"[gpu0] ep  2416.7 it  29000 loss 0.00474 lr 1.45e-04 val PSNR 48.464 SSIM 0.9965 SAM 1.389 | best val 48.464 (2.05 h)\n"}
+,{"stream_name":"stdout","time":21948.97378587,"data":"[gpu1] ep  1666.7 it  20000 loss 0.00498 lr 1.41e-04 val PSNR 48.424 SSIM 0.9964 SAM 1.397 | best val 48.424 (2.08 h)\n"}
+,{"stream_name":"stdout","time":22083.750033985,"data":"[gpu0] ep  2500.0 it  30000 loss 0.00470 lr 1.37e-04 val PSNR 48.473 SSIM 0.9965 SAM 1.388 | best val 48.473 (2.12 h)\n"}
+,{"stream_name":"stdout","time":22320.450511738,"data":"[gpu1] ep  1750.0 it  21000 loss 0.00491 lr 1.29e-04 val PSNR 48.433 SSIM 0.9965 SAM 1.395 | best val 48.433 (2.18 h)\n"}
+,{"stream_name":"stdout","time":22335.699432124,"data":"[gpu0] ep  2583.3 it  31000 loss 0.00475 lr 1.28e-04 val PSNR 48.476 SSIM 0.9965 SAM 1.388 | best val 48.476 (2.19 h)\n"}
+,{"stream_name":"stdout","time":22587.567613874,"data":"[gpu0] ep  2666.7 it  32000 loss 0.00465 lr 1.20e-04 val PSNR 48.479 SSIM 0.9965 SAM 1.387 | best val 48.479 (2.26 h)\n"}
+,{"stream_name":"stdout","time":22691.726612146,"data":"[gpu1] ep  1833.3 it  22000 loss 0.00505 lr 1.17e-04 val PSNR 48.439 SSIM 0.9965 SAM 1.394 | best val 48.439 (2.28 h)\n"}
+,{"stream_name":"stdout","time":22839.224321092,"data":"[gpu0] ep  2750.0 it  33000 loss 0.00464 lr 1.12e-04 val PSNR 48.483 SSIM 0.9965 SAM 1.387 | best val 48.483 (2.33 h)\n"}
+,{"stream_name":"stdout","time":23063.01038485,"data":"[gpu1] ep  1916.7 it  23000 loss 0.00491 lr 1.06e-04 val PSNR 48.444 SSIM 0.9965 SAM 1.393 | best val 48.444 (2.39 h)\n"}
+,{"stream_name":"stdout","time":23090.753070443,"data":"[gpu0] ep  2833.3 it  34000 loss 0.00467 lr 1.04e-04 val PSNR 48.488 SSIM 0.9965 SAM 1.386 | best val 48.488 (2.40 h)\n"}
+,{"stream_name":"stdout","time":23342.878753149,"data":"[gpu0] ep  2916.7 it  35000 loss 0.00464 lr 9.65e-05 val PSNR 48.490 SSIM 0.9965 SAM 1.386 | best val 48.490 (2.47 h)\n"}
+,{"stream_name":"stdout","time":23434.147294133,"data":"[gpu1] ep  2000.0 it  24000 loss 0.00498 lr 9.41e-05 val PSNR 48.449 SSIM 0.9965 SAM 1.393 | best val 48.449 (2.49 h)\n"}
+,{"stream_name":"stdout","time":23594.606301907,"data":"[gpu0] ep  3000.0 it  36000 loss 0.00460 lr 8.89e-05 val PSNR 48.488 SSIM 0.9965 SAM 1.386 | best val 48.490 (2.54 h)\n"}
+,{"stream_name":"stdout","time":23805.66212148,"data":"[gpu1] ep  2083.3 it  25000 loss 0.00492 lr 8.30e-05 val PSNR 48.454 SSIM 0.9965 SAM 1.393 | best val 48.454 (2.59 h)\n"}
+,{"stream_name":"stdout","time":23846.942795261,"data":"[gpu0] ep  3083.3 it  37000 loss 0.00468 lr 8.14e-05 val PSNR 48.490 SSIM 0.9965 SAM 1.386 | best val 48.490 (2.61 h)\n"}
+,{"stream_name":"stdout","time":24099.153195241,"data":"[gpu0] ep  3166.7 it  38000 loss 0.00472 lr 7.42e-05 val PSNR 48.492 SSIM 0.9965 SAM 1.386 | best val 48.492 (2.68 h)\n"}
+,{"stream_name":"stdout","time":24176.746299237,"data":"[gpu1] ep  2166.7 it  26000 loss 0.00496 lr 7.23e-05 val PSNR 48.459 SSIM 0.9965 SAM 1.392 | best val 48.459 (2.69 h)\n"}
+,{"stream_name":"stdout","time":24350.687421071,"data":"[gpu0] ep  3250.0 it  39000 loss 0.00465 lr 6.72e-05 val PSNR 48.493 SSIM 0.9965 SAM 1.385 | best val 48.493 (2.75 h)\n"}
+,{"stream_name":"stdout","time":24547.739353565,"data":"[gpu1] ep  2250.0 it  27000 loss 0.00481 lr 6.22e-05 val PSNR 48.461 SSIM 0.9965 SAM 1.392 | best val 48.461 (2.80 h)\n"}
+,{"stream_name":"stdout","time":24602.474607434,"data":"[gpu0] ep  3333.3 it  40000 loss 0.00471 lr 6.05e-05 val PSNR 48.496 SSIM 0.9965 SAM 1.385 | best val 48.496 (2.82 h)\n"}
+,{"stream_name":"stdout","time":24854.456408529,"data":"[gpu0] ep  3416.7 it  41000 loss 0.00469 lr 5.40e-05 val PSNR 48.497 SSIM 0.9965 SAM 1.385 | best val 48.497 (2.89 h)\n"}
+,{"stream_name":"stdout","time":24918.959897004,"data":"[gpu1] ep  2333.3 it  28000 loss 0.00498 lr 5.26e-05 val PSNR 48.462 SSIM 0.9965 SAM 1.392 | best val 48.462 (2.90 h)\n"}
+,{"stream_name":"stdout","time":25105.945112913,"data":"[gpu0] ep  3500.0 it  42000 loss 0.00465 lr 4.78e-05 val PSNR 48.499 SSIM 0.9965 SAM 1.385 | best val 48.499 (2.96 h)\n"}
+,{"stream_name":"stdout","time":25289.74628147,"data":"[gpu1] ep  2416.7 it  29000 loss 0.00490 lr 4.37e-05 val PSNR 48.463 SSIM 0.9965 SAM 1.392 | best val 48.463 (3.00 h)\n"}
+,{"stream_name":"stdout","time":25357.436238489,"data":"[gpu0] ep  3583.3 it  43000 loss 0.00454 lr 4.19e-05 val PSNR 48.500 SSIM 0.9965 SAM 1.385 | best val 48.500 (3.03 h)\n"}
+,{"stream_name":"stdout","time":25609.68934578,"data":"[gpu0] ep  3666.7 it  44000 loss 0.00470 lr 3.64e-05 val PSNR 48.502 SSIM 0.9965 SAM 1.385 | best val 48.502 (3.10 h)\n"}
+,{"stream_name":"stdout","time":25661.1692006,"data":"[gpu1] ep  2500.0 it  30000 loss 0.00491 lr 3.55e-05 val PSNR 48.462 SSIM 0.9965 SAM 1.392 | best val 48.463 (3.11 h)\n"}
+,{"stream_name":"stdout","time":25861.881958007,"data":"[gpu0] ep  3750.0 it  45000 loss 0.00466 lr 3.11e-05 val PSNR 48.503 SSIM 0.9965 SAM 1.385 | best val 48.503 (3.17 h)\n"}
+,{"stream_name":"stdout","time":26032.72822364,"data":"[gpu1] ep  2583.3 it  31000 loss 0.00487 lr 2.80e-05 val PSNR 48.464 SSIM 0.9965 SAM 1.392 | best val 48.464 (3.21 h)\n"}
+,{"stream_name":"stdout","time":26114.075228799,"data":"[gpu0] ep  3833.3 it  46000 loss 0.00469 lr 2.63e-05 val PSNR 48.502 SSIM 0.9965 SAM 1.385 | best val 48.503 (3.24 h)\n"}
+,{"stream_name":"stdout","time":26365.920128568,"data":"[gpu0] ep  3916.7 it  47000 loss 0.00477 lr 2.18e-05 val PSNR 48.502 SSIM 0.9965 SAM 1.385 | best val 48.503 (3.31 h)\n"}
+,{"stream_name":"stdout","time":26403.870254599,"data":"[gpu1] ep  2666.7 it  32000 loss 0.00496 lr 2.13e-05 val PSNR 48.466 SSIM 0.9965 SAM 1.391 | best val 48.466 (3.31 h)\n"}
+,{"stream_name":"stdout","time":26618.343128708,"data":"[gpu0] ep  4000.0 it  48000 loss 0.00458 lr 1.77e-05 val PSNR 48.502 SSIM 0.9965 SAM 1.385 | best val 48.503 (3.38 h)\n"}
+,{"stream_name":"stdout","time":26775.315084278,"data":"[gpu1] ep  2750.0 it  33000 loss 0.00485 lr 1.55e-05 val PSNR 48.467 SSIM 0.9965 SAM 1.391 | best val 48.467 (3.42 h)\n"}
+,{"stream_name":"stdout","time":26870.387760656,"data":"[gpu0] ep  4083.3 it  49000 loss 0.00464 lr 1.40e-05 val PSNR 48.502 SSIM 0.9965 SAM 1.385 | best val 48.503 (3.45 h)\n"}
+,{"stream_name":"stdout","time":27122.479952032,"data":"[gpu0] ep  4166.7 it  50000 loss 0.00461 lr 1.07e-05 val PSNR 48.503 SSIM 0.9965 SAM 1.385 | best val 48.503 (3.52 h)\n"}
+,{"stream_name":"stdout","time":27146.966844502,"data":"[gpu1] ep  2833.3 it  34000 loss 0.00484 lr 1.06e-05 val PSNR 48.468 SSIM 0.9965 SAM 1.391 | best val 48.468 (3.52 h)\n"}
+,{"stream_name":"stdout","time":27374.900879499,"data":"[gpu0] ep  4250.0 it  51000 loss 0.00464 lr 7.88e-06 val PSNR 48.503 SSIM 0.9965 SAM 1.385 | best val 48.503 (3.59 h)\n"}
+,{"stream_name":"stdout","time":27519.06035033,"data":"[gpu1] ep  2916.7 it  35000 loss 0.00486 lr 6.54e-06 val PSNR 48.468 SSIM 0.9965 SAM 1.391 | best val 48.468 (3.62 h)\n"}
+,{"stream_name":"stdout","time":27627.285939107,"data":"[gpu0] ep  4333.3 it  52000 loss 0.00473 lr 5.45e-06 val PSNR 48.504 SSIM 0.9965 SAM 1.385 | best val 48.504 (3.66 h)\n"}
+,{"stream_name":"stdout","time":27879.568927404,"data":"[gpu0] ep  4416.7 it  53000 loss 0.00459 lr 3.47e-06 val PSNR 48.504 SSIM 0.9965 SAM 1.385 | best val 48.504 (3.73 h)\n"}
+,{"stream_name":"stdout","time":27891.17772555,"data":"[gpu1] ep  3000.0 it  36000 loss 0.00489 lr 3.46e-06 val PSNR 48.467 SSIM 0.9965 SAM 1.391 | best val 48.468 (3.73 h)\n"}
+,{"stream_name":"stdout","time":28131.772540334,"data":"[gpu0] ep  4500.0 it  54000 loss 0.00459 lr 1.92e-06 val PSNR 48.504 SSIM 0.9965 SAM 1.385 | best val 48.504 (3.80 h)\n"}
+,{"stream_name":"stdout","time":28263.000011289,"data":"[gpu1] ep  3083.3 it  37000 loss 0.00484 lr 1.34e-06 val PSNR 48.468 SSIM 0.9965 SAM 1.391 | best val 48.468 (3.83 h)\n"}
+,{"stream_name":"stdout","time":28383.870308521,"data":"[gpu0] ep  4583.3 it  55000 loss 0.00465 lr 8.30e-07 val PSNR 48.504 SSIM 0.9965 SAM 1.385 | best val 48.504 (3.87 h)\n"}
+,{"stream_name":"stdout","time":28635.130039763,"data":"[gpu1] ep  3166.7 it  38000 loss 0.00487 lr 3.00e-07 val PSNR 48.468 SSIM 0.9965 SAM 1.391 | best val 48.468 (3.93 h)\n"}
+,{"stream_name":"stdout","time":28636.268094394,"data":"[gpu0] ep  4666.7 it  56000 loss 0.00457 lr 3.00e-07 val PSNR 48.504 SSIM 0.9965 SAM 1.385 | best val 48.504 (3.94 h)\n"}
+,{"stream_name":"stdout","time":28876.236990697,"data":"[gpu0] ep  4745.8 it  56950 loss 0.00463 lr 3.00e-07 val PSNR 48.504 SSIM 0.9965 SAM 1.385 | best val 48.504 (4.00 h)\n"}
+,{"stream_name":"stdout","time":28876.238295781,"data":"[gpu0] time budget reached at it 56950 (epoch 4745.8); continue with --resume \u003cout\u003e/last.pt\n"}
+,{"stream_name":"stdout","time":28877.503622456,"data":"[gpu1] ep  3220.8 it  38650 loss 0.00480 lr 3.00e-07 val PSNR 48.468 SSIM 0.9965 SAM 1.391 | best val 48.468 (4.00 h)\n"}
+,{"stream_name":"stdout","time":28877.503652726,"data":"[gpu1] time budget reached at it 38650 (epoch 3220.8); continue with --resume \u003cout\u003e/last.pt\n"}
+,{"stream_name":"stdout","time":28896.942295422,"data":"[gpu0] TEST: {'PSNR': 50.644, 'PSNR_psrt': 50.2351, 'MPSNR_peak1': 51.1529, 'SSIM': 0.9969, 'SSIM_psrt': 0.9974, 'SAM': 1.9011, 'ERGAS': 0.6193, 'RMSE_DN': 23.6389, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9752}\n"}
+,{"stream_name":"stdout","time":28896.942340749,"data":"[gpu0] TEST (self-ensemble): {'PSNR': 50.7053, 'PSNR_psrt': 50.2964, 'MPSNR_peak1': 51.2109, 'SSIM': 0.997, 'SSIM_psrt': 0.9974, 'SAM': 1.8919, 'ERGAS': 0.6162, 'RMSE_DN': 23.4745, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9753}\n"}
+,{"stream_name":"stdout","time":28896.942643032,"data":"[gpu0] consistency: {'cons_H_dB': 75.01429852749865, 'cons_M_dB': 73.35324313041465} | self-ensemble: {'cons_H_dB': 75.42409689316608, 'cons_M_dB': 73.85424629881355}\n"}
+,{"stream_name":"stdout","time":28897.822755431,"data":"[gpu0] END abl-pavia-x4-k2 rc=0 after 8.02 h\n"}
+,{"stream_name":"stdout","time":28899.755232646,"data":"[gpu1] TEST: {'PSNR': 50.6341, 'PSNR_psrt': 50.2252, 'MPSNR_peak1': 51.1237, 'SSIM': 0.9969, 'SSIM_psrt': 0.9974, 'SAM': 1.8979, 'ERGAS': 0.6219, 'RMSE_DN': 23.6702, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9757}\n"}
+,{"stream_name":"stdout","time":28899.755909213,"data":"[gpu1] TEST (self-ensemble): {'PSNR': 50.6807, 'PSNR_psrt': 50.2719, 'MPSNR_peak1': 51.1721, 'SSIM': 0.997, 'SSIM_psrt': 0.9974, 'SAM': 1.8895, 'ERGAS': 0.6193, 'RMSE_DN': 23.5468, 'CC': 0.9994, 'SCC': 0.9995, 'Q2n': 0.9758}\n"}
+,{"stream_name":"stdout","time":28899.756660549,"data":"[gpu1] consistency: {'cons_H_dB': 78.61126990841461, 'cons_M_dB': 75.510709367197} | self-ensemble: {'cons_H_dB': 79.15155523391113, 'cons_M_dB': 76.33625889072088}\n"}
+,{"stream_name":"stdout","time":28900.653917344,"data":"[gpu1] END abl-pavia-x4-window rc=0 after 8.03 h\n"}
+,{"stream_name":"stdout","time":28900.854025032,"data":"abl-pavia-x4-k1                    it 108600 3.33M val 48.441 | PSNR 50.603/50.640 SAM 1.909 ERGAS 0.624 SSIM 0.9969 RMSE 23.75 | cons {'cons_H_dB': 71.3137982611907, 'cons_M_dB': 70.82984472175379}\n"}
+,{"stream_name":"stdout","time":28900.854050535,"data":"abl-pavia-x4-k2                    it  56950 6.66M val 48.504 | PSNR 50.644/50.705 SAM 1.901 ERGAS 0.619 SSIM 0.9969 RMSE 23.64 | cons {'cons_H_dB': 75.01429852749865, 'cons_M_dB': 73.35324313041465}\n"}
+,{"stream_name":"stdout","time":28900.861255546,"data":"299M\t/kaggle/working/out\n"}
+,{"stream_name":"stdout","time":28900.870506137,"data":"abl-pavia-x4-conv                  it  46850 9.94M val 48.423 | PSNR 50.604/50.677 SAM 1.909 ERGAS 0.624 SSIM 0.9969 RMSE 23.74 | cons {'cons_H_dB': 78.47936940077034, 'cons_M_dB': 73.8703383525346}\n"}
+,{"stream_name":"stdout","time":28900.87052858,"data":"abl-pavia-x4-window                it  38650 9.99M val 48.468 | PSNR 50.634/50.681 SAM 1.898 ERGAS 0.622 SSIM 0.9969 RMSE 23.67 | cons {'cons_H_dB': 78.61126990841461, 'cons_M_dB': 75.510709367197}\n"}
+,{"stream_name":"stdout","time":28900.870533703,"data":"299M\t/kaggle/working/out\n"}
+,{"stream_name":"stderr","time":28903.864599434,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":28903.864638022,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":28904.028408942,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":28904.028434203,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":28904.793491246,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":28904.900633311,"data":"[NbConvertApp] Writing 100214 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":28907.269797408,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":28907.79073339,"data":"[NbConvertApp] Writing 404203 bytes to __results__.html\n"}
+]
