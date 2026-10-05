@@ -36,29 +36,34 @@ import torch.nn.functional as F
 
 from hsifuse import metrics
 from hsifuse.baselines import gsa
+from hsifuse.config import DATASETS, MODELS, add_ablation_args, build_model, make_deg, set_metric_scale
 from hsifuse.data import PatchSampler, load_dataset, make_pairs, split_pavia
 from hsifuse.evaluation import final_test, predict
 from hsifuse.losses import sam_loss, ssim_loss
 from hsifuse.metrics import evaluate
-from hsifuse.models import build
-from hsifuse.ops import Degradation, dataset_srf
 SYNC_EVERY = 50                              # iterations between stop / schedule broadcasts (DDP)
+OURS = dict(lr=3e-4, wd=1e-4, clip=0.1)      # PUFormer / SSR-NET optimiser settings
 
 
 def get_args():
     p = argparse.ArgumentParser()
     p.add_argument("--mat", required=True, help=".mat file or a folder containing it")
-    p.add_argument("--dataset", default="chikusei", choices=["chikusei", "pavia"])
+    p.add_argument("--dataset", default="chikusei", choices=DATASETS)
+    p.add_argument("--scale", type=int, default=4, help="decimation factor (4 or 8)")
     p.add_argument("--cache", default="", help="optional .npy cache of the normalised crop")
-    p.add_argument("--model", default="puformer", choices=["puformer", "ssrnet"])
+    p.add_argument("--model", default="puformer", choices=MODELS)
     p.add_argument("--width", type=int, default=48)
     p.add_argument("--stages", type=int, default=3)
     p.add_argument("--pad", default="reflect", choices=["reflect", "zeros"],
                    help="border mode of D / Dt inside the network; reflect = the simulation operator "
                         "(zeros = the first run's setting)")
+    add_ablation_args(p)
+    p.add_argument("--wd", type=float, default=None, help="AdamW weight decay (default 1e-4, or the baseline's)")
+    p.add_argument("--clip", type=float, default=None, help="gradient-norm clip, 0 = off (default 0.1, or the baseline's)")
+    p.add_argument("--w_deep", type=float, default=0.1, help="weight of the intermediate-stage L1 terms")
     p.add_argument("--bs", type=int, default=8, help="batch size per process (GPU)")
     p.add_argument("--patch", type=int, default=64)
-    p.add_argument("--lr", type=float, default=3e-4)
+    p.add_argument("--lr", type=float, default=None, help="peak learning rate (default 3e-4, or the baseline's)")
     p.add_argument("--warmup", type=int, default=1000)
     p.add_argument("--iters", type=int, default=300000)
     p.add_argument("--epochs", type=int, default=0, help="if > 0, overrides --iters (epoch = 800/(bs*GPUs) iters)")
@@ -127,7 +132,15 @@ def main():
     torch.backends.cudnn.benchmark = True
     t_start = time.time()
     deadline = a.deadline or (t_start + a.hours * 3600 if a.hours else math.inf)
-    deg = Degradation(dataset_srf(a.dataset), pad=a.pad).to(dev)
+    if a.model == "puformer" or a.model == "ssrnet":
+        recipe = OURS
+    else:
+        from hsifuse.external import RECIPES
+        recipe = RECIPES[a.model]
+    for k, v in recipe.items():
+        if getattr(a, k) is None:
+            setattr(a, k, v)
+    deg = make_deg(a).to(dev)
     bands = deg.srf.shape[0]
 
     if a.smoke:
@@ -144,9 +157,10 @@ def main():
         tr, te, va, peak = load_dataset(a.dataset, a.mat, a.cache or None)
         if world > 1 and main_proc:
             dist.barrier()
-    metrics.DN_SCALE = peak                  # RMSE in DN and Q2n use the dataset's own scale
+    set_metric_scale(a, peak)                # RMSE in DN, Q2n and ERGAS use the dataset's scale and the ratio
     shapes = [r.shape for r in tr] if isinstance(tr, list) else tr.shape
-    log(f"{a.dataset}: train {shapes} test {te.shape} val {va.shape}, 1.0 = {peak:.0f} DN  "
+    shapes = shapes if len(shapes) <= 4 else f"{len(shapes)} regions, e.g. {shapes[:2]}"
+    log(f"{a.dataset} x{a.scale}: train {shapes} test {te.shape} val {va.shape}, 1.0 = {peak:.0f} DN  "
         f"({time.time() - t_start:.0f}s)")
 
     train_patches = sum(r.shape[1] * r.shape[2] for r in (tr if isinstance(tr, list) else [tr])) // (a.patch ** 2)
@@ -163,7 +177,7 @@ def main():
     sampler = PatchSampler(tr, deg, a.patch, dev)
     del tr, te, va
 
-    model = build(a.model, deg, **(dict(width=a.width, stages=a.stages) if a.model == "puformer" else {})).to(dev)
+    model = build_model(a, deg).to(dev)
     if a.model == "puformer":
         model.amp = bool(a.amp)
     if a.init_ckpt:
@@ -178,8 +192,9 @@ def main():
             model.load_state_dict(state)
             log(f"warm start from {a.init_ckpt}")
     n_par = sum(q.numel() for q in model.parameters()) / 1e6
-    opt = torch.optim.AdamW(model.parameters(), lr=a.lr, betas=(0.9, 0.99), weight_decay=1e-4)
-    scaler = torch.amp.GradScaler("cuda", enabled=bool(a.amp) and dev.type == "cuda")
+    opt = torch.optim.AdamW(model.parameters(), lr=a.lr, betas=(0.9, 0.99), weight_decay=a.wd)
+    # mixed precision is used inside PUFormer's priors only; the published networks train in fp32 as released
+    scaler = torch.amp.GradScaler("cuda", enabled=bool(a.amp) and dev.type == "cuda" and a.model == "puformer")
 
     ck = a.resume or os.path.join(a.out, "last.pt")
     it, best, hist = 0, -1.0, []
@@ -242,7 +257,7 @@ def main():
 
     bic = gsa_res = None
     if main_proc and not a.probe:
-        up = F.interpolate(test[0], scale_factor=4, mode="bicubic", align_corners=False)
+        up = F.interpolate(test[0], scale_factor=a.scale, mode="bicubic", align_corners=False)
         bic = evaluate(test[2], up, full=bool(a.q2n))
         log("bicubic test:", {k: round(v, 4) for k, v in bic.items()})
         gsa_res = evaluate(test[2], gsa(test[0], test[1], deg).clamp(0, 1), full=bool(a.q2n))
@@ -261,7 +276,7 @@ def main():
             g["lr"] = lr_now
         lr_, ms_, gt_ = sampler(a.bs)
         outs = net(lr_, ms_, return_all=True)
-        loss = F.l1_loss(outs[-1], gt_) + 0.1 * sum(F.l1_loss(o, gt_) for o in outs[:-1])
+        loss = F.l1_loss(outs[-1], gt_) + a.w_deep * sum(F.l1_loss(o, gt_) for o in outs[:-1])
         if a.w_sam:
             loss = loss + a.w_sam * sam_loss(outs[-1], gt_)
         if a.w_ssim:
@@ -269,7 +284,8 @@ def main():
         opt.zero_grad(set_to_none=True)
         scaler.scale(loss).backward()
         scaler.unscale_(opt)
-        torch.nn.utils.clip_grad_norm_(model.parameters(), 0.1)
+        if a.clip:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), a.clip)
         scaler.step(opt)
         scaler.update()
         it += 1
@@ -337,7 +353,7 @@ def main():
     res = final_test(ema, test, deg, a.out, full=bool(a.q2n))
     summary = dict(model=a.model, params_M=n_par, iters=it, epochs=round(it / epoch_iters, 1), epoch_iters=epoch_iters,
                    gpus=world, best_val_PSNR=best, **res, bicubic_test=bic, gsa_test=gsa_res,
-                   dataset=a.dataset, dn_scale=metrics.DN_SCALE,
+                   dataset=a.dataset, scale=a.scale, dn_scale=metrics.DN_SCALE,
                    train_hours=round((time.time() - t_start) / 3600, 3), args=vars(a))
     with open(os.path.join(a.out, "results.json"), "w") as f:
         json.dump(summary, f, indent=1)

@@ -22,12 +22,10 @@ import numpy as np
 import torch
 
 from hsifuse.baselines import gsa
-from hsifuse import metrics
+from hsifuse.config import DATASETS, MODELS, add_ablation_args, blur_of, build_model, make_deg, set_metric_scale
 from hsifuse.data import load_dataset, make_pairs
 from hsifuse.evaluation import consistency
 from hsifuse.metrics import evaluate
-from hsifuse.models import build
-from hsifuse.ops import Degradation, dataset_srf
 
 
 @torch.no_grad()
@@ -48,36 +46,41 @@ def score(gt, pred, lr, ms, deg):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--mat", required=True)
-    p.add_argument("--dataset", default="chikusei", choices=["chikusei", "pavia"])
+    p.add_argument("--dataset", default="chikusei", choices=DATASETS)
+    p.add_argument("--scale", type=int, default=4)
     p.add_argument("--cache", default="")
     p.add_argument("--ckpt", required=True)
-    p.add_argument("--model", default="puformer")
+    p.add_argument("--model", default="puformer", choices=MODELS)
     p.add_argument("--width", type=int, default=48)
     p.add_argument("--stages", type=int, default=3)
     p.add_argument("--pad", default="reflect", choices=["reflect", "zeros"])
+    add_ablation_args(p)
     p.add_argument("--out", required=True)
     a = p.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
 
-    _, te, _, metrics.DN_SCALE = load_dataset(a.dataset, a.mat, a.cache or None)
+    _, te, _, peak = load_dataset(a.dataset, a.mat, a.cache or None)
+    set_metric_scale(a, peak)
     gt = torch.from_numpy(te).to(dev)
 
-    base = Degradation(dataset_srf(a.dataset), pad=a.pad).to(dev)
-    model = build(a.model, base, **(dict(width=a.width, stages=a.stages) if a.model == "puformer" else {})).to(dev)
+    base = make_deg(a).to(dev)
+    model = build_model(a, base).to(dev)
     model.load_state_dict(torch.load(a.ckpt, map_location=dev))
     model.eval()
     if a.model == "puformer":
         model.amp = dev == "cuda"
-    swappable = hasattr(model, "deg") and a.model == "puformer"
+    swappable = a.model == "puformer" and a.op == "exact" and bool(a.physics)
 
-    settings = [("nominal", 2.0, 0.0)] + [(f"sigma={s}", s, 0.0) for s in (1.5, 2.5, 3.0)] + \
+    s0 = blur_of(a.scale)[1]                                         # nominal blur width (2.0 at x4)
+    settings = [("nominal", s0, 0.0)] + [(f"sigma={f * s0}", f * s0, 0.0) for f in (0.75, 1.25, 1.5)] + \
                [(f"srf_shift={d:+d}nm", 2.0, d) for d in (-8, 8)]
     res = {}
     for name, sigma, shift in settings:
-        true = Degradation(dataset_srf(a.dataset, shift_nm=shift), sigma=sigma, pad=a.pad).to(dev)
+        true = make_deg(a, sigma=sigma, shift_nm=shift).to(dev)
         lr, ms, _ = make_pairs(gt, true)
         row = {"gsa": score(gt, gsa(lr, ms, true).clamp(0, 1), lr, ms, true)}
-        model.deg = base
+        if swappable:
+            model.deg = base
         row["fixed"] = score(gt, run(model, lr, ms), lr, ms, true)
         if swappable and name != "nominal":
             model.deg = true

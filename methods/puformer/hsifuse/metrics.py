@@ -21,6 +21,8 @@ import torch.nn.functional as F
 
 
 DN_SCALE = 15133.0  # DN value that maps to 1 (Chikusei crop max); train.py sets it per dataset
+RATIO = 4           # resolution ratio used by ERGAS; set to the scale factor
+Q2N_SCALE = None    # integer scale Q2n quantises to (None = DN_SCALE; 65535 for the 16-bit CAVE / Harvard data)
 
 
 def psnr(gt, x):
@@ -38,15 +40,19 @@ def mpsnr_peak1(gt, x):
 
 
 def sam(gt, x, eps=1e-8):
+    """Mean spectral angle (degrees) over the pixels where both spectra are non-zero (an all-zero spectrum has
+    no direction; CAVE has such pixels). Chikusei and Pavia Centre have none, so their values are unchanged."""
     g, f = gt.flatten(1), x.flatten(1)
-    cos = (g * f).sum(0) / (g.norm(dim=0) * f.norm(dim=0) + eps)
+    ng, nf = g.norm(dim=0), f.norm(dim=0)
+    ok = (ng > eps) & (nf > eps)
+    cos = (g[:, ok] * f[:, ok]).sum(0) / (ng[ok] * nf[ok])
     return float(torch.rad2deg(torch.acos(cos.clamp(-1, 1))).mean())
 
 
-def ergas(gt, x, ratio=4):
+def ergas(gt, x, ratio=None):
     rmse = torch.sqrt(torch.mean((gt - x) ** 2, dim=(1, 2)))
     mean = gt.mean(dim=(1, 2)).clamp_min(1e-12)
-    return float(100 / ratio * torch.sqrt(torch.mean((rmse / mean) ** 2)))
+    return float(100 / (ratio or RATIO) * torch.sqrt(torch.mean((rmse / mean) ** 2)))
 
 
 def rmse_dn(gt, x):
@@ -186,7 +192,7 @@ def q2n(gt, x, block=32, shift=32, scale=None, fast=True):
         if e1 or e2:  # mirror-extend right / bottom edges exactly as q2n.m
             im = torch.cat([im, im[:, :, w - e2:].flip(-1)], -1) if e2 else im
             im = torch.cat([im, im[:, h - e1:, :].flip(-2)], -2) if e1 else im
-        im = torch.round((im * (scale or DN_SCALE)).clamp(0, 65535))          # uint16()
+        im = torch.round((im * (scale or Q2N_SCALE or DN_SCALE)).clamp(0, 65535))          # uint16()
         nb = 2 ** math.ceil(math.log2(c))
         if nb != c:
             im = torch.cat([im, im.new_zeros(nb - c, *im.shape[1:])], 0)

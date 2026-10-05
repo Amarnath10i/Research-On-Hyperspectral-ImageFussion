@@ -61,35 +61,79 @@ class GDFN(nn.Module):
         return self.out(F.gelu(a) * b)
 
 
-class Block(nn.Module):
-    def __init__(self, c, heads):
+class WindowMSA(nn.Module):
+    """Ablation: spatial self-attention inside non-overlapping ws x ws windows (tokens = pixels), with the
+    same 1x1 + depth-wise 3x3 projections as MDTA, so only the attention axis changes."""
+
+    def __init__(self, c, heads, ws=8):
         super().__init__()
-        self.n1, self.att, self.n2, self.ffn = LayerNorm2d(c), MDTA(c, heads), LayerNorm2d(c), GDFN(c)
+        self.h, self.ws = heads, ws
+        self.qkv = nn.Conv2d(c, c * 3, 1, bias=False)
+        self.dw = nn.Conv2d(c * 3, c * 3, 3, padding=1, groups=c * 3, bias=False)
+        self.out = nn.Conv2d(c, c, 1, bias=False)
+
+    def forward(self, x):
+        n, c, hh, ww = x.shape
+        s = min(self.ws, hh, ww)
+        ph, pw = (-hh) % s, (-ww) % s
+        t = self.dw(self.qkv(x))
+        if ph or pw:
+            t = F.pad(t, (0, pw, 0, ph), mode="replicate")
+        H, W, d = hh + ph, ww + pw, c // self.h
+        t = t.reshape(n, 3, self.h, d, H // s, s, W // s, s)
+        t = t.permute(1, 0, 4, 6, 2, 5, 7, 3).reshape(3, -1, self.h, s * s, d)
+        q, k, v = t[0], t[1], t[2]
+        a = (q.float() @ k.float().transpose(-2, -1) * d ** -0.5).softmax(-1).to(v.dtype)
+        o = (a @ v).reshape(n, H // s, W // s, self.h, s, s, d)
+        o = o.permute(0, 3, 6, 1, 4, 2, 5).reshape(n, c, H, W)[..., :hh, :ww]
+        return self.out(o)
+
+
+class ConvMixer(nn.Module):
+    """Ablation: attention replaced by a convolutional mixer (1x1 -> depth-wise 3x3 -> GELU -> 1x1)."""
+
+    def __init__(self, c, heads=None):
+        super().__init__()
+        self.f = nn.Sequential(nn.Conv2d(c, c * 2, 1, bias=False),
+                               nn.Conv2d(c * 2, c * 2, 3, padding=1, groups=c * 2, bias=False), nn.GELU(),
+                               nn.Conv2d(c * 2, c, 1, bias=False))
+
+    def forward(self, x):
+        return self.f(x)
+
+
+MIXERS = dict(mdta=MDTA, window=WindowMSA, conv=ConvMixer)
+
+
+class Block(nn.Module):
+    def __init__(self, c, heads, mixer="mdta"):
+        super().__init__()
+        self.n1, self.att, self.n2, self.ffn = LayerNorm2d(c), MIXERS[mixer](c, heads), LayerNorm2d(c), GDFN(c)
 
     def forward(self, x):
         x = x + self.att(self.n1(x))
         return x + self.ffn(self.n2(x))
 
 
-def stack(c, heads, n):
-    return nn.Sequential(*[Block(c, heads) for _ in range(n)])
+def stack(c, heads, n, mixer="mdta"):
+    return nn.Sequential(*[Block(c, heads, mixer) for _ in range(n)])
 
 
 class Prior(nn.Module):
     """3-level Restormer U-Net: in_ch -> residual on the HSI."""
 
-    def __init__(self, in_ch, out_ch, w=48, depth=(2, 3, 4), heads=(1, 2, 4), mem=True):
+    def __init__(self, in_ch, out_ch, w=48, depth=(2, 3, 4), heads=(1, 2, 4), mem=True, mixer="mdta"):
         super().__init__()
         self.embed = nn.Conv2d(in_ch, w, 3, padding=1)
         self.mem = nn.Conv2d(w * 2, w, 1) if mem else None
-        self.e1, self.d12 = stack(w, heads[0], depth[0]), nn.Conv2d(w, w * 2, 4, 2, 1)
-        self.e2, self.d23 = stack(w * 2, heads[1], depth[1]), nn.Conv2d(w * 2, w * 4, 4, 2, 1)
-        self.mid = stack(w * 4, heads[2], depth[2])
+        self.e1, self.d12 = stack(w, heads[0], depth[0], mixer), nn.Conv2d(w, w * 2, 4, 2, 1)
+        self.e2, self.d23 = stack(w * 2, heads[1], depth[1], mixer), nn.Conv2d(w * 2, w * 4, 4, 2, 1)
+        self.mid = stack(w * 4, heads[2], depth[2], mixer)
         self.u32, self.r2 = nn.ConvTranspose2d(w * 4, w * 2, 2, 2), nn.Conv2d(w * 4, w * 2, 1)
-        self.dec2 = stack(w * 2, heads[1], depth[1])
+        self.dec2 = stack(w * 2, heads[1], depth[1], mixer)
         self.u21, self.r1 = nn.ConvTranspose2d(w * 2, w, 2, 2), nn.Conv2d(w * 2, w, 1)
-        self.dec1 = stack(w, heads[0], depth[0])
-        self.refine = stack(w, heads[0], 2)
+        self.dec1 = stack(w, heads[0], depth[0], mixer)
+        self.refine = stack(w, heads[0], 2, mixer)
         self.tail = nn.Conv2d(w, out_ch, 3, padding=1)
         nn.init.zeros_(self.tail.weight), nn.init.zeros_(self.tail.bias)  # start at the physics step
 
@@ -107,16 +151,24 @@ class Prior(nn.Module):
 
 
 class PUFormer(nn.Module):
+    """Ablation switches (the defaults are the full model):
+        physics=False    no data-consistency step (Z_k = X_{k-1}) and no residual input: a cascade of priors
+        res_input=False  the prior does not get s^2 Dt(D Z - Y_H) (those channels are fed zeros)
+        memory=False     no cross-stage memory
+        mixer            'mdta' (transposed / channel attention), 'window' (8x8 spatial windows) or 'conv'
+    """
+
     def __init__(self, deg: Degradation, bands=128, msi=8, stages=3, width=48,
-                 depth=(2, 3, 4), heads=(1, 2, 4)):
+                 depth=(2, 3, 4), heads=(1, 2, 4), physics=True, res_input=True, memory=True, mixer="mdta"):
         super().__init__()
         self.deg, self.K, self.bands = deg, stages, bands
+        self.physics, self.res_input = physics, res_input and physics
         self.amp = False                      # fp16 autocast for the priors only
         self.eta_h = nn.Parameter(torch.full((stages,), 1.0))
         self.eta_m = nn.Parameter(torch.full((stages,), 1.0))
         in_ch = bands + msi + bands          # Z, Y_M, Dt(D Z - Y_H)
         self.priors = nn.ModuleList(
-            Prior(in_ch, bands, width, depth, heads, mem=k > 0) for k in range(stages))
+            Prior(in_ch, bands, width, depth, heads, mem=memory and k > 0, mixer=mixer) for k in range(stages))
 
     def fidelity_grad(self, x, yh, ym):
         rh = self.deg.D(x) - yh
@@ -124,15 +176,19 @@ class PUFormer(nn.Module):
         return self.deg.Dt(rh), self.deg.Rt(rm)
 
     def forward(self, yh, ym, return_all=False):
+        s2 = self.deg.scale ** 2
         x = F.interpolate(yh, scale_factor=self.deg.scale, mode="bicubic", align_corners=False)
         mem, outs = None, []
         for k in range(self.K):
-            gh, gm = self.fidelity_grad(x, yh, ym)
-            # D has gain ~1/16 on smooth content, so the H step is scaled by 16
-            z = x - F.softplus(self.eta_h[k]) * 16 * gh - F.softplus(self.eta_m[k]) * gm
-            rh, _ = self.fidelity_grad(z, yh, ym)
+            if self.physics:
+                gh, gm = self.fidelity_grad(x, yh, ym)
+                # Dt D has gain ~1/s^2 on smooth content under x s decimation, so the H step is scaled by s^2
+                z = x - F.softplus(self.eta_h[k]) * s2 * gh - F.softplus(self.eta_m[k]) * gm
+            else:
+                z = x
+            rh = self.deg.Dt(self.deg.D(z) - yh) * s2 if self.res_input else torch.zeros_like(z)
             with torch.autocast("cuda", dtype=torch.float16, enabled=self.amp and x.is_cuda):
-                res, mem = self.priors[k](torch.cat([z, ym, rh * 16], 1), mem)
+                res, mem = self.priors[k](torch.cat([z, ym, rh], 1), mem)
             x = z + res.float()
             outs.append(x)
         return outs if return_all else x
@@ -166,5 +222,6 @@ def build(name: str, deg: Degradation, **kw):
     if name == "puformer":
         return PUFormer(deg, bands=bands, msi=msi, **kw)
     if name == "ssrnet":
-        return SSRNet(msi=msi, bands=bands)
-    raise ValueError(name)
+        return SSRNet(scale=deg.scale, msi=msi, bands=bands)
+    from .external import build_external        # official code of published methods, cloned at run time
+    return build_external(name, bands=bands, msi=msi, scale=deg.scale)

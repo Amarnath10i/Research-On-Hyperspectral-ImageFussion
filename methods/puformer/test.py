@@ -17,24 +17,24 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from hsifuse import metrics
+from hsifuse.config import DATASETS, MODELS, add_ablation_args, build_model, make_deg, set_metric_scale
 from hsifuse.data import load_dataset, make_pairs
 from hsifuse.evaluation import final_test, predict
 from hsifuse.metrics import evaluate
-from hsifuse.models import build
-from hsifuse.ops import Degradation, dataset_srf
 
 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--mat", required=True)
-    p.add_argument("--dataset", default="chikusei", choices=["chikusei", "pavia"])
+    p.add_argument("--dataset", default="chikusei", choices=DATASETS)
+    p.add_argument("--scale", type=int, default=4)
     p.add_argument("--cache", default="")
     p.add_argument("--ckpt", required=True)
-    p.add_argument("--model", default="puformer")
+    p.add_argument("--model", default="puformer", choices=MODELS)
     p.add_argument("--width", type=int, default=48)
     p.add_argument("--stages", type=int, default=3)
     p.add_argument("--pad", default="reflect", choices=["reflect", "zeros"])
+    add_ablation_args(p)
     p.add_argument("--q2n", type=int, default=1)
     p.add_argument("--out", required=True)
     a = p.parse_args()
@@ -42,11 +42,12 @@ def main():
     dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     t0 = time.time()
 
-    _, te, va, metrics.DN_SCALE = load_dataset(a.dataset, a.mat, a.cache or None)
-    deg = Degradation(dataset_srf(a.dataset), pad=a.pad).to(dev)
+    _, te, va, peak = load_dataset(a.dataset, a.mat, a.cache or None)
+    set_metric_scale(a, peak)
+    deg = make_deg(a).to(dev)
     test = make_pairs(torch.from_numpy(te).to(dev), deg)
     val = make_pairs(torch.from_numpy(va).to(dev), deg)
-    model = build(a.model, deg, **(dict(width=a.width, stages=a.stages) if a.model == "puformer" else {})).to(dev)
+    model = build_model(a, deg).to(dev)
     model.load_state_dict(torch.load(a.ckpt, map_location=dev))
     model.eval()
     if a.model == "puformer":
@@ -54,7 +55,7 @@ def main():
 
     v = evaluate(val[2], predict(model, val[0], val[1], 16))
     res = final_test(model, test, deg, a.out, full=bool(a.q2n))
-    bic = evaluate(test[2], F.interpolate(test[0], scale_factor=4, mode="bicubic", align_corners=False))
+    bic = evaluate(test[2], F.interpolate(test[0], scale_factor=a.scale, mode="bicubic", align_corners=False))
     out = dict(ckpt=a.ckpt, pad=a.pad, val=v, **res, bicubic_test=bic, seconds=round(time.time() - t0, 1))
     with open(os.path.join(a.out, "results.json"), "w") as f:
         json.dump(out, f, indent=1)

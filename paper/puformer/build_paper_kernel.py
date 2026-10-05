@@ -21,10 +21,17 @@ import tarfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
 PAPER = ["paper/puformer/" + f for f in ("main.tex", "references.bib", "numbers.tex", "make_numbers.py",
-                                          "make_tables.py", "make_figures.py")]
+                                          "make_tables.py", "make_figures.py", "make_q1_tables.py",
+                                          "make_q1_figures.py")]
+PAPER += ["methods/puformer/hsifuse/" + f for f in sorted(os.listdir(os.path.join(REPO, "methods", "puformer", "hsifuse")))
+          if f.endswith(".py")]
 RESULTS = ["results/puformer_chikusei_x4/puformer/*.json", "results/puformer_chikusei_x4/ssrnet/*.json",
            "results/puformer_chikusei_x4/tip26_table4_comparison.csv", "results/puformer_chikusei_x4_v3/*/*.json",
-           "results/puformer_pavia_x4/*.csv", "results/puformer_pavia_x4/*/*.json"]
+           "results/puformer_pavia_x4/*.csv", "results/puformer_pavia_x4/*/*.json",
+           "results/q1/*/results.json", "results/q1/*/gaps.json", "results/q1/complexity.json"]
+# datasets (test ground truth for the visual comparison) and the uploaded test predictions of the benchmark jobs
+Q1_DATA = ["mingliu123/chikusei", "mlxlx0000/paviadata", "liptee/hyperspectral-image-restoration-based-on-cave",
+           "nikeshreddypatlolla/harvard-hsi-2", "amarnath10chinu/puformer-q1-preds"]
 SOURCES = ["amarnath10chinu/puformer-chikusei-paper-analysis", "amarnath10chinu/puformer-pavia-analysis"]
 
 CELL = r'''import base64, glob, hashlib, io, os, shutil, subprocess, tarfile
@@ -52,7 +59,10 @@ for src in glob.glob('/kaggle/input/**/visual.npz', recursive=True) + glob.glob(
     shutil.copyfile(src, dst)
     print('npz:', src, '->', dst)
 if {generate}:
-    sh('python make_numbers.py && python make_tables.py && python make_figures.py')
+    sh('python make_numbers.py && python make_tables.py && python make_figures.py && python make_q1_tables.py')
+    preds = sorted(glob.glob('/kaggle/input/**/bench-*/test_pred_f16.npy', recursive=True))
+    pdir = os.path.dirname(os.path.dirname(preds[0])) if preds else ''
+    sh(f'Q1_PREDS={{pdir}} python make_q1_figures.py')
 os.makedirs('/kaggle/working/bin', exist_ok=True)
 # the statically linked (musl) build: the glibc build needs a newer libc than Kaggle's image has
 for v in ['0.15.0', '0.14.1']:
@@ -106,6 +116,7 @@ def main():
     ap.add_argument("--test", action="store_true", help="compile the committed paper only (toolchain check)")
     ap.add_argument("--slug", default="puformer-paper-build")
     ap.add_argument("--user", default="amarnath10chinu")
+    ap.add_argument("--q1data", action="store_true", help="attach the datasets and the prediction dataset")
     a = ap.parse_args()
     b64, sha, names = blob(a.test)
     out = os.path.join(HERE, "kaggle_paper")
@@ -120,7 +131,8 @@ def main():
         json.dump(nb, f, indent=1)
     meta = dict(id=f"{a.user}/{a.slug}", title="PUFormer paper build", code_file=name, language="python",
                 kernel_type="notebook", is_private=True, enable_gpu=False, enable_internet=True,
-                dataset_sources=[], competition_sources=[], kernel_sources=[] if a.test else SOURCES)
+                dataset_sources=Q1_DATA if a.q1data else [], competition_sources=[],
+                kernel_sources=[] if a.test else SOURCES)
     with open(os.path.join(out, "kernel-metadata.json"), "w", newline="\n") as f:
         json.dump(meta, f, indent=1)
     print(f"wrote kaggle_paper/{name}: {len(names)} files, {len(b64) / 1e6:.1f} MB base64, sha256 {sha[:12]}")

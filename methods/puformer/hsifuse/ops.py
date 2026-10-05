@@ -1,7 +1,8 @@
-"""Degradation model for the Chikusei x4 protocol (TIP'26 Two-Stage Diffusion setting).
+"""Degradation model (TIP'26 Two-Stage Diffusion setting, extended to x8 and to CAVE / Harvard).
 
-    LR-HSI  Y_H = S(K * X)      K: Gaussian 7x7, sigma=2;  S: x4 decimation
-    HR-MSI  Y_M = R X           R: WorldView-2 8-band spectral response
+    LR-HSI  Y_H = S(K * X)      K: Gaussian 7x7, sigma=2;  S: x4 or x8 decimation
+    HR-MSI  Y_M = R X           R: WorldView-2 8 bands (Chikusei), IKONOS 4 bands (Pavia Centre),
+                                   Nikon D700 RGB (CAVE, Harvard)
 
 Data are simulated per image with reflect padding at the image border. The network's
 data-consistency steps use the same operators, and D / Dt and R / Rt are exact adjoint
@@ -61,8 +62,39 @@ def ikonos_srf(wl: np.ndarray = PAVIA_WL, rolloff_nm: float = 4.0, shift_nm: flo
     return band_srf(wl, IKONOS_BANDS, rolloff_nm, shift_nm, level=0.5)
 
 
+# CAVE (400-700 nm) and Harvard (420-720 nm): 31 bands at 10 nm, HR-MSI = RGB from the Nikon D700 response.
+CAVE_WL = np.linspace(400.0, 700.0, 31)
+HARVARD_WL = np.linspace(420.0, 720.0, 31)
+# Nikon D700 (R, G, B) response of the CAVE / Harvard fusion literature: matrix A of "response
+# coefficient.mat" distributed with the DCTransformer code (Ma et al., Information Fusion 2024; the same
+# matrix as create_F() in MHF-Net and its successors). Stored there as integer counts / channel sum
+# (255, 203, 251); these are the counts, one per band (400-700 nm for CAVE, applied band-wise to Harvard).
+NIKON_D700_COUNTS = np.array([
+    [2, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 6, 11, 17, 21, 22, 21, 20, 20, 19, 19, 18, 18, 17, 17],
+    [1, 1, 1, 1, 1, 1, 2, 4, 6, 8, 11, 16, 19, 21, 20, 18, 16, 14, 11, 7, 5, 3, 2, 2, 1, 1, 2, 2, 2, 2, 2],
+    [7, 10, 15, 19, 25, 29, 30, 29, 27, 22, 16, 9, 2, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+], np.float64).T                                           # (31, 3)
+NIKON_D700_SOURCE = "https://github.com/qingma2016/DCTransformer/blob/main/response%20coefficient.mat"
+
+
+def nikon_srf(shift_nm: float = 0.0) -> np.ndarray:
+    """(31, 3) Nikon D700 response, columns sum to 1; `shift_nm` resamples it shifted along wavelength."""
+    r = NIKON_D700_COUNTS                                   # (31, 3) on the 10 nm band grid
+    if shift_nm:
+        r = np.stack([np.interp(CAVE_WL - shift_nm, CAVE_WL, r[:, j], left=0, right=0) for j in range(3)], 1)
+    return (r / r.sum(0, keepdims=True)).astype(np.float32)
+
+
 def dataset_srf(name: str, shift_nm: float = 0.0) -> np.ndarray:
-    return ikonos_srf(shift_nm=shift_nm) if name == "pavia" else wv2_srf(shift_nm=shift_nm)
+    if name == "pavia":
+        return ikonos_srf(shift_nm=shift_nm)
+    if name in ("cave", "harvard"):
+        return nikon_srf(shift_nm)
+    return wv2_srf(shift_nm=shift_nm)
+
+
+def dataset_wl(name: str) -> np.ndarray:
+    return dict(pavia=PAVIA_WL, cave=CAVE_WL, harvard=HARVARD_WL).get(name, CHIKUSEI_WL)
 
 
 def gaussian_kernel(size: int = 7, sigma: float = 2.0) -> np.ndarray:
@@ -136,3 +168,41 @@ class Degradation(nn.Module):
     def simulate(self, x: torch.Tensor):
         """Whole-image simulation (reflect padding at the image border)."""
         return self.D(x, pad_mode="reflect"), self.R(x)
+
+
+class LearnedDegradation(nn.Module):
+    """Ablation: the operators are learned with the network, as in unfolding networks that model D and R
+    with trainable layers instead of the known simulation.
+
+    D = stride-s correlation with one learned ksize x ksize kernel shared by all bands (zero border),
+    R = a learned non-negative (B, M) response with unit-sum columns, and Dt / Rt their exact adjoints, so
+    only the operators themselves differ from the exact model. The kernel starts flat and R uniform, i.e.
+    no knowledge of the true blur or SRF.
+    """
+
+    def __init__(self, bands: int, msi: int, scale: int = 4, ksize: int = 7):
+        super().__init__()
+        self.scale, self.ksize, self.pad = scale, ksize, "zeros"
+        self.k_logit = nn.Parameter(torch.zeros(1, 1, ksize, ksize))
+        self.r_logit = nn.Parameter(torch.zeros(bands, msi))
+        self.register_buffer("srf", torch.full((bands, msi), 1.0 / bands))  # shape only (band counts)
+
+    def _k(self, x):
+        k = torch.softmax(self.k_logit.flatten(), 0).view_as(self.k_logit)
+        return k.expand(x.shape[1], 1, -1, -1).to(x.dtype)
+
+    def _r(self, dtype):
+        return torch.softmax(self.r_logit, 0).to(dtype)
+
+    def D(self, x, pad_mode=None):
+        return F.conv2d(x, self._k(x), stride=self.scale, padding=self.ksize // 2, groups=x.shape[1])
+
+    def Dt(self, y):
+        return F.conv_transpose2d(y, self._k(y), stride=self.scale, padding=self.ksize // 2,
+                                  output_padding=self.scale - 1, groups=y.shape[1])
+
+    def R(self, x):
+        return torch.einsum("nbhw,bm->nmhw", x, self._r(x.dtype))
+
+    def Rt(self, m):
+        return torch.einsum("nmhw,bm->nbhw", m, self._r(m.dtype))

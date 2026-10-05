@@ -9,7 +9,7 @@ import torch.nn.functional as F
 
 from hsifuse.metrics import _onion_table, evaluate, onions_quality, q2n, scc
 from hsifuse.models import build
-from hsifuse.ops import Degradation, wv2_srf
+from hsifuse.ops import Degradation, LearnedDegradation, wv2_srf
 
 
 def check(name, ok, detail=""):
@@ -60,15 +60,40 @@ def main():
     m = evaluate(gt[None], noisy[None], full=True)
     print("   metrics on a noisy image:", {k: round(v, 4) for k, v in m.items()})
 
-    # PUFormer forward / backward with both border modes
+    # x8 decimation and the learned-operator ablation: exact adjoint pairs as well
+    y8 = torch.rand(2, 128, 8, 6, dtype=torch.float64)
     for pad in ("zeros", "reflect"):
-        deg = Degradation(wv2_srf(), pad=pad)
-        net = build("puformer", deg, width=16, stages=2)
-        lr, ms = torch.rand(2, 128, 16, 16), torch.rand(2, 8, 64, 64)
+        deg = Degradation(wv2_srf(), scale=8, pad=pad).double()
+        lhs, rhs = (deg.D(x) * y8).sum(), (x * deg.Dt(y8)).sum()
+        check(f"x8 D/Dt adjoint ({pad})", abs(lhs - rhs) / abs(lhs) < 1e-13, f"rel err {abs(lhs - rhs) / abs(lhs):.1e}")
+    check("x8 reflect D == blur(reflect) + decimate",
+          torch.allclose(Degradation(wv2_srf(), scale=8, pad="reflect").double().D(x),
+                         deg.blur(x, "reflect")[..., ::8, ::8]))
+    for s, yy in ((4, y), (8, y8)):
+        lop = LearnedDegradation(128, 8, scale=s).double()
+        with torch.no_grad():
+            lop.k_logit.normal_(), lop.r_logit.normal_()
+        lhs, rhs = (lop.D(x) * yy).sum(), (x * lop.Dt(yy)).sum()
+        m = torch.rand(2, 8, 64, 48, dtype=torch.float64)
+        lhs2, rhs2 = (lop.R(x) * m).sum(), (x * lop.Rt(m)).sum()
+        check(f"learned D/Dt, R/Rt adjoint (x{s})", abs(lhs - rhs) / abs(lhs) < 1e-13 and abs(lhs2 - rhs2) / abs(lhs2) < 1e-13)
+
+    # PUFormer forward / backward: both border modes, x8, and every ablation switch
+    configs = [dict(pad="zeros"), dict(pad="reflect"), dict(scale=8), dict(physics=False), dict(res_input=False),
+               dict(memory=False), dict(mixer="window"), dict(mixer="conv"), dict(op="learned")]
+    for cfg in configs:
+        cfg = dict(cfg)
+        s, pad, op = cfg.pop("scale", 4), cfg.pop("pad", "reflect"), cfg.pop("op", "exact")
+        deg = Degradation(wv2_srf(), scale=s, pad=pad)
+        if op == "learned":
+            deg = LearnedDegradation(128, 8, scale=s)
+        net = build("puformer", deg, width=16, stages=2, **cfg)
+        lr, ms = torch.rand(2, 128, 64 // s, 64 // s), torch.rand(2, 8, 64, 64)
         outs = net(lr, ms, return_all=True)
         sum(o.mean() for o in outs).backward()
-        ok = all(p.grad is not None for p in net.parameters() if p.requires_grad)
-        check(f"PUFormer forward/backward ({pad})", outs[-1].shape == (2, 128, 64, 64) and ok)
+        ok = all(p.grad is not None for n, p in net.named_parameters()
+                 if p.requires_grad and (net.physics or not n.startswith("eta")))
+        check(f"PUFormer forward/backward (x{s}, {pad}, {op}, {cfg})", outs[-1].shape == (2, 128, 64, 64) and ok)
     print("all checks passed")
 
 
