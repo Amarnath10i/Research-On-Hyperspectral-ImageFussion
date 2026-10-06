@@ -313,11 +313,22 @@ def blind_table():
                 if r.get(k) is not None:
                     NUM[f"blind-{tag}-{k}"] = f"{r[k]:.2f}"
             NUM[f"blind-{tag}-sigerr"] = f"{r['sigma_abs_err']:.3f}"
-        worst = {k: min(r[k] for r in b["blind"].values() if r.get(k) is not None)
-                 for k in ("exact_fixed", "exact_estimated", "zeros_estimated", "learned_fixed")
-                 if any(r.get(k) is not None for r in b["blind"].values())}
-        for k, v in worst.items():
-            NUM[f"blind-{ds}-worst-{k}"] = f"{v:.2f}"
+        for tag, rows in (("worst", [r for k, r in b["blind"].items() if ",snr=" not in k]),
+                          ("noisy-worst", [r for k, r in b["blind"].items() if ",snr=" in k])):
+            for k in ("exact_fixed", "exact_estimated", "zeros_estimated", "learned_fixed"):
+                vals = [r[k] for r in rows if r.get(k) is not None]
+                if vals:
+                    NUM[f"blind-{ds}-{tag}-{k}"] = f"{min(vals):.2f}"
+        errs = [r["sigma_abs_err"] for r in b["blind"].values()]
+        NUM[f"blind-{ds}-max-sigerr"] = f"{max(errs):.3f}"
+        NUM[f"blind-{ds}-grid"] = f"{b.get('grid_step', 0.05):.2f}"
+        clean = b["blind"].get(f"sigma={b['nominal_sigma']:g}", {})
+        noisy = b["blind"].get(f"sigma={b['nominal_sigma']:g},snr=35", {})
+        for k in ("exact_fixed", "zeros_fixed", "learned_fixed"):
+            if k in noisy:
+                NUM[f"blind-{ds}-noisy-nominal-{k}"] = f"{noisy[k]:.2f}"
+            if k in clean:
+                NUM[f"blind-{ds}-nominal-{k}"] = f"{clean[k]:.2f}"
         for name, v in b.get("fixed_point_residual", {}).items():
             NUM[f"fp-{ds}-{name}-test"] = f"{100 * v['test']:.2f}"
             NUM[f"fp-{ds}-{name}-crop"] = f"{100 * v['crop64']:.2f}"

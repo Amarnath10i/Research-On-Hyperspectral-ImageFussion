@@ -20,7 +20,7 @@ from hsifuse.models import build
 from hsifuse.ops import Degradation, dataset_srf
 
 SETTINGS = [("chikusei", 4), ("pavia", 4), ("cave", 4), ("pavia", 8), ("pavia", 16)]
-MODELS = ["puformer", "ssrnet", "psrt", "dct", "mimformer"]
+MODELS = ["puformer", "ssrnet", "psrt", "dct", "mimformer", "dhif"]
 
 
 @torch.no_grad()

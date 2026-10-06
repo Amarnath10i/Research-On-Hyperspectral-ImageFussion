@@ -28,7 +28,8 @@ PAPER += ["methods/puformer/hsifuse/" + f for f in sorted(os.listdir(os.path.joi
 RESULTS = ["results/puformer_chikusei_x4/puformer/*.json", "results/puformer_chikusei_x4/ssrnet/*.json",
            "results/puformer_chikusei_x4/tip26_table4_comparison.csv", "results/puformer_chikusei_x4_v3/*/*.json",
            "results/puformer_pavia_x4/*.csv", "results/puformer_pavia_x4/*/*.json",
-           "results/q1/*/results.json", "results/q1/*/gaps.json", "results/q1/complexity.json"]
+           "results/q1/*/results.json", "results/q1/*/gaps.json", "results/q1/*/blind.json",
+           "results/q1/complexity.json"]
 # datasets (test ground truth for the visual comparison) and the uploaded test predictions of the benchmark jobs
 Q1_DATA = ["mingliu123/chikusei", "mlxlx0000/paviadata", "liptee/hyperspectral-image-restoration-based-on-cave",
            "nikeshreddypatlolla/harvard-hsi-2", "amarnath10chinu/puformer-q1-preds"]
