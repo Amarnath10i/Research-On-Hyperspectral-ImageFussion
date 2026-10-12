@@ -1,0 +1,13 @@
+pavia x4: train [(92, 424, 715), (92, 512, 187)] test (4, 92, 256, 256) val (63, 92, 64, 64), 1.0 = 8000 DN  (6s)
+[external] dhif: https://github.com/TaoHuang95/DHIF-Net @ 643436658109f65a78ee01191163eec88a6b4407
+dhif (reflect borders): 35.55M params on 1 x cuda; batch 8 x 1; epoch = 12 iters; eval every 1000 iters; deadline in 4.00 h; schedule by time
+bicubic test: {'PSNR': 25.5166, 'PSNR_psrt': 25.1078, 'MPSNR_peak1': 25.8716, 'SSIM': 0.6282, 'SSIM_psrt': 0.6427, 'SAM': 6.5539, 'ERGAS': 9.8525, 'RMSE_DN': 436.3207, 'CC': 0.8174, 'SCC': 0.7526, 'Q2n': 0.6806}
+GSA test: {'PSNR': 34.7757, 'PSNR_psrt': 34.3668, 'MPSNR_peak1': 35.1931, 'SSIM': 0.9438, 'SSIM_psrt': 0.945, 'SAM': 5.2291, 'ERGAS': 3.4939, 'RMSE_DN': 157.9259, 'CC': 0.9958, 'SCC': 0.9922, 'Q2n': 0.9276}
+ep    83.3 it   1000 loss 0.01428 lr 3.00e-04 val PSNR 39.839 SSIM 0.9829 SAM 2.975 | best val 39.839 (1.04 h)
+ep   166.7 it   2000 loss 0.00403 lr 1.44e-04 val PSNR 44.165 SSIM 0.9928 SAM 2.072 | best val 44.165 (2.05 h)
+ep   250.0 it   3000 loss 0.00295 lr 3.85e-05 val PSNR 45.263 SSIM 0.9941 SAM 1.887 | best val 45.263 (3.07 h)
+ep   329.2 it   3950 loss 0.00267 lr 3.00e-07 val PSNR 45.694 SSIM 0.9946 SAM 1.815 | best val 45.694 (4.04 h)
+time budget reached at it 3950 (epoch 329.2); continue with --resume <out>/last.pt
+TEST: {'PSNR': 47.6712, 'PSNR_psrt': 47.2623, 'MPSNR_peak1': 48.2111, 'SSIM': 0.9956, 'SSIM_psrt': 0.9961, 'SAM': 2.2947, 'ERGAS': 0.84, 'RMSE_DN': 33.4172, 'CC': 0.9989, 'SCC': 0.9988, 'Q2n': 0.9704}
+TEST (self-ensemble): {'PSNR': 47.9211, 'PSNR_psrt': 47.5122, 'MPSNR_peak1': 48.4838, 'SSIM': 0.9958, 'SSIM_psrt': 0.9962, 'SAM': 2.2292, 'ERGAS': 0.8172, 'RMSE_DN': 32.4647, 'CC': 0.9989, 'SCC': 0.9989, 'Q2n': 0.9706}
+consistency: {'cons_H_dB': 61.9956480217275, 'cons_M_dB': 54.46593098366365} | self-ensemble: {'cons_H_dB': 62.659964241957496, 'cons_M_dB': 55.22056782020887}

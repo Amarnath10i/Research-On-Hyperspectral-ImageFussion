@@ -176,14 +176,14 @@ def swap_psnr(g):
     """Worst swapped-operator PSNR over the three blur mismatches (None without a robustness run)."""
     if not g:
         return None
-    vals = [g[k]["swap"]["PSNR"] for k in ("sigma=1.5", "sigma=2.5", "sigma=3.0") if k in g and "swap" in g[k]]
+    vals = [g[k]["swap"]["PSNR"] for k in g if k.startswith("sigma=") and "swap" in g[k]]   # every tested blur
     return min(vals) if vals else None
 
 
 def fixed_psnr(g):
     if not g:
         return None
-    vals = [g[k]["fixed"]["PSNR"] for k in ("sigma=1.5", "sigma=2.5", "sigma=3.0") if k in g]
+    vals = [g[k]["fixed"]["PSNR"] for k in g if k.startswith("sigma=")]
     return min(vals) if vals else None
 
 
@@ -350,6 +350,30 @@ def blind_table():
         "\\bottomrule", "\\end{tabular}}", "\\end{table}"])
 
 
+def swap_numbers():
+    """Largest PSNR loss of PUFormer with the true blur swapped in, over every benchmark setting, and the range of
+    losses of the zero-border (swapped) and learned (fixed) operators in the ablations."""
+    losses = []
+    for ds, (_, scales) in DATASETS.items():
+        for s in scales:
+            r, g = load(f"bench-{ds}-x{s}-puformer"), load(f"bench-{ds}-x{s}-puformer", "gaps.json")
+            if r and swap_psnr(g) is not None:
+                losses.append(r["test"]["PSNR"] - swap_psnr(g))
+    if losses:
+        NUM["swaploss-max"] = f"{max(losses):.2f}"
+        NUM["swaploss-n"] = str(len(losses))
+    alt = []
+    for ds in ("pavia", "chikusei", "cave"):
+        z, gz = load(abl_job(ds, "zeros")), load(abl_job(ds, "zeros"), "gaps.json")
+        if z and swap_psnr(gz) is not None:
+            alt.append(z["test"]["PSNR"] - swap_psnr(gz))
+        lr, gl = load(abl_job(ds, "learned")), load(abl_job(ds, "learned"), "gaps.json")
+        if lr and fixed_psnr(gl) is not None:
+            alt.append(lr["test"]["PSNR"] - fixed_psnr(gl))
+    if alt:
+        NUM["altloss-min"], NUM["altloss-max"] = f"{min(alt):.1f}", f"{max(alt):.1f}"
+
+
 def long_numbers():
     for m in ("puformer", "mimformer"):
         r = load(f"long-pavia-x4-{m}")
@@ -417,6 +441,7 @@ def main():
     ablation_table()
     complexity_table()
     blind_table()
+    swap_numbers()
     long_numbers()
     significance()
     write("q1_numbers.tex", [f"\\expandafter\\def\\csname qone@{k}\\endcsname{{{v}}}" for k, v in sorted(NUM.items())])
