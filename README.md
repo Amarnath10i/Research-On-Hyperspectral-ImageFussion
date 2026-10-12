@@ -50,11 +50,70 @@ Protocol: WorldView-2 8-band MSI, Gaussian 7×7 blur with σ = 2, ×4 downsampli
 
 Trained from scratch in one Kaggle session (9.99 M parameters, 93,850 iterations on 2 × T4, 2-fold
 self-ensemble): 1st of 18 on PSNR (+3.53 dB), SSIM (PSRT definition), ERGAS, CC, SCC and RMSE (−34 %);
-13th on SAM and 16th on Q2n. Both lost metrics come from one of the four test images, which contains
-the river Ticino; on the other three, Q2n is 0.9987–0.9991 and SAM 1.55–1.68°. Protocol: bands 11–102
+13th on SAM and 16th on Q2n. The Q2n shortfall comes from one of the four test images, which contains
+the river Ticino; on the other three, Q2n is 0.9987–0.9991, at or above the best reported value, but SAM
+is still 1.55–1.68°, above the best reported 1.454°. Protocol: bands 11–102
 (92), IKONOS 4-band MSI, Gaussian 7×7 blur with σ = 2, ×4, rebuilt from the original scene because the
 PSRT benchmark files that TIP'26 uses could not be downloaded. Details and caveats:
 [results/puformer_pavia_x4](results/puformer_pavia_x4/).
+
+## Equal-budget benchmark (×4)
+
+Every learned method is retrained by us from its authors' code under one pipeline: the same data,
+patches, batch, EMA weights and validation-only model selection, and the same 4 h on one Tesla T4.
+Test PSNR (dB), single pass:
+
+| Method | Chikusei ×4 | Pavia Centre ×4 |
+|---|---|---|
+| **PUFormer (ours)** | **57.95** | **50.63** |
+| MIMFormer (JSTARS 2024) | 56.96 | 49.63 |
+| DHIF-Net (unfolding, TCI 2022) | 54.39 | 47.67 |
+| PSRT (TGRS 2023) | 53.99 | 47.87 |
+| DCT (Information Fusion 2024) | 53.18 | 46.94 |
+| SSR-NET (TGRS 2021) | running | running |
+
+PUFormer also has the lowest SAM, ERGAS and RMSE on both datasets. All metrics per job are in
+[results/q1/](results/q1/); the jobs are defined in [methods/puformer/kaggle/jobs.py](methods/puformer/kaggle/jobs.py).
+
+## Ablation study (×4)
+
+Each row changes one module of the full model and is retrained from scratch with the same 4 h budget.
+Δ is the PSNR change (dB) against the full model; rows (a) and (d) on Pavia Centre are the mean over three
+seeds (± standard deviation).
+
+The full model's loss is L1 on the final output + 0.1 × L1 on every intermediate stage (deep supervision)
++ 0.05 × SAM + 0.1 × (1 − SSIM); rows (l) and (m) change it.
+
+| Row | Change | Pavia Centre ×4 | Chikusei ×4 |
+|---|---|---|---|
+| (a) | Full model | 50.62 ± 0.02 dB | 57.95 dB (seeds 2–3 running) |
+| (b) | No data-consistency step, no residual input | −0.17 | −0.30 |
+| (c) | No residual input | −0.01 | running |
+| (d) | Zero border instead of the exact operator | −0.08 (± 0.03) | −0.15 (seeds 2–3 running) |
+| (e) | Blur kernel and spectral response learned | −0.06 | −0.22 |
+| (f) | No cross-stage memory | +0.04 | +0.02 |
+| (g) | One stage (K = 1, 3.3 M parameters) | −0.02 | −0.20 |
+| (h) | Two stages | +0.01 | running |
+| (i) | Four stages | +0.05 | running |
+| (j) | Convolution instead of transposed attention | −0.03 | +0.08 |
+| (k) | 8×8 window attention instead | 0.00 | running |
+| (l) | Loss: L1 + deep supervision only (no SAM / SSIM) | +0.03 | running |
+| (m) | Loss: no deep supervision | −0.12 | running |
+
+Blur changed at test time (σ = 1.5, 2.5, 3.0 instead of 2), worst test PSNR when the true blur is given
+to the model:
+
+| Operator | Pavia Centre ×4 | Chikusei ×4 |
+|---|---|---|
+| Exact (full model) | 50.50 | 57.70 |
+| Zero border | 49.64 | 54.38 |
+| Learned (cannot be replaced) | 49.33 | 54.28 |
+
+What it shows: the accuracy comes from the exact data-consistency step. Removing the data step costs the
+most; the zero-border and learned operators lose a little at the training blur and 0.9–3.4 dB when the
+blur changes, while the exact model loses at most 0.25 dB. Cross-stage memory and the type of attention
+make no measurable difference, and deep supervision helps. A single stage is free on Pavia Centre but costs
+0.2 dB on Chikusei. The rows marked "running" finish on Kaggle on 12 Oct 2026.
 
 ---
 
