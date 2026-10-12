@@ -230,6 +230,11 @@ def fixed_psnr(g):
     return min(vals) if vals else None
 
 
+def _sd(sd):
+    """Standard deviation over seeds: two decimals, or three when it would otherwise print as 0.00."""
+    return f"{sd:.3f}" if sd < 0.01 else f"{sd:.2f}"
+
+
 def _psnr_of(r, seeds=()):
     """PSNR of a variant: the mean over its seeds when it has more than one, else its single run."""
     runs = [x for x in seeds if x]
@@ -248,7 +253,7 @@ def _abl_row(idx, v, r, g, ref, seeds=()):
     psnr = fmt(t["PSNR"], 2)
     if len([x for x in seeds if x]) > 1:
         mu, sd = _mean_std([x["test"]["PSNR"] for x in seeds if x])
-        psnr = f"{mu:.2f}$\\pm${sd:.2f}"
+        psnr = f"{mu:.2f}$\\pm${_sd(sd)}"
     d = "--" if ref is None or v == "full" else f"{_psnr_of(r, seeds) - ref:+.2f}"
     # no operator to replace: learned operator, or no data step at all
     sw = "n/a" if v in ("learned", "nophys") else fmt(swap_psnr(g), 2)
@@ -271,7 +276,7 @@ def _abl_numbers(prefix, v, r, g, ref, seeds=()):
         NUM[f"{prefix}-{v}-absdelta"] = f"{abs(dv):.2f}"            # for prose ("costs 0.17 dB")
     if len([x for x in seeds if x]) > 1:
         mu, sd = _mean_std([x["test"]["PSNR"] for x in seeds if x])
-        NUM[f"{prefix}-{v}-mean"], NUM[f"{prefix}-{v}-std"] = f"{mu:.2f}", f"{sd:.2f}"
+        NUM[f"{prefix}-{v}-mean"], NUM[f"{prefix}-{v}-std"] = f"{mu:.2f}", _sd(sd)
         NUM[f"{prefix}-{v}-nseeds"] = str(len([x for x in seeds if x]))
     if swap_psnr(g) is not None:
         NUM[f"{prefix}-{v}-swap"] = f"{swap_psnr(g):.2f}"
