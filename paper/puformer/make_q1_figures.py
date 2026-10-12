@@ -22,8 +22,7 @@ from make_figures import AQUA, BLUE, FIG, INK2, MARK, ORANGE  # noqa: E402  (sha
 HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.environ.get("Q1_RESULTS", os.path.join(HERE, "..", "..", "results", "q1"))
 PREDS = os.environ.get("Q1_PREDS", "")
-DATASETS = {"chikusei": ("Chikusei", (4, 8, 16)), "pavia": ("Pavia Centre", (4, 8, 16)),
-            "cave": ("CAVE", (4, 8)), "harvard": ("Harvard", (4, 8))}
+DATASETS = {"chikusei": ("Chikusei", (4,)), "pavia": ("Pavia Centre", (4,))}   # scope of the paper
 METHODS = [("ssrnet", "SSR-NET"), ("psrt", "PSRT"), ("dct", "DCT"), ("mimformer", "MIMFormer"),
            ("dhif", "DHIF-Net"), ("puformer", "PUFormer")]
 COLOR = {"ssrnet": "#8c8b86", "psrt": AQUA, "dct": ORANGE, "mimformer": "#7d52c7", "dhif": "#c2410c",
@@ -65,7 +64,7 @@ def operator_figure():
     variants = [("full", "exact operator, swapped", BLUE, "swap"), ("zeros", "zero border, swapped", ORANGE, "swap"),
                 ("learned", "learned operator", AQUA, "fixed"), ("nophys", "no data step", "#8c8b86", "fixed"),
                 ("full", "exact operator, not swapped", BLUE, "fixedfull")]
-    for ax, ds, title in ((axes[0], "pavia", "Pavia Centre $\\times$4"), (axes[1], "cave", "CAVE $\\times$4")):
+    for ax, ds, title in ((axes[0], "pavia", "Pavia Centre $\\times$4"), (axes[1], "chikusei", "Chikusei $\\times$4")):
         for v, lab, col, mode in variants:
             job = f"bench-{ds}-x4-puformer" if v == "full" else f"abl-{ds}-x4-{v}"
             g = load(job, "gaps.json")
@@ -153,6 +152,5 @@ def visual_figure():
 
 
 if __name__ == "__main__":
-    scales_figure()
-    operator_figure()
+    operator_figure()          # (scales_figure needs several scale factors; the paper reports x4 only)
     visual_figure()

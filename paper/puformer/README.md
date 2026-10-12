@@ -3,10 +3,10 @@
 **Exact Observation Operators in Deep Unfolding for Hyperspectral and Multispectral Image Fusion**, IEEE
 journal format (IEEEtran): [main.pdf](main.pdf). It covers:
 
-* an ablation with one module changed per row, on Pavia Centre ×4 (three seeds for the key rows), Chikusei ×4 and CAVE ×4
+* an ablation with one module changed per row, on Pavia Centre ×4 and Chikusei ×4 (three seeds for the key rows)
 * an equal-budget benchmark: PUFormer and five published networks (SSR-NET, PSRT, DCT, MIMFormer, DHIF-Net)
-  retrained from their authors' code under one pipeline, on Chikusei and Pavia Centre at ×4/×8/×16 and on
-  CAVE and Harvard at ×4/×8
+  retrained from their authors' code under one pipeline, on Chikusei ×4 and Pavia Centre ×4 (runs on CAVE,
+  Harvard and ×8/×16 are kept in `results/q1` for later work but are not part of this paper)
 * a comparison with the 17 methods reported for Chikusei ×4 and Pavia Centre ×4 by the TIP'26 study
 * robustness to blur and spectral-response mismatch, with the true and an estimated blur supplied at test time
 

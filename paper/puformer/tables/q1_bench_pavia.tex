@@ -5,21 +5,21 @@
 \label{tab:q1-pavia}
 \setlength{\tabcolsep}{2.6pt}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}lcccccccccccc@{}}
+\begin{tabular}{@{}lcccc@{}}
 \toprule
- & \multicolumn{4}{c}{$\times$4} & \multicolumn{4}{c}{$\times$8} & \multicolumn{4}{c}{$\times$16} \\
-\cmidrule(lr){2-5}\cmidrule(lr){6-9}\cmidrule(lr){10-13}
-Method & PSNR$\uparrow$ & SSIM$\uparrow$ & SAM$\downarrow$ & ERGAS$\downarrow$ & PSNR$\uparrow$ & SSIM$\uparrow$ & SAM$\downarrow$ & ERGAS$\downarrow$ & PSNR$\uparrow$ & SSIM$\uparrow$ & SAM$\downarrow$ & ERGAS$\downarrow$ \\
+ & \multicolumn{4}{c}{$\times$4} \\
+\cmidrule(lr){2-5}
+Method & PSNR$\uparrow$ & SSIM$\uparrow$ & SAM$\downarrow$ & ERGAS$\downarrow$ \\
 \midrule
-Bicubic & 25.52 & 0.6282 & 6.554 & 9.852 & 23.07 & 0.4775 & 8.499 & 6.541 & -- & -- & -- & -- \\
-GSA & 34.78 & 0.9438 & 5.229 & 3.494 & 30.24 & 0.8731 & 7.163 & 2.960 & -- & -- & -- & -- \\
+Bicubic & 25.52 & 0.6282 & 6.554 & 9.852 \\
+GSA & 34.78 & 0.9438 & 5.229 & 3.494 \\
 \midrule
-SSR-NET~\cite{zhang2021ssrnet} & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- & -- \\
-PSRT~\cite{deng2023psrt} & 47.87 & 0.9958 & 2.212 & 0.801 & 47.13 & 0.9953 & 2.394 & 0.430 & -- & -- & -- & -- \\
-DCT~\cite{ma2024reciprocal} & 46.94 & 0.9953 & 2.442 & 0.888 & 45.51 & 0.9942 & 2.739 & 0.521 & -- & -- & -- & -- \\
-MIMFormer~\cite{li2024mimformer} & 49.63 & 0.9967 & 1.982 & 0.674 & 49.09 & 0.9964 & 2.064 & 0.353 & -- & -- & -- & -- \\
-DHIF-Net~\cite{huang2022dhif} & 47.67 & 0.9956 & 2.295 & 0.840 & -- & -- & -- & -- & -- & -- & -- & -- \\
-PUFormer & \best{50.63} & \best{0.9970} & \best{1.897} & \best{0.621} & \best{49.94} & \best{0.9967} & \best{1.986} & \best{0.329} & -- & -- & -- & -- \\
+SSR-NET~\cite{zhang2021ssrnet} & -- & -- & -- & -- \\
+PSRT~\cite{deng2023psrt} & 47.87 & 0.9958 & 2.212 & 0.801 \\
+DCT~\cite{ma2024reciprocal} & 46.94 & 0.9953 & 2.442 & 0.888 \\
+MIMFormer~\cite{li2024mimformer} & 49.63 & 0.9967 & 1.982 & 0.674 \\
+DHIF-Net~\cite{huang2022dhif} & 47.67 & 0.9956 & 2.295 & 0.840 \\
+PUFormer & \best{50.63} & \best{0.9970} & \best{1.897} & \best{0.621} \\
 \bottomrule
 \end{tabular}}
 \end{table*}

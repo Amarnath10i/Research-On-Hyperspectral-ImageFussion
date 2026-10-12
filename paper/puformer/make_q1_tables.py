@@ -18,8 +18,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.environ.get("Q1_RESULTS", os.path.join(HERE, "..", "..", "results", "q1"))
 OUT = os.path.join(HERE, "tables")
 
-DATASETS = {"chikusei": ("Chikusei", (4, 8, 16)), "pavia": ("Pavia Centre", (4, 8, 16)),
-            "cave": ("CAVE", (4, 8)), "harvard": ("Harvard", (4, 8))}
+# Scope of the paper: Chikusei and Pavia Centre at x4 (the other datasets and scales of jobs.py are kept in
+# results/q1 for later work but not reported)
+DATASETS = {"chikusei": ("Chikusei", (4,)), "pavia": ("Pavia Centre", (4,))}
+ABL_DATASETS = ("pavia", "chikusei")
 METHODS = [("bicubic", "Bicubic", None), ("gsa", "GSA", "aiazzi2007gsa"), ("ssrnet", "SSR-NET", "zhang2021ssrnet"),
            ("psrt", "PSRT", "deng2023psrt"), ("dct", "DCT", "ma2024reciprocal"),
            ("mimformer", "MIMFormer", "li2024mimformer"), ("dhif", "DHIF-Net", "huang2022dhif"),
@@ -140,6 +142,47 @@ def bench_table(ds):
             NUM[f"{ds}{s}-rmse-red"] = f"{100 * (1 - p['RMSE_DN'] / bo['RMSE_DN']):.0f}"
 
 
+BENCH = [("PSNR", "PSNR", 2, True), ("SSIM", "SSIM", 4, True), ("SAM", "SAM", 3, False), ("ERGAS", "ERGAS", 3, False),
+         ("Q2n", "Q2n", 4, True), ("RMSE_DN", "RMSE", 2, False)]
+
+
+def bench_x4():
+    """One table: every retrained method on Chikusei x4 and Pavia Centre x4, six metrics per dataset."""
+    arrow = {True: "$\\uparrow$", False: "$\\downarrow$"}
+    sets = [(ds, title) for ds, (title, _) in DATASETS.items()]
+    head = " & ".join(f"\\multicolumn{{{len(BENCH)}}}{{c}}{{{t} $\\times$4}}" for _, t in sets)
+    rule = "".join(f"\\cmidrule(lr){{{2 + i * len(BENCH)}-{1 + (i + 1) * len(BENCH)}}}" for i in range(len(sets)))
+    sub = " & ".join(" & ".join(lab + arrow[hi] for _, lab, _, hi in BENCH) for _ in sets)
+    per = {ds: {m: method_metrics(ds, 4, m) for m, *_ in METHODS} for ds, _ in sets}
+    best = {ds: best_marks([per[ds][m] for m in BASELINES + ("puformer",)], BENCH) for ds, _ in sets}
+    body = []
+    for m, lab, cite in METHODS:
+        name = lab + (f"~\\cite{{{cite}}}" if cite else "")
+        cells = []
+        for ds, _ in sets:
+            r = per[ds][m]
+            for k, _, d, hi in BENCH:
+                v = None if r is None else r.get(k)
+                c = fmt(v, d)
+                if v is not None and m not in ("bicubic", "gsa") and round(v, d) == best[ds][k]:
+                    c = f"\\best{{{c}}}"
+                cells.append(c)
+        if m == "ssrnet":
+            body.append("\\midrule")
+        if m == "puformer":
+            body.append("\\midrule")
+        body.append(f"{name} & " + " & ".join(cells) + " \\\\")
+    write("q1_bench_x4.tex", [
+        "\\begin{table*}[t]", "\\centering",
+        "\\caption{Equal-budget benchmark: every learned method retrained by us under the identical protocol and budget "
+        "(4~h on one T4, the same data, patches, batch, EMA weights and validation-only model selection; single pass). "
+        "GSA and bicubic interpolation need no training. Best learned method in bold; RMSE in DN.}",
+        "\\label{tab:q1-bench}", "\\setlength{\\tabcolsep}{2.6pt}", "\\resizebox{\\textwidth}{!}{%",
+        f"\\begin{{tabular}}{{@{{}}l{'c' * len(BENCH) * len(sets)}@{{}}}}", "\\toprule",
+        f" & {head} \\\\", rule, f"Method & {sub} \\\\", "\\midrule", *body, "\\bottomrule", "\\end{tabular}}",
+        "\\end{table*}"])
+
+
 def full_table():
     body = []
     for ds, (title, scales) in DATASETS.items():
@@ -244,15 +287,14 @@ def ablation_table():
            " & Params (M) & PSNR & $\\Delta$ & SAM & ERGAS & Cons. (dB) & Swap \\\\"
     body, i = [], 0
     blocks = (("pavia", "abl", "Pavia Centre $\\times$4", [v for v, _ in ABL]),
-              ("chikusei", "kabl", "Chikusei $\\times$4", ["full", "nophys", "zeros", "learned", "nomem", "k1", "conv"]),
-              ("cave", "cabl", "CAVE $\\times$4", ["full", "nophys", "zeros", "learned"]))
+              ("chikusei", "kabl", "Chikusei $\\times$4", [v for v, _ in ABL]))
     for b, (ds, prefix, title, variants) in enumerate(blocks):
-        full_seeds = [load(abl_job(ds, "full", sd)) for sd in (0, 1, 2)] if ds == "pavia" else ()
+        full_seeds = [load(abl_job(ds, "full", sd)) for sd in (0, 1, 2)]
         ref = _psnr_of(load(abl_job(ds, "full")), full_seeds)
         body.append(f"\\multicolumn{{{nmod + 8}}}{{@{{}}l}}{{\\textit{{{title}}}}} \\\\")
         for v in variants:
             r, g = load(abl_job(ds, v)), load(abl_job(ds, v), "gaps.json")
-            seeds = [load(abl_job(ds, v, sd)) for sd in (0, 1, 2)] if ds == "pavia" and v in ("full", "zeros") else ()
+            seeds = [load(abl_job(ds, v, sd)) for sd in (0, 1, 2)] if v in ("full", "zeros") else ()
             body.append(_abl_row(letters[i], v, r, g, ref, seeds))
             _abl_numbers(prefix, v, r, g, ref, seeds)
             NUM[f"{prefix}-{v}-row"] = letters[i]
@@ -261,8 +303,9 @@ def ablation_table():
                 body.append("\\cmidrule(l){1-%d}" % (nmod + 8))
         if b < len(blocks) - 1:
             body.append("\\midrule")
-    if "abl-full-mean" in NUM and "abl-zeros-mean" in NUM:
-        NUM["abl-seed-gain"] = f"{float(NUM['abl-full-mean']) - float(NUM['abl-zeros-mean']):.2f}"
+    for p in ("abl", "kabl"):
+        if f"{p}-full-mean" in NUM and f"{p}-zeros-mean" in NUM:
+            NUM[f"{p}-seed-gain"] = f"{float(NUM[f'{p}-full-mean']) - float(NUM[f'{p}-zeros-mean']):.2f}"
     write("q1_ablation.tex", [
         "\\begin{table*}[t]", "\\centering",
         "\\caption{Ablation study: each row changes one module of the full model (bold; \\checkmark: used, --: "
@@ -363,7 +406,7 @@ def swap_numbers():
         NUM["swaploss-max"] = f"{max(losses):.2f}"
         NUM["swaploss-n"] = str(len(losses))
     alt = []
-    for ds in ("pavia", "chikusei", "cave"):
+    for ds in ABL_DATASETS:
         z, gz = load(abl_job(ds, "zeros")), load(abl_job(ds, "zeros"), "gaps.json")
         if z and swap_psnr(gz) is not None:
             alt.append(z["test"]["PSNR"] - swap_psnr(gz))
@@ -435,7 +478,8 @@ def win_counts():
 
 def main():
     for ds in DATASETS:
-        bench_table(ds)
+        bench_table(ds)             # numbers quoted in the text (the per-dataset tables are not used)
+    bench_x4()
     win_counts()
     full_table()
     ablation_table()
