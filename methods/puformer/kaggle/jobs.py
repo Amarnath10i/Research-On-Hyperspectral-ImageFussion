@@ -65,10 +65,15 @@ def all_jobs():
     for v in ("nophys", "zeros", "learned"):
         n = f"abl-cave-x4-{v}"
         jobs[n] = job(n, "cave", 4, "puformer", ABLATIONS[v], robust=True)
-    # Chikusei x4: the operator rows and the modules that were removable on Pavia Centre
-    for v in ("nophys", "zeros", "learned", "nomem", "k1", "conv"):
-        n = f"abl-chikusei-x4-{v}"
-        jobs[n] = job(n, "chikusei", 4, "puformer", ABLATIONS[v], robust=v in ("zeros", "learned"))
+    # Chikusei x4: every ablation row of Pavia Centre, and three seeds for the full model and the zero border
+    for v in ABLATIONS:
+        if v != "full":
+            n = f"abl-chikusei-x4-{v}"
+            jobs[n] = job(n, "chikusei", 4, "puformer", ABLATIONS[v], robust=v in ("zeros", "learned"))
+    for seed in (1, 2):
+        for v in ("full", "zeros"):
+            n = f"seed{seed}-chikusei-x4-{v}"
+            jobs[n] = job(n, "chikusei", 4, "puformer", ABLATIONS[v], seed=seed)
     for seed in (1, 2):
         for v in ("full", "zeros"):
             n = f"seed{seed}-pavia-x4-{v}"
@@ -118,6 +123,13 @@ SESSIONS = {
     "puf-d04": (["bench-harvard-x4-dhif"], ["bench-harvard-x8-dhif"]),
     "puf-d05": (["bench-pavia-x16-dhif"], ["bench-chikusei-x16-dhif"]),
     "puf-L01": (["long-pavia-x4-puformer"], ["long-pavia-x4-mimformer"]),
+    # --- x4 only (Chikusei and Pavia Centre): SSR-NET, the rest of the Chikusei ablation, Chikusei seeds ---
+    "puf-x01": (["bench-pavia-x4-ssrnet"], ["bench-chikusei-x4-ssrnet"]),
+    "puf-x02": (["abl-chikusei-x4-nores"], ["abl-chikusei-x4-window"]),
+    "puf-x03": (["abl-chikusei-x4-k2"], ["abl-chikusei-x4-k4"]),
+    "puf-x04": (["abl-chikusei-x4-l1"], ["abl-chikusei-x4-nodeep"]),
+    "puf-x05": (["seed1-chikusei-x4-full"], ["seed1-chikusei-x4-zeros"]),
+    "puf-x06": (["seed2-chikusei-x4-full"], ["seed2-chikusei-x4-zeros"]),
     "puf-t01": (["bench-cave-x4-puformer"], ["bench-cave-x4-mimformer"]),
     "puf-t02": (["bench-cave-x4-psrt"], ["bench-cave-x4-dct"]),
     "puf-t03": (["bench-pavia-x8-puformer"], ["bench-pavia-x8-mimformer"]),
