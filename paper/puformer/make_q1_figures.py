@@ -130,7 +130,9 @@ def visual_figure():
             f = os.path.join(PREDS, f"bench-{ds}-x4-{m}", "test_pred_f16.npy")
             if os.path.exists(f):
                 errs[m] = np.abs(np.load(f, mmap_mode="r")[k].astype(np.float32) - gt).mean(0) * peak
-        vmax = np.percentile(np.concatenate([e.ravel() for e in errs.values()]), 99) if errs else 1
+        # color scale from the learned methods only (GSA's much larger error saturates)
+        learned = [e.ravel() for m, e in errs.items() if m != "gsa"]
+        vmax = np.percentile(np.concatenate(learned), 99.5) if learned else 1
         axes[i, 0].imshow(false_color(gt, ds))
         axes[i, 0].set_ylabel(DATASETS[ds][0], fontsize=7)
         for j, (m, lab) in enumerate(cols, start=1):
@@ -148,6 +150,7 @@ def visual_figure():
             s.set_visible(False)
     fig.tight_layout(pad=0.2, w_pad=0.1, h_pad=0.2)
     fig.savefig(os.path.join(FIG, "q1_visual.pdf"), dpi=220)
+    fig.savefig(os.path.join(FIG, "q1_visual.png"), dpi=150)       # preview for checking the figure
     plt.close(fig)
 
 
