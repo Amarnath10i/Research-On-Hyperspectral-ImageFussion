@@ -1,7 +1,7 @@
 # PUFormer paper
 
-**Exact Observation Operators in Deep Unfolding for Hyperspectral and Multispectral Image Fusion**, IEEE
-journal format (IEEEtran): [main.pdf](main.pdf). It covers:
+**PUFormer: A Physics-Unfolded Transformer With Exact Observation Operators for Hyperspectral and
+Multispectral Image Fusion**, IEEE journal format (IEEEtran): [main.pdf](main.pdf). It covers:
 
 * an ablation with one module changed per row, on Pavia Centre ×4 and Chikusei ×4 (three seeds for the key rows)
 * an equal-budget benchmark: PUFormer and five published networks (SSR-NET, PSRT, DCT, MIMFormer, DHIF-Net)
