@@ -50,7 +50,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dataset", required=True)
     ap.add_argument("--scale", type=int, default=4)
-    ap.add_argument("--source", required=True, help="session slug whose output holds the checkpoints")
+    ap.add_argument("--source", default="", help="session slug whose output holds the checkpoints")
+    ap.add_argument("--ckpt_dataset", default="", help="or: a dataset <owner>/<slug> with <job>/best_ema.pt folders")
     ap.add_argument("--user", required=True)
     ap.add_argument("--full", required=True)
     ap.add_argument("--zeros", default="none")
@@ -66,8 +67,8 @@ def main():
         json.dump(notebook([cell]), f, indent=1)
     meta = dict(id=f"{a.user}/{slug}", title=slug, code_file=f"{slug}.ipynb", language="python",
                 kernel_type="notebook", is_private=True, enable_gpu=False, enable_internet=False,
-                dataset_sources=[DATASETS[a.dataset]], competition_sources=[],
-                kernel_sources=[f"{a.user}/{a.source}"])
+                dataset_sources=[DATASETS[a.dataset]] + ([a.ckpt_dataset] if a.ckpt_dataset else []),
+                competition_sources=[], kernel_sources=[f"{a.user}/{a.source}"] if a.source else [])
     with open(os.path.join(out, "kernel-metadata.json"), "w", newline="\n") as f:
         json.dump(meta, f, indent=1)
     print(f"wrote blind/{slug} for {meta['id']} (source {a.source})")

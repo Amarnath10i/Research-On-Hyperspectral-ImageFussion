@@ -250,8 +250,10 @@ def _abl_row(idx, v, r, g, ref, seeds=()):
         mu, sd = _mean_std([x["test"]["PSNR"] for x in seeds if x])
         psnr = f"{mu:.2f}$\\pm${sd:.2f}"
     d = "--" if ref is None or v == "full" else f"{_psnr_of(r, seeds) - ref:+.2f}"
+    # no operator to replace: learned operator, or no data step at all
+    sw = "n/a" if v in ("learned", "nophys") else fmt(swap_psnr(g), 2)
     return (f"({idx}) & {mods} & {r['params_M']:.2f} & {psnr} & {d} & {fmt(t['SAM'], 3)} & {fmt(t['ERGAS'], 3)} & "
-            f"{fmt(c['cons_H_dB'], 1)}/{fmt(c['cons_M_dB'], 1)} & {fmt(swap_psnr(g), 2)} \\\\")
+            f"{fmt(c['cons_H_dB'], 1)}/{fmt(c['cons_M_dB'], 1)} & {sw} \\\\")
 
 
 def _abl_numbers(prefix, v, r, g, ref, seeds=()):
@@ -310,10 +312,11 @@ def ablation_table():
         "\\begin{table*}[t]", "\\centering",
         "\\caption{Ablation study: each row changes one module of the full model (bold; \\checkmark: used, --: "
         "removed) and is trained from scratch with the same 4~h budget on one T4 (test set, single pass). "
-        "$\\Delta$: PSNR change against row (a) of the same dataset. Cons.: $\\mathrm{PSNR}(\\D\\hat{\\X},\\YH)$/"
+        "$\\Delta$: PSNR change against the full model of the same dataset. Cons.: $\\mathrm{PSNR}(\\D\\hat{\\X},\\YH)$/"
         "$\\mathrm{PSNR}(\\R\\hat{\\X},\\YM)$ in dB, with the simulation operators. Swap: worst test PSNR over blur "
-        "$\\sigma\\in\\{1.5,2.5,3.0\\}$ when the true blur is given to the model at test time, for variants with an "
-        "explicit operator. Rows with $\\pm$: mean and standard deviation over three seeds.}",
+        "$\\sigma\\in\\{1.5,2.5,3.0\\}$ when the true blur is given to the model at test time, measured for the "
+        "operator variants; n/a: the variant has no operator that could be replaced. Rows with $\\pm$: mean and "
+        "standard deviation over three seeds.}",
         "\\label{tab:ablation}", "\\setlength{\\tabcolsep}{3pt}", "\\resizebox{\\textwidth}{!}{%",
         f"\\begin{{tabular}}{{@{{}}c{'c' * nmod}|ccccccc@{{}}}}", "\\toprule", head, "\\midrule", *body,
         "\\bottomrule", "\\end{tabular}}", "\\end{table*}"])
