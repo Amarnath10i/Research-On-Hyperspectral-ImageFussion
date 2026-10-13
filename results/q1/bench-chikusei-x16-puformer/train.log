@@ -1,0 +1,32 @@
+chikusei x16: train (128, 1632, 2048) test (8, 128, 256, 256) val (64, 128, 64, 64), 1.0 = 15133 DN  (5s)
+puformer (reflect borders): 10.13M params on 1 x cuda; batch 4 x 1; epoch = 51 iters; eval every 1000 iters; deadline in 4.00 h; schedule by time
+bicubic test: {'PSNR': 29.7746, 'PSNR_psrt': 24.3403, 'MPSNR_peak1': 31.409, 'SSIM': 0.6186, 'SSIM_psrt': 0.769, 'SAM': 7.6111, 'ERGAS': 3.5227, 'RMSE_DN': 500.3188, 'CC': 0.5555, 'SCC': 0.5163, 'Q2n': 0.2136}
+GSA test: {'PSNR': 35.2003, 'PSNR_psrt': 29.766, 'MPSNR_peak1': 36.8385, 'SSIM': 0.9072, 'SSIM_psrt': 0.9376, 'SAM': 5.3027, 'ERGAS': 1.8596, 'RMSE_DN': 268.9103, 'CC': 0.9781, 'SCC': 0.9637, 'Q2n': 0.8093}
+ep    19.6 it   1000 loss 0.01117 lr 3.00e-04 val PSNR 49.818 SSIM 0.9880 SAM 1.637 | best val 49.818 (0.29 h)
+ep    39.2 it   2000 loss 0.00376 lr 2.86e-04 val PSNR 53.231 SSIM 0.9917 SAM 1.196 | best val 53.231 (0.55 h)
+ep    58.8 it   3000 loss 0.00306 lr 2.70e-04 val PSNR 54.368 SSIM 0.9925 SAM 1.091 | best val 54.368 (0.82 h)
+ep    78.4 it   4000 loss 0.00280 lr 2.49e-04 val PSNR 54.886 SSIM 0.9928 SAM 1.038 | best val 54.886 (1.09 h)
+ep    98.0 it   5000 loss 0.00260 lr 2.23e-04 val PSNR 55.296 SSIM 0.9930 SAM 0.990 | best val 55.296 (1.36 h)
+ep   117.6 it   6000 loss 0.00251 lr 1.94e-04 val PSNR 55.569 SSIM 0.9932 SAM 0.962 | best val 55.569 (1.63 h)
+ep   137.3 it   7000 loss 0.00241 lr 1.63e-04 val PSNR 55.757 SSIM 0.9933 SAM 0.943 | best val 55.757 (1.89 h)
+ep   156.9 it   8000 loss 0.00235 lr 1.32e-04 val PSNR 55.878 SSIM 0.9934 SAM 0.933 | best val 55.878 (2.16 h)
+ep   176.5 it   9000 loss 0.00229 lr 1.01e-04 val PSNR 55.964 SSIM 0.9934 SAM 0.925 | best val 55.964 (2.43 h)
+ep   196.1 it  10000 loss 0.00225 lr 7.23e-05 val PSNR 56.046 SSIM 0.9935 SAM 0.917 | best val 56.046 (2.70 h)
+ep   215.7 it  11000 loss 0.00222 lr 4.71e-05 val PSNR 56.109 SSIM 0.9935 SAM 0.912 | best val 56.109 (2.97 h)
+ep   235.3 it  12000 loss 0.00220 lr 2.65e-05 val PSNR 56.149 SSIM 0.9935 SAM 0.908 | best val 56.149 (3.23 h)
+ep   254.9 it  13000 loss 0.00219 lr 1.14e-05 val PSNR 56.174 SSIM 0.9936 SAM 0.906 | best val 56.174 (3.50 h)
+ep   274.5 it  14000 loss 0.00216 lr 2.46e-06 val PSNR 56.184 SSIM 0.9936 SAM 0.905 | best val 56.184 (3.77 h)
+ep   292.2 it  14900 loss 0.00217 lr 3.00e-07 val PSNR 56.186 SSIM 0.9936 SAM 0.905 | best val 56.186 (4.01 h)
+time budget reached at it 14900 (epoch 292.2); continue with --resume <out>/last.pt
+TEST: {'PSNR': 55.8931, 'PSNR_psrt': 50.4587, 'MPSNR_peak1': 62.5683, 'SSIM': 0.996, 'SSIM_psrt': 0.9985, 'SAM': 0.8854, 'ERGAS': 0.4148, 'RMSE_DN': 24.4269, 'CC': 0.9947, 'SCC': 0.9988, 'Q2n': 0.99}
+TEST (self-ensemble): {'PSNR': 55.9604, 'PSNR_psrt': 50.526, 'MPSNR_peak1': 62.7222, 'SSIM': 0.996, 'SSIM_psrt': 0.9985, 'SAM': 0.8799, 'ERGAS': 0.413, 'RMSE_DN': 24.2515, 'CC': 0.9948, 'SCC': 0.9988, 'Q2n': 0.9901}
+consistency: {'cons_H_dB': 78.26349561310401, 'cons_M_dB': 75.33087869079144} | self-ensemble: {'cons_H_dB': 78.49769279921698, 'cons_M_dB': 76.19929344967571}
+nominal {'gsa': (35.2003, 5.3027, 40.2644), 'fixed': (55.8932, 0.8854, 78.2594)}
+sigma=6.0 {'gsa': (35.8627, 5.0275, 40.3306), 'fixed': (49.4032, 1.4843, 52.7567), 'swap': (55.8419, 0.8904, 77.0378)}
+sigma=10.0 {'gsa': (34.8702, 5.4486, 40.259), 'fixed': (52.4625, 1.1522, 60.5052), 'swap': (55.8679, 0.8875, 78.3691)}
+sigma=12.0 {'gsa': (34.6918, 5.53, 40.2628), 'fixed': (49.991, 1.3826, 57.3314), 'swap': (55.834, 0.8904, 78.4057)}
+srf_shift=-8nm {'gsa': (38.9606, 4.3018, 41.5554), 'fixed': (36.3046, 5.2644, 35.0034), 'swap': (nan, nan, nan)}
+srf_shift=+8nm {'gsa': (39.6694, 3.7526, 42.0355), 'fixed': (36.2923, 5.2684, 34.8293), 'swap': (nan, nan, nan)}
+noise 40dB {'gsa': 35.1774, 'fixed': 52.8317}
+noise 35dB {'gsa': 35.1321, 'fixed': 49.6802}
+noise 30dB {'gsa': 34.9888, 'fixed': 45.5409}

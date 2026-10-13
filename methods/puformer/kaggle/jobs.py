@@ -62,9 +62,11 @@ def all_jobs():
         if v != "full":
             n = f"abl-pavia-x4-{v}"
             jobs[n] = job(n, "pavia", 4, "puformer", flags, robust=v in ("zeros", "learned"))
-    for v in ("nophys", "zeros", "learned"):
-        n = f"abl-cave-x4-{v}"
-        jobs[n] = job(n, "cave", 4, "puformer", ABLATIONS[v], robust=True)
+    # the operator ablation (no data step, zero border, learned operator) on the other datasets and at x8
+    for d, s in (("cave", 4), ("harvard", 4), ("chikusei", 8), ("pavia", 8)):
+        for v in ("nophys", "zeros", "learned"):
+            n = f"abl-{d}-x{s}-{v}"
+            jobs[n] = job(n, d, s, "puformer", ABLATIONS[v], robust=True)
     # Chikusei x4: every ablation row of Pavia Centre, and three seeds for the full model and the zero border
     for v in ABLATIONS:
         if v != "full":
@@ -157,4 +159,15 @@ SESSIONS = {
     "puf-s16": (["bench-chikusei-x16-puformer", "bench-chikusei-x16-psrt"],
                 ["bench-chikusei-x16-dct", "bench-chikusei-x16-mimformer"]),
     "puf-s17": (["bench-pavia-x16-ssrnet"], ["bench-chikusei-x16-ssrnet"]),
+    # --- the rest of the benchmark (with puf-t09..t14, t16, t19, t20 and d05 above) and the operator ablation
+    #     beyond Chikusei / Pavia Centre x4, one job per GPU ---
+    "puf-a01": (["abl-cave-x4-zeros"], ["abl-cave-x4-learned"]),
+    "puf-a02": (["abl-harvard-x4-zeros"], ["abl-harvard-x4-learned"]),
+    "puf-a03": (["abl-cave-x4-nophys"], ["abl-harvard-x4-nophys"]),
+    "puf-a04": (["abl-chikusei-x8-zeros"], ["abl-chikusei-x8-learned"]),
+    "puf-a05": (["abl-pavia-x8-zeros"], ["abl-pavia-x8-learned"]),
+    "puf-a06": (["abl-chikusei-x8-nophys"], ["abl-pavia-x8-nophys"]),
+    "puf-d06": (["bench-harvard-x4-dhif"], ["bench-cave-x4-dhif"]),
+    "puf-d07": (["bench-harvard-x8-dhif"], ["bench-cave-x8-dhif"]),
+    "puf-d08": (["bench-chikusei-x8-dhif"], ["bench-pavia-x8-dhif"]),
 }
