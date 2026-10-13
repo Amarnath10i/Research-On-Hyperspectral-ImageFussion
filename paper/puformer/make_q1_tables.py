@@ -176,7 +176,8 @@ def bench_x4():
         "\\begin{table*}[t]", "\\centering",
         "\\caption{Equal-budget benchmark: every learned method retrained by us under the identical protocol and budget "
         "(4~h on one T4, the same data, patches, batch, EMA weights and validation-only model selection; single pass). "
-        "GSA and bicubic interpolation need no training. Best learned method in bold; RMSE in DN.}",
+        "GSA and bicubic interpolation need no training. Best learned method in bold; SSIM with the data range set to "
+        "each image's maximum; RMSE in DN.}",
         "\\label{tab:q1-bench}", "\\setlength{\\tabcolsep}{2.6pt}", "\\resizebox{\\textwidth}{!}{%",
         f"\\begin{{tabular}}{{@{{}}l{'c' * len(BENCH) * len(sets)}@{{}}}}", "\\toprule",
         f" & {head} \\\\", rule, f"Method & {sub} \\\\", "\\midrule", *body, "\\bottomrule", "\\end{tabular}}",
@@ -193,7 +194,8 @@ def full_table():
                 body.append(f"{lab} & " + " & ".join(fmt(None if r is None else r.get(k), d) for k, _, d, _ in FULL)
                             + " \\\\")
     write("q1_full.tex", [
-        "\\begin{table*}[t]", "\\centering", "\\caption{All metrics of the equal-budget benchmark (single pass).}",
+        "\\begin{table*}[t]", "\\centering", "\\caption{All metrics of the equal-budget benchmark (single pass; SSIM with the data range set to "
+        "each image's maximum; RMSE in DN).}",
         "\\label{tab:q1-full}", "\\scriptsize", "\\setlength{\\tabcolsep}{3pt}",
         f"\\begin{{tabular}}{{@{{}}l{'c' * len(FULL)}@{{}}}}", "\\toprule",
         "Method & " + " & ".join(lab for _, lab, _, _ in FULL) + " \\\\", "\\midrule", *body, "\\bottomrule",
@@ -456,7 +458,7 @@ def significance():
             total += 1
             wins += all(x > y for x, y in zip(a, c))
             pv = wilcoxon(a, c, alternative="greater").pvalue if len(a) >= 5 else float("nan")
-            NUM[f"{ds}{s}-p"] = f"{pv:.1e}" if pv == pv else "--"
+            NUM[f"{ds}{s}-p"] = f"{pv:.4f}" if pv == pv else "--"
             NUM[f"{ds}{s}-best-other"] = dict((k, v) for k, v, _ in METHODS)[m]
             NUM[f"{ds}{s}-nimg"] = str(len(a))
             NUM[f"{ds}{s}-allwin"] = "all" if all(x > y for x, y in zip(a, c)) else \

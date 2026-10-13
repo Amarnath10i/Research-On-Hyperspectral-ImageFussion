@@ -20,7 +20,8 @@ import tarfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
-PAPER = ["paper/puformer/" + f for f in ("main.tex", "references.bib", "numbers.tex", "make_numbers.py",
+PAPER = ["paper/puformer/" + f for f in ("main.tex", "supplementary.tex", "preamble.tex", "references.bib",
+                                          "numbers.tex", "make_numbers.py",
                                           "make_tables.py", "make_figures.py", "make_q1_tables.py",
                                           "make_q1_figures.py")]
 PAPER += ["methods/puformer/hsifuse/" + f for f in sorted(os.listdir(os.path.join(REPO, "methods", "puformer", "hsifuse")))
@@ -72,12 +73,24 @@ for v in ['0.15.0', '0.14.1']:
         break
 sh('./tectonic --version', cwd='/kaggle/working/bin')
 sh('/kaggle/working/bin/tectonic -X compile main.tex')
+sh('/kaggle/working/bin/tectonic -X compile supplementary.tex')
 os.makedirs(OUT, exist_ok=True)
-for f in ['main.pdf', 'numbers.tex']:
+for f in ['main.pdf', 'supplementary.pdf', 'numbers.tex']:
     shutil.copyfile(f'{{P}}/{{f}}', f'{{OUT}}/{{f}}')
 for d in ['figures', 'tables']:
     if os.path.isdir(f'{{P}}/{{d}}'):
         shutil.copytree(f'{{P}}/{{d}}', f'{{OUT}}/{{d}}', dirs_exist_ok=True)
+# page previews and the extracted text, for checking the layout and unresolved references (??)
+sh('pip install -q pymupdf')
+import fitz
+os.makedirs(f'{{OUT}}/pages', exist_ok=True)
+for f in ['main', 'supplementary']:
+    with fitz.open(f'{{OUT}}/{{f}}.pdf') as doc:
+        text = '\n'.join(p.get_text() for p in doc)
+        open(f'{{OUT}}/pages/{{f}}.txt', 'w').write(text)
+        print(f, len(doc), 'pages; unresolved references:', text.count('??'))
+        for i, p in enumerate(doc):
+            p.get_pixmap(dpi=110).save(f'{{OUT}}/pages/{{f}}-{{i + 1:02d}}.png')
 sh('ls -laR ' + OUT, cwd=OUT)
 '''
 

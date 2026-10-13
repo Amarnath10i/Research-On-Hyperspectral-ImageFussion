@@ -93,7 +93,8 @@ def ours_table(chi, chi_first, chi_gaps, ssrnet, pav):
     row = lambda name, m: f"{name} & " + " & ".join(fmt(m.get(k), d) for k, d in keys) + " \\\\"
     write("ours.tex", [
         "\\begin{table}[t]", "\\centering",
-        "\\caption{Methods run under our pipeline, with all PSNR and SSIM definitions. P$_\\mathrm{g}$: peak = dataset "
+        "\\caption{The long-trained PUFormer models and the classical baselines under all PSNR and SSIM definitions. "
+        "P$_\\mathrm{g}$: peak = dataset "
         "maximum (headline); P$_\\mathrm{i}$: peak = image maximum; P$_\\mathrm{b}$: band-wise mean, peak 1. S$_1$: SSIM, "
         "data range 1; S$_\\mathrm{i}$: data range = image maximum.}",
         "\\label{tab:ours}", "\\setlength{\\tabcolsep}{3.2pt}", "\\resizebox{\\columnwidth}{!}{%",
@@ -101,7 +102,7 @@ def ours_table(chi, chi_first, chi_gaps, ssrnet, pav):
         "Method & P$_\\mathrm{g}$ & P$_\\mathrm{i}$ & P$_\\mathrm{b}$ & S$_1$ & S$_\\mathrm{i}$ & SAM & RMSE \\\\", "\\midrule",
         "\\multicolumn{8}{@{}l}{\\textit{Chikusei}} \\\\",
         row("Bicubic", chi["bicubic_test"]), row("GSA~\\cite{aiazzi2007gsa}", chi_gaps["nominal"]["gsa"]),
-        row("SSR-NET~\\cite{zhang2021ssrnet}", ssrnet["test"]), row("PUFormer, first run", chi_first["test"]),
+        row("PUFormer, first run", chi_first["test"]),
         row("PUFormer v3", chi["test"]), row("PUFormer v3, ensemble", chi["test_tta"]), "\\midrule",
         "\\multicolumn{8}{@{}l}{\\textit{Pavia Centre}} \\\\",
         row("Bicubic", pav["bicubic_test"]), row("GSA~\\cite{aiazzi2007gsa}", pav["gsa_test"]),
@@ -138,7 +139,7 @@ def robust_table(chi_gaps, pav_gaps):
     write("robust.tex", [
         "\\begin{table*}[t]", "\\centering",
         "\\caption{Robustness of the final models (test PSNR in dB / SAM in degrees). Fixed: training operator; swap: true "
-        "operator supplied at test time. The better PUFormer entry of each condition is in bold.}",
+        "operator supplied at test time; --: not applicable. The better PUFormer entry of each condition is in bold.}",
         "\\label{tab:robust}", "\\begin{tabular}{@{}lcccccc@{}}", "\\toprule",
         " & \\multicolumn{3}{c}{Chikusei (PUFormer v3)} & \\multicolumn{3}{c}{Pavia Centre (PUFormer)} \\\\",
         "\\cmidrule(lr){2-4}\\cmidrule(l){5-7}",
