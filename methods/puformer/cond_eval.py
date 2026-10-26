@@ -50,7 +50,7 @@ def conditions(neon: bool):
 
 def deg_at(a, sigma, shift=0.0, pad=None):
     return Degradation(dataset_srf(a.dataset, shift_nm=shift), scale=a.scale, ksize=blur_of(a.scale)[0],
-                       sigma=sigma, pad=pad or a.pad)
+                       sigma=sigma, pad=pad or a.pad, shift_nm=shift)
 
 
 def add_noise(x, snr_db, g):

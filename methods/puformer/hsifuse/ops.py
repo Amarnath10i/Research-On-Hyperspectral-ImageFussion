@@ -148,10 +148,12 @@ def reflect_pad_adjoint(g: torch.Tensor, p: int) -> torch.Tensor:
 class Degradation(nn.Module):
     """Differentiable D (blur + decimate), its adjoint Dt, spectral R and Rt."""
 
-    def __init__(self, srf: np.ndarray, scale: int = 4, ksize: int = 7, sigma: float = 2.0, pad: str = "zeros"):
+    def __init__(self, srf: np.ndarray, scale: int = 4, ksize: int = 7, sigma: float = 2.0, pad: str = "zeros",
+                 shift_nm: float = 0.0):
         super().__init__()
         assert pad in ("zeros", "reflect"), pad
         self.scale, self.ksize, self.pad = scale, ksize, pad
+        self.sigma, self.shift_nm = float(sigma), float(shift_nm)   # operator parameters (read by --omc models)
         self.register_buffer("k", torch.from_numpy(gaussian_kernel(ksize, sigma))[None, None])
         self.register_buffer("srf", torch.from_numpy(srf))  # (B, M)
 

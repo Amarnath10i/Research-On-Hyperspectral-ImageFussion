@@ -3,7 +3,9 @@
 Reads the output of puf-neon-data (attached as a kernel source). The camera RGB is gamma-encoded, so it is
 first linearized with the sRGB decoding curve; then, per channel, y_c = r_c . x / norm + b_c is fitted by
 non-negative least squares (r_c >= 0, free offset b_c) on 40,000 random pixels of every training tile. The
-measured RGB minus the offset is the HR-MSI; it is not registered, normalized or otherwise adjusted.
+measured RGB minus the offset is the HR-MSI; it is not registered or otherwise adjusted. As for the simulated
+datasets, every response is scaled to unit sum, and its RGB channel by the same factor (a change of units: the
+data step uses R^T R, whose scale would otherwise depend on the fit).
 The camera is an uncalibrated frame camera (its own tone curve and white balance, at-sensor radiance), so a linear
 response explains only part of the RGB: the fit quality on the test tiles is reported at 1 m, at 4 m (block means)
 and with both images blurred, to show that the mismatch is spectral / radiometric rather than a registration or
@@ -74,11 +76,13 @@ def main():
     hsi = lambda n: np.load(f"{root}/{n}_hsi.npy").astype(np.float32) / norm
     rgb = lambda n: srgb_decode(np.load(f"{root}/{n}_rgb1m.npy").astype(np.float32))
     R, off = fit_response([(hsi(n), rgb(n)) for n in train], rng)
+    kappa = R.sum(0)                                         # unit-sum responses; the MSI in the same units
+    R = R / kappa
     np.save(f"{OUT}/neon_srf.npy", R.astype(np.float32))
     quality = {}
     for n in names:
         y = rgb(n)
-        msi = np.clip(y - off[:, None, None], 0, None)
+        msi = np.clip(y - off[:, None, None], 0, None) / kappa[:, None, None]
         np.save(f"{OUT}/{n}_msi.npy", msi.astype(np.float16))
         if n in test:
             x = hsi(n)
@@ -90,13 +94,15 @@ def main():
                 q[f"r2_blur{s}"] = r2(blur(pred), blur(msi))
             quality[n] = q
             hi = srgb_decode(np.load(f"{root}/{n}_rgb025.npy").astype(np.float32) / 255.0)
-            np.save(f"{OUT}/{n}_msi025.npy", np.clip(hi - off[:, None, None], 0, None).astype(np.float16))
+            np.save(f"{OUT}/{n}_msi025.npy",
+                    (np.clip(hi - off[:, None, None], 0, None) / kappa[:, None, None]).astype(np.float16))
             del hi
             print(n, q, flush=True)
     import shutil
     shutil.copyfile(f"{root}/wavelengths.npy", f"{OUT}/wavelengths.npy")
     wl = np.load(f"{root}/wavelengths.npy")
-    fit = dict(train=train, test=test, norm=norm, offset=off.tolist(), srgb_decoded=True, quality=quality,
+    fit = dict(train=train, test=test, norm=norm, offset=off.tolist(), msi_scale=kappa.tolist(), srgb_decoded=True,
+               quality=quality,
                response_peak_nm=[float(wl[int(np.argmax(R[:, c]))]) for c in range(3)], source=meta)
     json.dump(fit, open(f"{OUT}/neon_fit.json", "w"), indent=1)
     print(json.dumps({k: fit[k] for k in ("train", "test", "norm", "offset", "quality", "response_peak_nm")}, indent=1))

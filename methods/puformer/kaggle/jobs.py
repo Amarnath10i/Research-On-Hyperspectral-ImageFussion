@@ -24,6 +24,8 @@ ABLATIONS = {
     "nores": "--res_input 0",                      # data step, but the prior does not see the residual
     "zeros": "--pad zeros",                        # exact kernel, zero border (mismatched with the simulation)
     "learned": "--op learned",                     # blur kernel and SRF learned with the network
+    "cg": "--dstep cg",                            # exact proximal data step (5 conjugate-gradient iterations)
+    "mres": "--mres 1",                            # the prior also gets the back-projected HR-MSI residual
     "nomem": "--memory 0",
     "k1": "--stages 1",
     "k2": "--stages 2",
@@ -59,7 +61,7 @@ def job(name, dataset, scale, model, extra="", hours=HOURS, robust=False, seed=0
     if model == "puformer":
         args += f" --pad reflect {FULL_LOSS}"
     # eval_gaps.py takes the protocol and the model-structure flags, not the training ones
-    struct = ("--pad", "--physics", "--res_input", "--memory", "--mixer", "--op", "--stages")
+    struct = ("--pad", "--physics", "--res_input", "--memory", "--mixer", "--op", "--stages", "--omc", "--dstep", "--cg_iters", "--mres")
     toks = f"{args} {extra}".split()
     rargs = [f"--dataset {dataset} --scale {scale} --model {model}"]
     rargs += [f"{t} {v}" for t, v in zip(toks[::1], toks[1::1]) if t in struct]
@@ -75,9 +77,14 @@ def all_jobs():
             n = f"bench-{d}-x{s}-{m}"
             jobs[n] = job(n, d, s, m, hours=SSR_HOURS if m == "ssrnet" else HOURS, robust=m == "puformer")
     for v, flags in ABLATIONS.items():
-        if v != "full":
+        if v not in ("full", "cg", "mres"):
             n = f"abl-pavia-x4-{v}"
             jobs[n] = job(n, "pavia", 4, "puformer", flags, robust=v in ("zeros", "learned"))
+    # architecture extensions of the data step and the prior input (x4, both datasets, with the robustness run)
+    for d in ("chikusei", "pavia"):
+        for v in ("cg", "mres"):
+            n = f"abl-{d}-x4-{v}"
+            jobs[n] = job(n, d, 4, "puformer", ABLATIONS[v], robust=True)
     # the operator ablation (no data step, zero border, learned operator) on the other datasets and at x8
     for d, s in (("cave", 4), ("harvard", 4), ("chikusei", 8), ("pavia", 8)):
         for v in ("nophys", "zeros", "learned"):
@@ -85,7 +92,7 @@ def all_jobs():
             jobs[n] = job(n, d, s, "puformer", ABLATIONS[v], robust=True)
     # Chikusei x4: every ablation row of Pavia Centre, and three seeds for the full model and the zero border
     for v in ABLATIONS:
-        if v != "full":
+        if v not in ("full", "cg", "mres"):
             n = f"abl-chikusei-x4-{v}"
             jobs[n] = job(n, "chikusei", 4, "puformer", ABLATIONS[v], robust=v in ("zeros", "learned"))
     for seed in (1, 2):
@@ -109,6 +116,9 @@ def all_jobs():
                             ("zeros", "puformer", "--pad zeros"), ("mimformer", "mimformer", "")):
             n = f"cond-{d}-x4-{v}"
             jobs[n] = job(n, d, 4, m, f"{RAND} {extra}".strip(), robust=True, eval_extra="--wide 1")
+        # + observation-model conditioning: noise-adaptive data steps and a prior modulated by the operator / noise
+        n = f"cond-{d}-x4-omc"
+        jobs[n] = job(n, d, 4, "puformer", f"{RAND} --omc 1", robust=True, eval_extra="--wide 1")
     # real data (NEON spectrometer + RGB camera, x4): every method, the operator ablation, and an operator-
     # conditioned PUFormer (blur and noise only: the measured RGB cannot be re-simulated with another response)
     for m in METHODS:
@@ -226,6 +236,10 @@ SESSIONS = {
     "puf-r02": (["cond-pavia-x4-puformer"], ["cond-pavia-x4-nocond"]),
     "puf-r03": (["cond-chikusei-x4-zeros"], ["cond-chikusei-x4-mimformer"]),
     "puf-r04": (["cond-pavia-x4-zeros"], ["cond-pavia-x4-mimformer"]),
+    "puf-r05": (["cond-chikusei-x4-omc"], ["cond-pavia-x4-omc"]),
+    # architecture extensions: exact proximal data step, back-projected MSI residual as a prior input
+    "puf-v01": (["abl-chikusei-x4-cg"], ["abl-pavia-x4-cg"]),
+    "puf-v02": (["abl-chikusei-x4-mres"], ["abl-pavia-x4-mres"]),
     # real data (NEON); the account must have run kaggle/neon/prep (puf-neon-data) and fit (puf-neon-fit)
     "puf-n01": (["bench-neon-x4-puformer"], ["bench-neon-x4-mimformer"]),
     "puf-n02": (["bench-neon-x4-psrt"], ["bench-neon-x4-dct"]),

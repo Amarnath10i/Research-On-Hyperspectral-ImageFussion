@@ -37,7 +37,8 @@ QUEUES = {queues}
 SMOKE = {smoke}
 SMOKE_ROBUST = ('bench-cave-x4-puformer', 'abl-pavia-x4-learned', 'bench-pavia-x8-puformer', 'cond-pavia-x4-puformer',
                 'cond-pavia-x4-mimformer', 'abl-pavia-x8-learned', 'abl-harvard-x4-nophys', 'bench-neon-x4-puformer',
-                'cond-neon-x4-puformer', 'abl-neon-x4-learned')
+                'cond-neon-x4-puformer', 'abl-neon-x4-learned', 'cond-pavia-x4-omc', 'cond-chikusei-x4-omc',
+                'abl-pavia-x4-cg', 'abl-chikusei-x4-mres')
 
 
 def find(pattern):
@@ -203,6 +204,8 @@ def main():
     ap.add_argument("--quick", action="store_true", help="with --smoke: only the four networks on CAVE x4 and Pavia x16")
     ap.add_argument("--cond", action="store_true", help="with --smoke: the operator-conditioned runs, the x8 learned-"
                     "operator ablation and a Harvard ablation")
+    ap.add_argument("--arch", action="store_true", help="with --smoke: the data-step / prior-input extensions")
+    ap.add_argument("--omc", action="store_true", help="with --smoke: the observation-model-conditioned runs")
     ap.add_argument("--gain", action="store_true", help="with --smoke: the official-recipe, swapped-recipe and "
                     "prior-only jobs (puf-g01..g05)")
     ap.add_argument("--neon", action="store_true", help="with --smoke: every method and the operator ablation on "
@@ -234,6 +237,12 @@ def main():
         slug = "puf-smoke-gain"
         queues = [[jobs[n] for n in ("off-chikusei-x4-mimformer", "rec-chikusei-x4-mimformer", "abl-pavia-x4-unet")],
                   [jobs[n] for n in ("off-pavia-x4-psrt", "rec-pavia-x4-puformer", "off-pavia-x4-mimformer")]]
+    elif a.smoke and a.arch:
+        slug = "puf-smoke-arch"
+        queues = [[jobs["abl-pavia-x4-cg"], jobs["abl-chikusei-x4-mres"]], [jobs["abl-chikusei-x4-cg"], jobs["abl-pavia-x4-mres"]]]
+    elif a.smoke and a.omc:
+        slug = "puf-smoke-omc"
+        queues = [[jobs["cond-pavia-x4-omc"], jobs["bench-pavia-x4-puformer"]], [jobs["cond-chikusei-x4-omc"]]]
     elif a.smoke and a.neon:
         slug = "puf-smoke-neon"
         queues = [[jobs[f"bench-neon-x4-{m}"] for m in ("puformer", "psrt", "dhif")] + [jobs["abl-neon-x4-learned"]],

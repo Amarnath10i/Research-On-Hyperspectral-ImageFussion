@@ -16,6 +16,14 @@ def add_ablation_args(p):
     g.add_argument("--mixer", default="mdta", choices=["mdta", "window", "conv"], help="token mixer of the prior")
     g.add_argument("--op", default="exact", choices=["exact", "learned"],
                    help="learned: D (blur kernel) and R are learned with the network instead of the known operators")
+    g.add_argument("--dstep", default="grad", choices=["grad", "cg"], help="data step: one gradient step, or the "
+                   "exact proximal step solved by --cg_iters conjugate-gradient iterations")
+    g.add_argument("--cg_iters", type=int, default=5)
+    g.add_argument("--mres", type=int, default=0, help="1: the prior also gets the HR-MSI residual back-projected "
+                   "through the spectral response, (B/M) Rt(R Z - Y_M)")
+    g.add_argument("--omc", type=int, default=0, help="1: observation-model conditioning - the data-step sizes and "
+                   "the prior (FiLM) depend on the operator's blur width and SRF shift and on the noise level "
+                   "estimated from each observation")
 
 
 def blur_of(scale: int) -> tuple[int, float]:
@@ -28,7 +36,7 @@ def make_deg(a, sigma: float | None = None, shift_nm: float = 0.0) -> Degradatio
     """The true (simulation) operator of the protocol; `sigma` overrides the blur width (robustness study)."""
     k, s0 = blur_of(a.scale)
     return Degradation(dataset_srf(a.dataset, shift_nm=shift_nm), scale=a.scale, ksize=k,
-                       sigma=s0 if sigma is None else sigma, pad=a.pad)
+                       sigma=s0 if sigma is None else sigma, pad=a.pad, shift_nm=shift_nm)
 
 
 def build_model(a, deg: Degradation):
@@ -40,7 +48,8 @@ def build_model(a, deg: Degradation):
     if getattr(a, "op", "exact") == "learned":
         op = LearnedDegradation(*deg.srf.shape, scale=a.scale, ksize=deg.ksize)
     return build("puformer", op, width=a.width, stages=a.stages, physics=bool(a.physics),
-                 res_input=bool(a.res_input), memory=bool(a.memory), mixer=a.mixer)
+                 res_input=bool(a.res_input), memory=bool(a.memory), mixer=a.mixer, omc=bool(getattr(a, "omc", 0)),
+                 dstep=getattr(a, "dstep", "grad"), cg_iters=getattr(a, "cg_iters", 5), mres=bool(getattr(a, "mres", 0)))
 
 
 def set_metric_scale(a, dn_peak: float):
