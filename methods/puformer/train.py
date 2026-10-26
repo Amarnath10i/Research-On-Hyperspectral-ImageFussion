@@ -36,7 +36,7 @@ import torch.nn.functional as F
 
 from hsifuse import metrics
 from hsifuse.baselines import gsa
-from hsifuse.config import DATASETS, MODELS, add_ablation_args, build_model, make_deg, set_metric_scale
+from hsifuse.config import DATASETS, MODELS, add_ablation_args, blur_of, build_model, make_deg, set_metric_scale
 from hsifuse.data import PatchSampler, load_dataset, make_pairs, split_pavia
 from hsifuse.evaluation import final_test, predict
 from hsifuse.losses import sam_loss, ssim_loss
@@ -92,7 +92,23 @@ def get_args():
     p.add_argument("--probe", type=int, default=0,
                    help="speed test: time N iterations (after 30 warm-up ones), print PROBE samples/s, exit")
     p.add_argument("--smoke", action="store_true", help="tiny synthetic run for CI / CPU")
+    # operator randomization (one GPU): every batch is simulated with its own operator, and with --cond 1
+    # PUFormer's data steps are given that operator, so one model covers a family of sensors
+    p.add_argument("--rand_sigma", default="", help="blur width per batch, uniform in [lo, hi] x the nominal "
+                   "sigma, e.g. 0.5,2.0 (off by default)")
+    p.add_argument("--rand_shift", type=float, default=0.0, help="SRF shift per batch, uniform in [-x, x] nm")
+    p.add_argument("--rand_snr", default="", help="Gaussian noise on both inputs at an SNR uniform in [lo, hi] dB "
+                   "(per batch, with probability --noise_prob), e.g. 30,50")
+    p.add_argument("--noise_prob", type=float, default=0.5)
+    p.add_argument("--cond", type=int, default=1, help="with randomized operators, give PUFormer's data steps the "
+                   "operator of each batch (0: always the nominal one, i.e. plain degradation augmentation)")
     return p.parse_args()
+
+
+def add_noise(x, snr_db):
+    """Gaussian noise at the given SNR per image (as in eval_gaps.py)."""
+    p = x.pow(2).mean(dim=(1, 2, 3), keepdim=True)
+    return x + torch.randn_like(x) * torch.sqrt(p / 10 ** (snr_db / 10))
 
 
 def setup_dist():
@@ -265,6 +281,28 @@ def main():
         if a.eval_init and (a.init_ckpt or resumed) and not any(r["it"] == it for r in hist):
             log("start: " + evaluate_ema(it, float("nan"), 0.0))
 
+    # operator randomization: a small bank of operators on a 0.05 sigma / 1 nm grid, built on first use
+    rand_ops = bool(a.rand_sigma or a.rand_shift)
+    if rand_ops or a.rand_snr:
+        assert world == 1, "operator randomization runs on one GPU"
+    s0 = blur_of(a.scale)[1]
+    sig_lo, sig_hi = (float(v) for v in a.rand_sigma.split(",")) if a.rand_sigma else (1.0, 1.0)
+    snr_lo, snr_hi = (float(v) for v in a.rand_snr.split(",")) if a.rand_snr else (0.0, 0.0)
+    conditioned = rand_ops and bool(a.cond) and a.model == "puformer" and a.op == "exact" and bool(a.physics)
+    bank = {}
+
+    def batch_op():
+        sig = round(s0 * float(np.random.uniform(sig_lo, sig_hi)) / 0.05) * 0.05
+        sh = float(round(np.random.uniform(-a.rand_shift, a.rand_shift))) if a.rand_shift else 0.0
+        if (sig, sh) not in bank:
+            bank[(sig, sh)] = make_deg(a, sigma=sig, shift_nm=sh).to(dev)
+        return bank[(sig, sh)]
+
+    if rand_ops or a.rand_snr:
+        log(f"randomized degradation: sigma in [{sig_lo * s0:.2f}, {sig_hi * s0:.2f}], SRF shift within "
+            f"+-{a.rand_shift:g} nm, noise {a.rand_snr or 'off'} (p={a.noise_prob}); "
+            f"{'operator given to the data steps' if conditioned else 'nominal operator in the network'}")
+
     total = a.iters
     it0, t_train0 = it, time.time()
     stop = False
@@ -274,7 +312,16 @@ def main():
         lr_now = lr_at(it, total)
         for g in opt.param_groups:
             g["lr"] = lr_now
-        lr_, ms_, gt_ = sampler(a.bs)
+        if rand_ops:
+            d_b = batch_op()
+            lr_, ms_, gt_ = sampler(a.bs, d_b)
+            if conditioned:
+                model.deg = d_b
+        else:
+            lr_, ms_, gt_ = sampler(a.bs)
+        if a.rand_snr and np.random.rand() < a.noise_prob:
+            snr = float(np.random.uniform(snr_lo, snr_hi))
+            lr_, ms_ = add_noise(lr_, snr), add_noise(ms_, snr)
         outs = net(lr_, ms_, return_all=True)
         loss = F.l1_loss(outs[-1], gt_) + a.w_deep * sum(F.l1_loss(o, gt_) for o in outs[:-1])
         if a.w_sam:
@@ -288,6 +335,8 @@ def main():
             torch.nn.utils.clip_grad_norm_(model.parameters(), a.clip)
         scaler.step(opt)
         scaler.update()
+        if conditioned:
+            model.deg = deg          # the nominal operator again before the EMA copies the buffers
         it += 1
         if main_proc:
             with torch.no_grad():

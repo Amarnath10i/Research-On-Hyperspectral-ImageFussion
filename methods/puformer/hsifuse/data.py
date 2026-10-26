@@ -160,8 +160,40 @@ def load_harvard(root: str, cache: str | None = None):
     return [a[i] for i in range(len(a))] + [b[i] for i in range(len(b))], te, va
 
 
+def load_neon(root: str | None = None):
+    """Real data: NEON 1 m spectrometer tiles with the measured RGB camera image (averaged to 1 m, linearized)
+    as 3 extra channels after the B bands (Degradation.simulate then simulates only the LR-HSI). The split and
+    the normalization come from neon_fit.json (kaggle/neon/neon_fit.py):
+        train: rows 0-920 of every training tile; val: 64x64 patches from rows 936-1000 of the training tiles
+        test : the four 256x256 tiles of the central 512x512 region of every test tile
+    Reflectance is divided by the maximum over all tiles (`norm`), so 1.0 = norm x 10^4 reflectance units."""
+    import json
+
+    from .ops import neon_file
+    if root:
+        os.environ.setdefault("PUF_NEON", root)
+    fit = json.load(open(neon_file("neon_fit.json")))
+
+    def tile(name):
+        x = np.load(neon_file(f"{name}_hsi.npy")).astype(np.float32) / fit["norm"]
+        m = np.load(neon_file(f"{name}_msi.npy")).astype(np.float32)
+        return np.concatenate([x, m], 0)
+
+    train, val, test = [], [], []
+    for name in fit["train"]:
+        c = tile(name)
+        train.append(np.ascontiguousarray(c[:, :920]))
+        val += [c[:, 936:1000, q:q + 64] for q in range(0, 960, 64)]
+    for name in fit["test"]:
+        c = tile(name)
+        test += [c[:, r:r + 256, q:q + 256] for r in (244, 500) for q in (244, 500)]
+    return train, np.stack(test), np.stack(val), fit["norm"] * 1e4
+
+
 def load_dataset(name: str, mat: str, cache: str | None = None):
     """-> train (array or list of arrays), test, val, DN peak (the value that maps to 1 in RMSE_DN)."""
+    if name == "neon":
+        return load_neon(mat if mat and os.path.isdir(mat) else None)
     if name == "cave":
         tr, te, va = split_cave(*load_cave(mat))
         return tr, te, va, 255.0               # RMSE on the 8-bit scale, as CAVE papers report it
@@ -184,7 +216,7 @@ def make_pairs(gt: torch.Tensor, deg: Degradation, bs: int = 16):
     for i in range(0, gt.shape[0], bs):
         lr, ms = deg.simulate(gt[i:i + bs])
         lrs.append(lr), msis.append(ms)
-    return torch.cat(lrs), torch.cat(msis), gt
+    return torch.cat(lrs), torch.cat(msis), gt[:, :deg.srf.shape[0]]     # real data: drop the measured MSI
 
 
 class PatchSampler:
@@ -206,7 +238,8 @@ class PatchSampler:
         return int(sum(x.shape[1] * x.shape[2] for x in self.xs))
 
     @torch.no_grad()
-    def __call__(self, bs: int):
+    def __call__(self, bs: int, deg: Degradation | None = None):
+        """bs crops with their observations; `deg` overrides the sampler's operator (operator randomization)."""
         which = torch.multinomial(self.prob, bs, replacement=True).tolist() if len(self.xs) > 1 else [0] * bs
         crops = []
         for r in which:
@@ -222,5 +255,6 @@ class PatchSampler:
         if torch.rand(1).item() < 0.5:
             g = torch.flip(g, (3,))
         g = g.contiguous()
-        lr, ms = self.deg.simulate(g)
-        return lr, ms, g
+        d = self.deg if deg is None else deg
+        lr, ms = d.simulate(g)
+        return lr, ms, g[:, :d.srf.shape[0]]

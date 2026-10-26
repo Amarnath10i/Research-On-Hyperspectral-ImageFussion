@@ -55,15 +55,18 @@ def main():
     p.add_argument("--stages", type=int, default=3)
     p.add_argument("--pad", default="reflect", choices=["reflect", "zeros"])
     add_ablation_args(p)
+    p.add_argument("--wide", type=int, default=0, help="1: also blur widths 0.5 and 2 x nominal, SRF shifts of "
+                   "+-12 nm and a combined blur + SRF change (for the operator-randomized models)")
     p.add_argument("--out", required=True)
     a = p.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
 
     _, te, _, peak = load_dataset(a.dataset, a.mat, a.cache or None)
     set_metric_scale(a, peak)
-    gt = torch.from_numpy(te).to(dev)
+    gt = torch.from_numpy(te).to(dev)                                # real data: B bands + the measured MSI
 
     base = make_deg(a).to(dev)
+    gtb = gt[:, :base.srf.shape[0]]                                  # the reference HSI
     model = build_model(a, base).to(dev)
     model.load_state_dict(torch.load(a.ckpt, map_location=dev))
     model.eval()
@@ -72,19 +75,26 @@ def main():
     swappable = a.model == "puformer" and a.op == "exact" and bool(a.physics)
 
     s0 = blur_of(a.scale)[1]                                         # nominal blur width (2.0 at x4)
+    # SRF shifts at the nominal blur of the scale (s0; it was fixed at 2.0, the x4 value, before)
     settings = [("nominal", s0, 0.0)] + [(f"sigma={f * s0}", f * s0, 0.0) for f in (0.75, 1.25, 1.5)] + \
-               [(f"srf_shift={d:+d}nm", 2.0, d) for d in (-8, 8)]
+               [(f"srf_shift={d:+d}nm", s0, d) for d in (-8, 8)]
+    if a.wide:
+        settings += [(f"sigma={f * s0}", f * s0, 0.0) for f in (0.5, 2.0)] + \
+                    [(f"srf_shift={d:+d}nm", s0, d) for d in (-12, 12)] + \
+                    [(f"combined:sigma={1.5 * s0},srf_shift=+8nm", 1.5 * s0, 8)]
+    if a.dataset == "neon":                  # the measured MSI cannot be re-simulated with another response
+        settings = [st for st in settings if st[2] == 0.0]
     res = {}
     for name, sigma, shift in settings:
         true = make_deg(a, sigma=sigma, shift_nm=shift).to(dev)
         lr, ms, _ = make_pairs(gt, true)
-        row = {"gsa": score(gt, gsa(lr, ms, true).clamp(0, 1), lr, ms, true)}
+        row = {"gsa": score(gtb, gsa(lr, ms, true).clamp(0, 1), lr, ms, true)}
         if swappable:
             model.deg = base
-        row["fixed"] = score(gt, run(model, lr, ms), lr, ms, true)
+        row["fixed"] = score(gtb, run(model, lr, ms), lr, ms, true)
         if swappable and name != "nominal":
             model.deg = true
-            row["swap"] = score(gt, run(model, lr, ms), lr, ms, true)
+            row["swap"] = score(gtb, run(model, lr, ms), lr, ms, true)
             model.deg = base
         res[name] = row
         print(name, {k: (v["PSNR"], v["SAM"], v["cons_H_dB"]) for k, v in row.items()}, flush=True)
@@ -93,8 +103,8 @@ def main():
     lr0, ms0, _ = make_pairs(gt, base)
     for snr in (40, 35, 30):
         lr, ms = add_noise(lr0, snr, g), add_noise(ms0, snr, g)
-        res[f"noise_{snr}dB"] = {"gsa": score(gt, gsa(lr, ms, base).clamp(0, 1), lr, ms, base),
-                                 "fixed": score(gt, run(model, lr, ms), lr, ms, base)}
+        res[f"noise_{snr}dB"] = {"gsa": score(gtb, gsa(lr, ms, base).clamp(0, 1), lr, ms, base),
+                                 "fixed": score(gtb, run(model, lr, ms), lr, ms, base)}
         print(f"noise {snr}dB", {k: v["PSNR"] for k, v in res[f"noise_{snr}dB"].items()}, flush=True)
 
     with open(os.path.join(a.out, "gaps.json"), "w") as f:

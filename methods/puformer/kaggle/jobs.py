@@ -34,9 +34,12 @@ ABLATIONS = {
     "nodeep": "--w_deep 0",                        # no deep supervision
 }
 FULL_LOSS = "--w_sam 0.05 --w_ssim 0.1"
+# operator randomization of the operator-conditioned runs (train.py): blur 0.5-2 x nominal, SRF shift +-12 nm,
+# noise at 30-50 dB SNR on half of the batches
+RAND = "--rand_sigma 0.5,2.0 --rand_shift 12 --rand_snr 30,50 --noise_prob 0.5"
 
 
-def job(name, dataset, scale, model, extra="", hours=HOURS, robust=False, seed=0):
+def job(name, dataset, scale, model, extra="", hours=HOURS, robust=False, seed=0, eval_extra=""):
     # x16 leaves a 4x4 LR patch at 64x64, so x16 trains on 128x128 patches (batch 4) for every method
     batch = "--patch 128 --bs 4" if scale == 16 else "--bs 8"
     args = f"--dataset {dataset} --scale {scale} --model {model} {batch} --seed {seed} --eval_every 1000 " \
@@ -48,6 +51,7 @@ def job(name, dataset, scale, model, extra="", hours=HOURS, robust=False, seed=0
     toks = f"{args} {extra}".split()
     rargs = [f"--dataset {dataset} --scale {scale} --model {model}"]
     rargs += [f"{t} {v}" for t, v in zip(toks[::1], toks[1::1]) if t in struct]
+    rargs += [eval_extra] if eval_extra else []
     return dict(name=name, dataset=dataset, scale=scale, model=model, args=f"{args} {extra}".strip(), hours=hours,
                 robust=robust, rargs=" ".join(rargs))
 
@@ -80,6 +84,30 @@ def all_jobs():
         for v in ("full", "zeros"):
             n = f"seed{seed}-pavia-x4-{v}"
             jobs[n] = job(n, "pavia", 4, "puformer", ABLATIONS[v], seed=seed)
+    # the strongest baseline with the same three seeds, so the x4 comparison has a run-to-run spread on both sides
+    for seed in (1, 2):
+        for d in ("chikusei", "pavia"):
+            n = f"seed{seed}-{d}-x4-mimformer"
+            jobs[n] = job(n, d, 4, "mimformer", seed=seed)
+    # operator-conditioned training: every batch has its own blur, SRF shift and noise; "puformer" gets that
+    # operator in its data steps, "nocond" the same data with the nominal operator (augmentation only), "zeros" the
+    # zero-border operator, "mimformer" the strongest baseline with the same randomized data
+    for d in ("chikusei", "pavia"):
+        for v, m, extra in (("puformer", "puformer", ""), ("nocond", "puformer", "--cond 0"),
+                            ("zeros", "puformer", "--pad zeros"), ("mimformer", "mimformer", "")):
+            n = f"cond-{d}-x4-{v}"
+            jobs[n] = job(n, d, 4, m, f"{RAND} {extra}".strip(), robust=True, eval_extra="--wide 1")
+    # real data (NEON spectrometer + RGB camera, x4): every method, the operator ablation, and an operator-
+    # conditioned PUFormer (blur and noise only: the measured RGB cannot be re-simulated with another response)
+    for m in METHODS:
+        n = f"bench-neon-x4-{m}"
+        jobs[n] = job(n, "neon", 4, m, hours=SSR_HOURS if m == "ssrnet" else HOURS, robust=m == "puformer")
+    for v in ("nophys", "zeros", "learned"):
+        n = f"abl-neon-x4-{v}"
+        jobs[n] = job(n, "neon", 4, "puformer", ABLATIONS[v], robust=True)
+    jobs["cond-neon-x4-puformer"] = job("cond-neon-x4-puformer", "neon", 4, "puformer",
+                                        "--rand_sigma 0.5,2.0 --rand_snr 30,50 --noise_prob 0.5", robust=True,
+                                        eval_extra="--wide 1")
     # a longer budget for PUFormer and the strongest baseline: does the gap survive 8 h of training?
     for m in ("puformer", "mimformer"):
         n = f"long-pavia-x4-{m}"
@@ -170,4 +198,18 @@ SESSIONS = {
     "puf-d06": (["bench-harvard-x4-dhif"], ["bench-cave-x4-dhif"]),
     "puf-d07": (["bench-harvard-x8-dhif"], ["bench-cave-x8-dhif"]),
     "puf-d08": (["bench-chikusei-x8-dhif"], ["bench-pavia-x8-dhif"]),
+    # operator-conditioned training (Chikusei and Pavia Centre x4)
+    "puf-r01": (["cond-chikusei-x4-puformer"], ["cond-chikusei-x4-nocond"]),
+    "puf-r02": (["cond-pavia-x4-puformer"], ["cond-pavia-x4-nocond"]),
+    "puf-r03": (["cond-chikusei-x4-zeros"], ["cond-chikusei-x4-mimformer"]),
+    "puf-r04": (["cond-pavia-x4-zeros"], ["cond-pavia-x4-mimformer"]),
+    # real data (NEON); the account must have run kaggle/neon/prep (puf-neon-data) and fit (puf-neon-fit)
+    "puf-n01": (["bench-neon-x4-puformer"], ["bench-neon-x4-mimformer"]),
+    "puf-n02": (["bench-neon-x4-psrt"], ["bench-neon-x4-dct"]),
+    "puf-n03": (["bench-neon-x4-dhif"], ["abl-neon-x4-nophys"]),
+    "puf-n04": (["abl-neon-x4-zeros"], ["abl-neon-x4-learned"]),
+    "puf-n05": (["bench-neon-x4-ssrnet"], ["cond-neon-x4-puformer"]),
+    # MIMFormer seeds 1 and 2 at x4
+    "puf-m01": (["seed1-chikusei-x4-mimformer"], ["seed2-chikusei-x4-mimformer"]),
+    "puf-m02": (["seed1-pavia-x4-mimformer"], ["seed2-pavia-x4-mimformer"]),
 }

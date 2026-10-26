@@ -4,7 +4,7 @@ from __future__ import annotations
 from . import metrics
 from .ops import Degradation, LearnedDegradation, dataset_srf
 
-DATASETS = ["chikusei", "pavia", "cave", "harvard"]
+DATASETS = ["chikusei", "pavia", "cave", "harvard", "neon"]
 MODELS = ["puformer", "ssrnet", "psrt", "dct", "mimformer", "fusformer", "dhif"]
 
 

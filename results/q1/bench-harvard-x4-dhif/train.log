@@ -1,0 +1,30 @@
+harvard x4: train 60 regions, e.g. [(31, 896, 1392), (31, 896, 1392)] test (20, 31, 512, 512) val (60, 31, 64, 64), 1.0 = 255 DN  (0s)
+/kaggle/working/code/train.py:174: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /pytorch/torch/csrc/utils/tensor_numpy.cpp:213.)
+  test = make_pairs(torch.from_numpy(te).to(dev), deg) if main_proc else None
+[external] dhif: https://github.com/TaoHuang95/DHIF-Net @ 643436658109f65a78ee01191163eec88a6b4407
+dhif (reflect borders): 22.46M params on 1 x cuda; batch 8 x 1; epoch = 1306 iters; eval every 1000 iters; deadline in 4.00 h; schedule by time
+bicubic test: {'PSNR': 35.5324, 'PSNR_psrt': 32.3748, 'MPSNR_peak1': 37.8585, 'SSIM': 0.8588, 'SSIM_psrt': 0.9059, 'SAM': 2.6904, 'ERGAS': 4.5434, 'RMSE_DN': 4.6871, 'CC': 0.9415, 'SCC': 0.7894, 'Q2n': 0.6642}
+GSA test: {'PSNR': 46.2991, 'PSNR_psrt': 43.1415, 'MPSNR_peak1': 47.5987, 'SSIM': 0.9766, 'SSIM_psrt': 0.9872, 'SAM': 2.3791, 'ERGAS': 1.6691, 'RMSE_DN': 1.343, 'CC': 0.9917, 'SCC': 0.9879, 'Q2n': 0.8695}
+ep     0.8 it   1000 loss 0.01302 lr 3.00e-04 val PSNR 44.624 SSIM 0.9101 SAM 2.809 | best val 44.624 (0.22 h)
+ep     1.5 it   2000 loss 0.00441 lr 2.92e-04 val PSNR 47.108 SSIM 0.9337 SAM 2.368 | best val 47.108 (0.43 h)
+ep     2.3 it   3000 loss 0.00360 lr 2.81e-04 val PSNR 47.836 SSIM 0.9387 SAM 2.232 | best val 47.836 (0.65 h)
+ep     3.1 it   4000 loss 0.00334 lr 2.68e-04 val PSNR 48.212 SSIM 0.9416 SAM 2.158 | best val 48.212 (0.86 h)
+ep     3.8 it   5000 loss 0.00318 lr 2.51e-04 val PSNR 48.413 SSIM 0.9425 SAM 2.120 | best val 48.413 (1.07 h)
+ep     4.6 it   6000 loss 0.00314 lr 2.31e-04 val PSNR 48.519 SSIM 0.9429 SAM 2.100 | best val 48.519 (1.28 h)
+ep     5.4 it   7000 loss 0.00307 lr 2.09e-04 val PSNR 48.603 SSIM 0.9430 SAM 2.085 | best val 48.603 (1.49 h)
+ep     6.1 it   8000 loss 0.00303 lr 1.85e-04 val PSNR 48.663 SSIM 0.9432 SAM 2.075 | best val 48.663 (1.70 h)
+ep     6.9 it   9000 loss 0.00298 lr 1.61e-04 val PSNR 48.713 SSIM 0.9433 SAM 2.066 | best val 48.713 (1.91 h)
+ep     7.7 it  10000 loss 0.00297 lr 1.36e-04 val PSNR 48.760 SSIM 0.9434 SAM 2.059 | best val 48.760 (2.13 h)
+ep     8.4 it  11000 loss 0.00294 lr 1.11e-04 val PSNR 48.798 SSIM 0.9435 SAM 2.053 | best val 48.798 (2.34 h)
+ep     9.2 it  12000 loss 0.00293 lr 8.77e-05 val PSNR 48.827 SSIM 0.9436 SAM 2.048 | best val 48.827 (2.55 h)
+ep    10.0 it  13000 loss 0.00291 lr 6.59e-05 val PSNR 48.852 SSIM 0.9436 SAM 2.043 | best val 48.852 (2.76 h)
+ep    10.7 it  14000 loss 0.00288 lr 4.65e-05 val PSNR 48.875 SSIM 0.9437 SAM 2.040 | best val 48.875 (2.97 h)
+ep    11.5 it  15000 loss 0.00289 lr 3.00e-05 val PSNR 48.891 SSIM 0.9437 SAM 2.037 | best val 48.891 (3.18 h)
+ep    12.3 it  16000 loss 0.00288 lr 1.67e-05 val PSNR 48.902 SSIM 0.9438 SAM 2.035 | best val 48.902 (3.39 h)
+ep    13.0 it  17000 loss 0.00286 lr 7.14e-06 val PSNR 48.910 SSIM 0.9438 SAM 2.034 | best val 48.910 (3.61 h)
+ep    13.8 it  18000 loss 0.00288 lr 1.53e-06 val PSNR 48.913 SSIM 0.9438 SAM 2.034 | best val 48.913 (3.82 h)
+ep    14.5 it  18900 loss 0.00288 lr 3.00e-07 val PSNR 48.915 SSIM 0.9438 SAM 2.033 | best val 48.915 (4.01 h)
+time budget reached at it 18900 (epoch 14.5); continue with --resume <out>/last.pt
+TEST: {'PSNR': 49.575, 'PSNR_psrt': 46.4174, 'MPSNR_peak1': 50.4567, 'SSIM': 0.982, 'SSIM_psrt': 0.9911, 'SAM': 2.0835, 'ERGAS': 1.3007, 'RMSE_DN': 0.8961, 'CC': 0.993, 'SCC': 0.992, 'Q2n': 0.8947}
+TEST (self-ensemble): {'PSNR': 49.5978, 'PSNR_psrt': 46.4403, 'MPSNR_peak1': 50.4753, 'SSIM': 0.982, 'SSIM_psrt': 0.9911, 'SAM': 2.079, 'ERGAS': 1.2988, 'RMSE_DN': 0.8939, 'CC': 0.993, 'SCC': 0.9921, 'Q2n': 0.8947}
+consistency: {'cons_H_dB': 65.4575467182452, 'cons_M_dB': 74.12431868265264} | self-ensemble: {'cons_H_dB': 65.57522597230421, 'cons_M_dB': 75.23625878158946}

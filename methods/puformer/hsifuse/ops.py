@@ -85,15 +85,40 @@ def nikon_srf(shift_nm: float = 0.0) -> np.ndarray:
     return (r / r.sum(0, keepdims=True)).astype(np.float32)
 
 
+def neon_file(name: str) -> str:
+    """A file of the NEON real-data set: under $PUF_NEON, or anywhere below /kaggle/input."""
+    import glob
+    import os
+    root = os.environ.get("PUF_NEON", "/kaggle/input")
+    hits = sorted(glob.glob(os.path.join(root, "**", name), recursive=True), key=len)
+    if not hits:
+        raise FileNotFoundError(f"{name} under {root}")
+    return hits[0]
+
+
+def neon_srf(shift_nm: float = 0.0) -> np.ndarray:
+    """(B, 3) response of NEON's RGB camera to the spectrometer bands. Unlike the other datasets it is not known:
+    it is fitted to the measured (linearized) RGB on the training tiles (kaggle/neon/neon_fit.py)."""
+    r = np.load(neon_file("neon_srf.npy")).astype(np.float64)
+    if shift_nm:
+        wl = np.load(neon_file("wavelengths.npy"))
+        r = np.stack([np.interp(wl - shift_nm, wl, r[:, j], left=0, right=0) for j in range(r.shape[1])], 1)
+    return r.astype(np.float32)
+
+
 def dataset_srf(name: str, shift_nm: float = 0.0) -> np.ndarray:
     if name == "pavia":
         return ikonos_srf(shift_nm=shift_nm)
     if name in ("cave", "harvard"):
         return nikon_srf(shift_nm)
+    if name == "neon":
+        return neon_srf(shift_nm)
     return wv2_srf(shift_nm=shift_nm)
 
 
 def dataset_wl(name: str) -> np.ndarray:
+    if name == "neon":
+        return np.load(neon_file("wavelengths.npy"))
     return dict(pavia=PAVIA_WL, cave=CAVE_WL, harvard=HARVARD_WL).get(name, CHIKUSEI_WL)
 
 
@@ -166,7 +191,11 @@ class Degradation(nn.Module):
 
     @torch.no_grad()
     def simulate(self, x: torch.Tensor):
-        """Whole-image simulation (reflect padding at the image border)."""
+        """Whole-image simulation (reflect padding at the image border). Real data (NEON) carry the measured
+        HR-MSI as extra channels after the B hyperspectral bands; then only the LR-HSI is simulated."""
+        b = self.srf.shape[0]
+        if x.shape[1] > b:
+            return self.D(x[:, :b], pad_mode="reflect"), x[:, b:]
         return self.D(x, pad_mode="reflect"), self.R(x)
 
 

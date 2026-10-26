@@ -17,7 +17,10 @@ from build_notebook import HERE, code_blob, git_rev
 from jobs import SESSIONS, all_jobs
 
 DATASETS = {"chikusei": "mingliu123/chikusei", "pavia": "mlxlx0000/paviadata",
-            "cave": "liptee/hyperspectral-image-restoration-based-on-cave", "harvard": "nikeshreddypatlolla/harvard-hsi-2"}
+            "cave": "liptee/hyperspectral-image-restoration-based-on-cave", "harvard": "nikeshreddypatlolla/harvard-hsi-2",
+            "neon": None}
+# NEON real data: the outputs of the account's own puf-neon-data and puf-neon-fit kernels (kaggle/neon/)
+NEON_KERNELS = ("puf-neon-data", "puf-neon-fit")
 
 SETUP = r'''# 0) setup: session clock, embedded code, data locations
 import base64, glob, hashlib, io, json, os, shlex, shutil, subprocess, sys, tarfile, threading, time
@@ -32,7 +35,9 @@ print('code sha256 {sha} from git {rev}', flush=True)
 subprocess.run('nvidia-smi --query-gpu=index,name,memory.total --format=csv; free -g | head -2; nproc', shell=True)
 QUEUES = {queues}
 SMOKE = {smoke}
-SMOKE_ROBUST = ('bench-cave-x4-puformer', 'abl-pavia-x4-learned', 'bench-pavia-x8-puformer')
+SMOKE_ROBUST = ('bench-cave-x4-puformer', 'abl-pavia-x4-learned', 'bench-pavia-x8-puformer', 'cond-pavia-x4-puformer',
+                'cond-pavia-x4-mimformer', 'abl-pavia-x8-learned', 'abl-harvard-x4-nophys', 'bench-neon-x4-puformer',
+                'cond-neon-x4-puformer', 'abl-neon-x4-learned')
 
 
 def find(pattern):
@@ -43,7 +48,8 @@ def find(pattern):
 chik = [p for p in glob.glob('/kaggle/input/**/*.mat', recursive=True) if 'chikusei' in p.lower() and 'Ground' not in p]
 DATA = dict(chikusei=sorted(chik, key=len)[0] if chik else None, pavia=find('Pavia.mat'),
             cave=os.path.dirname(os.path.dirname(os.path.dirname(find('Train/HSI/balloons.mat') or '/x/x/x/x'))),
-            harvard=os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(find('Data/Train/HSI/img*.mat') or '/x/x/x/x/x')))))
+            harvard=os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(find('Data/Train/HSI/img*.mat') or '/x/x/x/x/x')))),
+            neon='/kaggle/input')
 CACHE = dict(chikusei='/tmp/chikusei.npy', harvard='/tmp/harvard')
 print('data:', DATA, flush=True)
 ENV = dict(os.environ, OMP_NUM_THREADS='2', PUF_EXT='/kaggle/working/ext', PYTHONUNBUFFERED='1')
@@ -195,6 +201,10 @@ def main():
     ap.add_argument("--session", default="")
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--quick", action="store_true", help="with --smoke: only the four networks on CAVE x4 and Pavia x16")
+    ap.add_argument("--cond", action="store_true", help="with --smoke: the operator-conditioned runs, the x8 learned-"
+                    "operator ablation and a Harvard ablation")
+    ap.add_argument("--neon", action="store_true", help="with --smoke: every method and the operator ablation on "
+                    "the NEON real data")
     ap.add_argument("--debug", action="store_true", help="PSRT trajectory, memory of DCT / MIMFormer, PUFormer x8/x16")
     ap.add_argument("--dhif_cpu", action="store_true", help="CPU smoke run of the DHIF-Net adapter (no GPU quota)")
     ap.add_argument("--user", default="amarnath10chinu")
@@ -214,6 +224,14 @@ def main():
         queues = [[dbg("bench-cave-x4-psrt", long), dbg("bench-cave-x4-dct"), dbg("bench-pavia-x8-puformer")],
                   [dbg("bench-pavia-x16-mimformer"), dbg("bench-pavia-x16-dct"), dbg("bench-pavia-x16-puformer"),
                    dbg("bench-chikusei-x16-psrt")]]
+    elif a.smoke and a.cond:
+        slug = "puf-smoke-cond"
+        queues = [[jobs["cond-pavia-x4-puformer"], jobs["cond-pavia-x4-zeros"], jobs["abl-pavia-x8-learned"]],
+                  [jobs["cond-pavia-x4-nocond"], jobs["cond-pavia-x4-mimformer"], jobs["abl-harvard-x4-nophys"]]]
+    elif a.smoke and a.neon:
+        slug = "puf-smoke-neon"
+        queues = [[jobs[f"bench-neon-x4-{m}"] for m in ("puformer", "psrt", "dhif")] + [jobs["abl-neon-x4-learned"]],
+                  [jobs[f"bench-neon-x4-{m}"] for m in ("mimformer", "dct", "ssrnet")] + [jobs["cond-neon-x4-puformer"]]]
     elif a.smoke and a.quick:
         slug = "puf-smoke-quick"
         queues = [[jobs["bench-cave-x4-puformer"], jobs["bench-cave-x4-dct"], jobs["bench-pavia-x16-puformer"]],
@@ -233,7 +251,8 @@ def main():
     used = sorted({j["dataset"] for q in queues for j in q})
     meta = dict(id=f"{a.user}/{slug}", title=slug, code_file=name, language="python", kernel_type="notebook",
                 is_private=True, enable_gpu=not a.dhif_cpu, enable_internet=True, machine_shape="NvidiaTeslaT4",
-                dataset_sources=[DATASETS[d] for d in used], competition_sources=[], kernel_sources=[])
+                dataset_sources=[DATASETS[d] for d in used if DATASETS[d]], competition_sources=[],
+                kernel_sources=[f"{a.user}/{k}" for k in NEON_KERNELS] if "neon" in used else [])
     if a.dhif_cpu:
         meta.pop("machine_shape")
     with open(os.path.join(out, "kernel-metadata.json"), "w", newline="\n") as f:

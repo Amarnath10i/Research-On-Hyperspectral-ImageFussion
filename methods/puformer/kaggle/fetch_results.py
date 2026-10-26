@@ -1,6 +1,6 @@
 """Download the output of finished session kernels and keep the small result files in results/q1/<job>/.
 
-    KAGGLE_USERNAME=... KAGGLE_KEY=... python fetch_results.py --kernel <user>/puf-s01 [--kaggle <cli path>] [--keep DIR]
+    KAGGLE_USERNAME=... KAGGLE_KEY=... python fetch_results.py --kernel <user>/puf-s01 [--kaggle <cli path>] [--keep DIR] [--small]
 
 Copied into git: results.json, history.json, gaps.json, train.log. best_ema.pt and test_pred_f16.npy are
 large; they stay in --keep (default: a folder next to the download) for the figure kernel.
@@ -22,10 +22,14 @@ def main():
     ap.add_argument("--kernel", required=True)
     ap.add_argument("--kaggle", default="kaggle")
     ap.add_argument("--keep", default="")
+    ap.add_argument("--small", action="store_true", help="download only the small files (no checkpoints / predictions)")
     a = ap.parse_args()
     tmp = a.keep or tempfile.mkdtemp(prefix="puf_")
     os.makedirs(tmp, exist_ok=True)
-    subprocess.run([a.kaggle, "kernels", "output", a.kernel, "-p", tmp, "-o"], check=True)
+    cmd = [a.kaggle, "kernels", "output", a.kernel, "-p", tmp, "-o"]
+    if a.small:
+        cmd += ["--file-pattern", r"(results\.json|history\.json|gaps\.json|\.log)$"]
+    subprocess.run(cmd, check=True)
     jobs = sorted({os.path.dirname(p) for p in glob.glob(os.path.join(tmp, "**", "results.json"), recursive=True)})
     for d in jobs:
         name = os.path.basename(d)

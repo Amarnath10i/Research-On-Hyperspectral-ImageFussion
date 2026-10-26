@@ -184,19 +184,21 @@ def bench_x4():
         "\\end{table*}"])
 
 
-def full_table():
+def full_table(settings=None, name="q1_full.tex", label="tab:q1-full", what="the equal-budget benchmark"):
+    settings = settings or [(ds, s, title) for ds, (title, scales) in DATASETS.items() for s in scales]
     body = []
-    for ds, (title, scales) in DATASETS.items():
-        for s in scales:
-            body.append(f"\\multicolumn{{{1 + len(FULL)}}}{{@{{}}l}}{{\\textit{{{title} $\\times${s}}}}} \\\\")
-            for m, lab, _ in METHODS:
-                r = method_metrics(ds, s, m)
-                body.append(f"{lab} & " + " & ".join(fmt(None if r is None else r.get(k), d) for k, _, d, _ in FULL)
-                            + " \\\\")
-    write("q1_full.tex", [
-        "\\begin{table*}[t]", "\\centering", "\\caption{All metrics of the equal-budget benchmark (single pass; SSIM with the data range set to "
-        "each image's maximum; RMSE in DN).}",
-        "\\label{tab:q1-full}", "\\scriptsize", "\\setlength{\\tabcolsep}{3pt}",
+    for ds, s, title in settings:
+        body.append(f"\\multicolumn{{{1 + len(FULL)}}}{{@{{}}l}}{{\\textit{{{title} $\\times${s}}}}} \\\\")
+        for m, lab, _ in METHODS:
+            r = method_metrics(ds, s, m)
+            body.append(f"{lab} & " + " & ".join(fmt(None if r is None else r.get(k), d) for k, _, d, _ in FULL)
+                        + " \\\\")
+    rgb = any(ds in ("cave", "harvard") for ds, _, _ in settings)
+    write(name, [
+        "\\begin{table*}[t]", "\\centering", f"\\caption{{All metrics of {what} (single pass; SSIM with the data "
+        "range set to each image's maximum; RMSE in DN" + (", on the 8-bit scale for CAVE and Harvard" if rgb else "")
+        + "; --: run not available).}",
+        f"\\label{{{label}}}", "\\scriptsize", "\\setlength{\\tabcolsep}{3pt}",
         f"\\begin{{tabular}}{{@{{}}l{'c' * len(FULL)}@{{}}}}", "\\toprule",
         "Method & " + " & ".join(lab for _, lab, _, _ in FULL) + " \\\\", "\\midrule", *body, "\\bottomrule",
         "\\end{tabular}", "\\end{table*}"])
@@ -486,6 +488,122 @@ def win_counts():
         NUM[f"wins-{k}"] = str(v)
 
 
+# Other datasets and scale factors (main text: PSNR and SAM; supplement: every metric)
+TITLE = {"chikusei": "Chikusei", "pavia": "Pavia Centre", "cave": "CAVE", "harvard": "Harvard"}
+GENERAL = [("cave", 4), ("harvard", 4), ("chikusei", 8), ("pavia", 8), ("chikusei", 16), ("pavia", 16)]
+GEN_COLS = [("PSNR", "PSNR", 2, True), ("SAM", "SAM", 3, False)]
+OP_SETTINGS = [("chikusei", 4), ("pavia", 4), ("cave", 4), ("harvard", 4), ("chikusei", 8), ("pavia", 8)]
+
+
+def general_table():
+    """PSNR and SAM of every method on the other datasets and scale factors, and how often PUFormer wins."""
+    arrow = {True: "$\\uparrow$", False: "$\\downarrow$"}
+    head = " & ".join(f"\\multicolumn{{2}}{{c}}{{{TITLE[d]} $\\times${s}}}" for d, s in GENERAL)
+    rule = "".join(f"\\cmidrule(lr){{{2 + 2 * i}-{3 + 2 * i}}}" for i in range(len(GENERAL)))
+    sub = " & ".join(" & ".join(lab + arrow[hi] for _, lab, _, hi in GEN_COLS) for _ in GENERAL)
+    per = {(d, s): {m: method_metrics(d, s, m) for m, *_ in METHODS} for d, s in GENERAL}
+    best = {k: best_marks([per[k][m] for m in BASELINES + ("puformer",)], GEN_COLS) for k in per}
+    body = []
+    for m, lab, cite in METHODS:
+        if m == "bicubic":
+            continue
+        cells = []
+        for key in GENERAL:
+            r = per[key][m]
+            for k, _, dec, _ in GEN_COLS:
+                v = None if r is None else r.get(k)
+                c = fmt(v, dec)
+                if v is not None and m != "gsa" and round(v, dec) == best[key][k]:
+                    c = f"\\best{{{c}}}"
+                cells.append(c)
+        if m in ("ssrnet", "puformer"):
+            body.append("\\midrule")
+        name = lab + ("~\\cite{%s}" % cite if cite else "")
+        body.append(f"{name} & " + " & ".join(cells) + " \\\\")
+    complete = psnr_wins = sam_wins = 0
+    gains = []
+    for (d, s), rows in per.items():
+        p, others = rows["puformer"], [rows[m] for m in BASELINES if rows[m]]
+        if not p or not others:
+            continue
+        bo = max(others, key=lambda r: r["PSNR"])
+        NUM[f"{d}{s}-psnr"], NUM[f"{d}{s}-gain"] = f"{p['PSNR']:.2f}", f"{p['PSNR'] - bo['PSNR']:.2f}"
+        NUM[f"{d}{s}-best-other"] = dict((k, v) for k, v, _ in METHODS)[
+            [m for m in BASELINES if rows[m] is bo][0]]
+        if len(others) == len(BASELINES):                # only settings in which every network has run
+            complete += 1
+            psnr_wins += p["PSNR"] > bo["PSNR"]
+            sam_wins += p["SAM"] < min(o["SAM"] for o in others)
+            gains.append(p["PSNR"] - bo["PSNR"])
+    NUM["gen-complete"], NUM["gen-psnr-wins"], NUM["gen-sam-wins"] = str(complete), str(psnr_wins), str(sam_wins)
+    if gains:
+        NUM["gen-gain-min"], NUM["gen-gain-max"] = f"{min(gains):.2f}", f"{max(gains):.2f}"
+    write("q1_general.tex", [
+        "\\begin{table*}[t]", "\\centering",
+        "\\caption{Equal-budget benchmark on the other datasets and scale factors: PSNR (dB) and SAM (degrees) of "
+        "every method, retrained under the same protocol and 4~h budget on one T4 (single pass). At $\\times s$ the "
+        "blur is a $(2s-1)\\times(2s-1)$ Gaussian with $\\sigma=s/2$; $\\times$16 trains on $128\\times128$ patches "
+        "(batch 4). Best learned method in bold; --: run not available.}",
+        "\\label{tab:general}", "\\setlength{\\tabcolsep}{2.6pt}", "\\resizebox{\\textwidth}{!}{%",
+        f"\\begin{{tabular}}{{@{{}}l{'c' * len(GEN_COLS) * len(GENERAL)}@{{}}}}", "\\toprule",
+        f" & {head} \\\\", rule, f"Method & {sub} \\\\", "\\midrule", *body, "\\bottomrule", "\\end{tabular}}",
+        "\\end{table*}"])
+    full_table([(d, s, TITLE[d]) for d, s in GENERAL], "q1_full_general.tex", "tab:full-general",
+               "the equal-budget benchmark on the other datasets and scale factors")
+
+
+def operator_general_table():
+    """The operator ablation on every setting where it was run (seed 0): PSNR at the training blur, and the worst
+    PSNR over the three changed test blurs, with the true blur supplied where the operator can be replaced."""
+    psnr = lambda r: None if r is None else r["test"]["PSNR"]
+    body, exact_loss, alt_loss = [], [], []
+    beats = dict(zeros=0, learned=0, nophys=0)
+    n = 0
+    for d, s in OP_SETTINGS:
+        full, gf = load(f"bench-{d}-x{s}-puformer"), load(f"bench-{d}-x{s}-puformer", "gaps.json")
+        runs = {v: (load(f"abl-{d}-x{s}-{v}"), load(f"abl-{d}-x{s}-{v}", "gaps.json"))
+                for v in ("zeros", "learned", "nophys")}
+        if full is None or all(r is None for r, _ in runs.values()):
+            continue
+        (z, gz), (lr, gl), (nph, gn) = runs["zeros"], runs["learned"], runs["nophys"]
+        cells = [fmt(psnr(full), 2), fmt(psnr(z), 2), fmt(psnr(lr), 2), fmt(psnr(nph), 2),
+                 fmt(swap_psnr(gf), 2), fmt(fixed_psnr(gf), 2), fmt(swap_psnr(gz), 2), fmt(fixed_psnr(gl), 2),
+                 fmt(fixed_psnr(gn), 2)]
+        body.append(f"{TITLE[d]} $\\times${s} & " + " & ".join(cells) + " \\\\")
+        if all(r is not None for r, _ in runs.values()):
+            n += 1
+            for v, (r, _) in runs.items():
+                beats[v] += psnr(full) > psnr(r)
+        if swap_psnr(gf) is not None:
+            exact_loss.append(psnr(full) - swap_psnr(gf))
+        if z is not None and swap_psnr(gz) is not None:
+            alt_loss.append(psnr(z) - swap_psnr(gz))
+        if lr is not None and fixed_psnr(gl) is not None:
+            alt_loss.append(psnr(lr) - fixed_psnr(gl))
+        for v, (r, _) in runs.items():
+            if r is not None:
+                NUM[f"op-{d}{s}-{v}-delta"] = f"{psnr(r) - psnr(full):+.2f}"
+    NUM["op-complete"] = str(n)
+    for v, k in beats.items():
+        NUM[f"op-beats-{v}"] = str(k)
+    if exact_loss:
+        NUM["op-exact-swaploss-max"] = f"{max(exact_loss):.2f}"
+    if alt_loss:
+        NUM["op-alt-loss-min"], NUM["op-alt-loss-max"] = f"{min(alt_loss):.1f}", f"{max(alt_loss):.1f}"
+    write("q1_ablation_general.tex", [
+        "\\begin{table*}[t]", "\\centering",
+        "\\caption{Operator ablation across datasets and scale factors (one run each, seed 0, 4~h on one T4; test "
+        "PSNR in dB). Training blur: PSNR at the blur used for training. Changed blur: worst PSNR over the three "
+        "test blurs $\\sigma\\in\\{0.75,1.25,1.5\\}\\,\\sigma_0$, with the true blur supplied (swap) or the training "
+        "operator kept (fixed). --: run not available.}",
+        "\\label{tab:ablation-general}", "\\setlength{\\tabcolsep}{3.2pt}", "\\resizebox{\\textwidth}{!}{%",
+        "\\begin{tabular}{@{}lcccc|ccccc@{}}", "\\toprule",
+        " & \\multicolumn{4}{c|}{Training blur} & \\multicolumn{5}{c}{Changed blur (worst case)} \\\\",
+        "\\cmidrule(lr){2-5}\\cmidrule(l){6-10}",
+        "Setting & Exact & Zero border & Learned & No data step & Exact, swap & Exact, fixed & Zero border, swap & "
+        "Learned & No data step \\\\", "\\midrule", *body, "\\bottomrule", "\\end{tabular}}", "\\end{table*}"])
+
+
 def main():
     for ds in DATASETS:
         bench_table(ds)             # numbers quoted in the text (the per-dataset tables are not used)
@@ -498,6 +616,8 @@ def main():
     swap_numbers()
     long_numbers()
     significance()
+    general_table()
+    operator_general_table()
     write("q1_numbers.tex", [f"\\expandafter\\def\\csname qone@{k}\\endcsname{{{v}}}" for k, v in sorted(NUM.items())])
     print(f"{len(NUM)} numbers;", ", ".join(f"{k}={v}" for k, v in sorted(NUM.items())[:40]))
 
