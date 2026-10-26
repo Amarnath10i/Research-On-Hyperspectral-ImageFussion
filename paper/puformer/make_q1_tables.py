@@ -604,6 +604,253 @@ def operator_general_table():
         "Learned & No data step \\\\", "\\midrule", *body, "\\bottomrule", "\\end{tabular}}", "\\end{table*}"])
 
 
+# Operator-randomized training (train.py --rand_*; evaluated by cond_eval.py): (job, label, modes)
+COND_MODELS = [("bench-{d}-x4-mimformer", "MIMFormer, nominal training", ("fixed",)),
+               ("cond-{d}-x4-mimformer", "MIMFormer, randomized", ("fixed",)),
+               ("bench-{d}-x4-puformer", "PUFormer, nominal training", ("fixed", "estimated")),
+               ("cond-{d}-x4-nocond", "PUFormer, randomized data only", ("fixed", "estimated")),
+               ("cond-{d}-x4-zeros", "PUFormer, randomized, zero border", ("estimated",)),
+               ("cond-{d}-x4-puformer", "PUFormer, randomized + operator", ("fixed", "estimated", "oracle"))]
+COND_GROUPS = [("nominal", "Training operator", lambda k: k == "nominal"),
+               ("blur", "Blur $\\times$0.5--2", lambda k: k.startswith("sigma x") and "snr" not in k),
+               ("shift", "SRF shift $\\pm$4--12~nm", lambda k: k.startswith("shift ")),
+               ("noise", "Noise 40--30~dB", lambda k: k.startswith("snr ")),
+               ("combined", "Blur + SRF + noise", lambda k: k.startswith("sigma x") and "snr" in k),
+               ("worst", "Worst changed condition", None)]
+MODE_LAB = {"fixed": "fixed", "estimated": "est.", "oracle": "true"}
+
+
+def _cond_value(e, mode, pick):
+    """Mean PSNR of `mode` over the conditions selected by `pick`; the minimum over all changed ones if None."""
+    if e is None:
+        return None
+    if pick is None:
+        vals = [r[mode]["PSNR"] for k, r in e["conditions"].items() if k != "nominal" and mode in r]
+        return min(vals) if vals else None
+    vals = [r[mode]["PSNR"] for k, r in e["conditions"].items() if pick(k) and mode in r]
+    return sum(vals) / len(vals) if vals else None
+
+
+def _cond_head(cols, first):
+    """Two header rows (model, then mode) for the columns after `first` leading columns."""
+    head1 = " & " * first + " & ".join(f"\\multicolumn{{{len(modes)}}}{{c}}{{{lab}}}"
+                                        for _, lab, modes in COND_MODELS) + " \\\\"
+    rules, c0 = [], first + 1
+    for _, _, modes in COND_MODELS:
+        rules.append(f"\\cmidrule(lr){{{c0}-{c0 + len(modes) - 1}}}")
+        c0 += len(modes)
+    return head1, "".join(rules), " & ".join(MODE_LAB[m] for _, _, m in cols)
+
+
+def cond_table():
+    """One network for a family of sensors: mean PSNR per group of test conditions, every model and mode."""
+    cols = [(j, lab, m) for j, lab, modes in COND_MODELS for m in modes]
+    body, sup = [], []
+    for d, title in (("chikusei", "Chikusei"), ("pavia", "Pavia Centre")):
+        ev = {j: load(j.format(d=d), "cond_eval.json") for j, _, _ in COND_MODELS}
+        if not any(ev.values()):
+            continue
+        body.append(f"\\multicolumn{{{1 + len(cols)}}}{{@{{}}l}}{{\\textit{{{title} $\\times$4}}}} \\\\")
+        for g, glab, pick in COND_GROUPS:
+            vals = [_cond_value(ev[j], m, pick) for j, _, m in cols]
+            for (j, _, m), v in zip(cols, vals):
+                if v is not None:
+                    NUM[f"cond-{d}-{g}-{j.split('-')[0]}-{j.split('-')[-1]}-{m}"] = f"{v:.2f}"
+            best = max((round(v, 2) for (_, _, m), v in zip(cols, vals) if v is not None and m != "oracle"),
+                       default=None)
+            cells = [f"\\best{{{fmt(v, 2)}}}" if v is not None and m != "oracle" and round(v, 2) == best
+                     else fmt(v, 2) for (_, _, m), v in zip(cols, vals)]
+            body.append(f"{glab} & " + " & ".join(cells) + " \\\\")
+        # supplement: every condition, with the estimation error of the conditioned model's run
+        e = ev["cond-{d}-x4-puformer"] or next(x for x in ev.values() if x)
+        sup.append(f"\\multicolumn{{{2 + len(cols)}}}{{@{{}}l}}{{\\textit{{{title} $\\times$4}}}} \\\\")
+        for k, r in e["conditions"].items():
+            cells = [fmt(None if ev[j] is None or m not in ev[j]["conditions"].get(k, {}) else
+                         ev[j]["conditions"][k][m]["PSNR"], 2) for j, _, m in cols]
+            sup.append(f"{k} & {r['sigma_abs_err']:.2f}/{r['shift_abs_err']:.1f} & " + " & ".join(cells) + " \\\\")
+        se = [r["sigma_abs_err"] for r in e["conditions"].values()]
+        sh = [r["shift_abs_err"] for r in e["conditions"].values()]
+        clean = [r["shift_abs_err"] for k, r in e["conditions"].items() if "snr" not in k]
+        NUM[f"cond-{d}-sigerr-max"], NUM[f"cond-{d}-shifterr-max"] = f"{max(se):.3f}", f"{max(sh):.1f}"
+        NUM[f"cond-{d}-shifterr-clean-max"] = f"{max(clean):.1f}"
+    if not body:
+        write("q1_cond.tex", ["% cond_eval.json not available yet"])
+        write("q1_cond_full.tex", ["% cond_eval.json not available yet"])
+        return
+    h1, rules, h2 = _cond_head(cols, 1)
+    write("q1_cond.tex", [
+        "\\begin{table*}[t]", "\\centering",
+        "\\caption{One network for a family of sensors: mean test PSNR (dB) over groups of test conditions that "
+        "differ from the training protocol. Randomized: trained with a blur, SRF shift and noise level drawn anew for "
+        "every batch; + operator: the batch's operator is also given to the data steps. fixed: the training-protocol "
+        "operator is kept at test time; est.: blur and SRF shift estimated from the test pair alone; true: the true "
+        "test operator (an upper reference, not marked). Best per row in bold.}",
+        "\\label{tab:cond}", "\\setlength{\\tabcolsep}{3pt}", "\\resizebox{\\textwidth}{!}{%",
+        f"\\begin{{tabular}}{{@{{}}l{'c' * len(cols)}@{{}}}}", "\\toprule", h1, rules, f"Test condition & {h2} \\\\",
+        "\\midrule", *body, "\\bottomrule", "\\end{tabular}}", "\\end{table*}"])
+    h1, rules, h2 = _cond_head(cols, 2)
+    write("q1_cond_full.tex", [
+        "\\begin{table*}[t]", "\\centering",
+        "\\caption{Operator-randomized training, every test condition (PSNR in dB; columns as in Table~\\ref{tab:cond}). "
+        "Est.\\ error: mean absolute error of the estimated blur width and SRF shift (nm) over the test images.}",
+        "\\label{tab:cond-full}", "\\scriptsize", "\\setlength{\\tabcolsep}{2.4pt}", "\\resizebox{\\textwidth}{!}{%",
+        f"\\begin{{tabular}}{{@{{}}lc{'c' * len(cols)}@{{}}}}", "\\toprule", h1, rules,
+        f"Condition & Est.\\ error & {h2} \\\\", "\\midrule", *sup, "\\bottomrule", "\\end{tabular}}", "\\end{table*}"])
+
+
+# Real data: NEON spectrometer (1 m) + camera RGB, x4
+NEON_ROWS = [("bicubic", "Bicubic", None), ("gsa", "GSA", None), ("bench-neon-x4-ssrnet", "SSR-NET", "zhang2021ssrnet"),
+             ("bench-neon-x4-psrt", "PSRT", "deng2023psrt"), ("bench-neon-x4-dct", "DCT", "ma2024reciprocal"),
+             ("bench-neon-x4-mimformer", "MIMFormer", "li2024mimformer"), ("bench-neon-x4-dhif", "DHIF-Net", "huang2022dhif"),
+             ("bench-neon-x4-puformer", "PUFormer", None), ("abl-neon-x4-zeros", "\\quad zero border", None),
+             ("abl-neon-x4-learned", "\\quad learned operator", None), ("abl-neon-x4-nophys", "\\quad no data step", None),
+             ("cond-neon-x4-puformer", "\\quad blur + noise randomized", None)]
+NEON_RR = [("PSNR", "PSNR", 2, True), ("SAM", "SAM", 3, False), ("ERGAS", "ERGAS", 3, False), ("SSIM", "SSIM", 4, True)]
+NEON_FR = [("D_lambda", "$D_\\lambda$", 4, False), ("D_s", "$D_s$", 4, False), ("HQNR", "HQNR", 4, True)]
+
+
+def neon_table():
+    """Reduced resolution (simulated LR-HSI from the 1 m HSI, measured RGB) and full resolution (1 m HSI with the
+    0.25 m RGB, no reference)."""
+    ref = load("bench-neon-x4-puformer")
+    rows = []
+    for job, lab, cite in NEON_ROWS:
+        if job in ("bicubic", "gsa"):
+            rr = None if ref is None else ref.get(f"{job}_test")
+            fr = load("bench-neon-x4-puformer", "neon_fullres.json")
+            fr = None if fr is None else fr["mean"].get(job)
+        else:
+            r = load(job)
+            rr = None if r is None else r["test"]
+            fr = load(job, "neon_fullres.json")
+            fr = None if fr is None else fr["mean"]["model"]
+        rows.append((job, lab, cite, rr, fr))
+    if all(rr is None for *_, rr, _ in rows):
+        write("q1_neon.tex", ["% NEON results not available yet"])
+        return
+    learned = [r for r in rows if r[0] not in ("bicubic", "gsa")]
+    best_rr = best_marks([rr for *_, rr, _ in learned[:6]], NEON_RR)
+    best_fr = best_marks([fr for *_, fr in learned[:6]], NEON_FR)
+    body = []
+    for job, lab, cite, rr, fr in rows:
+        cells = []
+        for cols, src, best in ((NEON_RR, rr, best_rr), (NEON_FR, fr, best_fr)):
+            for k, _, dd, _ in cols:
+                v = None if src is None else src.get(k)
+                c = fmt(v, dd)
+                if v is not None and job.startswith("bench-") and round(v, dd) == best[k]:
+                    c = f"\\best{{{c}}}"
+                cells.append(c)
+        if job in ("bench-neon-x4-ssrnet", "bench-neon-x4-puformer"):
+            body.append("\\midrule")
+        name = lab + (f"~\\cite{{{cite}}}" if cite else "")
+        body.append(f"{name} & " + " & ".join(cells) + " \\\\")
+        tag = job.split("-")[-1] if job.startswith(("bench", "abl", "cond")) else job
+        tag = ("cond-" + tag) if job.startswith("cond") else ("abl-" + tag) if job.startswith("abl") else tag
+        if rr:
+            NUM[f"neon-{tag}-psnr"], NUM[f"neon-{tag}-sam"] = f"{rr['PSNR']:.2f}", f"{rr['SAM']:.3f}"
+        if fr:
+            NUM[f"neon-{tag}-hqnr"] = f"{fr['HQNR']:.4f}"
+            NUM[f"neon-{tag}-dl"], NUM[f"neon-{tag}-ds"] = f"{fr['D_lambda']:.4f}", f"{fr['D_s']:.4f}"
+    p = load("bench-neon-x4-puformer")
+    others = [load(f"bench-neon-x4-{m}") for m in BASELINES]
+    others = [o for o in others if o]
+    if p and others:
+        bo = max(others, key=lambda r: r["test"]["PSNR"])
+        NUM["neon-gain"] = f"{p['test']['PSNR'] - bo['test']['PSNR']:.2f}"
+    write("q1_neon.tex", [
+        "\\begin{table*}[t]", "\\centering",
+        "\\caption{Real data (NEON, SERC 2019: imaging spectrometer, 120 bands 400--1000~nm, with the measured camera "
+        "RGB). Reduced resolution: the LR-HSI is simulated from the 1~m HSI ($\\times$4), the RGB is measured and the 1~m "
+        "HSI is the reference. Full resolution: the measured 1~m HSI is fused with the measured 0.25~m RGB, without a "
+        "reference. All networks retrained under the same 4~h budget; best retrained network in bold.}",
+        "\\label{tab:neon}", "\\setlength{\\tabcolsep}{3pt}", "\\resizebox{\\textwidth}{!}{%",
+        f"\\begin{{tabular}}{{@{{}}l{'c' * (len(NEON_RR) + len(NEON_FR))}@{{}}}}", "\\toprule",
+        f" & \\multicolumn{{{len(NEON_RR)}}}{{c}}{{Reduced resolution (reference)}} & "
+        f"\\multicolumn{{{len(NEON_FR)}}}{{c}}{{Full resolution (no reference)}} \\\\",
+        f"\\cmidrule(lr){{2-{1 + len(NEON_RR)}}}\\cmidrule(l){{{2 + len(NEON_RR)}-{1 + len(NEON_RR) + len(NEON_FR)}}}",
+        "Method & " + " & ".join(lab + ("$\\uparrow$" if hi else "$\\downarrow$") for _, lab, _, hi in NEON_RR + NEON_FR)
+        + " \\\\", "\\midrule", *body, "\\bottomrule", "\\end{tabular}}", "\\end{table*}"])
+
+
+# Where the margin over the retrained networks comes from: recipes, backbone, data step (x4)
+GAIN_ROWS = [("MIMFormer", None),
+             ("bench-{d}-x4-mimformer", "pipeline recipe (batch 8, AdamW, no decay, cosine)"),
+             ("off-{d}-x4-mimformer", "authors' recipe (batch 16, Adam, step decay)"),
+             ("rec-{d}-x4-mimformer", "PUFormer's recipe (lr $3\\times10^{-4}$, decay, clipping, SAM+SSIM)"),
+             ("PSRT", None),
+             ("bench-{d}-x4-psrt", "pipeline recipe (batch 8)"),
+             ("off-{d}-x4-psrt", "authors' recipe (batch 32, AdamW decay, clipping, constant lr)"),
+             ("PUFormer", None),
+             ("abl-{d}-x4-unet", "prior alone: one U-Net, no data step"),
+             ("abl-{d}-x4-k1", "one stage with data step"),
+             ("abl-{d}-x4-nophys", "three stages, no data step"),
+             ("rec-{d}-x4-puformer", "baselines' recipe (lr $10^{-4}$, no decay, no clipping, L1)"),
+             ("bench-{d}-x4-puformer", "full model")]
+
+
+def gain_table():
+    """Retrained baselines under their authors' and PUFormer's recipes, and PUFormer reduced step by step."""
+    sets = (("chikusei", "Chikusei"), ("pavia", "Pavia Centre"))
+    full = {d: load(f"bench-{d}-x4-puformer") for d, _ in sets}
+    body, any_new = [], False
+    for job, lab in GAIN_ROWS:
+        if lab is None:
+            body.append(f"\\multicolumn{{9}}{{@{{}}l}}{{\\textit{{{job}}}}} \\\\")
+            continue
+        cells = []
+        for d, _ in sets:
+            r = load(job.format(d=d))
+            if r is None:
+                cells += ["--"] * 4
+                continue
+            any_new |= job.startswith(("off-", "rec-", "abl-{d}-x4-unet"))
+            p = r["test"]["PSNR"]
+            dl = "--" if full[d] is None or job.startswith("bench-{d}-x4-puformer") else \
+                f"{p - full[d]['test']['PSNR']:+.2f}"
+            cells += [fmt(p, 2), dl, fmt(r["test"]["SAM"], 3), f"{r['iters'] / 1000:.0f}k"]
+            tag = job.split("-")[0] + "-" + job.split("-")[-1]
+            NUM[f"gain-{d}-{tag}-psnr"] = f"{p:.2f}"
+            if full[d] is not None:
+                NUM[f"gain-{d}-{tag}-delta"] = f"{p - full[d]['test']['PSNR']:+.2f}"
+                NUM[f"gain-{d}-{tag}-gap"] = f"{full[d]['test']['PSNR'] - p:.2f}"
+        body.append(f"\\quad {lab} & " + " & ".join(cells) + " \\\\")
+    if not any_new:
+        write("q1_gain.tex", ["% recipe / backbone runs not available yet"])
+        return
+    head = " & ".join(f"\\multicolumn{{4}}{{c}}{{{t} $\\times$4}}" for _, t in sets)
+    write("q1_gain.tex", [
+        "\\begin{table*}[t]", "\\centering",
+        "\\caption{Where the margin over the retrained networks comes from (4~h on one T4, single pass). The two "
+        "strongest baselines are retrained with their authors' own recipe and with PUFormer's; PUFormer is reduced to "
+        "its prior alone, to one stage, to three stages without the data step, and trained with the baselines' recipe. "
+        "$\\Delta$: PSNR against the full PUFormer of the same dataset; it.: training iterations completed.}",
+        "\\label{tab:gain}", "\\setlength{\\tabcolsep}{3pt}", "\\resizebox{\\textwidth}{!}{%",
+        "\\begin{tabular}{@{}lcccccccc@{}}", "\\toprule", f" & {head} \\\\",
+        "\\cmidrule(lr){2-5}\\cmidrule(l){6-9}",
+        "Model and training & PSNR & $\\Delta$ & SAM & it. & PSNR & $\\Delta$ & SAM & it. \\\\", "\\midrule", *body,
+        "\\bottomrule", "\\end{tabular}}", "\\end{table*}"])
+
+
+def seed_numbers():
+    """PUFormer and MIMFormer over three seeds at x4: mean, standard deviation and the gap."""
+    for ds in ("chikusei", "pavia"):
+        runs = {"puformer": [load(f"bench-{ds}-x4-puformer"), load(f"seed1-{ds}-x4-full"), load(f"seed2-{ds}-x4-full")],
+                "mimformer": [load(f"bench-{ds}-x4-mimformer"), load(f"seed1-{ds}-x4-mimformer"),
+                              load(f"seed2-{ds}-x4-mimformer")]}
+        stats = {}
+        for m, rs in runs.items():
+            vals = [r["test"]["PSNR"] for r in rs if r]
+            mu, sd = _mean_std(vals)
+            if mu is not None and sd is not None:
+                stats[m] = (mu, sd, vals)
+                NUM[f"{ds}4-{m}-seedmean"], NUM[f"{ds}4-{m}-seedstd"] = f"{mu:.2f}", _sd(sd)
+                NUM[f"{ds}4-{m}-nseeds"] = str(len(vals))
+        if len(stats) == 2:
+            NUM[f"{ds}4-seedgap"] = f"{stats['puformer'][0] - stats['mimformer'][0]:.2f}"
+            NUM[f"{ds}4-seedgap-min"] = f"{min(stats['puformer'][2]) - max(stats['mimformer'][2]):.2f}"
+
+
 def main():
     for ds in DATASETS:
         bench_table(ds)             # numbers quoted in the text (the per-dataset tables are not used)
@@ -618,6 +865,10 @@ def main():
     significance()
     general_table()
     operator_general_table()
+    cond_table()
+    neon_table()
+    gain_table()
+    seed_numbers()
     write("q1_numbers.tex", [f"\\expandafter\\def\\csname qone@{k}\\endcsname{{{v}}}" for k, v in sorted(NUM.items())])
     print(f"{len(NUM)} numbers;", ", ".join(f"{k}={v}" for k, v in sorted(NUM.items())[:40]))
 

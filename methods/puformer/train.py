@@ -65,6 +65,14 @@ def get_args():
     p.add_argument("--patch", type=int, default=64)
     p.add_argument("--lr", type=float, default=None, help="peak learning rate (default 3e-4, or the baseline's)")
     p.add_argument("--warmup", type=int, default=1000)
+    # the published networks' own recipes (kaggle/jobs.py, off-* jobs): their schedules, with epochs mapped onto
+    # the training budget
+    p.add_argument("--lr_shape", default="cosine", choices=["cosine", "const", "step"],
+                   help="after the warm-up: cosine decay, constant, or a step decay at --milestones")
+    p.add_argument("--milestones", default="", help="step schedule: fractions of the training budget at which the "
+                   "learning rate is multiplied by --gamma, e.g. 0.3,0.6,0.9")
+    p.add_argument("--gamma", type=float, default=0.5)
+    p.add_argument("--beta2", type=float, default=0.99, help="AdamW beta2 (0.999 = PyTorch's Adam default)")
     p.add_argument("--iters", type=int, default=300000)
     p.add_argument("--epochs", type=int, default=0, help="if > 0, overrides --iters (epoch = 800/(bs*GPUs) iters)")
     p.add_argument("--eval_epochs", type=int, default=0, help="if > 0, overrides --eval_every")
@@ -208,7 +216,7 @@ def main():
             model.load_state_dict(state)
             log(f"warm start from {a.init_ckpt}")
     n_par = sum(q.numel() for q in model.parameters()) / 1e6
-    opt = torch.optim.AdamW(model.parameters(), lr=a.lr, betas=(0.9, 0.99), weight_decay=a.wd)
+    opt = torch.optim.AdamW(model.parameters(), lr=a.lr, betas=(0.9, a.beta2), weight_decay=a.wd)  # wd 0 = Adam
     # mixed precision is used inside PUFormer's priors only; the published networks train in fp32 as released
     scaler = torch.amp.GradScaler("cuda", enabled=bool(a.amp) and dev.type == "cuda" and a.model == "puformer")
 
@@ -241,9 +249,15 @@ def main():
         f"epoch = {epoch_iters} iters; eval every {a.eval_every} iters; "
         f"deadline in {(deadline - time.time()) / 3600:.2f} h; schedule by {'time' if time_sched else 'iters'}")
 
-    def lr_at(i, total):  # warmup, then cosine over `total` iterations, floor 1e-3 * lr
+    milestones = [float(m) for m in a.milestones.split(",") if m]
+
+    def lr_at(i, total):  # warmup, then cosine over `total` iterations (floor 1e-3 * lr), constant, or steps
         if i < a.warmup:
             return a.lr * (i + 1) / a.warmup
+        if a.lr_shape == "const":
+            return a.lr
+        if a.lr_shape == "step":
+            return a.lr * a.gamma ** sum(i / max(total, 1) >= m for m in milestones)
         return a.lr * max(0.5 * (1 + math.cos(math.pi * min(i / max(total, 1), 1.0))), 1e-3)
 
     def evaluate_ema(i, loss_avg, lr_now):

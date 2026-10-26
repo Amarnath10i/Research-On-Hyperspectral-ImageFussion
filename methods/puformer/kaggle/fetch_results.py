@@ -2,8 +2,9 @@
 
     KAGGLE_USERNAME=... KAGGLE_KEY=... python fetch_results.py --kernel <user>/puf-s01 [--kaggle <cli path>] [--keep DIR] [--small]
 
-Copied into git: results.json, history.json, gaps.json, train.log. best_ema.pt and test_pred_f16.npy are
-large; they stay in --keep (default: a folder next to the download) for the figure kernel.
+Copied into git: results.json, history.json, gaps.json, train.log, and the outputs of the evaluation kernels
+(cond_eval.json, neon_fullres.json; neon_fullres_crop.npz stays local like results.json). best_ema.pt and
+test_pred_f16.npy are large; they stay in --keep (default: a folder next to the download) for the figure kernel.
 """
 import argparse
 import glob
@@ -14,7 +15,9 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEST = os.path.normpath(os.path.join(HERE, "..", "..", "..", "results", "q1"))
-SMALL = ("results.json", "history.json", "gaps.json", "train.log")
+SMALL = ("results.json", "history.json", "gaps.json", "train.log", "cond_eval.json", "neon_fullres.json",
+         "neon_fullres_crop.npz")
+MARKERS = ("results.json", "cond_eval.json", "neon_fullres.json")      # a folder holding one of these is a job
 
 
 def main():
@@ -28,9 +31,10 @@ def main():
     os.makedirs(tmp, exist_ok=True)
     cmd = [a.kaggle, "kernels", "output", a.kernel, "-p", tmp, "-o"]
     if a.small:
-        cmd += ["--file-pattern", r"(results\.json|history\.json|gaps\.json|\.log)$"]
+        cmd += ["--file-pattern", r"(\.json|neon_fullres_crop\.npz|\.log)$"]
     subprocess.run(cmd, check=True)
-    jobs = sorted({os.path.dirname(p) for p in glob.glob(os.path.join(tmp, "**", "results.json"), recursive=True)})
+    jobs = sorted({os.path.dirname(p) for m in MARKERS
+                   for p in glob.glob(os.path.join(tmp, "**", m), recursive=True)})
     for d in jobs:
         name = os.path.basename(d)
         out = os.path.join(DEST, name)

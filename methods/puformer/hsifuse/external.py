@@ -33,7 +33,9 @@ REPOS = {
     "fusformer": ("https://github.com/J-FHu/Fusformer", "Fusformer"),
     "dhif": ("https://github.com/TaoHuang95/DHIF-Net", "DHIF-Net"),
 }
-# official optimiser settings (all use an L1 loss): lr, weight decay, gradient clipping (0 = off)
+# pipeline settings of the published networks (all with an L1 loss): their published learning rate, no weight
+# decay, no clipping. PSRT's own code adds AdamW decay 1e-4 and clipping at 10, and MIMFormer's uses batch 16 and
+# a step schedule; the off-* jobs of kaggle/jobs.py train both with their authors' recipes.
 RECIPES = {
     "psrt": dict(lr=1e-4, wd=0.0, clip=0.0),
     "dct": dict(lr=1e-4, wd=0.0, clip=0.0),

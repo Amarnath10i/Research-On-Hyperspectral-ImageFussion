@@ -37,6 +37,18 @@ FULL_LOSS = "--w_sam 0.05 --w_ssim 0.1"
 # operator randomization of the operator-conditioned runs (train.py): blur 0.5-2 x nominal, SRF shift +-12 nm,
 # noise at 30-50 dB SNR on half of the batches
 RAND = "--rand_sigma 0.5,2.0 --rand_shift 12 --rand_snr 30,50 --noise_prob 0.5"
+# The authors' own training recipes, read from their repositories (the pipeline otherwise gives every baseline its
+# published learning rate with batch 8, AdamW(0.9, 0.99) without decay or clipping, and warm-up + cosine decay).
+# Epoch-based step schedules are mapped onto the time budget as fractions of it.
+#   PSRT main_x4.py / args_parser.py: AdamW(lr 1e-4, wd 1e-4), clip 10, batch 32, constant lr, L1
+#   MIMFormer main.py / utils.py: Adam(lr 1e-4), batch 16, MultiStepLR(30, 60, 90; 0.5) over 101 epochs, L1
+OFFICIAL = {
+    "psrt": "--bs 32 --lr 1e-4 --wd 1e-4 --clip 10 --beta2 0.999 --warmup 0 --lr_shape const",
+    "mimformer": "--bs 16 --lr 1e-4 --wd 0 --clip 0 --beta2 0.999 --warmup 0 --lr_shape step "
+                 "--milestones 0.297,0.594,0.891 --gamma 0.5",
+}
+OURS_RECIPE = "--lr 3e-4 --wd 1e-4 --clip 0.1 --w_sam 0.05 --w_ssim 0.1"            # PUFormer's, for MIMFormer
+BASE_RECIPE = "--lr 1e-4 --wd 0 --clip 0 --w_sam 0 --w_ssim 0 --w_deep 0"           # the baselines', for PUFormer
 
 
 def job(name, dataset, scale, model, extra="", hours=HOURS, robust=False, seed=0, eval_extra=""):
@@ -108,6 +120,17 @@ def all_jobs():
     jobs["cond-neon-x4-puformer"] = job("cond-neon-x4-puformer", "neon", 4, "puformer",
                                         "--rand_sigma 0.5,2.0 --rand_snr 30,50 --noise_prob 0.5", robust=True,
                                         eval_extra="--wide 1")
+    # where does the margin over the retrained networks come from? (Chikusei and Pavia Centre x4)
+    #   off-*  PSRT and MIMFormer with their authors' own recipe (batch, optimiser, schedule), not the pipeline's
+    #   rec-*  the recipes swapped: MIMFormer with PUFormer's, PUFormer with the baselines'
+    #   unet   PUFormer's prior alone: one U-Net on the bicubic image and the HR-MSI, no data step, no stages
+    for d in ("chikusei", "pavia"):
+        for m in ("psrt", "mimformer"):
+            n = f"off-{d}-x4-{m}"
+            jobs[n] = job(n, d, 4, m, OFFICIAL[m])
+        jobs[f"rec-{d}-x4-mimformer"] = job(f"rec-{d}-x4-mimformer", d, 4, "mimformer", OURS_RECIPE)
+        jobs[f"rec-{d}-x4-puformer"] = job(f"rec-{d}-x4-puformer", d, 4, "puformer", BASE_RECIPE)
+        jobs[f"abl-{d}-x4-unet"] = job(f"abl-{d}-x4-unet", d, 4, "puformer", "--stages 1 --physics 0")
     # a longer budget for PUFormer and the strongest baseline: does the gap survive 8 h of training?
     for m in ("puformer", "mimformer"):
         n = f"long-pavia-x4-{m}"
@@ -209,6 +232,12 @@ SESSIONS = {
     "puf-n03": (["bench-neon-x4-dhif"], ["abl-neon-x4-nophys"]),
     "puf-n04": (["abl-neon-x4-zeros"], ["abl-neon-x4-learned"]),
     "puf-n05": (["bench-neon-x4-ssrnet"], ["cond-neon-x4-puformer"]),
+    # where the margin comes from: official recipes, swapped recipes, the prior alone
+    "puf-g01": (["off-chikusei-x4-mimformer"], ["off-pavia-x4-mimformer"]),
+    "puf-g02": (["off-chikusei-x4-psrt"], ["off-pavia-x4-psrt"]),
+    "puf-g03": (["rec-chikusei-x4-mimformer"], ["rec-pavia-x4-mimformer"]),
+    "puf-g04": (["rec-chikusei-x4-puformer"], ["rec-pavia-x4-puformer"]),
+    "puf-g05": (["abl-chikusei-x4-unet"], ["abl-pavia-x4-unet"]),
     # MIMFormer seeds 1 and 2 at x4
     "puf-m01": (["seed1-chikusei-x4-mimformer"], ["seed2-chikusei-x4-mimformer"]),
     "puf-m02": (["seed1-pavia-x4-mimformer"], ["seed2-pavia-x4-mimformer"]),

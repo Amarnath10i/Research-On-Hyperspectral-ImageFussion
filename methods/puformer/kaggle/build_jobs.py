@@ -203,6 +203,8 @@ def main():
     ap.add_argument("--quick", action="store_true", help="with --smoke: only the four networks on CAVE x4 and Pavia x16")
     ap.add_argument("--cond", action="store_true", help="with --smoke: the operator-conditioned runs, the x8 learned-"
                     "operator ablation and a Harvard ablation")
+    ap.add_argument("--gain", action="store_true", help="with --smoke: the official-recipe, swapped-recipe and "
+                    "prior-only jobs (puf-g01..g05)")
     ap.add_argument("--neon", action="store_true", help="with --smoke: every method and the operator ablation on "
                     "the NEON real data")
     ap.add_argument("--debug", action="store_true", help="PSRT trajectory, memory of DCT / MIMFormer, PUFormer x8/x16")
@@ -228,6 +230,10 @@ def main():
         slug = "puf-smoke-cond"
         queues = [[jobs["cond-pavia-x4-puformer"], jobs["cond-pavia-x4-zeros"], jobs["abl-pavia-x8-learned"]],
                   [jobs["cond-pavia-x4-nocond"], jobs["cond-pavia-x4-mimformer"], jobs["abl-harvard-x4-nophys"]]]
+    elif a.smoke and a.gain:
+        slug = "puf-smoke-gain"
+        queues = [[jobs[n] for n in ("off-chikusei-x4-mimformer", "rec-chikusei-x4-mimformer", "abl-pavia-x4-unet")],
+                  [jobs[n] for n in ("off-pavia-x4-psrt", "rec-pavia-x4-puformer", "off-pavia-x4-mimformer")]]
     elif a.smoke and a.neon:
         slug = "puf-smoke-neon"
         queues = [[jobs[f"bench-neon-x4-{m}"] for m in ("puformer", "psrt", "dhif")] + [jobs["abl-neon-x4-learned"]],

@@ -154,6 +154,85 @@ def visual_figure():
     plt.close(fig)
 
 
+COND_LINES = [("bench-{d}-x4-mimformer", "fixed", "MIMFormer, nominal", "#7d52c7", ":"),
+              ("cond-{d}-x4-mimformer", "fixed", "MIMFormer, randomized", "#7d52c7", "-"),
+              ("bench-{d}-x4-puformer", "estimated", "PUFormer, nominal, est. operator", BLUE, ":"),
+              ("cond-{d}-x4-nocond", "estimated", "PUFormer, randomized data, est.", AQUA, "-"),
+              ("cond-{d}-x4-puformer", "estimated", "PUFormer, randomized + operator, est.", BLUE, "-")]
+
+
+def cond_figure():
+    """PSNR against the test blur and against the SRF shift, for the operator-randomized study (cond_eval.json)."""
+    rows = [(d, t) for d, t in (("chikusei", "Chikusei"), ("pavia", "Pavia Centre"))
+            if load(f"cond-{d}-x4-puformer", "cond_eval.json")]
+    if not rows:
+        print("cond_eval.json not available: cond figure skipped")
+        return
+    fig, axes = plt.subplots(len(rows), 2, figsize=(7.0, 2.0 * len(rows) + 0.3), squeeze=False)
+    for i, (d, title) in enumerate(rows):
+        for job, mode, lab, col, ls in COND_LINES:
+            e = load(job.format(d=d), "cond_eval.json")
+            if not e:
+                continue
+            c = e["conditions"]
+            s0 = e["nominal_sigma"]
+            blur = sorted([(r["sigma"] / s0, r[mode]["PSNR"]) for k, r in c.items()
+                           if (k == "nominal" or (k.startswith("sigma x") and "snr" not in k)) and mode in r])
+            shift = sorted([(r["shift_nm"], r[mode]["PSNR"]) for k, r in c.items()
+                            if (k == "nominal" or k.startswith("shift ")) and mode in r])
+            for ax, pts in ((axes[i, 0], blur), (axes[i, 1], shift)):
+                if pts:
+                    ax.plot(*zip(*pts), marker="o", color=col, ls=ls, label=lab, lw=1.5 if "operator" in lab else 1.1,
+                            **MARK)
+        axes[i, 0].axvline(1.0, color=INK2, lw=0.6, ls=":")
+        axes[i, 1].axvline(0.0, color=INK2, lw=0.6, ls=":")
+        axes[i, 0].set_ylabel(f"{title}\nPSNR (dB)")
+    axes[-1, 0].set_xlabel("test blur $\\sigma/\\sigma_0$")
+    axes[-1, 1].set_xlabel("test SRF shift (nm)")
+    axes[0, 1].legend(loc="lower center", frameon=False, fontsize=5.5)
+    fig.tight_layout()
+    fig.savefig(os.path.join(FIG, "q1_cond.pdf"))
+    plt.close(fig)
+
+
+NEON_FIG = [("bench-neon-x4-mimformer", "MIMFormer"), ("bench-neon-x4-dhif", "DHIF-Net"),
+            ("bench-neon-x4-puformer", "PUFormer")]
+
+
+def neon_figure():
+    """Full-resolution fusion of the real NEON data: HSI (1 m), camera RGB (0.25 m), GSA and three networks."""
+    ref = os.path.join(RES, "bench-neon-x4-puformer", "neon_fullres_crop.npz")
+    if not os.path.exists(ref):
+        print("neon_fullres_crop.npz not available: NEON figure skipped")
+        return
+    base = np.load(ref)
+    panels = [("HSI, 1 m", base["hsi"]), ("Camera RGB, 0.25 m", base["rgb"]), ("GSA", base["gsa"])]
+    for job, lab in NEON_FIG:
+        f = os.path.join(RES, job, "neon_fullres_crop.npz")
+        if os.path.exists(f):
+            panels.append((lab, np.load(f)["model"]))
+    hs = np.stack([p for _, p in panels if _ != "Camera RGB, 0.25 m"]).astype(np.float32)
+    lo, hi = np.percentile(hs, 1), np.percentile(hs, 99.5)                   # one stretch for all HSI panels
+    fig, axes = plt.subplots(1, len(panels), figsize=(7.16, 7.16 / len(panels) + 0.25))
+    for ax, (lab, x) in zip(axes, panels):
+        x = np.moveaxis(x.astype(np.float32), 0, -1)
+        if lab.startswith("Camera"):
+            img = np.clip(x / max(np.percentile(x, 99.5), 1e-6), 0, 1)
+        else:
+            img = np.clip((x - lo) / max(hi - lo, 1e-6), 0, 1)
+        ax.imshow(img)
+        ax.set_title(lab, fontsize=7)
+        ax.set_xticks([]), ax.set_yticks([])
+        for s in ax.spines.values():
+            s.set_visible(False)
+    fig.tight_layout(pad=0.2, w_pad=0.15)
+    fig.savefig(os.path.join(FIG, "q1_neon.pdf"), dpi=220)
+    fig.savefig(os.path.join(FIG, "q1_neon.png"), dpi=150)
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     operator_figure()          # (scales_figure needs several scale factors; the paper reports x4 only)
+    cond_figure()
+    neon_figure()
     visual_figure()
