@@ -34,7 +34,11 @@ KEEP = ("PSNR", "SAM", "ERGAS", "SSIM", "RMSE_DN")
 
 
 def conditions(neon: bool):
-    """(name, blur factor x sigma0, SRF shift nm, SNR dB or None)."""
+    """(name, blur factor x sigma0, SRF shift nm, SNR dB or None, true kernel or None, MSI misregistration px).
+    The last group lies outside the operator family the network and the estimator know (isotropic Gaussian blur,
+    shifted SRF, co-registered inputs): an anisotropic or a defocus (disk) blur, and an HR-MSI shifted by a
+    fraction of a pixel against the LR-HSI. Their 'oracle' gives the network the true kernel (none exists for the
+    misregistration)."""
     c = [("nominal", 1.0, 0, None)]
     c += [(f"sigma x{f:g}", f, 0, None) for f in (0.5, 0.75, 1.25, 1.5, 2.0)]
     if not neon:
@@ -45,7 +49,36 @@ def conditions(neon: bool):
     if neon:
         c = [(n.replace(", shift +8 nm", "").replace(", shift -8 nm", "").replace(", shift +12 nm", ""), f, 0, s)
              for n, f, _, s in c]
+    c = [(n, f, d, s, None, 0.0) for n, f, d, s in c]
+    c += [("aniso blur 1.5/0.75 sigma0, 30 deg", 1.0, 0, None, ("aniso", 1.5, 0.75, 30.0), 0.0),
+          ("aniso blur 1.25/0.5 sigma0, 0 deg", 1.0, 0, None, ("aniso", 1.25, 0.5, 0.0), 0.0),
+          ("disk blur r = 1.25 sigma0", 1.0, 0, None, ("disk", 1.25), 0.0)]
+    if not neon:
+        c += [("MSI misregistered 0.5 px", 1.0, 0, None, None, 0.5), ("MSI misregistered 1 px", 1.0, 0, None, None, 1.0),
+              ("aniso blur, MSI 0.5 px, snr 35 dB", 1.0, 0, 35, ("aniso", 1.5, 0.75, 30.0), 0.5)]
     return c
+
+
+def true_kernel(spec, ksize, s0):
+    """(ksize, ksize) normalized blur kernel outside the Gaussian family of the protocol."""
+    ax = np.arange(ksize, dtype=np.float64) - (ksize - 1) / 2
+    xx, yy = np.meshgrid(ax, ax)
+    if spec[0] == "aniso":
+        _, fx, fy, deg = spec
+        t = np.deg2rad(deg)
+        xr, yr = np.cos(t) * xx + np.sin(t) * yy, -np.sin(t) * xx + np.cos(t) * yy
+        k = np.exp(-(xr ** 2 / (2 * (fx * s0) ** 2) + yr ** 2 / (2 * (fy * s0) ** 2)))
+    else:
+        k = (xx ** 2 + yy ** 2 <= (spec[1] * s0) ** 2).astype(np.float64)
+    return (k / k.sum()).astype(np.float32)
+
+
+def translate(x, px):
+    """Every band shifted by px pixels along both axes (bilinear, reflected border)."""
+    n, _, h, w = x.shape
+    theta = torch.tensor([[1.0, 0.0, 2 * px / (w - 1)], [0.0, 1.0, 2 * px / (h - 1)]], dtype=x.dtype, device=x.device)
+    grid = torch.nn.functional.affine_grid(theta.expand(n, 2, 3), list(x.shape), align_corners=True)
+    return torch.nn.functional.grid_sample(x, grid, mode="bilinear", padding_mode="reflection", align_corners=True)
 
 
 def deg_at(a, sigma, shift=0.0, pad=None):
@@ -119,30 +152,48 @@ def main():
     shift_grid = np.array([0.0]) if neon else np.arange(-16.0, 16.0 + 1e-9, 1.0)
     res = dict(dataset=a.dataset, scale=a.scale, model=a.model, pad=a.pad, op=a.op, physics=a.physics,
                ckpt=a.ckpt, nominal_sigma=s0, swappable=swappable, conditions={})
-    for idx, (name, f, shift, snr) in enumerate(conditions(neon)):
-        true = deg_at(a, f * s0, shift).to(dev)
-        lr, ms, _ = make_pairs(gt, true)
-        if snr:
-            g = torch.Generator().manual_seed(1000 + idx)
-            lr, ms = add_noise(lr, snr, g), add_noise(ms, snr, g)
-        sig, sh = estimate(lr, ms, a, sig_grid, shift_grid, dev)
-        row = dict(sigma=f * s0, shift_nm=shift, snr_db=snr, sigma_hat=[float(v) for v in sig],
-                   shift_hat=[float(v) for v in sh], sigma_abs_err=float(np.abs(sig - f * s0).mean()),
-                   shift_abs_err=float(np.abs(sh - shift).mean()))
-        row["gsa_oracle"] = score(gtb, gsa(lr, ms, true).clamp(0, 1))
-        if swappable:
-            model.deg = base
-        row["fixed"] = score(gtb, run(model, lr, ms))
-        if swappable:
-            row["oracle"] = score(gtb, run(model, lr, ms, [deg_at(a, f * s0, shift).to(dev)] * len(lr)))
-            row["estimated"] = score(gtb, run(model, lr, ms, [deg_at(a, float(sg), float(d)).to(dev)
-                                                              for sg, d in zip(sig, sh)]))
-            model.deg = base
-        res["conditions"][name] = row
-        print(name, f"sigma_err {row['sigma_abs_err']:.3f} shift_err {row['shift_abs_err']:.2f}",
-              {k: row[k]["PSNR"] for k in ("gsa_oracle", "fixed", "oracle", "estimated") if k in row}, flush=True)
-    with open(os.path.join(a.out, "cond_eval.json"), "w") as fh:
-        json.dump(res, fh, indent=1)
+    for idx, cond in enumerate(conditions(neon)):
+        try:
+            evaluate_condition(idx, cond, a, gt, gtb, base, model, swappable, s0, sig_grid, shift_grid, dev, res)
+        except Exception as err:                         # one failing condition must not lose the others
+            print("FAILED", cond[0], repr(err), flush=True)
+            if swappable:
+                model.deg = base
+        with open(os.path.join(a.out, "cond_eval.json"), "w") as fh:
+            json.dump(res, fh, indent=1)
+
+
+def evaluate_condition(idx, cond, a, gt, gtb, base, model, swappable, s0, sig_grid, shift_grid, dev, res):
+    name, f, shift, snr, kernel, msi_px = cond
+    true = deg_at(a, f * s0, shift).to(dev)
+    if kernel is not None:
+        true.k = torch.from_numpy(true_kernel(kernel, true.ksize, s0))[None, None].to(dev)
+    lr, ms, _ = make_pairs(gt, true)
+    if msi_px:
+        ms = true.R(translate(gtb, msi_px))
+    if snr:
+        g = torch.Generator().manual_seed(1000 + idx)
+        lr, ms = add_noise(lr, snr, g), add_noise(ms, snr, g)
+    sig, sh = estimate(lr, ms, a, sig_grid, shift_grid, dev)
+    gauss = kernel is None
+    row = dict(sigma=f * s0 if gauss else None, shift_nm=shift, snr_db=snr, kernel=kernel, msi_px=msi_px,
+               sigma_hat=[float(v) for v in sig], shift_hat=[float(v) for v in sh],
+               sigma_abs_err=float(np.abs(sig - f * s0).mean()) if gauss else None,
+               shift_abs_err=float(np.abs(sh - shift).mean()))
+    row["gsa_oracle"] = score(gtb, gsa(lr, ms, true).clamp(0, 1))
+    if swappable:
+        model.deg = base
+    row["fixed"] = score(gtb, run(model, lr, ms))
+    if swappable:
+        if not msi_px:                                     # a misregistration has no operator to supply
+            row["oracle"] = score(gtb, run(model, lr, ms, [true] * len(lr)))
+        row["estimated"] = score(gtb, run(model, lr, ms, [deg_at(a, float(sg), float(d)).to(dev)
+                                                          for sg, d in zip(sig, sh)]))
+        model.deg = base
+    res["conditions"][name] = row
+    err = f"sigma_err {row['sigma_abs_err']:.3f}" if gauss else f"sigma_hat {np.mean(sig):.2f}"
+    print(name, err, f"shift_err {row['shift_abs_err']:.2f}",
+          {k: row[k]["PSNR"] for k in ("gsa_oracle", "fixed", "oracle", "estimated") if k in row}, flush=True)
 
 
 if __name__ == "__main__":

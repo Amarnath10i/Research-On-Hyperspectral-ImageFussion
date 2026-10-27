@@ -610,13 +610,16 @@ COND_MODELS = [("bench-{d}-x4-mimformer", "MIMFormer, nominal training", ("fixed
                ("bench-{d}-x4-puformer", "PUFormer, nominal training", ("fixed", "estimated")),
                ("cond-{d}-x4-nocond", "PUFormer, randomized data only", ("fixed", "estimated")),
                ("cond-{d}-x4-zeros", "PUFormer, randomized, zero border", ("estimated",)),
-               ("cond-{d}-x4-puformer", "PUFormer, randomized + operator", ("fixed", "estimated", "oracle"))]
+               ("cond-{d}-x4-puformer", "PUFormer, randomized + operator", ("fixed", "estimated", "oracle")),
+               ("cond-{d}-x4-omc", "+ observation-model conditioning", ("fixed", "estimated", "oracle"))]
+MISMATCH = ("aniso", "disk", "MSI")          # conditions outside the operator family the network knows
 COND_GROUPS = [("nominal", "Training operator", lambda k: k == "nominal"),
                ("blur", "Blur $\\times$0.5--2", lambda k: k.startswith("sigma x") and "snr" not in k),
                ("shift", "SRF shift $\\pm$4--12~nm", lambda k: k.startswith("shift ")),
                ("noise", "Noise 40--30~dB", lambda k: k.startswith("snr ")),
                ("combined", "Blur + SRF + noise", lambda k: k.startswith("sigma x") and "snr" in k),
-               ("worst", "Worst changed condition", None)]
+               ("worst", "Worst of the above", None),
+               ("mismatch", "Outside the family$^\\dagger$", lambda k: k.startswith(MISMATCH))]
 MODE_LAB = {"fixed": "fixed", "estimated": "est.", "oracle": "true"}
 
 
@@ -625,7 +628,8 @@ def _cond_value(e, mode, pick):
     if e is None:
         return None
     if pick is None:
-        vals = [r[mode]["PSNR"] for k, r in e["conditions"].items() if k != "nominal" and mode in r]
+        vals = [r[mode]["PSNR"] for k, r in e["conditions"].items()
+                if k != "nominal" and not k.startswith(MISMATCH) and mode in r]
         return min(vals) if vals else None
     vals = [r[mode]["PSNR"] for k, r in e["conditions"].items() if pick(k) and mode in r]
     return sum(vals) / len(vals) if vals else None
@@ -667,10 +671,10 @@ def cond_table():
         for k, r in e["conditions"].items():
             cells = [fmt(None if ev[j] is None or m not in ev[j]["conditions"].get(k, {}) else
                          ev[j]["conditions"][k][m]["PSNR"], 2) for j, _, m in cols]
-            sup.append(f"{k} & {r['sigma_abs_err']:.2f}/{r['shift_abs_err']:.1f} & " + " & ".join(cells) + " \\\\")
-        se = [r["sigma_abs_err"] for r in e["conditions"].values()]
+            sup.append(f"{k} & {fmt(r['sigma_abs_err'], 2)}/{r['shift_abs_err']:.1f} & " + " & ".join(cells) + " \\\\")
+        se = [r["sigma_abs_err"] for r in e["conditions"].values() if r["sigma_abs_err"] is not None]
         sh = [r["shift_abs_err"] for r in e["conditions"].values()]
-        clean = [r["shift_abs_err"] for k, r in e["conditions"].items() if "snr" not in k]
+        clean = [r["shift_abs_err"] for k, r in e["conditions"].items() if "snr" not in k and not k.startswith(MISMATCH)]
         NUM[f"cond-{d}-sigerr-max"], NUM[f"cond-{d}-shifterr-max"] = f"{max(se):.3f}", f"{max(sh):.1f}"
         NUM[f"cond-{d}-shifterr-clean-max"] = f"{max(clean):.1f}"
     if not body:
@@ -684,7 +688,8 @@ def cond_table():
         "differ from the training protocol. Randomized: trained with a blur, SRF shift and noise level drawn anew for "
         "every batch; + operator: the batch's operator is also given to the data steps. fixed: the training-protocol "
         "operator is kept at test time; est.: blur and SRF shift estimated from the test pair alone; true: the true "
-        "test operator (an upper reference, not marked). Best per row in bold.}",
+        "test operator (an upper reference, not marked). $^\\dagger$Anisotropic and defocus blur and an HR-MSI "
+        "misregistered by 0.5--1~pixel, which the operator family does not contain. Best per row in bold.}",
         "\\label{tab:cond}", "\\setlength{\\tabcolsep}{3pt}", "\\resizebox{\\textwidth}{!}{%",
         f"\\begin{{tabular}}{{@{{}}l{'c' * len(cols)}@{{}}}}", "\\toprule", h1, rules, f"Test condition & {h2} \\\\",
         "\\midrule", *body, "\\bottomrule", "\\end{tabular}}", "\\end{table*}"])
