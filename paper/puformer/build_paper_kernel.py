@@ -20,7 +20,7 @@ import tarfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
-PAPER = ["paper/puformer/" + f for f in ("main.tex", "supplementary.tex", "preamble.tex", "references.bib",
+PAPER = ["paper/puformer/" + f for f in ("main.tex", "supplementary.tex", "preamble.tex", "references.bib", "fig_arch.tex",
                                           "numbers.tex", "make_numbers.py",
                                           "make_tables.py", "make_figures.py", "make_q1_tables.py",
                                           "make_q1_figures.py")]

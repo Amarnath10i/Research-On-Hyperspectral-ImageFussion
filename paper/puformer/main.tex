@@ -163,75 +163,10 @@ With decimation from index zero and $p<s$, only the first LR row and column are 
 
 \section{PUFormer}
 \label{sec:method}
-\begin{figure*}[t]
-\centering
-\resizebox{\textwidth}{!}{%
-\begin{tikzpicture}[
-  font=\footnotesize, >={Stealth[length=2mm]},
-  box/.style={draw, rounded corners=2pt, minimum height=8mm, align=center, fill=white},
-  phys/.style={box, fill=blue!7, draw=blue!55!black},
-  prior/.style={box, fill=orange!10, draw=orange!70!black, minimum width=17mm},
-  op/.style={circle, draw, inner sep=0.8pt},
-  lab/.style={font=\scriptsize, text=black!70}]
-\node[box] (yh) {$\YH$};
-\node[box, right=4mm of yh] (bic) {bicubic\\$\times s$};
-\node[lab, below=1mm of bic] {$\X_0$};
-\node[phys, right=5mm of bic] (d1) {data step\\$\D^{\top},\R^{\top}$};
-\node[prior, right=4mm of d1] (p1) {prior $\mathcal{P}_1$};
-\node[op, right=3mm of p1] (a1) {$+$};
-\node[phys, right=5mm of a1] (d2) {data step\\$\D^{\top},\R^{\top}$};
-\node[prior, right=4mm of d2] (p2) {prior $\mathcal{P}_2$};
-\node[op, right=3mm of p2] (a2) {$+$};
-\node[phys, right=5mm of a2] (d3) {data step\\$\D^{\top},\R^{\top}$};
-\node[prior, right=4mm of d3] (p3) {prior $\mathcal{P}_3$};
-\node[op, right=3mm of p3] (a3) {$+$};
-\node[box, right=4mm of a3] (out) {$\hat{\X}=\X_3$};
-\node[box, below=9mm of d2] (ym) {$\YM$};
-\draw[->] (yh) -- (bic); \draw[->] (bic) -- (d1);
-\draw[->] (d1) -- node[above, lab]{$\Z_1$} (p1); \draw[->] (p1) -- node[above, lab]{$\Delta_1$} (a1);
-\draw[->] (a1) -- node[above, lab]{$\X_1$} (d2);
-\draw[->] (d2) -- node[above, lab]{$\Z_2$} (p2); \draw[->] (p2) -- node[above, lab]{$\Delta_2$} (a2);
-\draw[->] (a2) -- node[above, lab]{$\X_2$} (d3);
-\draw[->] (d3) -- node[above, lab]{$\Z_3$} (p3); \draw[->] (p3) -- node[above, lab]{$\Delta_3$} (a3);
-\draw[->] (a3) -- (out);
-\draw[->] ($(d1.east)!0.5!(p1.west)$) |- ++(0,-0.62) -| (a1.south);
-\draw[->] ($(d2.east)!0.5!(p2.west)$) |- ++(0,-0.62) -| (a2.south);
-\draw[->] ($(d3.east)!0.5!(p3.west)$) |- ++(0,-0.62) -| (a3.south);
-\draw[->, dashed, orange!70!black] (p1.north) to[bend left=16] node[above, lab]{memory} (p2.north);
-\draw[->, dashed, orange!70!black] (p2.north) to[bend left=16] node[above, lab]{memory} (p3.north);
-\draw[->, black!60] (ym) -| (d1.south); \draw[->, black!60] (ym) -- (d2.south); \draw[->, black!60] (ym) -| (d3.south);
-\coordinate (bus) at ($(yh.north)+(0,1.25)$);
-\draw[->, black!60] (yh.north) -- (bus) -| (d3.north);
-\draw[->, black!60] (d1.north |- bus) -- (d1.north);
-\draw[->, black!60] (d2.north |- bus) -- (d2.north);
-\node[lab, above right] at (bus) {$\YH$};
-\end{tikzpicture}}
-\vspace{1mm}
-
-\begin{tikzpicture}[font=\scriptsize, >={Stealth[length=1.6mm]},
-  blk/.style={draw, rounded corners=1.5pt, fill=orange!10, draw=orange!70!black, minimum height=5.5mm, align=center, inner sep=2pt},
-  pl/.style={draw, rounded corners=1.5pt, fill=white, minimum height=5.5mm, align=center, inner sep=2pt}]
-\node[pl] (in) {$[\Z_k,\YM,16\,\D^{\top}(\D\Z_k-\YH)]$\\264 ch.};
-\node[pl, right=3mm of in] (emb) {conv $3{\times}3$\\+ memory};
-\node[blk, right=3mm of emb] (e1) {2 blocks\\$c{=}48$};
-\node[blk, right=3mm of e1] (e2) {3 blocks\\$c{=}96$};
-\node[blk, right=3mm of e2] (m) {4 blocks\\$c{=}192$};
-\node[blk, right=3mm of m] (d2) {3 blocks\\$c{=}96$};
-\node[blk, right=3mm of d2] (d1) {2+2 blocks\\$c{=}48$};
-\node[pl, right=3mm of d1] (tail) {conv $3{\times}3$\\(zero init)};
-\node[pl, right=3mm of tail] (res) {$\Delta_k$\\128 ch.};
-\draw[->] (in)--(emb); \draw[->] (emb)--(e1); \draw[->] (e1)--node[below]{$\downarrow2$}(e2); \draw[->] (e2)--node[below]{$\downarrow2$}(m);
-\draw[->] (m)--node[below]{$\uparrow2$}(d2); \draw[->] (d2)--node[below]{$\uparrow2$}(d1); \draw[->] (d1)--(tail); \draw[->] (tail)--(res);
-\draw[->, black!55] (e2.north) to[bend left=25] (d2.north);
-\draw[->, black!55] (e1.north) to[bend left=18] (d1.north);
-\node[below=2mm of m, align=center, text=black!70] {block $=$ LayerNorm $\to$ transposed (channel) attention $\to$ LayerNorm $\to$ gated depth-wise feed-forward, both residual};
-\end{tikzpicture}
-\caption{PUFormer. Top: three unfolded stages, each an exact data-consistency step on both observations followed by a learned residual prior; decoder features are passed to the next stage's prior (memory). Bottom: the prior of stage $k$, a three-level U-Net of transposed-attention transformer blocks (channel counts for Chikusei; for Pavia Centre the input has 188 and the output 92 channels).}
-\label{fig:arch}
-\end{figure*}
+\input{fig_arch.tex}
 
 \subsection{Unfolded iterations}
-PUFormer (Fig.~\ref{fig:arch}) is the HQS iteration of Section~\ref{sec:hqs} unrolled for $K=3$ stages, starting from the bicubic upsampling~\cite{keys1981cubic} $\X_0$ of $\YH$. Stage $k$ first performs the data step~\eqref{eq:xstep} with the exact operators, either linearized,
+PUFormer (Fig.~\ref{fig:arch}) is the HQS iteration of Section~\ref{sec:hqs} unrolled for $K=3$ stages, starting from the bicubic upsampling~\cite{keys1981cubic} $\X_0$ of $\YH$. Stage $k$ (Fig.~\ref{fig:arch}, bottom) first performs the data step~\eqref{eq:xstep} with the exact operators, either linearized,
 \begin{equation}
 \begin{split}
 \Z_k=\X_{k-1}&-s^2\alpha_k\,\D_\theta^{\top}(\D_\theta\X_{k-1}-\YH)\\
@@ -239,7 +174,7 @@ PUFormer (Fig.~\ref{fig:arch}) is the HQS iteration of Section~\ref{sec:hqs} unr
 \end{split}
 \label{eq:step}
 \end{equation}
-or exactly, in closed form by~\eqref{eq:kronstep} (by conjugate gradients on~\eqref{eq:normal} if the kernel is not separable). The weights $\alpha_k=\mathrm{softplus}(a_k)$ and $\beta_k=\mathrm{softplus}(b_k)$ stand for $1/(\mu_k\varsigma_{\mathrm{H}}^2)$ and $1/(\mu_k\varsigma_{\mathrm{M}}^2)$ in~\eqref{eq:normal} and are learned per stage; the factor $s^2$ compensates the $1/s^2$ gain of $\D^{\top}\D$ on smooth content under $\times s$ decimation, so that both terms start at a comparable scale. The prior step~\eqref{eq:zstep} is a learned residual,
+or exactly, in closed form by~\eqref{eq:kronstep} (Fig.~\ref{fig:dstep}; by conjugate gradients on~\eqref{eq:normal} if the kernel is not separable). The weights $\alpha_k=\mathrm{softplus}(a_k)$ and $\beta_k=\mathrm{softplus}(b_k)$ stand for $1/(\mu_k\varsigma_{\mathrm{H}}^2)$ and $1/(\mu_k\varsigma_{\mathrm{M}}^2)$ in~\eqref{eq:normal} and are learned per stage; the factor $s^2$ compensates the $1/s^2$ gain of $\D^{\top}\D$ on smooth content under $\times s$ decimation, so that both terms start at a comparable scale. The prior step~\eqref{eq:zstep} is a learned residual,
 \begin{equation}
 \begin{split}
 (\Delta_k,\mathbf{F}_k)&=\mathcal{P}_k\big([\Z_k,\YM,s^2\D^{\top}(\D\Z_k-\YH)],\,\mathbf{F}_{k-1}\big),\\
@@ -268,7 +203,7 @@ Let $\varsigma_{bij}=\alpha_k\lambda^{\mathrm{r}}_i\lambda^{\mathrm{c}}_j+\beta_
 Theorem~\ref{thm:mismatch}(a) and~(c) therefore hold for the learned step too: it can reweight how much the network trusts each observed component, but it cannot move a correct estimate or amplify errors.
 
 \subsection{Transposed-attention prior}
-Each prior is a three-level U-Net~\cite{ronneberger2015unet} with widths 48, 96 and 192, two, three and four transformer blocks on the encoder levels and bottleneck, mirrored decoder levels, and two refinement blocks. A block follows Restormer~\cite{zamir2022restormer}: multi-Dconv-head transposed attention computes queries, keys and values with $1\times1$ and depth-wise $3\times3$ convolutions, normalizes each feature map over space, and forms a $c'\times c'$ attention matrix across channels per head (1, 2 and 4 heads on the three levels) with a learned temperature. Attention is thus computed between spectral feature maps rather than between spatial positions, its cost is linear in the number of pixels, and the receptive field of every block covers the whole image. A gated depth-wise feed-forward network with expansion 2.66 follows. The three priors hold 3.37--3.38~M parameters each; the whole network has 10.13~M parameters for Chikusei and \pav{params}~M for Pavia Centre, whose input and output convolutions are smaller.
+Each prior (Fig.~\ref{fig:prior}) is a three-level U-Net~\cite{ronneberger2015unet} with widths 48, 96 and 192, two, three and four transformer blocks on the encoder levels and bottleneck, mirrored decoder levels, and two refinement blocks. A block (Fig.~\ref{fig:block}(a)) follows Restormer~\cite{zamir2022restormer}: multi-Dconv-head transposed attention (Fig.~\ref{fig:mdta}) computes queries, keys and values with $1\times1$ and depth-wise $3\times3$ convolutions, normalizes each feature map over space, and forms a $c'\times c'$ attention matrix across channels per head (1, 2 and 4 heads on the three levels) with a learned temperature. Attention is thus computed between spectral feature maps rather than between spatial positions, its cost is linear in the number of pixels, and the receptive field of every block covers the whole image. A gated depth-wise feed-forward network with expansion 2.66 follows (Fig.~\ref{fig:block}(b)). The three priors hold 3.37--3.38~M parameters each; the whole network has 10.13~M parameters for Chikusei and \pav{params}~M for Pavia Centre, whose input and output convolutions are smaller.
 
 \begin{algorithm}[t]
 \caption{PUFormer inference (unrolled HQS)}
@@ -300,7 +235,7 @@ with mean absolute errors, deep supervision~\cite{lee2015dsn} of the intermediat
 
 \subsection{Training for a family of observation models}
 \label{sec:randtrain}
-Trained with one fixed operator pair on noise-free data, the priors adapt to one blur, one spectral response and no noise, and Section~\ref{sec:robust} shows the consequences: a shifted spectral response or noise is not compensated by giving the network the true operator. Because the operators enter PUFormer only through its data steps, the same network can instead be trained for a family of observation models. For every batch we draw a blur width $\sigma\sim\mathcal{U}[0.5,2]\,\sigma_0$, a shift $\delta\sim\mathcal{U}[-12,12]$~nm of the spectral responses and, with probability 0.5, Gaussian noise on both observations at an SNR drawn from $\mathcal{U}[30,50]$~dB; the batch is simulated with $(\D_\sigma,\R_\delta)$, and the same operators are used in the data steps. At test time the operators are given, or estimated from the test pair with~\eqref{eq:commute}. Training on randomized degradations is a standard remedy in blind super-resolution~\cite{zhang2018srmd,zhang2021bsrgan}, and USRNet~\cite{zhang2020usrnet} passes the blur kernel to the data step of an unfolded single-image super-resolution network. We extend this to the two operators of fusion, with exact borders and with both operators estimated from the observation pair, and compare it with randomized training alone, in which the data steps keep the nominal operator.
+Trained with one fixed operator pair on noise-free data, the priors adapt to one blur, one spectral response and no noise, and Section~\ref{sec:robust} shows the consequences: a shifted spectral response or noise is not compensated by giving the network the true operator. Because the operators enter PUFormer only through its data steps, the same network can instead be trained for a family of observation models. For every batch we draw a blur width $\sigma\sim\mathcal{U}[0.5,2]\,\sigma_0$, a shift $\delta\sim\mathcal{U}[-12,12]$~nm of the spectral responses and, with probability 0.5, Gaussian noise on both observations at an SNR drawn from $\mathcal{U}[30,50]$~dB; the batch is simulated with $(\D_\sigma,\R_\delta)$, and the same operators are used in the data steps. At test time the operators are given, or estimated from the test pair by minimizing~\eqref{eq:J}. Training on randomized degradations is a standard remedy in blind super-resolution~\cite{zhang2018srmd,zhang2021bsrgan}, and USRNet~\cite{zhang2020usrnet} passes the blur kernel to the data step of an unfolded single-image super-resolution network. We extend this to the two operators of fusion, with exact borders and with both operators estimated from the observation pair, and compare it with randomized training alone, in which the data steps keep the nominal operator.
 
 \textbf{Observation-model conditioning.} The data steps then know the operator, but the prior does not, and neither knows the noise level, although the HQS derivation (Section~\ref{sec:hqs}) shows that the weights $\alpha_k,\beta_k$ should follow the noise of the two observations and that the proximal step depends on it. We therefore describe each input pair by a code $\mathbf{c}=(\sigma/\sigma_0-1,\ \delta/12,\ \log_{10}n_{\mathrm{H}}+2,\ \log_{10}n_{\mathrm{M}}+2)$, where $(\sigma,\delta)$ are the parameters of the operator used in the data steps and $n$ is the noise standard deviation of an observation relative to its RMS, estimated from the observation itself as the median absolute diagonal second difference over all bands~\cite{donoho1994ideal}. The step sizes become $\alpha_k=\mathrm{softplus}(a_k+\mathbf{u}_k^{\top}\mathbf{c})$ and $\beta_k=\mathrm{softplus}(b_k+\mathbf{v}_k^{\top}\mathbf{c})$, so that the two data terms can be weighted by their noise as in a maximum a posteriori estimate, and an embedding of $\mathbf{c}$ (two linear layers) scales and shifts the features of every prior (FiLM~\cite{perez2018film}) after its input convolution, at the input of its bottleneck and before its output convolution. All added parameters start at zero, so training starts from the unconditioned network; at the nominal operator without noise, $\mathbf{c}$ is nearly constant and the network reduces to PUFormer.
 
