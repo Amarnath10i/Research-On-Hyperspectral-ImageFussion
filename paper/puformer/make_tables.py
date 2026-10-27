@@ -103,7 +103,7 @@ def ours_table(chi, chi_first, chi_gaps, ssrnet, pav):
         "\\multicolumn{8}{@{}l}{\\textit{Chikusei}} \\\\",
         row("Bicubic", chi["bicubic_test"]), row("GSA~\\cite{aiazzi2007gsa}", chi_gaps["nominal"]["gsa"]),
         row("PUFormer, first run", chi_first["test"]),
-        row("PUFormer v3", chi["test"]), row("PUFormer v3, ensemble", chi["test_tta"]), "\\midrule",
+        row("PUFormer", chi["test"]), row("PUFormer, self-ensemble", chi["test_tta"]), "\\midrule",
         "\\multicolumn{8}{@{}l}{\\textit{Pavia Centre}} \\\\",
         row("Bicubic", pav["bicubic_test"]), row("GSA~\\cite{aiazzi2007gsa}", pav["gsa_test"]),
         row("PUFormer", pav["test"]), row("PUFormer, ensemble", pav["test_tta"]),
@@ -114,7 +114,7 @@ def perimage_table(chi, pav):
     keys = [("PSNR", 2), ("SSIM", 4), ("SSIM_psrt", 4), ("SAM", 3), ("ERGAS", 3), ("Q2n", 4)]
     cells = lambda m: " & ".join(fmt(m.get(k), d) for k, d in keys)
     body = []
-    for title, r in (("Chikusei, PUFormer v3", chi), ("Pavia Centre, PUFormer", pav)):
+    for title, r in (("Chikusei, PUFormer", chi), ("Pavia Centre, PUFormer", pav)):
         body.append(f"\\multicolumn{{7}}{{@{{}}l}}{{\\textit{{{title}}}}} \\\\")
         body += [f"{i + 1} & {cells(m)} \\\\" for i, m in enumerate(r["test_per_image_tta"])]
         body += ["\\cmidrule(l){1-7}", f"Mean & {cells(r['test_tta'])} \\\\", "\\midrule"]
@@ -141,7 +141,7 @@ def robust_table(chi_gaps, pav_gaps):
         "\\caption{Robustness of the final models (test PSNR in dB / SAM in degrees). Fixed: training operator; swap: true "
         "operator supplied at test time; --: not applicable. The better PUFormer entry of each condition is in bold.}",
         "\\label{tab:robust}", "\\begin{tabular}{@{}lcccccc@{}}", "\\toprule",
-        " & \\multicolumn{3}{c}{Chikusei (PUFormer v3)} & \\multicolumn{3}{c}{Pavia Centre (PUFormer)} \\\\",
+        " & \\multicolumn{3}{c}{Chikusei (PUFormer)} & \\multicolumn{3}{c}{Pavia Centre (PUFormer)} \\\\",
         "\\cmidrule(lr){2-4}\\cmidrule(l){5-7}",
         "Condition & GSA & PUFormer fixed & PUFormer swap & GSA & PUFormer fixed & PUFormer swap \\\\", "\\midrule",
         *body, "\\bottomrule", "\\end{tabular}", "\\end{table*}"])

@@ -26,16 +26,21 @@ assert hashlib.sha256(raw).hexdigest() == '{sha}'
 R = '/kaggle/working/ic'
 tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(R)
 subprocess.run('pip install -q pymupdf', shell=True, check=True)
-pdfs = [sorted(glob.glob(f'/kaggle/input/**/paper/{{n}}.pdf', recursive=True))[0] for n in ('main', 'supplementary')]
+pdfs = [sorted(glob.glob(f'/kaggle/input/**/paper/{{n}}.pdf', recursive=True))[0] for n in {names}]
 print(pdfs, flush=True)
 own = ' '.join(f'{{R}}/{{p}}' for p in {own})
 r = subprocess.run(f'python {{R}}/paper/puformer/integrity_check.py --pdf {{" ".join(pdfs)}} '
-                   f'--bib {{R}}/paper/puformer/references.bib --own {{own}} --out /kaggle/working/integrity', shell=True)
+                   f'--bib {{R}}/paper/puformer/references.bib --own {{own}} --out /kaggle/working/integrity{extra}', shell=True)
 assert r.returncode == 0
 '''
 
 
 def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--pdfs", default="main,supplementary", help="comma-separated PDF names from the paper build")
+    ap.add_argument("--no-ai", action="store_true", help="similarity only (CPU kernel, no AI-text detectors)")
+    a = ap.parse_args()
     buf = io.BytesIO()
     with tarfile.open(fileobj=buf, mode="w:gz") as tar:
         for n in FILES:
@@ -52,13 +57,16 @@ def main():
               metadata=dict(kernelspec=dict(name="python3", display_name="Python 3", language="python"),
                             language_info=dict(name="python")),
               cells=[dict(cell_type="code", metadata={}, execution_count=None, outputs=[], id="c0",
-                          source=CELL.format(b64=b64, sha=sha, own=repr(OWN)))])
+                          source=CELL.format(b64=b64, sha=sha, own=repr(OWN), names=repr(tuple(a.pdfs.split(","))),
+                                            extra=" --no-ai" if a.no_ai else ""))])
     with open(os.path.join(out, name), "w", newline="\n") as f:
         json.dump(nb, f, indent=1)
     meta = dict(id="amarnath10chinu/puformer-integrity-check", title="PUFormer integrity check", code_file=name,
-                language="python", kernel_type="notebook", is_private=True, enable_gpu=True, enable_internet=True,
-                machine_shape="NvidiaTeslaT4", dataset_sources=[], competition_sources=[],
+                language="python", kernel_type="notebook", is_private=True, enable_gpu=not a.no_ai, enable_internet=True,
+                dataset_sources=[], competition_sources=[],
                 kernel_sources=["amarnath10chinu/puformer-paper-build"])
+    if not a.no_ai:
+        meta["machine_shape"] = "NvidiaTeslaT4"
     with open(os.path.join(out, "kernel-metadata.json"), "w", newline="\n") as f:
         json.dump(meta, f, indent=1)
     print(f"wrote kaggle_integrity/{name}: {len(FILES)} files, sha256 {sha[:12]}")

@@ -49,6 +49,7 @@ def main():
     ap.add_argument("--user", required=True)
     ap.add_argument("--slug", required=True)
     ap.add_argument("--gpu", action="store_true")
+    ap.add_argument("--internet", action="store_true", help="e.g. to clone the published networks")
     ap.add_argument("--data", default="", help="comma-separated dataset keys of build_jobs.DATASETS")
     ap.add_argument("--extra", default="", help="comma-separated extra Kaggle datasets <owner>/<slug>")
     ap.add_argument("--sources", default="", help="comma-separated kernel sources <owner>/<slug>")
@@ -63,7 +64,7 @@ def main():
     data = [DATASETS[d] for d in a.data.split(",") if d and DATASETS.get(d)]
     data += [d for d in a.extra.split(",") if d]
     meta = dict(id=f"{a.user}/{a.slug}", title=a.slug, code_file=f"{a.slug}.ipynb", language="python",
-                kernel_type="notebook", is_private=True, enable_gpu=a.gpu, enable_internet=False,
+                kernel_type="notebook", is_private=True, enable_gpu=a.gpu, enable_internet=a.internet,
                 dataset_sources=data, competition_sources=[],
                 kernel_sources=[s for s in a.sources.split(",") if s])
     if a.gpu:

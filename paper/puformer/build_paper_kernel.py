@@ -21,6 +21,9 @@ import tarfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
 PAPER = ["paper/puformer/" + f for f in ("main.tex", "supplementary.tex", "preamble.tex", "references.bib", "fig_arch.tex",
+                                          "fig_style.tex", "fig_overview.tex", "fig_dstep.tex", "fig_prior.tex",
+                                          "fig_block.tex", "fig_mdta.tex", "cvpr_main.tex", "cvpr_supp.tex", "cvpr_refs.py", "cvpr_preamble.tex",
+                                          "cvpr.sty", "ieeenat_fullname.bst",
                                           "numbers.tex", "make_numbers.py",
                                           "make_tables.py", "make_figures.py", "make_q1_tables.py",
                                           "make_q1_figures.py")]
@@ -31,7 +34,7 @@ RESULTS = ["results/puformer_chikusei_x4/puformer/*.json", "results/puformer_chi
            "results/puformer_pavia_x4/*.csv", "results/puformer_pavia_x4/*/*.json",
            "results/q1/*/results.json", "results/q1/*/gaps.json", "results/q1/*/blind.json",
            "results/q1/*/cond_eval.json", "results/q1/*/null_analysis.json", "results/q1/*/neon_fullres.json",
-           "results/q1/*/neon_fullres_crop.npz", "results/q1/neon/*.json", "results/q1/complexity.json"]
+           "results/q1/neon/*.json", "results/q1/complexity.json"]
 # datasets (test ground truth for the visual comparison) and the uploaded test predictions of the benchmark jobs
 Q1_DATA = ["mingliu123/chikusei", "mlxlx0000/paviadata", "amarnath10chinu/puformer-q1-preds"]
 SOURCES = ["amarnath10chinu/puformer-chikusei-paper-analysis", "amarnath10chinu/puformer-pavia-analysis"]
@@ -75,8 +78,11 @@ for v in ['0.15.0', '0.14.1']:
 sh('./tectonic --version', cwd='/kaggle/working/bin')
 sh('/kaggle/working/bin/tectonic -X compile main.tex')
 sh('/kaggle/working/bin/tectonic -X compile supplementary.tex')
+sh('/kaggle/working/bin/tectonic -X compile --keep-intermediates cvpr_main.tex')
+sh('python cvpr_refs.py')
+sh('/kaggle/working/bin/tectonic -X compile cvpr_supp.tex')
 os.makedirs(OUT, exist_ok=True)
-for f in ['main.pdf', 'supplementary.pdf', 'numbers.tex']:
+for f in ['main.pdf', 'supplementary.pdf', 'cvpr_main.pdf', 'cvpr_supp.pdf', 'numbers.tex']:
     shutil.copyfile(f'{{P}}/{{f}}', f'{{OUT}}/{{f}}')
 for d in ['figures', 'tables']:
     if os.path.isdir(f'{{P}}/{{d}}'):
@@ -85,7 +91,7 @@ for d in ['figures', 'tables']:
 sh('pip install -q pymupdf')
 import fitz
 os.makedirs(f'{{OUT}}/pages', exist_ok=True)
-for f in ['main', 'supplementary']:
+for f in ['main', 'supplementary', 'cvpr_main', 'cvpr_supp']:
     with fitz.open(f'{{OUT}}/{{f}}.pdf') as doc:
         text = '\n'.join(p.get_text() for p in doc)
         open(f'{{OUT}}/pages/{{f}}.txt', 'w').write(text)

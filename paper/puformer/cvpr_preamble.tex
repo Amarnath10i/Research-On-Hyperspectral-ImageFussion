@@ -1,0 +1,40 @@
+% CVPR version: loaded after cvpr.sty, which already loads natbib, times, graphicx, amsmath, amssymb, booktabs,
+% xcolor, caption and subcaption
+
+% XeTeX (Tectonic) has no Type-1 Times: TeX Gyre Termes is the same typeface
+\usepackage{fontspec}
+\setmainfont{texgyretermes}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold,
+  ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+\setsansfont{texgyreheros}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold,
+  ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc}
+
+\newcommand{\red}[1]{{\color{red}#1}}
+\newcommand{\TODO}[1]{\textbf{\color{red}[TODO: #1]}}
+
+\input{numbers.tex}
+\input{tables/pavia_numbers.tex}
+\newcommand{\pav}[1]{\ifcsname pav@#1\endcsname\csname pav@#1\endcsname\else\textbf{??#1??}\fi}
+\IfFileExists{tables/q1_numbers.tex}{\input{tables/q1_numbers.tex}}{}
+\newcommand{\qone}[1]{\ifcsname qone@#1\endcsname\csname qone@#1\endcsname\else\textbf{??}\fi}
+\newcommand{\qtab}[1]{\IfFileExists{tables/#1.tex}{\input{tables/#1.tex}}{}}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+
+\newcommand{\best}[1]{\textbf{#1}}
+\newcommand{\bm}[1]{\boldsymbol{#1}}
+\newcommand{\X}{\mathbf{X}}
+\newcommand{\Z}{\mathbf{Z}}
+\newcommand{\YH}{\mathbf{Y}_{\mathrm{H}}}
+\newcommand{\YM}{\mathbf{Y}_{\mathrm{M}}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\R}{\mathcal{R}}
+\newcommand{\supp}{the supplementary material}

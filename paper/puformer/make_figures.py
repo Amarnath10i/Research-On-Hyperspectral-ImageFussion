@@ -57,7 +57,7 @@ def training_curves():
     for ax, key, ylab, lim in ((axes[0], "val_PSNR", "Validation PSNR (dB)", (56.0, 59.0)),
                                (axes[1], "val_SAM", "Validation SAM (deg)", (0.68, 0.86))):
         ax.plot([s1(r["it"]) for r in h1], [r[key] for r in h1], color=ORANGE, marker="o", **MARK, label="First run (from scratch)")
-        ax.plot([s3(r["it"]) for r in h3], [r[key] for r in h3], color=BLUE, marker="s", **MARK, label="v3 fine-tune (exact physics)")
+        ax.plot([s3(r["it"]) for r in h3], [r[key] for r in h3], color=BLUE, marker="s", **MARK, label="fine-tuning (exact operators)")
         ax.axvline(base, color=INK2, lw=0.7, ls=(0, (3, 2)))
         ax.set_ylim(*lim)
         ax.set_xlabel("Training patches seen (millions)")
@@ -92,7 +92,7 @@ def robustness():
     rows = [("Blur $\\sigma$=1.5", "sigma=1.5"), ("Blur $\\sigma$=2.5", "sigma=2.5"), ("Blur $\\sigma$=3.0", "sigma=3.0"),
             ("SRF shift $-$8 nm", "srf_shift=-8nm"), ("SRF shift +8 nm", "srf_shift=+8nm"),
             ("Noise 40 dB", "noise_40dB"), ("Noise 35 dB", "noise_35dB"), ("Noise 30 dB", "noise_30dB")]
-    panels = (("Chikusei (PUFormer v3)", load(os.path.join(V3, "puformer", "gaps.json"))),
+    panels = (("Chikusei (PUFormer)", load(os.path.join(V3, "puformer", "gaps.json"))),
               ("Pavia Centre (PUFormer)", load(os.path.join(PAV, "puformer", "gaps.json"))))
     fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.45), sharey=True)
     y = np.arange(len(rows))[::-1]
@@ -123,7 +123,7 @@ def band_wise():
     final = "PUFormer, final model"
     sets = (("Chikusei", "chikusei", load(os.path.join(ANA, "per_band.json")),
              (("GSA", "GSA", AQUA), ("PUFormer (first run)", "PUFormer, first run (Chikusei)", ORANGE),
-              ("PUFormer v3", final, BLUE))),
+              ("PUFormer v3", final, BLUE))),             # key of the Chikusei result file
             ("Pavia Centre", "pavia", load(os.path.join(PANA, "per_band.json")),
              (("GSA", "GSA", AQUA), ("PUFormer", final, BLUE))))
     fig, axes = plt.subplots(2, 2, figsize=(7.0, 4.3))
@@ -161,7 +161,7 @@ def q2n_analysis():
     axes[0].set_title("Worst 10% of 32$\\times$32 blocks", loc="left")
     c = q["q2n_vs_psnr_blend_to_bicubic"]
     axes[1].plot([r["PSNR"] for r in c], [r["Q2n"] for r in c], color=BLUE, marker="s", **MARK,
-                 label="PUFormer v3 blended toward bicubic (our Q2n)")
+                 label="PUFormer blended toward bicubic (our Q2n)")
     axes[1].plot([float(r["PSNR"]) for r in rows], [float(r["Q2n"]) for r in rows], ls="none", marker="o",
                  color=ORANGE, markersize=3.6, markeredgecolor=SURF, markeredgewidth=0.6, label="Methods as reported in TIP'26")
     axes[1].set_xlabel("PSNR (dB)")

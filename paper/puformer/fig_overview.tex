@@ -1,0 +1,64 @@
+%------------------------------------------------------------------------------------------------ 1. overview
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[font=\small]
+% inputs
+\pic at (-0.3,3.35) {cube=0.42/0.42/0.75/blue};
+\node[lab, align=center] at (0.15,2.95) {$\YH$: LR-HSI\\$B\times h\times w$};
+\pic at (-0.45,1.25) {cube=0.95/0.95/0.12/teal};
+\node[lab, align=center] at (0.05,0.85) {$\YM$: HR-MSI\\$M\times H\times W$};
+% set-up, once per image
+\draw[zoom] (2.0,1.25) rectangle (15.4,4.6);
+\node[lab, anchor=north east] at (15.3,4.55) {set up once per image};
+\node[est, minimum width=50mm] (a) at (5.0,3.55) {\textcircled{\scriptsize 1} estimate the blur width $\theta$ and the\\spectral-response shift $\phi$ from the pair (Thm.~\ref{thm:ident})};
+\node[est, minimum width=50mm] (b) at (11.4,3.55) {\textcircled{\scriptsize 2} build the exact operators $\D,\R$\\and their eigenbasis (Thm.~\ref{thm:kron})};
+\node[est, minimum width=50mm] (c) at (5.0,2.0) {\textcircled{\scriptsize 3} estimate the noise level\\of each observation};
+\node[est, minimum width=50mm] (d) at (11.4,2.0) {\textcircled{\scriptsize 4} observation code $\mathbf{c}$\\(blur, shift, noise levels)};
+\draw[->] (0.95,3.6) -- (a.west); \draw[->] (0.95,1.75) -- ++(0.65,0) |- ([yshift=-2mm]a.west);
+\draw[->] (0.95,1.75) -- ++(0.65,0) |- (c.west);
+\draw[->] (a) -- (b); \draw[->] (c) -- (d); \draw[->] (a.south east) ++(-0.5,0) -- ([xshift=-1.8cm]d.north);
+% shared bus
+\draw[black!55] (b.east) -- (16.2,3.55) -- (16.2,0.75) -- (3.6,0.75);
+\draw[black!55] (d.east) -- (16.2,2.0);
+\node[lab, anchor=south] at (9.9,0.77) {shared by every stage: $\YH$, $\YM$, operators $\D,\R$, code $\mathbf{c}$};
+% stages
+\node[io] (bic) at (2.4,-0.45) {bicubic $\times s$};
+\draw[->] (-0.65,3.6) -- (-0.95,3.6) |- (bic.west);
+\foreach \i/\x in {1/5.4, 2/9.0, 3/12.6} {
+  \node[bx, minimum width=25mm, minimum height=10mm, fill=black!2, draw=black!60] (s\i) at (\x,-0.45) {stage \i\\{\footnotesize data step + prior}};
+  \draw[->, black!55] (\x,0.75) -- (s\i.north);
+}
+\pic at (15.15,-0.95) {cube=0.95/0.95/0.75/blue};
+\node[lab, align=center] at (15.6,-1.35) {$\hat{\X}=\X_3$: HR-HSI\\$B\times H\times W$};
+\draw[->] (bic) -- node[above, lab]{$\X_0$} (s1);
+\draw[->] (s1) -- node[above, lab]{$\X_1$} (s2);
+\draw[->] (s2) -- node[above, lab]{$\X_2$} (s3);
+\draw[->] (s3) -- (15.05,-0.45);
+\draw[->, dashed, orange!70!black] (s1.south) to[bend right=25] node[below, lab]{memory} (s2.south);
+\draw[->, dashed, orange!70!black] (s2.south) to[bend right=25] node[below, lab]{memory} (s3.south);
+% zoom into stage k
+\draw[zoom] (0.4,-2.25) rectangle (16.6,-5.6);
+\draw[black!35, dashed] (s2.south west) -- (0.4,-2.25);
+\draw[black!35, dashed] (s2.south east) -- (16.6,-2.25);
+\node[tns] (xin) at (1.5,-4.0) {$\X_{k-1}$};
+\node[phys, minimum width=46mm, minimum height=12mm] (ds) at (5.4,-4.0) {\textbf{data step}\optfig{fig:dstep}\\{\footnotesize make the estimate agree with $\YH$ and $\YM$}};
+\node[prior, minimum width=46mm, minimum height=12mm] (pr) at (10.8,-4.0) {\textbf{prior} $\mathcal{P}_k$\optfig{fig:prior}\\{\footnotesize add the detail that no observation shows}};
+\node[op] (ad) at (13.85,-4.0) {$+$};
+\node[tns] (xout) at (15.3,-4.0) {$\X_k$};
+\draw[->] (xin) -- (ds);
+\draw[->] (ds) -- node[above, lab]{$\Z_k$} (pr);
+\draw[->] (pr) -- node[above, lab]{$\Delta_k$} (ad);
+\draw[->] (ad) -- (xout);
+\draw[->] ($(ds.east)!0.5!(pr.west)$) |- ++(0,-1.05) -| (ad.south);
+\node[lab, anchor=south] (dsin) at (5.4,-2.85) {$\YH$, $\YM$, $\D$, $\R$, $\mathbf{c}$};
+\draw[->, black!55] (dsin.south) -- (ds.north);
+\node[lab, anchor=south] (prin) at (10.8,-2.85) {$\YM$, $\mathbf{c}$};
+\draw[->, black!55] (prin.south) -- (pr.north);
+\draw[->, dashed, orange!70!black] (8.6,-5.4) node[left, lab]{memory in} -- ([xshift=-7mm]pr.south);
+\draw[->, dashed, orange!70!black] ([xshift=7mm]pr.south) -- (12.9,-5.4) node[right, lab]{memory out};
+\node[lab, anchor=south west] at (0.5,-5.55) {inside stage $k$};
+\end{tikzpicture}}
+\caption{PUFormer, the HQS iteration of Section~\ref{sec:hqs} unrolled for three stages. Top: the observation model is set up once per image: the operator parameters are given or estimated from the observation pair (Theorem~\ref{thm:ident}), the exact operators and their eigenbasis are built (Theorem~\ref{thm:kron}), and the noise levels form the observation code $\mathbf{c}$. Middle: every stage refines the estimate and passes its decoder features to the next (memory). Bottom: inside a stage, a data step makes the estimate agree with both observations, and a learned prior adds the detail that the observations cannot provide.}
+\label{fig:arch}
+\end{figure*}

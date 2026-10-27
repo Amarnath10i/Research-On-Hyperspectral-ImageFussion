@@ -8,6 +8,11 @@ adapters import the network classes from there. Only the band counts and the sca
     dct        DCT / DCTransformer (Ma et al., InfFus 2024)  qingma2016/DCTransformer  dual.py DCT
     mimformer  MIMFormer (Li et al., JSTARS 2024)       meiruni/MIMFormer        models/MIMFormer_CPW.py
     fusformer  Fusformer (Hu et al., GRSL 2022)         J-FHu/Fusformer          model.py MainNet
+    smgu       SMGU-Net (Yan et al., PR 2025)           yansql/SMGU-Net          model.py Net (x4 only)
+    clsnet     CLSNet (Yang et al., InfFus 2026)        HengYang01/CLSNet        model/CLSNet.py CLSNet
+    otpnet     OTPNet (AAAI 2025)                       tsharry2201/OTPNet       otpnet/model.py OTPNet
+    u2net      U2Net (Peng et al., ACM MM 2023)         PSRben/U2Net             model/u2net.py U2Net
+    mimosst    MIMO-SST (Fang et al., TGRS 2024)        Freelancefangjian/MIMO-SST  Model.py Net
 
 Every adapter maps (Y_H, Y_M) -> X like PUFormer, and `forward(..., return_all=True)` returns [X] so the
 training loop is shared. Fusformer attends over all pixels (quadratic memory), so it is evaluated on
@@ -32,6 +37,11 @@ REPOS = {
     "mimformer": ("https://github.com/meiruni/MIMFormer", "MIMFormer"),
     "fusformer": ("https://github.com/J-FHu/Fusformer", "Fusformer"),
     "dhif": ("https://github.com/TaoHuang95/DHIF-Net", "DHIF-Net"),
+    "smgu": ("https://github.com/yansql/SMGU-Net", "SMGU-Net"),
+    "clsnet": ("https://github.com/HengYang01/CLSNet", "CLSNet"),
+    "otpnet": ("https://github.com/tsharry2201/OTPNet", "OTPNet"),
+    "u2net": ("https://github.com/PSRben/U2Net", "U2Net"),
+    "mimosst": ("https://github.com/Freelancefangjian/MIMO-SST", "MIMO-SST"),
 }
 # pipeline settings of the published networks (all with an L1 loss): their published learning rate, no weight
 # decay, no clipping. PSRT's own code adds AdamW decay 1e-4 and clipping at 10, and MIMFormer's uses batch 16 and
@@ -42,6 +52,11 @@ RECIPES = {
     "mimformer": dict(lr=1e-4, wd=0.0, clip=0.0),
     "fusformer": dict(lr=1e-3, wd=0.0, clip=0.0),
     "dhif": dict(lr=3e-4, wd=0.0, clip=0.0),
+    "smgu": dict(lr=1e-4, wd=0.0, clip=0.0),          # train.py: Adam 1e-4
+    "clsnet": dict(lr=2e-4, wd=0.0, clip=0.0),        # train_*.py: Adam 2e-4 (decay 1e-8), cosine
+    "otpnet": dict(lr=1e-4, wd=0.0, clip=0.0),        # train.py: AdamW 1e-4 (decay 1e-4), step
+    "u2net": dict(lr=1e-3, wd=0.0, clip=0.0),         # train.py: Adam 1e-3, step
+    "mimosst": dict(lr=1e-4, wd=0.0, clip=0.0),       # train.py: Adam 1e-4; three outputs + FFT loss there
 }
 
 
@@ -61,6 +76,18 @@ def _load(path: str, modname: str):
     mod = importlib.util.module_from_spec(spec)
     sys.modules[modname] = mod
     spec.loader.exec_module(mod)
+    return mod
+
+
+def _load_src(path: str, modname: str, cut: str):
+    """Like _load, but without the module's trailing demo code (everything from the line `cut` on)."""
+    src = open(path, encoding="utf-8").read()
+    if cut in src:
+        src = src[:src.index(cut)]
+    mod = type(sys)(modname)
+    mod.__file__ = path
+    sys.modules[modname] = mod
+    exec(compile(src, path, "exec"), mod.__dict__)
     return mod
 
 
@@ -156,6 +183,51 @@ def build_external(name: str, bands: int, msi: int, scale: int) -> nn.Module:
         net = m.MIMFormer(hsi_chans=bands, msi_chans=msi, scale_factor=scale)
         net.MIMFormer = Checkpointed(net.MIMFormer)
         return External(net, lambda n, yh, ym: n(yh, ym), scale)
+    if name == "smgu":
+        # spatial / spectral unfolding with learned up- and down-sampling; the stride-4 layers fix the scale
+        if scale != 4:
+            raise ValueError("SMGU-Net's code is written for x4 only")
+        m = _load(os.path.join(root, "model.py"), "smgu_model")
+        net = m.Net(niter=2, hsi_channels=bands, msi_channels=msi)
+        return External(net, lambda n, yh, ym: n(yh, ym), scale)
+    if name == "clsnet":
+        m = _load_src(os.path.join(root, "model", "CLSNet.py"), "clsnet_model", "from thop import profile")
+        net = m.CLSNet(in_channels=msi, out_channels=bands, n_feat=62, stage=3)
+        net.upsamp = nn.Upsample(scale_factor=scale, mode="nearest")     # written for x8
+        return External(net, lambda n, yh, ym: n(yh, ym), scale)
+    if name == "otpnet":
+        # written for pansharpening: the HR-MSI takes the place of the PAN image, the LR-HSI that of the LR-MS
+        import importlib
+        net = importlib.import_module("otpnet.model").OTPNet(pan_channels=msi, ms_channels=bands, hidden_channels=64,
+                                                              num_stages=4, proximal_layers=3)
+        return External(net, lambda n, yh, ym: n(ym, yh), scale)
+    if name == "u2net":
+        # written for pansharpening with 8 MS bands, 1 PAN band and x4: only these sizes are changed
+        m = _load(os.path.join(root, "model", "u2net.py"), "u2net_model")
+        net = m.U2Net(32)
+        dim = net.raise_ms_dim[0].out_channels
+        net.upsample = nn.Sequential(nn.Conv2d(bands, bands * scale * scale, 3, 1, 1, bias=False), nn.PixelShuffle(scale))
+        net.raise_ms_dim = nn.Sequential(nn.Conv2d(bands, dim, 3, 1, 1), nn.LeakyReLU())
+        net.raise_pan_dim = nn.Sequential(nn.Conv2d(msi, dim, 3, 1, 1), nn.LeakyReLU())
+        net.to_hrms = nn.Sequential(nn.Conv2d(dim, dim, 3, 1, 1), nn.LeakyReLU(), nn.Conv2d(dim, bands, 3, 1, 1))
+        m.init_weights(net.upsample, net.raise_ms_dim, net.raise_pan_dim, net.to_hrms)
+        return External(net, lambda n, yh, ym: n(yh, ym), scale)
+    if name == "mimosst":
+        # Model.py imports a PixelUnshuffle module that is not in the repository; torch has the same function
+        shim = type(sys)("PixelUnshuffle")
+        shim.pixel_unshuffle = F.pixel_unshuffle
+        sys.modules["PixelUnshuffle"] = shim
+        m = _load(os.path.join(root, "Model.py"), "mimosst_model")
+        net = m.Net()                                                     # written for 31 + 3 bands at x8
+        dim = net.Conv3_64.out_channels
+        net.patch_embed = m.OverlapPatchEmbed(2 * dim + bands + msi, net.patch_embed.proj.out_channels)
+        net.Conv3_64 = nn.Conv2d(msi, dim, 3, padding=1)
+        net.Conv31_64 = nn.Conv2d(bands, dim, 3, padding=1)
+        net.Conv96_31 = nn.Conv2d(net.Conv96_31.in_channels, bands, 3, padding=1)
+        net.Conv192_31 = nn.Conv2d(net.Conv192_31.in_channels, bands, 3, padding=1)
+        net.upSample = nn.Upsample(scale_factor=scale, mode="bilinear", align_corners=False)
+        net.re = nn.ReLU(inplace=True)
+        return External(net, lambda n, yh, ym: n(ym, yh)[-1], scale)     # outputs at 1/4, 1/2 and full size
     m = _load(os.path.join(root, "model.py"), "fusformer_model")
     net = m.MainNet()
     feat = net.refine[0].in_channels

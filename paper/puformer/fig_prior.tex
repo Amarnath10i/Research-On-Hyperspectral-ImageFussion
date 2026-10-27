@@ -1,0 +1,38 @@
+%------------------------------------------------------------------------------------------------ 3. prior
+\begin{figure*}[t]
+\centering
+\resizebox{0.92\textwidth}{!}{%
+\begin{tikzpicture}[font=\small]
+\node[tns, minimum width=40mm] (in) at (0,0.2) {$[\Z_k,\ \YM,\ s^2\D_\theta^{\top}(\D_\theta\Z_k-\YH)]$\\$(2B+M)\times H\times W$};
+\node[bx, minimum width=30mm] (mem) at (4.4,0.2) {conv $3{\times}3$ to 48 ch.,\\merge memory (conv $1{\times}1$)};
+\node[tns] (fin) at (4.4,1.75) {$\mathbf{F}_{k-1}$};
+\node[blk, minimum width=30mm] (e1) at (4.4,-1.5) {2 blocks, 1 head\\$48\times H\times W$};
+\node[blk, minimum width=30mm] (e2) at (6.6,-3.2) {3 blocks, 2 heads\\$96\times\frac H2\times\frac W2$};
+\node[blk, minimum width=34mm] (mid) at (9.9,-4.9) {4 blocks, 4 heads\\$192\times\frac H4\times\frac W4$};
+\node[op, inner sep=1pt] (c2) at (12.4,-3.2) {c};
+\node[blk, minimum width=30mm] (d2) at (14.4,-3.2) {3 blocks, 2 heads\\$96\times\frac H2\times\frac W2$};
+\node[op, inner sep=1pt] (c1) at (14.4,-1.5) {c};
+\node[blk, minimum width=34mm] (d1) at (17.0,-1.5) {2 blocks + 2 refinement\\$48\times H\times W$};
+\node[tns] (out) at (17.0,1.75) {$\Delta_k$: $B\times H\times W$};
+\node[tns] (fout) at (20.2,-1.5) {$\mathbf{F}_k$};
+\draw[->] (in) -- (mem);
+\draw[->, dashed, orange!70!black] (fin) -- (mem);
+\draw[->] (mem) -- (e1);
+\draw[->] (e1.south) |- node[pos=0.25, left, lab]{conv $4{\times}4$, stride 2} (e2.west);
+\draw[->] (e2.south) |- node[pos=0.25, left, lab]{conv $4{\times}4$, stride 2} (mid.west);
+\draw[->] (mid.east) -| node[pos=0.75, right, lab]{transp.\ conv $2{\times}2$} (c2.south);
+\draw[->] (c2) -- (d2);
+\draw[->] (d2.north) |- node[pos=0.25, left, lab]{transp.\ conv $2{\times}2$} (c1.south);
+\draw[->] (c1) -- (d1);
+\draw[->] (d1.north) -- node[right, lab]{conv $3{\times}3$ (zero init)} (out.south);
+\draw[->, dashed, orange!70!black] (d1) -- node[above, lab]{memory} (fout);
+\draw[->, black!50] (e1.east) -- node[above, lab, pos=0.5]{skip} (c1.west);
+\draw[->, black!50] (e2.east) -- node[above, lab, pos=0.5]{skip} (c2.west);
+\node[film] at (mem.south east) {};
+\node[film] at ([xshift=-3mm]mid.north west) {};
+\node[film] at (d1.north east) {};
+\node[lab, align=left, anchor=north west] at (-1.9,-2.6) {c: concatenate, then conv $1{\times}1$\\[2pt]{\color{violet!75!black}$\bullet$} FiLM (observation-model\\\phantom{$\bullet$} conditioning): features\\\phantom{$\bullet$} scaled and shifted by an\\\phantom{$\bullet$} embedding of $\mathbf{c}$};
+\end{tikzpicture}}
+\caption{The prior $\mathcal{P}_k$ of stage $k$ (widths for Chikusei, $B=128$, $M=8$): a three-level U-Net of transformer blocks (Fig.~\ref{fig:block}). The encoder halves the resolution twice with strided convolutions, the decoder restores it with transposed convolutions and merges the encoder features through skip connections; the previous stage's decoder features enter after the input convolution, and the last convolution starts at zero so that training starts from the HQS iteration.}
+\label{fig:prior}
+\end{figure*}

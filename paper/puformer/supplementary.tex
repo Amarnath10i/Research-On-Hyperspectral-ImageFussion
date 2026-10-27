@@ -19,7 +19,7 @@ This document accompanies the main paper. Numbers with the prefix S refer to thi
 
 \section{Training Stages and the Exact Border}
 \label{sec:s-stages}
-\textbf{Chikusei.} The final Chikusei model (v3) was obtained in two runs: a first run from scratch with zero-padded operators and the L1 losses only, and a fine-tuning run with the exact reflect-border operators and the full loss. Table~\ref{tab:stages} traces the path from the first run to the final model. Evaluating the first-run weights with the exact reflect-border operator, without retraining, drops the validation PSNR from 58.60 to 49.52~dB. The prior had learned to undo the error that the zero-padded operator introduces at the border, so with the exact operator it over-corrects there; the effect is strongest on the small $64\times64$ validation patches, where border pixels are a large fraction of the image. Fine-tuning removes this within 2000 iterations (58.60~dB validation) and ends at 58.72~dB. The consistency of the reconstruction with its inputs rises from 76.7 to 85.5~dB for the LR-HSI and from 75.0 to 89.0~dB for the HR-MSI. Fig.~\ref{fig:training} shows the validation curves; validation PSNR stops improving after about 44{,}000 fine-tuning iterations, and the test PSNR stays between 58.13 and 58.15~dB from iteration 26{,}000 onward.
+\textbf{Chikusei.} The final Chikusei model was obtained in two runs: a first run from scratch with zero-padded operators and the L1 losses only, and a fine-tuning run with the exact reflect-border operators and the full loss. Table~\ref{tab:stages} traces the path from the first run to the final model. Evaluating the first-run weights with the exact reflect-border operator, without retraining, drops the validation PSNR from 58.60 to 49.52~dB. The prior had learned to undo the error that the zero-padded operator introduces at the border, so with the exact operator it over-corrects there; the effect is strongest on the small $64\times64$ validation patches, where border pixels are a large fraction of the image. Fine-tuning removes this within 2000 iterations (58.60~dB validation) and ends at 58.72~dB. The consistency of the reconstruction with its inputs rises from 76.7 to 85.5~dB for the LR-HSI and from 75.0 to 89.0~dB for the HR-MSI. Fig.~\ref{fig:training} shows the validation curves; validation PSNR stops improving after about 44{,}000 fine-tuning iterations, and the test PSNR stays between 58.13 and 58.15~dB from iteration 26{,}000 onward.
 
 \textbf{Pavia Centre.} The Pavia Centre model was trained from scratch with the exact operators and the full loss. Validation PSNR stops improving after \pav{best-it} iterations (Fig.~\ref{fig:trainpavia}), and those weights are tested; the test PSNR, logged but never used for selection, peaks at \pav{test-peak}~dB at \pav{test-peak-it} iterations, against \pav{test-at-best}~dB for the selected weights. The reconstruction reproduces its inputs to within \pav{cons-H}~dB (LR-HSI) and \pav{cons-M}~dB (HR-MSI).
 
@@ -37,7 +37,7 @@ GSA & -- & 43.20 & 2.730 & 3.279 & 45.4 / 45.0 \\
 First run (zero border) & 58.60 & 57.99 & 0.728 & 1.356 & 76.7 / 75.0 \\
 \quad + self-ensemble & -- & 58.02 & 0.726 & 1.353 & 76.8 / 75.0 \\
 First-run weights, exact border & 49.52 & 54.24 & 0.773 & 1.474 & -- \\
-v3 (exact border, full loss) & 58.72 & 58.15 & 0.717 & 1.337 & 85.5 / 89.0 \\
+Fine-tuned (exact border, full loss) & 58.72 & 58.15 & 0.717 & 1.337 & 85.5 / 89.0 \\
 \quad + self-ensemble & -- & 58.20 & 0.713 & 1.330 & 86.0 / 89.5 \\
 \bottomrule
 \end{tabular}}
@@ -46,7 +46,7 @@ v3 (exact border, full loss) & 58.72 & 58.15 & 0.717 & 1.337 & 85.5 / 89.0 \\
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/training.pdf}
-\caption{Chikusei: validation PSNR and SAM during training, plotted against the number of $64\times64$ training patches seen. The first run starts from random weights (its first two evaluations lie below the plotted range); v3 continues from its final weights with the exact border and the full loss.}
+\caption{Chikusei: validation PSNR and SAM during training, plotted against the number of $64\times64$ training patches seen. The first run starts from random weights (its first two evaluations lie below the plotted range); the fine-tuning run continues from its final weights with the exact border and the full loss.}
 \label{fig:training}
 \end{figure*}
 
@@ -78,14 +78,14 @@ Q2n is therefore nearly insensitive to overall accuracy on these test images: bl
 
 \begin{table}[t]
 \centering
-\caption{Q2n analysis of PUFormer v3 (self-ensemble, test set)}
+\caption{Q2n analysis of the final Chikusei PUFormer model (self-ensemble, test set)}
 \label{tab:q2n}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}lc@{}}
 \toprule
 Setting & Q2n \\
 \midrule
-PUFormer v3 & \QtwonVthree \\
+PUFormer & \QtwonVthree \\
 \quad bands 1--8 (363--404~nm) set to ground truth & \QtwonExactUV \\
 \quad bands 1--8 and 105--128 set to ground truth & \QtwonExactUVNIR \\
 \midrule

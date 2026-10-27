@@ -1,0 +1,238 @@
+% CVPR 2027 submission (review version). Built with Tectonic; tables and numbers come from make_q1_tables.py.
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage[review]{cvpr}      % review version: anonymous, line numbers
+
+\input{cvpr_preamble}
+
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
+
+\def\confName{CVPR}
+\def\confYear{2027}
+
+\title{Unfolded Hyperspectral and Multispectral Image Fusion with Exact Observation Operators}
+
+\author{Anonymous CVPR submission}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Deep unfolding networks for hyperspectral and multispectral image fusion alternate data-consistency steps with learned priors. In most of them the blur, downsampling and spectral-response operators are learned or use zero padding, so they differ from the operators that produced the data, and each network is trained for a single sensor pair. We study what exact operators bring to such a network. With a separable blur and the true border rule, the data step has a closed form in a product eigenbasis, and the null space of fusion, the part of the image that no observation constrains, is explicit. An exact data step keeps the ground truth fixed, while an inexact one moves it by an amount that we bound, and both operators can be estimated from the two observations. Our network, PUFormer, combines exact data steps with a residual U-Net prior and is trained over a family of blurs, spectral responses and noise levels. We retrain \qone{n-retrained-word} published fusion networks from their authors' code under one protocol and training budget. PUFormer is the most accurate on Chikusei and Pavia Centre, by \qone{chikusei4-gain} and \qone{pavia4-gain}~dB PSNR, and its error in the observed subspace is \qone{null-pavia-obs-ratio}--\qone{null-chikusei-obs-ratio} times smaller. Most of the margin comes from the prior and its training; the exact data steps add a smaller gain and make the operator replaceable at test time. Trained over the operator family, PUFormer stays accurate when the blur, the spectral response or the noise change, but not under misregistration.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+Hyperspectral cameras record hundreds of narrow bands at a coarse spatial resolution, and multispectral cameras record a few broad bands at a fine one. Fusing the two images gives a high-resolution hyperspectral image (HR-HSI)~\cite{yokoya2017review,vivone2025deep}. Most recent methods are deep networks trained on simulated pairs: convolutional networks~\cite{zhang2021ssrnet}, transformers~\cite{deng2023psrt,ma2024reciprocal,li2024mimformer}, state-space models~\cite{peng2024fusionmamba,pei2026s3o} and diffusion models~\cite{cao2024ddif,chen2026twostage}.
+
+Deep unfolding networks~\cite{xie2022mhfnet,dong2021mogdcn,huang2022dhif,yan2025smgu} take a different route. They unroll an iterative solver of the inverse problem, and each stage applies a data step, which reduces the mismatch between the estimate and the two observations, followed by a learned prior. The data step needs the blur, the downsampling and the spectral response of the sensors. In most unfolding networks these operators are learned convolution layers, or fixed but zero-padded, whereas the benchmark data are simulated with a known blur and a different border rule. The network's operator then differs from the one that produced the data, and even the ground truth fails the network's own consistency check. Each network is also trained for one sensor pair and cannot use another operator at test time.
+
+Evaluation is a second problem. Results on the same dataset vary widely between papers because splits, spectral responses, normalizations and metric code differ~\cite{vivone2025deep}. PSRT~\cite{deng2023psrt}, for example, is reported at 44.60~dB PSNR on Chikusei $\times$4 in~\cite{pei2026s3o} and at 50.67~dB in~\cite{chen2026twostage}. Numbers copied from different papers therefore say little about which method is better.
+
+This paper asks what exact operators bring to an unfolded fusion network. We write fusion as maximum a posteriori (MAP) estimation with parametric operators, unroll half-quadratic splitting (HQS)~\cite{zhang2020usrnet}, and study the resulting data step. Our contributions are:
+\begin{itemize}
+\item An analysis of the operators in unfolded fusion: with a separable blur and the true border rule, the data step has a closed form and the null space of fusion is explicit (it holds 88\% of the unknowns on Chikusei); an exact data step keeps the ground truth fixed, while the displacement caused by an inexact one is bounded independently of the learned weights; and both operators are identifiable from the observation pair (\cref{sec:theory}).
+\item PUFormer, an unfolded network with exact and replaceable operators, a learned spectral data step that keeps these guarantees, and training over a family of observation models with the operators estimated at test time (\cref{sec:method}).
+\item An equal-budget benchmark of \qone{n-retrained-word} published networks, retrained from their authors' code, and a null-space split of the error that shows where each method fails (\cref{sec:exp}). It also shows where PUFormer's margin comes from: mostly from the prior and its training, while the exact operators matter most when the operator changes.
+\end{itemize}
+
+\section{Related work}
+\label{sec:related}
+\paragraph{Deep fusion networks} map the two observations directly to the HR-HSI with convolutions~\cite{zhang2021ssrnet}, transformers~\cite{deng2023psrt,ma2024reciprocal,li2024mimformer,fang2024mimosst,yang2026clsnet}, general fusion backbones~\cite{peng2023u2net}, state-space models~\cite{peng2024fusionmamba,pei2026s3o} or diffusion~\cite{cao2024ddif,chen2026twostage}, without using the observation model.
+
+\paragraph{Unfolding and operator knowledge.} Algorithm unrolling~\cite{gregor2010lista,monga2021unrolling} turns the iterations of a solver into network stages. MHF-Net~\cite{xie2022mhfnet}, MoG-DCN~\cite{dong2021mogdcn} and DHIF-Net~\cite{huang2022dhif} unfold fusion solvers with learned or approximate operators, and later networks strengthen the learned prior~\cite{yan2025smgu,wang2025pstun,cao2026caformer} or the proximal update~\cite{yu2025otpnet}. In single-image super-resolution, USRNet~\cite{zhang2020usrnet} gives the blur kernel to a closed-form data step under periodic borders and predicts its step sizes from the noise level, and blind methods train on randomized degradations~\cite{zhang2018srmd,zhang2021bsrgan}. We carry this idea over to fusion, where two operators and the border rule must match the data, and analyze what it gives and costs.
+
+\paragraph{Closed forms and separable operators.} FUSE~\cite{wei2015fuse} solves the quadratic fusion problem through a Sylvester equation under periodic borders. Tensor methods~\cite{li2018cstf,kanatsoulis2018stereo,prevost2020scott} model the spatial degradation as separable matrices to prove recoverability of low-rank models. Our closed form holds for the reflect border of the simulation and is used as a differentiable layer whose operators change from image to image. Learned filters in a data step resemble deep Wiener deconvolution~\cite{dong2020wiener}; we bound ours so that the step stays nonexpansive.
+
+\paragraph{Range and null space.} Splitting a reconstruction into a part determined by the measurements and a null-space part is the basis of null-space networks~\cite{schwab2019nullspace}, decomposition learning~\cite{chen2020decomposition} and diffusion-based restoration~\cite{wang2023ddnm}. We use the explicit null space of fusion to analyze the errors of existing methods. That an image border or an adjoint that do not match the data bias an iterative reconstruction is known from deconvolution and tomography~\cite{ng1999neumann,zeng2000unmatched,savanier2021adjoint}.
+
+\section{Exact operators in unfolded fusion}
+\label{sec:theory}
+\subsection{Observation model and unfolding}
+\label{sec:hqs}
+Let $\X\in\mathbb{R}^{B\times H\times W}$ be the HR-HSI. The two observations are
+\begin{equation}
+\YH=\D_\theta\X+\mathbf{N}_{\mathrm{H}},\qquad \YM=\R_\phi\X+\mathbf{N}_{\mathrm{M}},
+\label{eq:obs}
+\end{equation}
+where $\D_\theta$ applies to every band reflect padding, a Gaussian blur of width $\theta$ and decimation by $s$ starting at index zero, so $\YH\in\mathbb{R}^{B\times h\times w}$ with $h=H/s$, $w=W/s$; $\R_\phi$ applies to every pixel the $M$ spectral responses of the multispectral sensor, shifted along wavelength by $\phi$~nm; and $\mathbf{N}_{\mathrm{H}},\mathbf{N}_{\mathrm{M}}$ are white Gaussian noise with standard deviations $\varsigma_{\mathrm{H}},\varsigma_{\mathrm{M}}$. The benchmarks use $s=4$, a $7\times7$ blur with $\theta=\sigma_0=2$, $\phi=0$ and no noise~\cite{chen2026twostage}. We implement $\D_\theta$ and its exact adjoint, in which the adjoint of reflect padding adds the padded margins back onto the pixels they were copied from (\supp); the adjoint test $\langle\D\X,\mathbf{Y}\rangle=\langle\X,\D^{\top}\mathbf{Y}\rangle$ holds to $10^{-13}$ in double precision.
+
+With a prior $p(\X)\propto\exp(-\lambda\Phi(\X))$, the MAP estimate minimizes $\tfrac{1}{2\varsigma_{\mathrm{H}}^2}\|\D_\theta\X-\YH\|^2+\tfrac{1}{2\varsigma_{\mathrm{M}}^2}\|\R_\phi\X-\YM\|^2+\lambda\Phi(\X)$. HQS couples $\X$ to an auxiliary image $\Z$ with a penalty $\tfrac{\mu_k}{2}\|\Z-\X\|^2$ and alternates a data step and a prior step, $\X_k=\mathrm{prox}_{(\lambda/\mu_k)\Phi}(\Z_k)$. With $\alpha_k=1/(\mu_k\varsigma_{\mathrm{H}}^2)$ and $\beta_k=1/(\mu_k\varsigma_{\mathrm{M}}^2)$ the data step is the linear system
+\begin{equation}
+(\mathbf{I}+\alpha_k\D_\theta^{\top}\D_\theta+\beta_k\R_\phi^{\top}\R_\phi)\Z_k=\X_{k-1}+\alpha_k\D_\theta^{\top}\YH+\beta_k\R_\phi^{\top}\YM,
+\label{eq:normal}
+\end{equation}
+and one gradient step from $\X_{k-1}$ is its linearization,
+\begin{equation}
+\Z_k\approx\X_{k-1}-\alpha_k\D_\theta^{\top}(\D_\theta\X_{k-1}-\YH)-\beta_k\R_\phi^{\top}(\R_\phi\X_{k-1}-\YM).
+\label{eq:linstep}
+\end{equation}
+An unfolded network replaces the proximal map by a learned module. The derivation already says two things about such a network: the ratio $\beta_k/\alpha_k=\varsigma_{\mathrm{H}}^2/\varsigma_{\mathrm{M}}^2$ should follow the noise of the two observations, and the operators enter only through $\D_\theta$, $\R_\phi$ and their adjoints, so they can be replaced at test time without retraining.
+
+\subsection{Separable structure and the fusion null space}
+\label{sec:kron}
+A Gaussian blur aligned with the image axes is separable, and padding and decimation act on rows and columns independently. The operators therefore factor exactly, border included:
+\begin{equation}
+\D_\theta\X=\X\times_2\mathbf{D}_{\mathrm{r}}\times_3\mathbf{D}_{\mathrm{c}},\qquad \R_\phi\X=\X\times_1\mathbf{r}_\phi,
+\label{eq:modes}
+\end{equation}
+where $\times_n$ is the mode-$n$ product, $\mathbf{D}_{\mathrm{r}}\in\mathbb{R}^{h\times H}$ and $\mathbf{D}_{\mathrm{c}}\in\mathbb{R}^{w\times W}$ pad, blur and decimate one axis, and $\mathbf{r}_\phi\in\mathbb{R}^{M\times B}$ holds the spectral responses.
+\begin{theorem}[Closed-form data step and null space]
+\label{thm:kron}
+Let $\mathbf{D}_{\mathrm{r}}^{\top}\mathbf{D}_{\mathrm{r}}=\mathbf{U}_{\mathrm{r}}\mathrm{diag}(\bm{\lambda}^{\mathrm{r}})\mathbf{U}_{\mathrm{r}}^{\top}$, $\mathbf{D}_{\mathrm{c}}^{\top}\mathbf{D}_{\mathrm{c}}=\mathbf{U}_{\mathrm{c}}\mathrm{diag}(\bm{\lambda}^{\mathrm{c}})\mathbf{U}_{\mathrm{c}}^{\top}$ and $\mathbf{r}_\phi^{\top}\mathbf{r}_\phi=\mathbf{V}\mathrm{diag}(\bm{\nu})\mathbf{V}^{\top}$, and let $\mathcal{Q}(\cdot)=(\cdot)\times_1\mathbf{V}\times_2\mathbf{U}_{\mathrm{r}}\times_3\mathbf{U}_{\mathrm{c}}$.
+(a) $\D_\theta^{\top}\D_\theta$ and $\R_\phi^{\top}\R_\phi$ are diagonal in the orthonormal basis $\mathcal{Q}$, with eigenvalues $\lambda^{\mathrm{r}}_i\lambda^{\mathrm{c}}_j$ and $\nu_b$.
+(b) The solution of~\eqref{eq:normal} is
+\begin{equation}
+\Z_k=\mathcal{Q}\Big(\mathcal{Q}^{-1}(\mathbf{C}_k)\oslash\big[1+\alpha_k\lambda^{\mathrm{r}}_i\lambda^{\mathrm{c}}_j+\beta_k\nu_b\big]_{bij}\Big),
+\label{eq:kronstep}
+\end{equation}
+with $\mathbf{C}_k$ the right-hand side of~\eqref{eq:normal} and $\oslash$ element-wise division.
+(c) The joint null space $\mathcal{N}(\D_\theta)\cap\mathcal{N}(\R_\phi)$ is spanned by the basis tensors with $\nu_b=0$ and $\lambda^{\mathrm{r}}_i\lambda^{\mathrm{c}}_j=0$. If $\mathbf{r}_\phi$, $\mathbf{D}_{\mathrm{r}}$ and $\mathbf{D}_{\mathrm{c}}$ have full row rank, its dimension is $(B-M)(HW-hw)$, a fraction $(1-M/B)(1-1/s^2)$ of the unknowns.
+\end{theorem}
+The proof (\supp) uses the mixed-product rule of the Kronecker product: every factor of $\mathcal{Q}$ diagonalizes one mode. The step~\eqref{eq:kronstep} costs three mode products in each direction, $O(BHW(B+H+W))$ operations, and needs no iteration. FUSE~\cite{wei2015fuse} solves the same system with Fourier transforms, which assumes periodic borders; \eqref{eq:kronstep} holds for the border rule of the simulation, at the cost of eigendecompositions of an $H\times H$, a $W\times W$ and a $B\times B$ matrix per operator. Part (c) states what any fusion method must infer from a prior: the high spatial frequencies of the spectral directions that the multispectral sensor does not see. This is 88\% of the unknowns on Chikusei and 90\% on Pavia Centre at $\times4$. Every other component is fixed by the observations, which lets us split the error of any method into a part that contradicts the observations and a part in the null space (\cref{sec:nullsplit}).
+
+\subsection{The cost of an inexact operator}
+\label{sec:mismatch}
+Stack the data terms as $\mathbf{A}=[\D_\theta;\R_\phi]$, $\mathbf{Y}=[\YH;\YM]$ and $\mathbf{W}_k=\mathrm{diag}(\alpha_k\mathbf{I},\beta_k\mathbf{I})$, and let $\tilde{\mathbf{A}}$ be the operator a network actually uses: one with a zero border, a learned one, or one with wrong parameters. Write $T(\mathbf{V})=(\mathbf{I}+\tilde{\mathbf{A}}^{\top}\mathbf{W}_k\tilde{\mathbf{A}})^{-1}(\mathbf{V}+\tilde{\mathbf{A}}^{\top}\mathbf{W}_k\mathbf{Y})$ for the exact data step and $G(\mathbf{V})=\mathbf{V}-\tilde{\mathbf{A}}^{\top}\mathbf{W}_k(\tilde{\mathbf{A}}\mathbf{V}-\mathbf{Y})$ for its linearization.
+\begin{theorem}[Fixed point and operator mismatch]
+\label{thm:mismatch}
+Let $\mathbf{Y}=\mathbf{A}\X^*$. (a) If $\tilde{\mathbf{A}}=\mathbf{A}$, then $T(\X^*)=G(\X^*)=\X^*$ for all $\alpha_k,\beta_k>0$. (b) For any $\tilde{\mathbf{A}}$, with $\mathbf{e}=\mathbf{W}_k^{1/2}(\mathbf{A}-\tilde{\mathbf{A}})\X^*$,
+\begin{equation}
+\|T(\X^*)-\X^*\|\le\tfrac12\|\mathbf{e}\|,\qquad \|G(\X^*)-\X^*\|\le\|\mathbf{W}_k^{1/2}\tilde{\mathbf{A}}\|\,\|\mathbf{e}\|.
+\label{eq:bound}
+\end{equation}
+(c) If stage $k$ computes $\X_k=(\mathcal{I}+\mathcal{P}_k)(T_k(\X_{k-1}))$ with a residual prior that satisfies $\mathcal{P}_k(\X^*)=\mathbf{0}$ and makes $\mathcal{I}+\mathcal{P}_k$ $L_k$-Lipschitz, then a $K$-stage network started at $\X^*$ returns $\|\X_K-\X^*\|\le\tfrac12\sum_{k=1}^{K}\big(\prod_{j=k}^{K}L_j\big)\|\mathbf{e}_k\|$, where $\mathbf{e}_k$ is $\mathbf{e}$ for the weights $\mathbf{W}_k$ of stage $k$.
+\end{theorem}
+The bounds follow from the singular values of $(\mathbf{I}+\mathbf{B}^{\top}\mathbf{B})^{-1}\mathbf{B}^{\top}$ with $\mathbf{B}=\mathbf{W}_k^{1/2}\tilde{\mathbf{A}}$, which are $b_i/(1+b_i^2)\le\tfrac12$, and from the nonexpansiveness of $T_k$ (\supp). With the exact operator the ground truth is a fixed point of every data step, and the priors only have to remove reconstruction error. With an inexact one every data step moves the ground truth, and the priors must undo this displacement as well; since it depends on the image, no fixed correction removes it. The exact proximal step bounds the displacement whatever the learned weights are, whereas the gradient step does not, because training can make $\|\mathbf{W}_k^{1/2}\tilde{\mathbf{A}}\|$ large. The theorem also explains why an exact operator can be swapped: for data generated by $\mathbf{A}'$, giving the network $\tilde{\mathbf{A}}=\mathbf{A}'$ restores (a), which a learned operator cannot do.
+\begin{corollary}[Border rule]
+\label{cor:border}
+If $\tilde{\mathbf{A}}$ differs from $\mathbf{A}$ only in the border rule of $\D_\theta$, then $(\mathbf{A}-\tilde{\mathbf{A}})\X^*$ is nonzero only on the low-resolution pixels whose kernel support reaches the padding, i.e., within $\lceil p/s\rceil$ pixels of the border for a $(2p+1)\times(2p+1)$ kernel.
+\end{corollary}
+For our benchmarks only the first low-resolution row and column are affected: 3\% of a $64\times64$ test image, but 12\% of the $16\times16$ patches on which networks are trained.
+
+\subsection{Estimating the operators}
+\label{sec:ident}
+\begin{theorem}[Identifiability]
+\label{thm:ident}
+Let $\D_\theta$ act identically on every band and $\R_\phi$ identically on every pixel. (a) $\D_\theta\R_{\phi'}=\R_{\phi'}\D_\theta$, so for noise-free data generated with $(\theta^*,\phi^*)$ the criterion
+\begin{equation}
+J(\theta,\phi)=\|\D_\theta\YM-\R_\phi\YH\|^2
+\label{eq:J}
+\end{equation}
+vanishes at $(\theta^*,\phi^*)$. (b) On a finite set $\mathcal{G}$ of candidate parameters on which $\theta\mapsto\D_\theta$ and $\phi\mapsto\mathbf{r}_\phi$ are injective, and if no column of $\mathbf{r}_\phi$ vanishes, $(\theta^*,\phi^*)$ is the unique zero of $J$ on $\mathcal{G}$ for almost every $\X$.
+\end{theorem}
+Part (a) is the relation HySure~\cite{simoes2015hysure} uses to estimate the responses of a model-based method; part (b) shows that a grid search on $J$ cannot be fooled by a wrong pair except for a set of images of measure zero (\supp). We minimize $J$ on a grid with steps of $0.025\,\sigma_0$ and 1~nm. Noise biases the blur estimate upward by an amount that vanishes as the SNR grows, and the theorem needs the family to contain the true operator; \cref{sec:cond} tests what happens when it does not.
+
+\section{PUFormer}
+\label{sec:method}
+\input{fig_style}
+\input{fig_overview}
+\input{fig_dstep}
+
+\paragraph{Stages.} PUFormer (\cref{fig:arch}) unrolls HQS for $K=3$ stages from the bicubic upsampling $\X_0$ of $\YH$. Stage $k$ first takes a data step with the exact operators, either the linearized step
+\begin{equation}
+\begin{split}
+\Z_k=\X_{k-1}&-s^2\alpha_k\D_\theta^{\top}(\D_\theta\X_{k-1}-\YH)\\
+&-\beta_k\R_\phi^{\top}(\R_\phi\X_{k-1}-\YM)
+\end{split}
+\label{eq:step}
+\end{equation}
+or the closed form~\eqref{eq:kronstep}. The step sizes $\alpha_k=\mathrm{softplus}(a_k)$ and $\beta_k=\mathrm{softplus}(b_k)$ are learned per stage, and the factor $s^2$ compensates the $1/s^2$ gain of $\D^{\top}\D$ on smooth images. The prior step is a learned residual, $\X_k=\Z_k+\Delta_k$ with $(\Delta_k,\mathbf{F}_k)=\mathcal{P}_k([\Z_k,\YM,s^2\D^{\top}(\D\Z_k-\YH)],\mathbf{F}_{k-1})$: the third input tells the prior where the estimate still disagrees with $\YH$, and $\mathbf{F}_{k-1}$ are the decoder features of the previous stage (cross-stage memory~\cite{song2021madun}). The last layer of every prior starts at zero, so training starts from plain HQS, for which the condition $\mathcal{P}_k(\X^*)=\mathbf{0}$ of \cref{thm:mismatch}(c) holds. All operator applications run in 32-bit precision.
+
+\paragraph{Learned spectral data step.} In the basis of \cref{thm:kron} the exact step multiplies each component of the data residual by $1/(1+\alpha_k\lambda^{\mathrm{r}}_i\lambda^{\mathrm{c}}_j+\beta_k\nu_b)$, the filter of a white Gaussian prior. Images are not white and noise does not affect all components equally, so we let two small networks modulate these gains:
+\begin{equation}
+\begin{split}
+\Z_k&=\X_{k-1}+\mathcal{Q}\big(\mathcal{Q}^{-1}(\mathbf{G}_k)\odot\bm{\Gamma}_k\big),\\
+\Gamma_{k,bij}&=\frac{\exp\!\big(\ln2\,\tanh(u_k(\lambda^{\mathrm{r}}_i\lambda^{\mathrm{c}}_j)+v_k(\nu_b))\big)}{1+\alpha_k\lambda^{\mathrm{r}}_i\lambda^{\mathrm{c}}_j+\beta_k\nu_b},
+\end{split}
+\label{eq:klstep}
+\end{equation}
+where $\mathbf{G}_k=\alpha_k\D_\theta^{\top}(\YH-\D_\theta\X_{k-1})+\beta_k\R_\phi^{\top}(\YM-\R_\phi\X_{k-1})$ and $u_k$, $v_k$ are two-layer perceptrons of the log-eigenvalues (and of the observation code below), initialized to zero so that training starts from~\eqref{eq:kronstep}. The gain factors over space and spectrum, so the perceptrons run $HW+B$ times per stage, not $BHW$ times.
+\begin{proposition}
+\label{prop:kl}
+For any $u_k,v_k$: (a) with exact operators and noise-free data, $\X^*$ is a fixed point of~\eqref{eq:klstep}; (b) the step is nonexpansive; (c) with an inexact operator it moves $\X^*$ by at most $\|\mathbf{e}\|$, twice the bound~\eqref{eq:bound} of the exact step.
+\end{proposition}
+The gain lies in $(\tfrac12,2)$ times the exact one, which keeps every factor of the step in $(-1,1]$ (\supp). The learned step can thus change how much the network trusts each observed component, but it cannot move a correct estimate or amplify errors.
+
+\paragraph{Prior.} Each prior is a three-level U-Net~\cite{ronneberger2015unet} (widths 48, 96, 192) of Restormer blocks~\cite{zamir2022restormer}, whose transposed attention forms a channel-by-channel attention map with a cost linear in the number of pixels. The three priors hold 3.4~M parameters each, 10.1~M in total for Chikusei. Their design is not our contribution, and \cref{sec:ablation} shows that a convolutional mixer works about as well.
+
+\paragraph{Training over a family of observation models.} A network trained with one operator pair on noise-free data adapts its priors to that blur, that response and no noise. Since the operators enter PUFormer only through its data steps, we can instead draw for every batch a blur width $\sigma\sim\mathcal{U}[0.5,2]\sigma_0$, a spectral shift $\delta\sim\mathcal{U}[-12,12]$~nm and, with probability 0.5, noise at an SNR from $\mathcal{U}[30,50]$~dB, simulate the batch with $(\D_\sigma,\R_\delta)$, and use the same operators in the data steps. At test time the operators are given or estimated with~\eqref{eq:J}. As HQS suggests, we also condition on the noise: a code $\mathbf{c}=(\sigma/\sigma_0-1,\delta/12,\log_{10}n_{\mathrm{H}}+2,\log_{10}n_{\mathrm{M}}+2)$, with the relative noise levels $n$ estimated from each observation by the median absolute deviation~\cite{donoho1994ideal}, sets the step sizes $\alpha_k=\mathrm{softplus}(a_k+\mathbf{u}_k^{\top}\mathbf{c})$, $\beta_k=\mathrm{softplus}(b_k+\mathbf{v}_k^{\top}\mathbf{c})$ and modulates the prior features (FiLM~\cite{perez2018film}), similar to the hyper-parameter module of USRNet~\cite{zhang2020usrnet}.
+
+\paragraph{Loss.} We train with $\|\X_K-\X\|_1+0.1\sum_{k<K}\|\X_k-\X\|_1+0.05\,\mathrm{SAM}(\X_K,\X)+0.1\,(1-\mathrm{SSIM}(\X_K,\X))$ and AdamW, and test the exponential moving average of the weights.
+
+\section{Experiments}
+\label{sec:exp}
+\subsection{Setup}
+\label{sec:setup}
+\paragraph{Data.} Chikusei~\cite{yokoya2016chikusei} has 128 bands (363--1018~nm) and is paired with the eight WorldView-2 responses; Pavia Centre~\cite{gamba2004pavia} has 92 bands and is paired with the four IKONOS responses. We use the split sizes of~\cite{chen2026twostage} (8 and 4 test images of $256\times256$ pixels) with fixed, disjoint locations given in \supp. CAVE~\cite{yasuma2010cave} (20 training and 12 test scenes) and Harvard~\cite{chakrabarti2011harvard} (30 and 20 images) have 31 bands and are paired with a Nikon RGB response. All pairs follow Wald's protocol~\cite{wald1997fusion}: both observations are simulated from the reference with~\eqref{eq:obs}, every training crop on its own. At $\times8$ and $\times16$ the blur is a $(2s-1)\times(2s-1)$ Gaussian with $\sigma=s/2$.
+
+\paragraph{Baselines and budget.} We compare with GSA~\cite{aiazzi2007gsa} and \qone{n-retrained-word} networks: SSR-NET~\cite{zhang2021ssrnet}, DHIF-Net~\cite{huang2022dhif}, U2Net~\cite{peng2023u2net}, PSRT~\cite{deng2023psrt}, DCT~\cite{ma2024reciprocal}, MIMFormer~\cite{li2024mimformer}, MIMO-SST~\cite{fang2024mimosst}, OTPNet~\cite{yu2025otpnet}, SMGU-Net~\cite{yan2025smgu} and CLSNet~\cite{yang2026clsnet}. Each is built from its authors' code; only the numbers of bands and the scale factor are changed (\supp\ lists the commits). All methods, PUFormer included, are trained for 4~h on one Tesla T4 GPU with the same patches ($64\times64$), batch size (8), augmentation, EMA weights and validation-only model selection; SSR-NET, which converges sooner, gets 1.5~h. The published networks keep their published learning rates with an L1 loss. The metrics are computed by the same code for all methods: PSNR (peak equal to the dataset maximum), SSIM, the spectral angle SAM (degrees) and ERGAS; Q2n, CC, SCC and RMSE are in \supp.
+
+\subsection{Comparison}
+\label{sec:bench}
+\qtab{cvpr_bench}
+
+\Cref{tab:bench} shows the $\times4$ results. PUFormer reaches \qone{chikusei4-psnr}~dB on Chikusei and \qone{pavia4-psnr}~dB on Pavia Centre, \qone{chikusei4-gain} and \qone{pavia4-gain}~dB above the best retrained network, and it has the lowest SAM and ERGAS on both datasets. Over three seeds, the PSNR of PUFormer and of MIMFormer varies by \qone{chikusei4-puformer-seedstd} and \qone{chikusei4-mimformer-seedstd}~dB on Chikusei, and the worst PUFormer seed is still \qone{chikusei4-seedgap-min}~dB above the best MIMFormer seed. \Cref{tab:general} extends the comparison to CAVE and Harvard, whose test scenes are unseen in training, and to $\times8$ and $\times16$: PUFormer has the highest PSNR in \qone{gen-psnr-wins} of the \qone{gen-complete} settings in which every network has run, with margins between \qone{gen-gain-min} and \qone{gen-gain-max}~dB.
+
+\qtab{cvpr_general}
+
+A fixed budget raises two questions. First, does our pipeline weaken the baselines? It does not: the retrained networks match or exceed the values reported for them, e.g., MIMFormer reaches \qone{chikusei4-mimformer-psnr}~dB on Chikusei against 53.36~dB in~\cite{chen2026twostage}, and their authors' own training recipes do not improve them (\cref{tab:margin}). Second, does the budget favor fast networks? Partly: DCT completes only \qone{pavia4-dct-iters} iterations in 4~h on Pavia Centre, against \qone{pavia4-puformer-iters} for PUFormer. With 8~h of training, PUFormer and MIMFormer reach \qone{long-puformer-psnr} and \qone{long-mimformer-psnr}~dB on Pavia Centre; the gap narrows from \qone{pavia4-gain} to \qone{long-gap}~dB but remains.
+
+For context only, \supp\ lists PUFormer next to the 17 methods tabulated in~\cite{chen2026twostage}. Those numbers come from a different implementation of the same protocol: our retrained baselines exceed their reported values by up to 3.6~dB, so the copied table cannot rank methods.
+
+\IfFileExists{figures/q1_visual.pdf}{%
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/q1_visual.pdf}
+\caption{Mean absolute error over all bands (DN) on the test image where PUFormer has its lowest PSNR. The color scale is set by the retrained networks (clipped at the 99.5th percentile), so GSA saturates; the number in each map is its mean.}
+\label{fig:visual}
+\end{figure*}}{}
+
+\subsection{Where the margin comes from}
+\label{sec:nullsplit}
+\qtab{cvpr_margin}
+
+\Cref{tab:margin} reduces PUFormer step by step. A single U-Net prior on the bicubic image and the HR-MSI, without data steps or stages, already reaches \qone{gain-chikusei-abl-unet-psnr}~dB on Chikusei and \qone{gain-pavia-abl-unet-psnr}~dB on Pavia Centre, above every retrained network. Most of the margin therefore comes from this residual multiscale prior and its training recipe, not from the transformer blocks, and the exact data steps add \qone{gain-chikusei-abl-unet-gap} and \qone{gain-pavia-abl-unet-gap}~dB on top.
+
+The null space of \cref{thm:kron}(c) gives a second view. We project the error of every method onto the observed subspace $\mathrm{row}(\D)+\mathrm{row}(\R)$, where it contradicts the observations, and onto the null space, where only a prior can reduce it. Bicubic interpolation and GSA err mostly in the observed subspace: only \qone{null-chikusei-bicubic-share}\% and \qone{null-chikusei-gsa-share}\% of their squared error lies in the null space on Chikusei, so they do not even reproduce their inputs. PUFormer's error in the observed subspace (column Obs.\ of \cref{tab:bench}) is \qone{null-chikusei-obs-ratio} times smaller than MIMFormer's on Chikusei and \qone{null-pavia-obs-ratio} times smaller on Pavia Centre. Removing MIMFormer's observed error alone would raise its PSNR by \qone{null-chikusei-consistency-gain}~dB on Chikusei; the remaining \qone{null-chikusei-prior-gain}~dB of PUFormer's margin come from a better estimate of the null-space part. The exact data steps account for the first part, and the prior for the second.
+
+\subsection{What the exact operator does}
+\label{sec:ablation}
+\qtab{cvpr_ablation}
+\qtab{cvpr_cond}
+
+\Cref{tab:ablation} retrains variants from scratch with the same budget. Without data steps, PSNR drops by \qone{kabl-nophys-absdelta}~dB on Chikusei and \qone{abl-nophys-absdelta}~dB on Pavia Centre, and the agreement with the LR-HSI falls from \qone{kabl-full-consH} to \qone{kabl-nophys-consH}~dB. A zero border or a learned blur and response cost \qone{kabl-zeros-absdelta} and \qone{kabl-learned-absdelta}~dB on Chikusei, and both reproduce the LR-HSI about 3~dB worse, as \cref{thm:mismatch} predicts. Over three seeds the zero border costs \qone{kabl-seed-gain}~dB on Chikusei and \qone{abl-seed-gain}~dB on Pavia Centre, against a seed spread of \qone{kabl-full-std} and \qone{abl-full-std}~dB.
+
+The difference becomes large when the blur changes (\cref{fig:operator}). Given the true blur, the exact model loses at most \qone{kabl-full-swaploss}~dB on Chikusei; the zero-border model, given the same blur, loses \qone{kabl-zeros-swaploss}~dB, and the learned operator, which cannot be replaced, \qone{kabl-learned-fixedloss}~dB. A zero border thus prevents the swap from working although it differs from the exact operator only at the image border: the prior has learned to compensate a border error tied to the training blur. Solving the data step exactly in closed form~\eqref{eq:kronstep} costs little training speed (\qone{kabl-kron-iters} against \qone{kabl-full-iters} iterations on Chikusei), changes the PSNR by \qone{kabl-kron-delta} and \qone{abl-kron-delta}~dB (Chikusei, Pavia Centre) and reproduces the LR-HSI about 3~dB more accurately (\qone{kabl-kron-consH} against \qone{kabl-full-consH}~dB on Chikusei). Learning its spectral gains~\eqref{eq:klstep} changes the PSNR by \qone{kabl-kl-delta} and \qone{abl-kl-delta}~dB and raises this agreement further, to \qone{kabl-kl-consH}~dB. The exact proximal step with five conjugate-gradient iterations is slower and completes fewer training iterations in the budget. Changes to the prior matter less: a convolutional mixer instead of attention changes the PSNR by \qone{kabl-conv-delta} and \qone{abl-conv-delta}~dB (Chikusei, Pavia Centre), and a single stage by \qone{kabl-k1-delta} and \qone{abl-k1-delta}~dB.
+
+\begin{figure}[t]
+\centering
+\IfFileExists{figures/q1_operator.pdf}{\includegraphics[width=\columnwidth]{figures/q1_operator.pdf}}{}
+\caption{Test PSNR when the test blur differs from the training blur ($\sigma_0=2$, dotted): exact operator with and without the true blur, zero border with the true blur, and a learned operator, which cannot be replaced.}
+\label{fig:operator}
+\end{figure}
+
+\subsection{One network for a family of observation models}
+\label{sec:cond}
+
+\Cref{tab:cond} tests networks trained over the operator family on conditions that leave the training protocol. Within the family, the estimate of \cref{thm:ident} is accurate: on every test image and condition, 30~dB SNR included, the blur width is recovered to within \qone{cond-chikusei-sigerr-max} and the spectral shift to within \qone{cond-chikusei-shifterr-max}~nm on Chikusei. Training over the family is what makes the network robust to noise and to combined changes: at 40--30~dB SNR the mean PSNR rises from \qone{cond-chikusei-noise-bench-puformer-fixed} to \qone{cond-chikusei-noise-cond-omc-estimated}~dB on Chikusei. Giving the data steps the estimated operator adds to randomized training alone, \eg \qone{cond-chikusei-combined-cond-omc-estimated} against \qone{cond-chikusei-combined-cond-nocond-fixed}~dB under combined changes, and MIMFormer trained on the same randomized data stays below both. The price is a lower PSNR at the training operator (\qone{cond-chikusei-nominal-cond-omc-estimated} against \qone{chikusei4-psnr}~dB).
+
+Outside the family the operator-conditioned network is fragile. With an anisotropic or defocus blur the estimated isotropic operator is wrong, and the network, which trusts its operator, drops to \qone{cond-chikusei-kernel-cond-omc-estimated}~dB on Chikusei, below the network trained on randomized data with the nominal operator (\qone{cond-chikusei-kernel-cond-nocond-fixed}~dB); given the true kernel it recovers (\qone{cond-chikusei-kernel-cond-omc-oracle}~dB). An HR-MSI misregistered by half a pixel costs every method, GSA included, more than 15~dB, because none of them models registration. Exactness thus makes the network precise when the operator family covers the test conditions and fragile when it does not.
+
+\section{Limitations and conclusion}
+\label{sec:conclusion}
+Most results rest on Wald's protocol, as in every benchmark of this field. On real airborne NEON data, an imaging spectrometer with a co-registered RGB camera whose response we fit (\supp), PUFormer is again the most accurate at reduced resolution (\qone{neon-puformer-psnr} against \qone{neon-mimformer-psnr}~dB for MIMFormer), but the operator variants differ by less than 0.1~dB there, because the fitted response is only approximate. Real sensor pairs also have registration errors, which our operator family does not cover. The equal-budget benchmark trains every method for 4~h; the 8~h check narrows but keeps the gap, but fully converged comparisons were not run. The test sets of Chikusei and Pavia Centre are small.
+
+We studied exact observation operators in unfolded hyperspectral and multispectral fusion. Separable operators with the true border give a closed-form data step and an explicit null space; an exact data step keeps the ground truth fixed and an inexact one moves it by a bounded amount; and both operators can be estimated from the observations. Under one protocol and budget, PUFormer is more accurate than \qone{n-retrained-word} retrained networks, mainly because of its prior and training, while its exact operators make it adaptable to new blurs, spectral responses and noise. Operator families that include non-separable blurs and registration errors are the next step. Code will be made publicly available.
+
+\section*{LLM Usage Statement}
+\TODO{Required by CVPR 2027 (does not count toward the page limit). It must truthfully name any LLM or generative AI tool used for this work, the parts it was used for (e.g., code, experiments, text editing) and the extent of use. Draft to be completed by the authors: ``A large language model assistant was used to help write and debug the training and evaluation code, to run the experiments on cloud GPUs, and to edit the text. The authors designed the study, checked all code, results and claims, and take full responsibility for the content.''}
+
+{
+    \small
+    \bibliographystyle{ieeenat_fullname}
+    \bibliography{references}
+}
+
+\end{document}

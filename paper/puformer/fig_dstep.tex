@@ -1,0 +1,75 @@
+%------------------------------------------------------------------------------------------------ 2. data step
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[font=\small]
+% current estimate
+\pic at (-0.55,-0.55) {cube=1.0/1.0/0.75/blue};
+\node[lab, align=center] at (-0.05,-0.95) {$\X_{k-1}$\\$B\times H\times W$};
+% spatial branch (LR-HSI)
+\node[lab, font=\small\itshape, anchor=west] at (1.6,3.3) {spatial branch: compare with the LR-HSI};
+\node[phys, minimum width=26mm] (D) at (2.9,1.7) {blur, then\\downsample: $\D_\theta$};
+\node[op] (mh) at (5.25,1.7) {$-$};
+\node[phys, minimum width=31mm] (Dt) at (9.55,1.7) {back-project $\alpha_k\D_\theta^{\top}$\\spread over $H\times W$};
+\draw[->] (D) -- (mh);
+\draw[->] (mh) -- (Dt);
+\pic at (5.09,2.2) {cube=0.32/0.32/0.6/blue};
+\node[lab, anchor=west] at (5.95,2.55) {$\YH$};
+\draw[->] (5.25,2.17) -- (mh.north);
+\pic at (6.3,1.54) {cube=0.32/0.32/0.6/red};
+\node[lab, align=center, anchor=north] at (6.75,1.42) {mismatch $\mathbf{r}_{\mathrm{H}}$\\$B\times h\times w$};
+% spectral branch (HR-MSI)
+\node[lab, font=\small\itshape, anchor=west] at (1.6,-3.15) {spectral branch: compare with the HR-MSI};
+\node[phys, minimum width=26mm] (R) at (2.9,-1.7) {spectral\\response: $\R_\phi$};
+\node[op] (mm) at (5.25,-1.7) {$-$};
+\node[phys, minimum width=31mm] (Rt) at (9.55,-1.7) {back-project $\beta_k\R_\phi^{\top}$\\spread over $B$ bands};
+\draw[->] (R) -- (mm);
+\draw[->] (mm) -- (Rt);
+\pic at (4.85,-2.95) {cube=0.75/0.75/0.1/teal};
+\node[lab, anchor=east] at (4.8,-2.6) {$\YM$};
+\draw[->] (5.25,-2.18) -- (mm.south);
+\pic at (6.25,-2.07) {cube=0.75/0.75/0.1/red};
+\node[lab, align=center, anchor=north] at (6.7,-2.15) {mismatch $\mathbf{r}_{\mathrm{M}}$\\$M\times H\times W$};
+% wiring of the branches
+\draw (1.25,0) -- (1.45,0);
+\draw[->] (1.45,0) |- (D.west);
+\draw[->] (1.45,0) |- (R.west);
+\node[op] (sum) at (11.75,0) {$+$};
+\draw[->] (Dt.east) -| (sum.north);
+\draw[->] (Rt.east) -| (sum.south);
+\node[lab, align=center, anchor=north] at (11.75,-0.32) {correction\\$\mathbf{G}_k$};
+% closed-form solve
+\draw[zoom] (12.55,-2.45) rectangle (17.0,2.6);
+\node[lab, anchor=north] at (14.78,2.55) {closed-form solve (Thm.~\ref{thm:kron})};
+\node[phys, minimum width=40mm] (s1) at (14.78,1.35) {\textcircled{\scriptsize 1} rotate into the eigenbasis\\{\footnotesize one matrix product per axis}};
+\node[phys, minimum width=40mm] (s2) at (14.78,0) {\textcircled{\scriptsize 2} scale every component\\by its gain $\Gamma_{bij}$ (plot on the right)};
+\node[phys, minimum width=40mm] (s3) at (14.78,-1.35) {\textcircled{\scriptsize 3} rotate back to pixels};
+\draw[->] (sum) -- ++(0.45,0) |- (s1.west);
+\draw[->] (s1) -- (s2); \draw[->] (s2) -- (s3);
+% output
+\node[op] (ad) at (18.0,-1.35) {$+$};
+\draw[->] (s3) -- (ad);
+\pic at (18.6,-1.85) {cube=1.0/1.0/0.75/blue};
+\node[lab, align=center] at (19.1,-2.3) {$\Z_k$\\$B\times H\times W$};
+\draw[->] (ad) -- (18.55,-1.35);
+\draw[->] (-0.05,-1.6) -- (-0.05,-3.85) -| (ad.south);
+\node[lab, anchor=north] at (9.0,-3.9) {skip connection: where both observations agree, $\X_{k-1}$ passes unchanged (fixed point, Thm.~\ref{thm:mismatch})};
+% gain plot
+\begin{scope}[shift={(19.1,0.45)}]
+\draw[->, black!60] (0,0) -- (3.0,0);
+\draw[->, black!60] (0,0) -- (0,2.1);
+\fill[orange!18] plot[domain=-3:3, samples=50] ({0.45*(\x+3.2)}, {min(1.9, 2*1.6*pow(10,\x)/(1+pow(10,\x)))})
+  -- plot[domain=3:-3, samples=50] ({0.45*(\x+3.2)}, {0.5*1.6*pow(10,\x)/(1+pow(10,\x))}) -- cycle;
+\draw[blue!60!black, thick] plot[domain=-3:3, samples=50] ({0.45*(\x+3.2)}, {1.6*pow(10,\x)/(1+pow(10,\x))});
+\draw[black!40, dashed] (0,1.6) -- (2.9,1.6);
+\node[lab, anchor=east] at (0,1.6) {1};
+\node[lab, anchor=east] at (0,0.05) {0};
+\node[lab, align=center, anchor=north, font=\scriptsize] at (1.45,-0.1) {how strongly the component is observed\\($\alpha_k\lambda^{\mathrm{r}}_i\lambda^{\mathrm{c}}_j+\beta_k\nu_b$, log scale)};
+\node[lab, anchor=south west, font=\scriptsize] at (-0.25,2.15) {share of the mismatch removed};
+\node[lab, text=blue!60!black, anchor=west] at (0.95,1.25) {exact};
+\node[lab, text=orange!70!black, anchor=west] at (1.75,0.55) {learned};
+\end{scope}
+\end{tikzpicture}}
+\caption{The data step of stage $k$, the exact solution of~\eqref{eq:normal}. Two physics branches compare the estimate with the observations: the spatial branch blurs and downsamples it and compares it with the LR-HSI, the spectral branch applies the multispectral responses and compares it with the HR-MSI; both mismatches are spread back to the full cube by the exact adjoints. The closed-form solve rotates this correction into the eigenbasis of the separable operators, removes in each component a share $\Gamma_{bij}(\alpha_k\lambda^{\mathrm{r}}_i\lambda^{\mathrm{c}}_j+\beta_k\nu_b)$ of the mismatch that grows with how strongly the observations see that component (blue: the exact step~\eqref{eq:kronstep}; orange: the range allowed to the learned gains of Proposition~\ref{prop:kl}), and rotates back. Components that neither observation sees (the null space) are left to the prior.}
+\label{fig:dstep}
+\end{figure*}

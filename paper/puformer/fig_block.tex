@@ -1,0 +1,39 @@
+%------------------------------------------------------------------------------------------------ 4. block and GDFN
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}[font=\small]
+\node[font=\small] at (0,3.0) {(a) transformer block};
+\node[tns] (bi) at (0,2.2) {$\mathbf{F}$: $C\times H\times W$};
+\node[bx] (ln1) at (0,1.15) {LayerNorm over channels};
+\node[blk] (att) at (0,0.05) {transposed attention\\(Fig.~\ref{fig:mdta})};
+\node[op] (s1) at (0,-1.0) {$+$};
+\node[bx] (ln2) at (0,-1.95) {LayerNorm over channels};
+\node[blk] (ffn) at (0,-3.05) {gated feed-forward\\(panel b)};
+\node[op] (s2) at (0,-4.1) {$+$};
+\node[tns] (bo) at (0,-5.0) {$C\times H\times W$};
+\draw[->] (bi) -- (ln1); \draw[->] (ln1) -- (att); \draw[->] (att) -- (s1); \draw[->] (s1) -- (ln2);
+\draw[->] (ln2) -- (ffn); \draw[->] (ffn) -- (s2); \draw[->] (s2) -- (bo);
+\draw[->] (bi.west) -- (-1.95,2.2) |- (s1.west);
+\draw[->] (s1.east) -- (1.95,-1.0) |- (s2.east);
+\begin{scope}[xshift=5.2cm]
+\node[font=\small] at (0,3.0) {(b) gated feed-forward};
+\node[tns] (gi) at (0,2.2) {$C\times H\times W$};
+\node[bx] (g1) at (0,1.15) {conv $1{\times}1$: $C\rightarrow2C_{\mathrm{h}}$\\{\footnotesize $C_{\mathrm{h}}=\lfloor2.66\,C\rfloor$}};
+\node[bx] (g2) at (0,-0.1) {depth-wise conv $3{\times}3$};
+\node[bx] (ga) at (-0.8,-1.3) {GELU};
+\node[op] (gm) at (0,-2.4) {$\odot$};
+\node[bx] (g3) at (0,-3.45) {conv $1{\times}1$: $C_{\mathrm{h}}\rightarrow C$};
+\node[tns] (go) at (0,-4.5) {$C\times H\times W$};
+\draw[->] (gi) -- (g1); \draw[->] (g1) -- (g2);
+\draw[->] ([xshift=-8mm]g2.south) -- (ga.north);
+\draw[->] (ga.south) |- (gm.west);
+\draw[->] ([xshift=8mm]g2.south) -- ++(0,-0.5) |- (gm.east);
+\node[lab, anchor=west] at (0.9,-1.3) {gate};
+\node[lab, anchor=east] at (-1.3,-1.3) {half 1};
+\draw[->] (gm) -- (g3); \draw[->] (g3) -- (go);
+\end{scope}
+\end{tikzpicture}}
+\caption{(a) A transformer block of the prior: layer normalization over channels, transposed attention and a gated feed-forward network, each in a residual branch. (b) The gated feed-forward network: the expanded features are split in two halves, and the GELU of one half gates the other.}
+\label{fig:block}
+\end{figure}

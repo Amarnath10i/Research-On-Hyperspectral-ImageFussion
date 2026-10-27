@@ -1,0 +1,149 @@
+% CVPR 2027 supplementary material (review version). Compile cvpr_main.tex first with --keep-intermediates and
+% run cvpr_refs.py: references to the main paper (\mref{label}) are read from cvpr_mainrefs.tex.
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage[review]{cvpr}
+
+\input{cvpr_preamble}
+\IfFileExists{cvpr_mainrefs.tex}{\input{cvpr_mainrefs.tex}}{}
+\newcommand{\mref}[1]{\ifcsname mref@#1\endcsname\csname mref@#1\endcsname\else\textbf{??}\fi}
+
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
+
+\def\confName{CVPR}
+\def\confYear{2027}
+
+\renewcommand{\thesection}{S\arabic{section}}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\theequation}{S\arabic{equation}}
+
+\title{Unfolded Hyperspectral and Multispectral Image Fusion with Exact Observation Operators\\[2pt]
+\large Supplementary Material}
+\author{Anonymous CVPR submission}
+
+\begin{document}
+\maketitle
+
+\noindent Equations, theorems, sections and tables of the main paper are referred to by their numbers there (\eg Theorem~\mref{thm:kron}, Tab.~\mref{tab:bench}); items of this supplement carry the prefix S.
+
+\section{The exact adjoint of reflect padding}
+\label{sec:adjoint}
+Every gradient step on $\|\D\X-\YH\|^2$ needs $\D^{\top}=\mathcal{P}^{\top}\mathcal{K}^{\top}\mathcal{S}^{\top}$, where $\mathcal{P}$ pads by $p$ pixels, $\mathcal{K}$ is a valid correlation with the $(2p+1)\times(2p+1)$ kernel and $\mathcal{S}$ keeps every $s$-th pixel from index zero. $\mathcal{S}^{\top}$ inserts zeros and $\mathcal{K}^{\top}$ is a full convolution; together they are a strided transposed convolution with output padding $s-1$. The adjoint of reflect padding adds each padded margin back onto the pixels it was copied from. For a padded row index $j\in[0,H+2p)$ the source row is $p-j$ for $j<p$, $j-p$ in the interior and $2H-2+p-j$ in the bottom margin, hence
+\begin{equation}
+\begin{split}
+(\mathcal{P}^{\top}\mathbf{g})_i={}&\mathbf{g}_{i+p}+[1\le i\le p]\,\mathbf{g}_{p-i}\\
+&+[H-1-p\le i\le H-2]\,\mathbf{g}_{2H-2+p-i},
+\end{split}
+\label{eq:fold}
+\end{equation}
+applied to rows and then to columns. With~\eqref{eq:fold}, the operator in the network is exactly the simulation operator, and $\langle\D\X,\mathbf{Y}\rangle=\langle\X,\D^{\top}\mathbf{Y}\rangle$ holds to a relative error below $10^{-13}$ in double precision at every scale factor. $\R^{\top}$ is the transpose of the response matrix.
+
+\section{Proofs}
+\label{sec:proofs}
+\paragraph{Theorem~\mref{thm:kron}.} (a) By~(\mref{eq:modes}), $\D_\theta^{\top}\D_\theta$ applies $\mathbf{D}_{\mathrm{r}}^{\top}\mathbf{D}_{\mathrm{r}}$ and $\mathbf{D}_{\mathrm{c}}^{\top}\mathbf{D}_{\mathrm{c}}$ to the two spatial modes and the identity to the spectral mode, and $\R_\phi^{\top}\R_\phi$ applies $\mathbf{r}_\phi^{\top}\mathbf{r}_\phi$ to the spectral mode alone. Each factor is diagonalized by the corresponding factor of $\mathcal{Q}$, and an identity factor by any orthonormal basis. (b) In this basis the matrix of~(\mref{eq:normal}) is diagonal with entries $1+\alpha_k\lambda^{\mathrm{r}}_i\lambda^{\mathrm{c}}_j+\beta_k\nu_b>0$. (c) $\mathcal{N}(\D_\theta)\cap\mathcal{N}(\R_\phi)=\mathcal{N}(\D_\theta^{\top}\D_\theta+\R_\phi^{\top}\R_\phi)$, whose eigenvalues $\lambda^{\mathrm{r}}_i\lambda^{\mathrm{c}}_j+\nu_b$ are sums of nonnegative terms and vanish only when both terms do. The basis tensors with $\lambda^{\mathrm{r}}_i\lambda^{\mathrm{c}}_j>0$ span the row space of $\mathbf{D}_{\mathrm{r}}\otimes\mathbf{D}_{\mathrm{c}}$, of dimension $hw$, and those with $\nu_b>0$ the row space of $\mathbf{r}_\phi$, of dimension $M$. The orthogonal projector onto the null space is therefore $(\mathbf{I}-\mathbf{P}_{\mathrm{s}})\otimes(\mathbf{I}-\mathbf{P}_{\mathrm{r}}\otimes\mathbf{P}_{\mathrm{c}})$ in mode order, with $\mathbf{P}_{\mathrm{s}},\mathbf{P}_{\mathrm{r}},\mathbf{P}_{\mathrm{c}}$ the projectors onto the row spaces of $\mathbf{r}_\phi,\mathbf{D}_{\mathrm{r}},\mathbf{D}_{\mathrm{c}}$, and its dimension is $(B-M)(HW-hw)$. \hfill$\square$
+
+\paragraph{Theorem~\mref{thm:mismatch}.} (a) $\tilde{\mathbf{A}}\X^*-\mathbf{Y}=\mathbf{0}$ makes both updates vanish. (b) With $\mathbf{B}=\mathbf{W}_k^{1/2}\tilde{\mathbf{A}}$, a direct computation gives $T(\X^*)-\X^*=(\mathbf{I}+\mathbf{B}^{\top}\mathbf{B})^{-1}\mathbf{B}^{\top}\mathbf{e}$ with $\mathbf{e}=\mathbf{W}_k^{1/2}(\mathbf{A}-\tilde{\mathbf{A}})\X^*$. In the singular value decomposition of $\mathbf{B}$, $(\mathbf{I}+\mathbf{B}^{\top}\mathbf{B})^{-1}\mathbf{B}^{\top}$ has singular values $b_i/(1+b_i^2)\le\tfrac12$. Similarly $G(\X^*)-\X^*=\mathbf{B}^{\top}\mathbf{e}$, whose norm is at most $\|\mathbf{B}\|\,\|\mathbf{e}\|$. (c) $T_k$ is nonexpansive, since $\|T_k(\mathbf{V})-T_k(\mathbf{V}')\|=\|(\mathbf{I}+\mathbf{B}^{\top}\mathbf{B})^{-1}(\mathbf{V}-\mathbf{V}')\|\le\|\mathbf{V}-\mathbf{V}'\|$. With $e_k=\|\X_k-\X^*\|$ and $(\mathcal{I}+\mathcal{P}_k)(\X^*)=\X^*$,
+\begin{equation*}
+\begin{split}
+e_k&\le L_k\|T_k(\X_{k-1})-\X^*\|\\
+&\le L_k\big(\|T_k(\X_{k-1})-T_k(\X^*)\|+\|T_k(\X^*)-\X^*\|\big)\le L_k\big(e_{k-1}+\tfrac12\|\mathbf{e}_k\|\big),
+\end{split}
+\end{equation*}
+and unrolling from $e_0=0$ gives the bound. The gradient step is not nonexpansive in general, so the bound has no counterpart for it. \hfill$\square$
+
+\paragraph{Corollary~\mref{cor:border}.} A low-resolution pixel is a weighted sum of the $(2p+1)\times(2p+1)$ high-resolution pixels around its sampling position. Two border rules give the same value whenever this window lies inside the image, i.e., unless the sampling position is within $p$ pixels of the border; with sampling positions $0,s,2s,\dots$ this concerns the first $\lceil p/s\rceil$ low-resolution rows and columns (and, at the far border, those whose window crosses it). \hfill$\square$
+
+\paragraph{Theorem~\mref{thm:ident}.} (a) On vectorized images, $\D_\theta=\mathbf{I}_B\otimes\bar{\D}_\theta$ and $\R_\phi=\mathbf{r}_\phi\otimes\mathbf{I}_N$, with $\bar{\D}_\theta$ the single-band spatial operator and $N=HW$. By the mixed-product rule, $(\mathbf{I}_M\otimes\bar{\D}_\theta)(\mathbf{r}_\phi\otimes\mathbf{I}_N)=\mathbf{r}_\phi\otimes\bar{\D}_\theta=(\mathbf{r}_\phi\otimes\mathbf{I}_{N/s^2})(\mathbf{I}_B\otimes\bar{\D}_\theta)$. With $\YM=\R_{\phi^*}\X$ and $\YH=\D_{\theta^*}\X$, $\D_{\theta^*}\YM=\R_{\phi^*}\D_{\theta^*}\X=\R_{\phi^*}\YH$.
+(b) By (a), $J(\theta,\phi)=\|\mathbf{E}_{\theta\phi}\X\|^2$ with $\mathbf{E}_{\theta\phi}=\mathbf{r}_{\phi^*}\otimes\bar{\D}_\theta-\mathbf{r}_\phi\otimes\bar{\D}_{\theta^*}$. Suppose $\mathbf{E}_{\theta\phi}=\mathbf{0}$ and apply it to $\X=\mathbf{e}_b\otimes\mathbf{u}$, a single band $b$ with spatial pattern $\mathbf{u}$: $(\mathbf{r}_{\phi^*})_{:b}\otimes\bar{\D}_\theta\mathbf{u}=(\mathbf{r}_\phi)_{:b}\otimes\bar{\D}_{\theta^*}\mathbf{u}$ for all $\mathbf{u}$. If $\theta\neq\theta^*$, then $\bar{\D}_\theta\neq c\,\bar{\D}_{\theta^*}$ for every scalar $c$: both kernels sum to one and reflect padding preserves constants, so both operators map a constant image to the same constant, which forces $c=1$ and contradicts injectivity. Two linear maps of rank greater than one that are not scalar multiples of each other map some $\mathbf{u}$ to linearly independent images, and for this $\mathbf{u}$ the identity forces $(\mathbf{r}_{\phi^*})_{:b}=(\mathbf{r}_\phi)_{:b}=\mathbf{0}$, a contradiction. If $\theta=\theta^*$, the identity gives $(\mathbf{r}_{\phi^*})_{:b}=(\mathbf{r}_\phi)_{:b}$ for every $b$, so $\phi=\phi^*$. Hence $\mathbf{E}_{\theta\phi}\neq\mathbf{0}$ for every $(\theta,\phi)\neq(\theta^*,\phi^*)$ in $\mathcal{G}$; its null space is a proper subspace of measure zero, and so is the finite union of these null spaces. For every $\X$ outside it, $J(\theta,\phi)>0$ whenever $(\theta,\phi)\neq(\theta^*,\phi^*)$. \hfill$\square$
+
+\paragraph{Noise in the criterion $J$.} With independent noise, $\mathbb{E}\,J(\theta,\phi)=\|\mathbf{E}_{\theta\phi}\X\|^2+\tfrac{N}{s^2}\big(M\varsigma_{\mathrm{M}}^2\|\mathbf{k}_\theta\|^2+\varsigma_{\mathrm{H}}^2\|\mathbf{r}_\phi\|_F^2\big)$ up to border terms, where $\mathbf{k}_\theta$ is the blur kernel. The noise term decreases with $\theta$ (a wider kernel has a smaller norm) and barely depends on $\phi$, so noise biases $\hat\theta$ upward by an amount that vanishes as the SNR grows.
+
+\paragraph{Proposition~\mref{prop:kl}.} Let $\varsigma_{bij}=\alpha_k\lambda^{\mathrm{r}}_i\lambda^{\mathrm{c}}_j+\beta_k\nu_b$, the eigenvalues of $\tilde{\mathbf{A}}^{\top}\mathbf{W}_k\tilde{\mathbf{A}}$, and $e^{f}$ the numerator of $\Gamma$, so $\tfrac12<e^{f}<2$. (a) $\mathbf{G}_k=\mathbf{0}$ at $\X^*$. (b) The step maps a difference $\mathbf{V}-\mathbf{V}'$ to $\mathcal{Q}\big((1-\Gamma\varsigma)\odot\mathcal{Q}^{-1}(\mathbf{V}-\mathbf{V}')\big)$, and $0\le\Gamma\varsigma=e^{f}\varsigma/(1+\varsigma)<2$, so every factor lies in $(-1,1]$. (c) The displacement is $\mathcal{Q}\big(\Gamma\odot\mathcal{Q}^{-1}(\mathbf{B}^{\top}\mathbf{e})\big)$, whose operator norm is $\max e^{f}\sqrt{\varsigma}/(1+\varsigma)\le2\cdot\tfrac12=1$. \hfill$\square$
+
+\section{Data and protocol}
+\label{sec:data}
+\label{sec:setup}
+\paragraph{Chikusei.} The scene~\cite{yokoya2016chikusei} has $2517\times2335$ pixels and 128 bands from 363 to 1018~nm. The split sizes follow~\cite{chen2026twostage}: eight $256\times256$ test images, 64 validation patches and 832 training patches of $64\times64$. Their locations are not specified there, so we fix them: we take the central $2048\times2048$ crop, which has no no-data border, and divide it by its global maximum (15{,}133 digital numbers, DN). The test images are the eight $256\times256$ tiles of the top 256 rows, the validation patches tile rows 272--400, and training draws random $64\times64$ crops with dihedral augmentation from rows 416--2048. Sixteen-row gaps keep the regions disjoint.
+
+\paragraph{Pavia Centre.} The ROSIS scene~\cite{gamba2004pavia} has $1096\times715$ pixels and 102 bands between 430 and 860~nm. As in~\cite{chen2026twostage} we keep bands 11--102 (92 bands) and use a four-band multispectral image. The benchmark files distributed with PSRT~\cite{deng2023psrt} were not accessible, so we rebuild the benchmark from the original scene to the same specification: division by the maximum of the retained bands (8{,}000~DN), four $256\times256$ test tiles in the top-left $512\times512$ region, 63 validation patches on a 32-pixel grid in rows 528--656, and random training crops from rows 672--1096 and from the strip to the right of the test region (rows 0--512, columns 528--715), with 16-pixel gaps.
+
+\paragraph{CAVE and Harvard.} CAVE~\cite{yasuma2010cave} has 32 indoor scenes of $512\times512$ pixels and 31 bands (400--700~nm); the first 20 scenes train and the last 12 test, as in MHF-Net, MoG-DCN and DCT. Harvard~\cite{chakrabarti2011harvard} has $1040\times1392$ images with 31 bands (420--720~nm); 30 images train and the central $512\times512$ crops of 20 images test, each image divided by its own maximum. Validation patches come from the bottom-right corners of the training images. Both are paired with a Nikon RGB response.
+
+\paragraph{NEON (real data).} The NEON airborne observation platform~\cite{kampe2010neon} records an imaging spectrometer (1~m) and an RGB camera (0.1~m) on the same flights. We use eight tiles of the SERC site (2019), 120 spectrometer bands between 400 and 1000~nm, and the camera image resampled to 0.25~m. The camera's spectral response is not published, so we fit a unit-sum nonnegative response of the three camera channels to the spectrometer bands on co-located 4~m blocks ($R^2$ between 0.45 and 0.79). At reduced resolution, the measured 1~m spectrometer image is the reference, the LR-HSI is simulated from it at $\times4$, and the measured camera image is the HR-MSI; at full resolution the measured 1~m image is fused with the 0.25~m camera image and evaluated without a reference ($D_\lambda$, $D_s$, HQNR~\cite{alparone2008qnr}). \Cref{tab:neon} lists the results.
+
+\paragraph{Spectral responses.} WorldView-2 (Chikusei) and IKONOS (Pavia Centre) publish their band responses only as plots with band edges. We model each band as a flat top with logistic flanks (4~nm roll-off) that pass through the published edges, at 5\% response for WorldView-2 and at 50\% for the IKONOS band limits (blue 445--516, green 506--595, red 632--698 and near infrared 757--853~nm), and normalize every band to unit sum.
+
+\paragraph{Degradation.} Every image, including every training crop, is degraded on its own with~(\mref{eq:obs}): reflect padding, a normalized Gaussian blur ($7\times7$, $\sigma=2$ at $\times4$; $(2s-1)\times(2s-1)$, $\sigma=s/2$ at $\times s$), decimation from index zero, and the spectral response. At $\times16$ all methods train on $128\times128$ patches with batch 4.
+
+\section{Baselines}
+\label{sec:baselines}
+All published networks are built from their authors' repositories, cloned at run time; only the numbers of input and output bands and the scale factor are changed. PSRT: github.com/Deng-shangqi/PSRT (9c2be90); DCT: github.com/qingma2016/DCTransformer (bd75b15); MIMFormer: github.com/meiruni/MIMFormer (0904158); DHIF-Net: github.com/TaoHuang95/DHIF-Net (6434366), whose code covers $\times8$ and $\times16$, so at $\times4$ we use one of the two stride-4 layers of its $\times16$ operator; SMGU-Net: github.com/yansql/SMGU-Net (115ce77), written for $\times4$ only; CLSNet: github.com/HengYang01/CLSNet (6b13371), whose upsampling layer is set to the scale factor; OTPNet: github.com/tsharry2201/OTPNet (7c17964), written for pansharpening, with the HR-MSI in place of the panchromatic image; U2Net: github.com/PSRben/U2Net (32e214c), also written for pansharpening, with its input, upsampling and output layers resized; MIMO-SST: github.com/Freelancefangjian/MIMO-SST (06aacc1), whose final full-resolution output is used. DCT and MIMFormer use gradient checkpointing to fit a 16~GB T4, which does not change what they compute. SSR-NET is our re-implementation of~\cite{zhang2021ssrnet}.
+
+Under the common recipe every baseline uses its published learning rate with Adam(W) and an L1 loss, batch 8, warm-up and cosine decay over the budget, no weight decay and no gradient clipping. The authors' own recipes (Tab.~\mref{tab:margin}) are read from their code: PSRT uses AdamW (learning rate $10^{-4}$, decay $10^{-4}$), clipping at 10, batch 32 and a constant learning rate; MIMFormer uses Adam ($10^{-4}$), batch 16 and step decay at 30, 60 and 90 of 101 epochs, mapped onto the time budget.
+
+\section{PUFormer details}
+\label{sec:details}
+\input{fig_style}
+\input{fig_prior}
+\input{fig_block}
+\input{fig_mdta}
+
+Each prior (\cref{fig:prior}) is a three-level U-Net with widths 48, 96 and 192, two, three and four transformer blocks on the encoder levels and the bottleneck, mirrored decoder levels and two refinement blocks. A block (\cref{fig:block}) follows Restormer~\cite{zamir2022restormer}: transposed attention (\cref{fig:mdta}) with 1, 2 and 4 heads on the three levels, followed by a gated depth-wise feed-forward network with expansion 2.66. The three priors hold 3.37--3.38~M parameters each; the network has 10.13~M parameters for Chikusei. Training uses AdamW ($\beta=(0.9,0.99)$, weight decay $10^{-4}$, peak learning rate $3\times10^{-4}$), a 1000-iteration warm-up, cosine decay to $10^{-3}$ of the peak at the end of the budget, gradient-norm clipping at 0.1, and an exponential moving average of the weights (decay 0.999). The image path, including all operator applications, runs in 32-bit precision and the priors in 16-bit mixed precision. The weights with the best validation PSNR are tested once, without self-ensemble.
+
+\section{Additional results}
+\label{sec:more}
+\qtab{q1_full}
+\qtab{q1_full_general}
+
+\paragraph{Comparison with reported numbers.} \Cref{tab:main} places our longest-trained Chikusei model (two runs, 20.4~h in total) next to the 17 methods tabulated in~\cite{chen2026twostage}; \cref{tab:pavia} does the same for Pavia Centre. These tables give context, not a ranking: the other rows are copied, our test images follow the published protocol but are not necessarily the same pixels, and our retrained baselines exceed their reported values by up to 3.6~dB (\eg MIMFormer \qone{chikusei4-mimformer-psnr}~dB against 53.36~dB reported). The PSNR values of~\cite{chen2026twostage} use a fixed peak: for every row of their Chikusei table, $\mathrm{RMSE}\cdot10^{\mathrm{PSNR}/20}$ lies between 16.6k and 17.1k~DN, above our peak of 15{,}133~DN, so our PSNR is conservative by about 0.86~dB on this dataset. RMSE in DN does not depend on the peak and is the most direct comparison.
+
+\begin{table*}[t]
+\centering
+\caption{Chikusei $\times$4: PUFormer next to the methods reported in~\cite{chen2026twostage} (all other rows copied from there). SSIM of PUFormer as in the PSRT code (data range 1).}
+\label{tab:main}
+\begin{tabular}{@{}lcccccccc@{}}
+\toprule
+Method & PSNR$\uparrow$ & SSIM$\uparrow$ & SAM$\downarrow$ & ERGAS$\downarrow$ & Q2n$\uparrow$ & CC$\uparrow$ & SCC$\uparrow$ & RMSE (DN)$\downarrow$ \\
+\midrule
+GSA~\cite{aiazzi2007gsa} & 47.5769 & 0.9933 & 1.7216 & 2.1667 & 0.9658 & 0.9894 & 0.9773 & 70.54 \\
+CNMF~\cite{yokoya2012cnmf} & 44.5291 & 0.9891 & 1.7259 & 2.8676 & 0.9662 & 0.9828 & 0.9645 & 101.64 \\
+FUSE~\cite{wei2015fuse} & 41.1550 & 0.9787 & 2.5814 & 3.4710 & 0.9418 & 0.9736 & 0.9486 & 148.10 \\
+U2Net~\cite{peng2023u2net} & 50.5455 & 0.9956 & 1.2389 & 1.8740 & 0.9928 & 0.9920 & 0.9798 & 49.97 \\
+PSRT~\cite{deng2023psrt} & 50.6722 & 0.9952 & 1.2733 & 2.0107 & 0.9862 & 0.9906 & 0.9778 & 49.00 \\
+DCT~\cite{ma2024reciprocal} & 52.1998 & 0.9977 & 0.9239 & 1.7448 & 0.9832 & 0.9935 & 0.9873 & 41.45 \\
+DDIF~\cite{cao2024ddif} & 53.4421 & 0.9972 & 0.9387 & 1.8087 & 0.9963 & 0.9929 & 0.9840 & 35.58 \\
+MIMFormer~\cite{li2024mimformer} & 53.3578 & 0.9973 & 0.9094 & 1.7611 & 0.9948 & 0.9931 & 0.9850 & 35.90 \\
+MIMO-SST~\cite{fang2024mimosst} & 53.6073 & 0.9972 & 0.9315 & 1.8119 & 0.9944 & 0.9926 & 0.9834 & 34.93 \\
+OTPNet~\cite{yu2025otpnet} & 52.8243 & 0.9969 & 1.0201 & 1.9332 & 0.9940 & 0.9916 & 0.9841 & 38.49 \\
+SMGU~\cite{yan2025smgu} & 54.5244 & 0.9977 & 0.8719 & 1.6405 & 0.9952 & 0.9939 & 0.9875 & 31.29 \\
+AMSF~\cite{liu2025amsf} & 49.3827 & 0.9944 & 1.4852 & 2.3943 & 0.9878 & 0.9879 & 0.9790 & 56.78 \\
+SSDT~\cite{fu2025ssdt} & 52.4788 & 0.9975 & 0.8768 & 1.7992 & 0.9939 & 0.9928 & 0.9847 & 40.00 \\
+ASMNet~\cite{liu2025asmnet} & 53.4528 & 0.9972 & 0.9472 & 1.9153 & 0.9874 & 0.9917 & 0.9848 & 35.89 \\
+DPFormer~\cite{liu2026dpformer} & 53.1632 & 0.9970 & 0.9483 & 1.8795 & 0.9949 & 0.9923 & 0.9824 & 37.18 \\
+CLSNet~\cite{yang2026clsnet} & 55.2007 & 0.9979 & 0.7836 & 1.6318 & 0.9943 & 0.9941 & 0.9869 & 29.06 \\
+Two-stage diffusion~\cite{chen2026twostage} & 56.1871 & 0.9982 & 0.7203 & 1.5158 & \best{0.9969} & 0.9948 & 0.9891 & 25.73 \\
+\midrule
+PUFormer (single pass) & 58.1467 & \best{0.9989} & 0.7171 & 1.3367 & 0.9930 & \best{0.9967} & \best{0.9992} & 19.06 \\
+PUFormer (self-ensemble) & \best{58.2016} & \best{0.9989} & \best{0.7126} & \best{1.3304} & 0.9931 & \best{0.9967} & \best{0.9992} & \best{18.94} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\input{tables/pavia_compare.tex}
+
+\qtab{q1_neon}
+\qtab{q1_ablation}
+\qtab{q1_ablation_general}
+\qtab{q1_cond_full}
+\qtab{q1_gain}
+\qtab{q1_complexity}
+
+{
+    \small
+    \bibliographystyle{ieeenat_fullname}
+    \bibliography{references}
+}
+
+\end{document}

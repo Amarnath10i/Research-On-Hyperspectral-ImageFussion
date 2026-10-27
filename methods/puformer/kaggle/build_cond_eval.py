@@ -76,7 +76,7 @@ def main():
     if "neon" in used:
         srcs += [f"{a.user}/puf-neon-data", f"{a.user}/puf-neon-fit"]
     meta = dict(id=f"{a.user}/{a.slug}", title=a.slug, code_file=f"{a.slug}.ipynb", language="python",
-                kernel_type="notebook", is_private=True, enable_gpu=a.gpu, enable_internet=False,
+                kernel_type="notebook", is_private=True, enable_gpu=a.gpu, enable_internet=True,
                 dataset_sources=[DATASETS[d] for d in used if DATASETS[d]], competition_sources=[],
                 kernel_sources=srcs)
     if a.gpu:

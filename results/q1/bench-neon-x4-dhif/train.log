@@ -1,0 +1,12 @@
+neon x4: train 6 regions, e.g. [(123, 920, 1000), (123, 920, 1000)] test (8, 123, 256, 256) val (90, 123, 64, 64), 1.0 = 15488 DN  (124s)
+[external] dhif: https://github.com/TaoHuang95/DHIF-Net @ 643436658109f65a78ee01191163eec88a6b4407
+dhif (reflect borders): 45.40M params on 1 x cuda; batch 8 x 1; epoch = 168 iters; eval every 1000 iters; deadline in 3.96 h; schedule by time
+bicubic test: {'PSNR': 31.7803, 'PSNR_psrt': 27.3009, 'MPSNR_peak1': 34.756, 'SSIM': 0.7779, 'SSIM_psrt': 0.8403, 'SAM': 3.4218, 'ERGAS': 13.6786, 'RMSE_DN': 435.0792, 'CC': 0.8213, 'SCC': 0.7591, 'Q2n': 0.5375}
+GSA test: {'PSNR': 31.2453, 'PSNR_psrt': 26.7659, 'MPSNR_peak1': 34.61, 'SSIM': 0.7414, 'SSIM_psrt': 0.8143, 'SAM': 6.0869, 'ERGAS': 14.1148, 'RMSE_DN': 461.1284, 'CC': 0.8226, 'SCC': 0.7687, 'Q2n': 0.4952}
+ep     6.0 it   1000 loss 0.01589 lr 3.00e-04 val PSNR 35.345 SSIM 0.8297 SAM 2.700 | best val 35.345 (1.49 h)
+ep    11.9 it   2000 loss 0.01148 lr 5.36e-05 val PSNR 35.857 SSIM 0.8440 SAM 2.358 | best val 35.857 (2.90 h)
+ep    16.7 it   2800 loss 0.01082 lr 3.00e-07 val PSNR 35.996 SSIM 0.8489 SAM 2.324 | best val 35.996 (4.04 h)
+time budget reached at it 2800 (epoch 16.7); continue with --resume <out>/last.pt
+TEST: {'PSNR': 36.9696, 'PSNR_psrt': 32.4902, 'MPSNR_peak1': 39.9652, 'SSIM': 0.9129, 'SSIM_psrt': 0.9418, 'SAM': 2.3575, 'ERGAS': 7.1189, 'RMSE_DN': 240.2408, 'CC': 0.9469, 'SCC': 0.9268, 'Q2n': 0.7365}
+TEST (self-ensemble): {'PSNR': 36.9644, 'PSNR_psrt': 32.485, 'MPSNR_peak1': 39.9727, 'SSIM': 0.9126, 'SSIM_psrt': 0.9416, 'SAM': 2.291, 'ERGAS': 7.1052, 'RMSE_DN': 240.5395, 'CC': 0.9469, 'SCC': 0.9265, 'Q2n': 0.7364}
+consistency: {'cons_H_dB': 58.27968459659871, 'cons_M_dB': 35.979258129191194} | self-ensemble: {'cons_H_dB': 58.68939626584172, 'cons_M_dB': 35.991260077197545}

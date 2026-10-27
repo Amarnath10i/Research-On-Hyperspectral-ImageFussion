@@ -1,0 +1,26 @@
+% Architecture figures: overview (fig:arch), data step (fig:dstep), prior (fig:prior), block and feed-forward
+% network (fig:block), transposed attention (fig:mdta)
+% \optfig{label}: " (Fig. n)" if that figure is in the document (the CVPR version leaves some of them out)
+\providecommand{\optfig}[1]{\ifcsname r@#1\endcsname\ (Fig.~\ref{#1})\fi}
+\tikzset{
+  >={Stealth[length=1.8mm]},
+  bx/.style={draw, rounded corners=2pt, align=center, fill=white, inner sep=3pt, minimum height=8mm},
+  phys/.style={bx, fill=blue!7, draw=blue!55!black},
+  prior/.style={bx, fill=orange!10, draw=orange!70!black},
+  est/.style={bx, fill=teal!8, draw=teal!60!black},
+  io/.style={bx, fill=black!6},
+  tns/.style={bx, fill=black!3, draw=black!45, minimum height=7mm},
+  blk/.style={bx, fill=orange!12, draw=orange!70!black},
+  op/.style={circle, draw, inner sep=0.6pt, fill=white},
+  lab/.style={font=\footnotesize, text=black!70},
+  film/.style={circle, fill=violet!75!black, inner sep=1.6pt},
+  zoom/.style={draw=black!40, dashed, rounded corners=6pt},
+  % a data cube: width (pixels), height (pixels), depth (bands), colour; anchored at its lower-left front corner
+  pics/cube/.style args={#1/#2/#3/#4}{code={
+    \fill[#4!18] (0,0) rectangle (#1,#2);
+    \fill[#4!38] (0,#2) -- ++(#3,0.55*#3) -- ++(#1,0) -- ++(-#3,-0.55*#3) -- cycle;
+    \fill[#4!55] (#1,0) -- ++(#3,0.55*#3) -- ++(0,#2) -- ++(-#3,-0.55*#3) -- cycle;
+    \draw[#4!60!black, line width=0.4pt] (0,0) rectangle (#1,#2)
+      (0,#2) -- ++(#3,0.55*#3) -- ++(#1,0) -- ++(0,-#2) -- ++(-#3,-0.55*#3) (#1,#2) -- ++(#3,0.55*#3);
+  }},
+}

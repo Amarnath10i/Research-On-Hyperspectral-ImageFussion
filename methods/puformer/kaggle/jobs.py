@@ -152,7 +152,15 @@ def all_jobs():
     for m in ("puformer", "mimformer"):
         n = f"long-pavia-x4-{m}"
         jobs[n] = job(n, "pavia", 4, m, hours=8.0)
+    # further published networks of the comparison in Chen et al. (TIP 2026), x4 on all four datasets
+    for d in ("chikusei", "pavia", "cave", "harvard"):
+        for m in NEW_METHODS:
+            n = f"bench-{d}-x4-{m}"
+            jobs[n] = job(n, d, 4, m)
     return jobs
+
+
+NEW_METHODS = ["smgu", "clsnet", "otpnet", "u2net", "mimosst"]
 
 
 # sessions: slug -> (GPU 0 queue, GPU 1 queue); each queue holds at most 2 jobs of HOURS (12 h session limit)
@@ -267,4 +275,7 @@ SESSIONS = {
     # MIMFormer seeds 1 and 2 at x4
     "puf-m01": (["seed1-chikusei-x4-mimformer"], ["seed2-chikusei-x4-mimformer"]),
     "puf-m02": (["seed1-pavia-x4-mimformer"], ["seed2-pavia-x4-mimformer"]),
+    # further published networks (SMGU-Net, CLSNet, OTPNet, U2Net, MIMO-SST), x4
+    **{f"puf-b{i:02d}": ([f"bench-chikusei-x4-{m}"], [f"bench-pavia-x4-{m}"]) for i, m in enumerate(NEW_METHODS, 1)},
+    **{f"puf-b{i + 5:02d}": ([f"bench-cave-x4-{m}"], [f"bench-harvard-x4-{m}"]) for i, m in enumerate(NEW_METHODS, 1)},
 }

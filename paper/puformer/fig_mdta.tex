@@ -1,0 +1,43 @@
+%------------------------------------------------------------------------------------------------ 5. transposed attention
+\begin{figure*}[t]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tikzpicture}[font=\small]
+\node[tns] (xi) at (0,1.2) {$\mathbf{F}$: $C\times H\times W$};
+\node[bx] (pw) at (0,0) {conv $1{\times}1$: $C\rightarrow3C$};
+\node[bx] (dw) at (0,-1.2) {depth-wise conv $3{\times}3$};
+\node[tns] (q) at (2.9,0.3) {$\mathbf{Q}$};
+\node[tns] (k) at (2.9,-1.2) {$\mathbf{K}$};
+\node[tns] (v) at (2.9,-2.7) {$\mathbf{V}$};
+\node[bx, minimum width=36mm] (nm) at (6.0,-0.45) {split into $h$ heads, reshape\\each to $C'\times HW$ ($C'=C/h$),\\L2-normalize every row};
+\node[blk, minimum width=34mm] (am) at (11.0,-0.45) {$\mathbf{A}=\mathrm{softmax}\big(\tau\,\hat{\mathbf{Q}}\hat{\mathbf{K}}^{\top}\big)$\\attention map: $C'\times C'$};
+\node[bx, minimum width=34mm] (av) at (15.6,-0.45) {$\mathbf{A}\mathbf{V}$: $C'\times HW$,\\heads merged, reshaped\\to $C\times H\times W$};
+\node[bx] (po) at (19.0,-0.45) {conv $1{\times}1$};
+\node[tns] (xo) at (19.0,1.2) {$C\times H\times W$};
+\draw[->] (xi) -- (pw); \draw[->] (pw) -- (dw);
+\draw[->] (dw.east) -- ++(0.45,0) |- (q.west);
+\draw[->] (dw.east) -- (k.west);
+\draw[->] (dw.east) -- ++(0.45,0) |- (v.west);
+\draw[->] (q.east) -- ([yshift=2mm]nm.west);
+\draw[->] (k.east) -- ([yshift=-2mm]nm.west);
+\draw[->] (nm) -- node[above, lab]{$\hat{\mathbf{Q}},\hat{\mathbf{K}}$} (am);
+\draw[->] (am) -- (av);
+\draw[->] (v.east) -- node[below, lab, pos=0.5]{$\mathbf{V}$, reshaped to $C'\times HW$ per head} (15.6,-2.7) -- (av.south);
+\draw[->] (av) -- (po); \draw[->] (po) -- (xo);
+% attention map illustration
+\begin{scope}[shift={(10.2,2.55)}]
+\foreach \i in {0,...,4} \foreach \j in {0,...,4} {
+  \pgfmathtruncatemacro{\c}{15+mod(13*\i+29*\j+7*\i*\j,70)}
+  \fill[orange!\c!white] (0.32*\j,-0.32*\i) rectangle ++(0.3,-0.3);
+}
+\draw[black!50] (0,0) rectangle (1.6,-1.6);
+\node[lab, anchor=south] at (0.8,0.02) {channel $j$};
+\node[lab, anchor=east, rotate=90] at (-0.12,-0.8) {channel $i$};
+\node[lab, align=left, anchor=west] at (1.8,-0.75) {entry $(i,j)$: similarity of the\\whole feature maps $i$ and $j$,\\summed over all $HW$ pixels};
+\end{scope}
+\draw[black!40, dashed] (am.north) -- (11.0,0.95);
+\node[lab, align=left, anchor=north west] at (5.0,-3.3) {cost per head $O(C'^2HW)$: linear in the number of pixels, and every output pixel mixes information from the whole image;\\$\tau$: learned temperature per head; the depth-wise convolution gives $\mathbf{Q},\mathbf{K},\mathbf{V}$ local spatial context.};
+\end{tikzpicture}}
+\caption{Multi-Dconv-head transposed attention~\cite{zamir2022restormer}, the token mixer of the prior. Queries, keys and values are computed by point-wise and depth-wise convolutions, and the attention map is formed between the $C'$ feature channels of each head rather than between the $HW$ pixels, so its size does not depend on the image size. Replacing it by a depth-wise convolution changes the PSNR by less than 0.1~dB in the ablation.}
+\label{fig:mdta}
+\end{figure*}
