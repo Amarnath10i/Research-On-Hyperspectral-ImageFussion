@@ -28,7 +28,9 @@
 \IfFileExists{tables/q1_numbers.tex}{\input{tables/q1_numbers.tex}}{}
 \newcommand{\qone}[1]{\ifcsname qone@#1\endcsname\csname qone@#1\endcsname\else\textbf{??}\fi}
 \newcommand{\qtab}[1]{\IfFileExists{tables/#1.tex}{\input{tables/#1.tex}}{}}
+\newtheorem{theorem}{Theorem}
 \newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
 
 \newcommand{\best}[1]{\textbf{#1}}
 \newcommand{\bm}[1]{\boldsymbol{#1}}

@@ -14,7 +14,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .ops import Degradation
+from .ops import Degradation, kron_prox, kron_prox_learned
 
 
 class LayerNorm2d(nn.Module):
@@ -198,6 +198,13 @@ class PUFormer(nn.Module):
         self.eta_h = nn.Parameter(torch.full((stages,), 1.0))
         self.eta_m = nn.Parameter(torch.full((stages,), 1.0))
         self.omc = omc
+        if dstep == "kronlearn":            # learned spectral-domain gains of the closed-form data step, per stage
+            def mlp():
+                net = nn.Sequential(nn.Linear(1 + self.CODE, 16), nn.SiLU(), nn.Linear(16, 1))
+                nn.init.zeros_(net[-1].weight), nn.init.zeros_(net[-1].bias)
+                return net
+            self.gain_s = nn.ModuleList(mlp() for _ in range(stages))
+            self.gain_b = nn.ModuleList(mlp() for _ in range(stages))
         if omc:
             self.step_h = nn.Parameter(torch.zeros(stages, self.CODE))
             self.step_m = nn.Parameter(torch.zeros(stages, self.CODE))
@@ -246,8 +253,9 @@ class PUFormer(nn.Module):
         x = F.interpolate(yh, scale_factor=self.deg.scale, mode="bicubic", align_corners=False)
         mem, outs = None, []
         code = emb = None
-        if self.omc:
+        if self.omc or self.dstep == "kronlearn":
             code = self.obs_code(yh, ym)
+        if self.omc:
             emb = self.code_net(code)
         for k in range(self.K):
             if self.physics:
@@ -257,7 +265,11 @@ class PUFormer(nn.Module):
                     b = F.softplus(self.eta_m[k] + code @ self.step_m[k]).view(-1, 1, 1, 1)
                 else:
                     a, b = F.softplus(self.eta_h[k]), F.softplus(self.eta_m[k])
-                if self.dstep == "cg":
+                if self.dstep == "kronlearn" and getattr(self.deg, "gaussian", False):
+                    z = kron_prox_learned(self.deg, x, yh, ym, a * s2, b, self.gain_s[k], self.gain_b[k], code)
+                elif self.dstep in ("kron", "kronlearn") and getattr(self.deg, "gaussian", False):
+                    z = kron_prox(self.deg, x, yh, ym, a * s2, b)       # closed form (separable exact operators)
+                elif self.dstep in ("cg", "kron", "kronlearn"):
                     z = self.prox_cg(x, yh, ym, a, b)
                 else:
                     gh, gm = self.fidelity_grad(x, yh, ym)

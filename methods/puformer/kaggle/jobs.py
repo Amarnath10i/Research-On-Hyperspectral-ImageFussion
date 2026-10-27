@@ -26,6 +26,8 @@ ABLATIONS = {
     "learned": "--op learned",                     # blur kernel and SRF learned with the network
     "cg": "--dstep cg",                            # exact proximal data step (5 conjugate-gradient iterations)
     "mres": "--mres 1",                            # the prior also gets the back-projected HR-MSI residual
+    "kron": "--dstep kron",                        # the exact proximal data step in closed form (Kronecker)
+    "kl": "--dstep kronlearn",                     # ... with learned, fixed-point preserving spectral gains
     "nomem": "--memory 0",
     "k1": "--stages 1",
     "k2": "--stages 2",
@@ -77,12 +79,12 @@ def all_jobs():
             n = f"bench-{d}-x{s}-{m}"
             jobs[n] = job(n, d, s, m, hours=SSR_HOURS if m == "ssrnet" else HOURS, robust=m == "puformer")
     for v, flags in ABLATIONS.items():
-        if v not in ("full", "cg", "mres"):
+        if v not in ("full", "cg", "mres", "kron", "kl"):
             n = f"abl-pavia-x4-{v}"
             jobs[n] = job(n, "pavia", 4, "puformer", flags, robust=v in ("zeros", "learned"))
     # architecture extensions of the data step and the prior input (x4, both datasets, with the robustness run)
     for d in ("chikusei", "pavia"):
-        for v in ("cg", "mres"):
+        for v in ("cg", "mres", "kron", "kl"):
             n = f"abl-{d}-x4-{v}"
             jobs[n] = job(n, d, 4, "puformer", ABLATIONS[v], robust=True)
     # the operator ablation (no data step, zero border, learned operator) on the other datasets and at x8
@@ -92,7 +94,7 @@ def all_jobs():
             jobs[n] = job(n, d, s, "puformer", ABLATIONS[v], robust=True)
     # Chikusei x4: every ablation row of Pavia Centre, and three seeds for the full model and the zero border
     for v in ABLATIONS:
-        if v not in ("full", "cg", "mres"):
+        if v not in ("full", "cg", "mres", "kron", "kl"):
             n = f"abl-chikusei-x4-{v}"
             jobs[n] = job(n, "chikusei", 4, "puformer", ABLATIONS[v], robust=v in ("zeros", "learned"))
     for seed in (1, 2):
@@ -119,6 +121,11 @@ def all_jobs():
         # + observation-model conditioning: noise-adaptive data steps and a prior modulated by the operator / noise
         n = f"cond-{d}-x4-omc"
         jobs[n] = job(n, d, 4, "puformer", f"{RAND} --omc 1", robust=True, eval_extra="--wide 1")
+        # + the closed-form exact data step: the full method
+        n = f"cond-{d}-x4-kron"
+        jobs[n] = job(n, d, 4, "puformer", f"{RAND} --omc 1 --dstep kron", robust=True, eval_extra="--wide 1")
+        n = f"cond-{d}-x4-kl"
+        jobs[n] = job(n, d, 4, "puformer", f"{RAND} --omc 1 --dstep kronlearn", robust=True, eval_extra="--wide 1")
     # real data (NEON spectrometer + RGB camera, x4): every method, the operator ablation, and an operator-
     # conditioned PUFormer (blur and noise only: the measured RGB cannot be re-simulated with another response)
     for m in METHODS:
@@ -240,6 +247,11 @@ SESSIONS = {
     # architecture extensions: exact proximal data step, back-projected MSI residual as a prior input
     "puf-v01": (["abl-chikusei-x4-cg"], ["abl-pavia-x4-cg"]),
     "puf-v02": (["abl-chikusei-x4-mres"], ["abl-pavia-x4-mres"]),
+    # the closed-form exact data step: alone, and with randomized training and observation-model conditioning
+    "puf-k01": (["abl-chikusei-x4-kron"], ["abl-pavia-x4-kron"]),
+    "puf-k02": (["cond-chikusei-x4-kron"], ["cond-pavia-x4-kron"]),
+    "puf-k03": (["abl-chikusei-x4-kl"], ["abl-pavia-x4-kl"]),
+    "puf-k04": (["cond-chikusei-x4-kl"], ["cond-pavia-x4-kl"]),
     # real data (NEON); the account must have run kaggle/neon/prep (puf-neon-data) and fit (puf-neon-fit)
     "puf-n01": (["bench-neon-x4-puformer"], ["bench-neon-x4-mimformer"]),
     "puf-n02": (["bench-neon-x4-psrt"], ["bench-neon-x4-dct"]),

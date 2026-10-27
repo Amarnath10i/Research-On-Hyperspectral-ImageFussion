@@ -152,6 +152,12 @@ def main():
     shift_grid = np.array([0.0]) if neon else np.arange(-16.0, 16.0 + 1e-9, 1.0)
     res = dict(dataset=a.dataset, scale=a.scale, model=a.model, pad=a.pad, op=a.op, physics=a.physics,
                ckpt=a.ckpt, nominal_sigma=s0, swappable=swappable, conditions={})
+    if swappable:
+        try:
+            res["sensitivity"] = sensitivity(a, gt, gtb, base, model, s0, dev)
+        except Exception as err:
+            print("FAILED sensitivity", repr(err), flush=True)
+            model.deg = base
     for idx, cond in enumerate(conditions(neon)):
         try:
             evaluate_condition(idx, cond, a, gt, gtb, base, model, swappable, s0, sig_grid, shift_grid, dev, res)
@@ -163,11 +169,28 @@ def main():
             json.dump(res, fh, indent=1)
 
 
+@torch.no_grad()
+def sensitivity(a, gt, gtb, base, model, s0, dev):
+    """Data made with the nominal operator; the network is given a wrong blur width sigma~ (Theorem 2). For each
+    sigma~: the relative operator residual ||(D~ - D) X*|| / ||D X*|| on the test images, and the test PSNR."""
+    lr, ms, _ = make_pairs(gt, base)
+    yh = base.D(gtb, pad_mode="reflect")
+    out = []
+    for f in (0.5, 0.75, 0.9, 1.0, 1.1, 1.25, 1.5, 2.0):
+        d = deg_at(a, f * s0).to(dev)
+        rel = float((d.D(gtb, pad_mode=a.pad) - yh).flatten(1).norm(dim=1).mean() / yh.flatten(1).norm(dim=1).mean())
+        out.append(dict(sigma_factor=f, rel_op_residual=rel, **score(gtb, run(model, lr, ms, [d] * len(lr)))))
+        print(f"sensitivity sigma x{f:g}: residual {rel:.4f} PSNR {out[-1]['PSNR']:.2f}", flush=True)
+    model.deg = base
+    return out
+
+
 def evaluate_condition(idx, cond, a, gt, gtb, base, model, swappable, s0, sig_grid, shift_grid, dev, res):
     name, f, shift, snr, kernel, msi_px = cond
     true = deg_at(a, f * s0, shift).to(dev)
     if kernel is not None:
         true.k = torch.from_numpy(true_kernel(kernel, true.ksize, s0))[None, None].to(dev)
+        true.gaussian = False
     lr, ms, _ = make_pairs(gt, true)
     if msi_px:
         ms = true.R(translate(gtb, msi_px))

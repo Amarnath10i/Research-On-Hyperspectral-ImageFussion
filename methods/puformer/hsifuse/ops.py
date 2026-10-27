@@ -145,6 +145,113 @@ def reflect_pad_adjoint(g: torch.Tensor, p: int) -> torch.Tensor:
     return res
 
 
+def axis_operator(n: int, scale: int, ksize: int, sigma: float, pad: str) -> np.ndarray:
+    """(n / scale, n) matrix of D along one image axis: pad by p = ksize // 2 (reflect or zeros), correlate with the
+    normalized 1-D Gaussian, keep every scale-th sample from index 0. The 2-D Gaussian of gaussian_kernel is the
+    outer product of this 1-D kernel, so D = D_rows x D_cols exactly (Kronecker), border included."""
+    p = ksize // 2
+    ax = np.arange(ksize, dtype=np.float64) - p
+    g = np.exp(-ax ** 2 / (2 * sigma ** 2))
+    g /= g.sum()
+    m = np.zeros((n // scale, n))
+    for i in range(n // scale):
+        for t in range(ksize):
+            j = scale * i + t - p
+            if pad == "reflect":
+                j = -j if j < 0 else (2 * (n - 1) - j if j >= n else j)
+            elif not 0 <= j < n:
+                continue
+            m[i, j] += g[t]
+    return m
+
+
+class KronFactors:
+    """Eigendecompositions that diagonalize the HSI-MSI data subproblem (I + a D^T D + b R^T R) on an H x W image:
+    D^T D = I_B (x) G_rows (x) G_cols and R^T R = G_spec (x) I (x) I commute and share the eigenbasis
+    V (x) U_rows (x) U_cols, with eigenvalues lam_rows[k] * lam_cols[l] (spatial) and nu[b] (spectral)."""
+
+    def __init__(self, deg, h: int, w: int, device):
+        dr = axis_operator(h, deg.scale, deg.ksize, deg.sigma, deg.pad)
+        dc = axis_operator(w, deg.scale, deg.ksize, deg.sigma, deg.pad)
+        srf = deg.srf.detach().double().cpu().numpy()                       # (B, M)
+        lr, ur = np.linalg.eigh(dr.T @ dr)
+        lc, uc = np.linalg.eigh(dc.T @ dc)
+        nu, v = np.linalg.eigh(srf @ srf.T)
+        t = lambda a: torch.from_numpy(np.ascontiguousarray(a)).float().to(device)
+        self.dr, self.dc, self.ur, self.uc, self.v = t(dr), t(dc), t(ur), t(uc), t(v)
+        self.lam = t(np.clip(lr, 0, None))[:, None] * t(np.clip(lc, 0, None))[None, :]   # (H, W)
+        self.nu = t(np.clip(nu, 0, None))                                                # (B,)
+        tol = 1e-8
+        self.obs_spatial = (self.lam > tol * self.lam.max()).float()                     # row space of D
+        self.obs_spectral = (self.nu > tol * self.nu.max()).float()                      # row space of R
+
+    def to_eig(self, x):
+        return torch.einsum("cb,nchw,hk,wl->nbkl", self.v, x, self.ur, self.uc)
+
+    def from_eig(self, e):
+        return torch.einsum("bc,nckl,hk,wl->nbhw", self.v, e, self.ur, self.uc)
+
+    def Dt(self, y):
+        return torch.einsum("ih,nbij,jw->nbhw", self.dr, y, self.dc)
+
+
+def kron_factors(deg, h: int, w: int, device) -> KronFactors:
+    """Cached per operator object and image size."""
+    cache = deg.__dict__.setdefault("_kron", {})
+    key = (h, w, str(device), deg.sigma, deg.pad)
+    if key not in cache:
+        cache[key] = KronFactors(deg, h, w, device)
+    return cache[key]
+
+
+def kron_prox(deg, x, yh, ym, a, b):
+    """Closed-form exact data step: argmin_z 1/2||z - x||^2 + a/2 ||D z - Y_H||^2 + b/2 ||R z - Y_M||^2 for the exact
+    operators of `deg` (any border rule along each axis), by one change of basis per tensor mode. a, b: scalars or
+    (N, 1, 1, 1)."""
+    kf = kron_factors(deg, x.shape[-2], x.shape[-1], x.device)
+    a = a.reshape(-1, 1, 1, 1) if torch.is_tensor(a) else a
+    b = b.reshape(-1, 1, 1, 1) if torch.is_tensor(b) else b
+    rhs = x + a * kf.Dt(yh) + b * torch.einsum("nmhw,bm->nbhw", ym, deg.srf.to(ym.dtype))
+    denom = 1 + a * kf.lam[None, None] + b * kf.nu[None, :, None, None]
+    return kf.from_eig(kf.to_eig(rhs) / denom)
+
+
+LN2 = 0.6931471805599453
+
+
+def kron_prox_learned(deg, x, yh, ym, a, b, gain_spatial, gain_spectral, code):
+    """Learned spectral-domain data step. In the eigenbasis of the exact operators the exact proximal step is
+    z = x + Gamma o g with g = a D^T(Y_H - D x) + b R^T(Y_M - R x) and Gamma = 1 / (1 + a lam + b nu). Here Gamma is
+    multiplied by exp(ln2 tanh(u)), u = u_spatial(log lam, code) + u_spectral(log nu, code) from two small networks
+    (zero at initialization: the exact step). A zero residual still gives z = x (the fixed point of Theorem 2 is kept),
+    and Gamma (a lam + b nu) < 2 keeps the step nonexpansive."""
+    kf = kron_factors(deg, x.shape[-2], x.shape[-1], x.device)
+    n = x.shape[0]
+    a = a.reshape(-1, 1, 1, 1) if torch.is_tensor(a) else a
+    b = b.reshape(-1, 1, 1, 1) if torch.is_tensor(b) else b
+    srf = deg.srf.to(x.dtype)
+    g = a * kf.Dt(yh - torch.einsum("ih,nbhw,jw->nbij", kf.dr, x, kf.dc)) + \
+        b * torch.einsum("nmhw,bm->nbhw", ym - torch.einsum("nbhw,bm->nmhw", x, srf), srf)
+    denom = 1 + a * kf.lam[None, None] + b * kf.nu[None, :, None, None]
+    hh, ww = kf.lam.shape
+    ls = torch.log10(kf.lam + 1e-8)[None, :, :, None].expand(n, hh, ww, 1)
+    lb = torch.log10(kf.nu + 1e-8)[None, :, None].expand(n, -1, 1)
+    us = gain_spatial(torch.cat([ls, code[:, None, None, :].expand(n, hh, ww, code.shape[1])], -1))[..., 0]
+    ub = gain_spectral(torch.cat([lb, code[:, None, :].expand(n, lb.shape[1], code.shape[1])], -1))[..., 0]
+    gamma = torch.exp(LN2 * torch.tanh(us[:, None] + ub[:, :, None, None])) / denom
+    return x + kf.from_eig(kf.to_eig(g) * gamma)
+
+
+@torch.no_grad()
+def null_split(deg, e):
+    """Energy of an error image e (N, B, H, W) in the observed subspace row(D) + row(R) and in the fusion null space
+    N(D) cap N(R) = range((I - P_spec) (x) (I - P_rows (x) P_cols)); returns two (N,) tensors."""
+    kf = kron_factors(deg, e.shape[-2], e.shape[-1], e.device)
+    c = kf.to_eig(e.float()).pow(2)
+    null = (1 - kf.obs_spectral)[None, :, None, None] * (1 - kf.obs_spatial)[None, None]
+    return (c * (1 - null)).flatten(1).sum(1), (c * null).flatten(1).sum(1)
+
+
 class Degradation(nn.Module):
     """Differentiable D (blur + decimate), its adjoint Dt, spectral R and Rt."""
 
@@ -154,6 +261,7 @@ class Degradation(nn.Module):
         assert pad in ("zeros", "reflect"), pad
         self.scale, self.ksize, self.pad = scale, ksize, pad
         self.sigma, self.shift_nm = float(sigma), float(shift_nm)   # operator parameters (read by --omc models)
+        self.gaussian = True        # False once k is replaced by another kernel (then D is not separable)
         self.register_buffer("k", torch.from_numpy(gaussian_kernel(ksize, sigma))[None, None])
         self.register_buffer("srf", torch.from_numpy(srf))  # (B, M)
 

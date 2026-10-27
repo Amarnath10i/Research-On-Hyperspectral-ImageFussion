@@ -16,8 +16,10 @@ def add_ablation_args(p):
     g.add_argument("--mixer", default="mdta", choices=["mdta", "window", "conv"], help="token mixer of the prior")
     g.add_argument("--op", default="exact", choices=["exact", "learned"],
                    help="learned: D (blur kernel) and R are learned with the network instead of the known operators")
-    g.add_argument("--dstep", default="grad", choices=["grad", "cg"], help="data step: one gradient step, or the "
-                   "exact proximal step solved by --cg_iters conjugate-gradient iterations")
+    g.add_argument("--dstep", default="grad", choices=["grad", "cg", "kron", "kronlearn"],
+                   help="data step: one gradient step, the exact proximal step by --cg_iters conjugate-gradient "
+                   "iterations, the same step in closed form through the Kronecker eigendecomposition of the "
+                   "separable exact operators, or that step with learned (fixed-point preserving) spectral gains")
     g.add_argument("--cg_iters", type=int, default=5)
     g.add_argument("--mres", type=int, default=0, help="1: the prior also gets the HR-MSI residual back-projected "
                    "through the spectral response, (B/M) Rt(R Z - Y_M)")
