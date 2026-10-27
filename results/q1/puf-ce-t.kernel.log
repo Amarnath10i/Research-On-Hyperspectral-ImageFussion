@@ -1,0 +1,499 @@
+[{"stream_name":"stderr","time":7.884201969,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.884242803,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.8842606029999995,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.884264972,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":8.509489353,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.509546513,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.509552276,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.509556587,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":9.705156114,"data":"code sha256 35167b5c943612b29f752ab64bb7a8a7564f6a4a71c03460328610ce368c0d44 from git d7d032a+local changes\n"}
+,{"stream_name":"stdout","time":9.708106812,"data":"4\n"}
+,{"stream_name":"stdout","time":9.726365069,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":9.726395424,"data":"Mem:              31           1          25           0           4          30\n"}
+,{"stream_name":"stderr","time":9.903063035,"data":"/tmp/ipykernel_23/1666642870.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":9.903097687,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":9.903102657,"data":"\n"}
+,{"stream_name":"stderr","time":9.903106093,"data":"/tmp/ipykernel_23/1666642870.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":9.903110502,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":9.905626716,"data":"4\n"}
+,{"stream_name":"stdout","time":9.905642519,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":9.905646351,"data":"Mem:              31           1          25           0           4          30\n"}
+,{"stream_name":"stdout","time":16.920597665,"data":"RUN cond-chikusei-x4-puformer : python cond_eval.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model puformer --pad reflect --ckpt /kaggle/input/notebooks/tummapudinavadeep/puf-r01/out/cond-chikusei-x4-puformer/best_ema.pt --out /kaggle/working/out/cond-chikusei-x4-puformer\n"}
+,{"stream_name":"stdout","time":207.489375708,"data":"sensitivity sigma x0.5: residual 0.0617 PSNR 47.32\n"}
+,{"stream_name":"stdout","time":207.693122939,"data":"sensitivity sigma x0.5: residual 0.0617 PSNR 47.32\n"}
+,{"stream_name":"stdout","time":210.233117652,"data":"sensitivity sigma x0.75: residual 0.0227 PSNR 54.12\n"}
+,{"stream_name":"stdout","time":210.435273413,"data":"sensitivity sigma x0.75: residual 0.0227 PSNR 54.12\n"}
+,{"stream_name":"stdout","time":212.988526753,"data":"sensitivity sigma x0.9: residual 0.0074 PSNR 57.06\n"}
+,{"stream_name":"stdout","time":213.190858597,"data":"sensitivity sigma x0.9: residual 0.0074 PSNR 57.06\n"}
+,{"stream_name":"stdout","time":215.746077599,"data":"sensitivity sigma x1: residual 0.0000 PSNR 57.59\n"}
+,{"stream_name":"stdout","time":215.94834764,"data":"sensitivity sigma x1: residual 0.0000 PSNR 57.59\n"}
+,{"stream_name":"stdout","time":218.509802511,"data":"sensitivity sigma x1.1: residual 0.0058 PSNR 57.27\n"}
+,{"stream_name":"stdout","time":218.712191145,"data":"sensitivity sigma x1.1: residual 0.0058 PSNR 57.27\n"}
+,{"stream_name":"stdout","time":221.284819275,"data":"sensitivity sigma x1.25: residual 0.0123 PSNR 56.46\n"}
+,{"stream_name":"stdout","time":221.48845781,"data":"sensitivity sigma x1.25: residual 0.0123 PSNR 56.46\n"}
+,{"stream_name":"stdout","time":224.066106621,"data":"sensitivity sigma x1.5: residual 0.0193 PSNR 55.44\n"}
+,{"stream_name":"stdout","time":224.26850911,"data":"sensitivity sigma x1.5: residual 0.0193 PSNR 55.44\n"}
+,{"stream_name":"stdout","time":227.540270532,"data":"sensitivity sigma x2: residual 0.0265 PSNR 54.43\n"}
+,{"stream_name":"stdout","time":227.540290174,"data":"sensitivity sigma x2: residual 0.0265 PSNR 54.43\n"}
+,{"stream_name":"stdout","time":237.981261663,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.1966, 'fixed': 57.5862, 'oracle': 57.5862, 'estimated': 57.5862}\n"}
+,{"stream_name":"stdout","time":238.185075677,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.1966, 'fixed': 57.5862, 'oracle': 57.5862, 'estimated': 57.5862}\n"}
+,{"stream_name":"stdout","time":248.404396485,"data":"sigma x0.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 45.6771, 'fixed': 48.7065, 'oracle': 57.2803, 'estimated': 57.2803}\n"}
+,{"stream_name":"stdout","time":248.606522701,"data":"sigma x0.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 45.6771, 'fixed': 48.7065, 'oracle': 57.2803, 'estimated': 57.2803}\n"}
+,{"stream_name":"stdout","time":258.916912012,"data":"sigma x0.75 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 44.0502, 'fixed': 54.5662, 'oracle': 57.5581, 'estimated': 57.5581}\n"}
+,{"stream_name":"stdout","time":259.119145898,"data":"sigma x0.75 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 44.0502, 'fixed': 54.5662, 'oracle': 57.5581, 'estimated': 57.5581}\n"}
+,{"stream_name":"stdout","time":269.510955496,"data":"sigma x1.25 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7742, 'fixed': 56.3444, 'oracle': 57.5664, 'estimated': 57.5664}\n"}
+,{"stream_name":"stdout","time":269.714520957,"data":"sigma x1.25 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7742, 'fixed': 56.3444, 'oracle': 57.5664, 'estimated': 57.5664}\n"}
+,{"stream_name":"stdout","time":280.213075362,"data":"sigma x1.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.5448, 'fixed': 55.0834, 'oracle': 57.5375, 'estimated': 57.5375}\n"}
+,{"stream_name":"stdout","time":280.415151622,"data":"sigma x1.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.5448, 'fixed': 55.0834, 'oracle': 57.5375, 'estimated': 57.5375}\n"}
+,{"stream_name":"stdout","time":291.02069028,"data":"sigma x2 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.3203, 'fixed': 53.7568, 'oracle': 57.4866, 'estimated': 57.4866}\n"}
+,{"stream_name":"stdout","time":291.223237684,"data":"sigma x2 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.3203, 'fixed': 53.7568, 'oracle': 57.4866, 'estimated': 57.4866}\n"}
+,{"stream_name":"stdout","time":301.931498621,"data":"shift -12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8887, 'fixed': 48.0883, 'oracle': 57.4437, 'estimated': 57.4437}\n"}
+,{"stream_name":"stdout","time":302.136012953,"data":"shift -12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8887, 'fixed': 48.0883, 'oracle': 57.4437, 'estimated': 57.4437}\n"}
+,{"stream_name":"stdout","time":312.836338041,"data":"shift -8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8636, 'fixed': 51.0657, 'oracle': 57.5543, 'estimated': 57.5543}\n"}
+,{"stream_name":"stdout","time":313.038456207,"data":"shift -8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8636, 'fixed': 51.0657, 'oracle': 57.5543, 'estimated': 57.5543}\n"}
+,{"stream_name":"stdout","time":323.645537208,"data":"shift -4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.9788, 'fixed': 54.8815, 'oracle': 57.5901, 'estimated': 57.5901}\n"}
+,{"stream_name":"stdout","time":323.847726457,"data":"shift -4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.9788, 'fixed': 54.8815, 'oracle': 57.5901, 'estimated': 57.5901}\n"}
+,{"stream_name":"stdout","time":334.393712738,"data":"shift +4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2823, 'fixed': 54.894, 'oracle': 57.5611, 'estimated': 57.5611}\n"}
+,{"stream_name":"stdout","time":334.598799237,"data":"shift +4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2823, 'fixed': 54.894, 'oracle': 57.5611, 'estimated': 57.5611}\n"}
+,{"stream_name":"stdout","time":345.098243234,"data":"shift +8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2888, 'fixed': 51.2642, 'oracle': 57.5126, 'estimated': 57.5126}\n"}
+,{"stream_name":"stdout","time":345.300689666,"data":"shift +8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2888, 'fixed': 51.2642, 'oracle': 57.5126, 'estimated': 57.5126}\n"}
+,{"stream_name":"stdout","time":355.807246985,"data":"shift +12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.3551, 'fixed': 48.5215, 'oracle': 57.4128, 'estimated': 57.4128}\n"}
+,{"stream_name":"stdout","time":356.009948925,"data":"shift +12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.3551, 'fixed': 48.5215, 'oracle': 57.4128, 'estimated': 57.4128}\n"}
+,{"stream_name":"stdout","time":366.607669822,"data":"snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.0343, 'fixed': 55.3088, 'oracle': 55.3088, 'estimated': 55.3088}\n"}
+,{"stream_name":"stdout","time":366.811553957,"data":"snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.0343, 'fixed': 55.3088, 'oracle': 55.3088, 'estimated': 55.3088}\n"}
+,{"stream_name":"stdout","time":377.422851584,"data":"snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7074, 'fixed': 53.1303, 'oracle': 53.1303, 'estimated': 53.1303}\n"}
+,{"stream_name":"stdout","time":377.625082763,"data":"snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7074, 'fixed': 53.1303, 'oracle': 53.1303, 'estimated': 53.1303}\n"}
+,{"stream_name":"stdout","time":388.266970534,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 41.8375, 'fixed': 49.9283, 'oracle': 49.9283, 'estimated': 49.9283}\n"}
+,{"stream_name":"stdout","time":388.469573843,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 41.8375, 'fixed': 49.9283, 'oracle': 49.9283, 'estimated': 49.9283}\n"}
+,{"stream_name":"stdout","time":399.122921497,"data":"sigma x1.5, shift +8 nm, snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.1874, 'fixed': 49.2851, 'oracle': 53.0614, 'estimated': 53.0614}\n"}
+,{"stream_name":"stdout","time":399.328739437,"data":"sigma x1.5, shift +8 nm, snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.1874, 'fixed': 49.2851, 'oracle': 53.0614, 'estimated': 53.0614}\n"}
+,{"stream_name":"stdout","time":409.963660655,"data":"sigma x0.75, shift -8 nm, snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.4661, 'fixed': 49.7376, 'oracle': 55.2552, 'estimated': 55.2552}\n"}
+,{"stream_name":"stdout","time":410.166379488,"data":"sigma x0.75, shift -8 nm, snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.4661, 'fixed': 49.7376, 'oracle': 55.2552, 'estimated': 55.2552}\n"}
+,{"stream_name":"stdout","time":420.788084714,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.006 shift_err 0.00 {'gsa_oracle': 41.2617, 'fixed': 45.992, 'oracle': 49.7967, 'estimated': 49.7967}\n"}
+,{"stream_name":"stdout","time":420.990197234,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.006 shift_err 0.00 {'gsa_oracle': 41.2617, 'fixed': 45.992, 'oracle': 49.7967, 'estimated': 49.7967}\n"}
+,{"stream_name":"stdout","time":431.560551405,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.14 shift_err 0.00 {'gsa_oracle': 43.0863, 'fixed': 55.4235, 'oracle': 57.4553, 'estimated': 55.596}\n"}
+,{"stream_name":"stdout","time":431.764437852,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.14 shift_err 0.00 {'gsa_oracle': 43.0863, 'fixed': 55.4235, 'oracle': 57.4553, 'estimated': 55.596}\n"}
+,{"stream_name":"stdout","time":442.322382324,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 0.00 {'gsa_oracle': 44.0015, 'fixed': 51.9565, 'oracle': 57.3159, 'estimated': 52.5504}\n"}
+,{"stream_name":"stdout","time":442.524790654,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 0.00 {'gsa_oracle': 44.0015, 'fixed': 51.9565, 'oracle': 57.3159, 'estimated': 52.5504}\n"}
+,{"stream_name":"stdout","time":453.078231147,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 0.00 {'gsa_oracle': 44.449, 'fixed': 53.4016, 'oracle': 57.4447, 'estimated': 56.219}\n"}
+,{"stream_name":"stdout","time":453.280179842,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 0.00 {'gsa_oracle': 44.449, 'fixed': 53.4016, 'oracle': 57.4447, 'estimated': 56.219}\n"}
+,{"stream_name":"stdout","time":460.96878949,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 0.00 {'gsa_oracle': 38.4753, 'fixed': 40.1277, 'estimated': 40.1283}\n"}
+,{"stream_name":"stdout","time":461.171104505,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 0.00 {'gsa_oracle': 38.4753, 'fixed': 40.1277, 'estimated': 40.1283}\n"}
+,{"stream_name":"stdout","time":468.838900414,"data":"MSI misregistered 1 px sigma_err 0.719 shift_err 0.12 {'gsa_oracle': 34.0338, 'fixed': 34.4501, 'estimated': 34.3568}\n"}
+,{"stream_name":"stdout","time":469.043236487,"data":"MSI misregistered 1 px sigma_err 0.719 shift_err 0.12 {'gsa_oracle': 34.0338, 'fixed': 34.4501, 'estimated': 34.3568}\n"}
+,{"stream_name":"stdout","time":476.76720685,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.11 shift_err 0.00 {'gsa_oracle': 38.2635, 'fixed': 39.8846, 'estimated': 39.8806}\n"}
+,{"stream_name":"stdout","time":476.969591289,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.11 shift_err 0.00 {'gsa_oracle': 38.2635, 'fixed': 39.8846, 'estimated': 39.8806}\n"}
+,{"stream_name":"stdout","time":480.89160931,"data":"END cond-chikusei-x4-puformer rc 0\n"}
+,{"stream_name":"stdout","time":482.325889387,"data":"RUN cond-chikusei-x4-nocond : python cond_eval.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model puformer --pad reflect --ckpt /kaggle/input/notebooks/tummapudinavadeep/puf-r01/out/cond-chikusei-x4-nocond/best_ema.pt --out /kaggle/working/out/cond-chikusei-x4-nocond\n"}
+,{"stream_name":"stdout","time":493.788725084,"data":"sensitivity sigma x0.5: residual 0.0617 PSNR 55.24\n"}
+,{"stream_name":"stdout","time":493.990881495,"data":"sensitivity sigma x0.5: residual 0.0617 PSNR 55.24\n"}
+,{"stream_name":"stdout","time":496.676468126,"data":"sensitivity sigma x0.75: residual 0.0227 PSNR 57.25\n"}
+,{"stream_name":"stdout","time":496.878660568,"data":"sensitivity sigma x0.75: residual 0.0227 PSNR 57.25\n"}
+,{"stream_name":"stdout","time":499.576460681,"data":"sensitivity sigma x0.9: residual 0.0074 PSNR 57.42\n"}
+,{"stream_name":"stdout","time":499.780716661,"data":"sensitivity sigma x0.9: residual 0.0074 PSNR 57.42\n"}
+,{"stream_name":"stdout","time":502.487726523,"data":"sensitivity sigma x1: residual 0.0000 PSNR 57.43\n"}
+,{"stream_name":"stdout","time":502.68985034,"data":"sensitivity sigma x1: residual 0.0000 PSNR 57.43\n"}
+,{"stream_name":"stdout","time":505.410062424,"data":"sensitivity sigma x1.1: residual 0.0058 PSNR 57.41\n"}
+,{"stream_name":"stdout","time":505.613151227,"data":"sensitivity sigma x1.1: residual 0.0058 PSNR 57.41\n"}
+,{"stream_name":"stdout","time":508.3447573,"data":"sensitivity sigma x1.25: residual 0.0123 PSNR 57.36\n"}
+,{"stream_name":"stdout","time":508.546975719,"data":"sensitivity sigma x1.25: residual 0.0123 PSNR 57.36\n"}
+,{"stream_name":"stdout","time":511.292905072,"data":"sensitivity sigma x1.5: residual 0.0193 PSNR 57.29\n"}
+,{"stream_name":"stdout","time":511.495129349,"data":"sensitivity sigma x1.5: residual 0.0193 PSNR 57.29\n"}
+,{"stream_name":"stdout","time":514.254560552,"data":"sensitivity sigma x2: residual 0.0265 PSNR 57.20\n"}
+,{"stream_name":"stdout","time":514.456722209,"data":"sensitivity sigma x2: residual 0.0265 PSNR 57.20\n"}
+,{"stream_name":"stdout","time":525.323655611,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.1966, 'fixed': 57.4275, 'oracle': 57.4275, 'estimated': 57.4275}\n"}
+,{"stream_name":"stdout","time":525.525710366,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.1966, 'fixed': 57.4275, 'oracle': 57.4275, 'estimated': 57.4275}\n"}
+,{"stream_name":"stdout","time":536.292859648,"data":"sigma x0.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 45.6771, 'fixed': 57.1086, 'oracle': 56.6574, 'estimated': 56.6574}\n"}
+,{"stream_name":"stdout","time":536.49753526,"data":"sigma x0.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 45.6771, 'fixed': 57.1086, 'oracle': 56.6574, 'estimated': 56.6574}\n"}
+,{"stream_name":"stdout","time":547.074680195,"data":"sigma x0.75 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 44.0502, 'fixed': 57.3913, 'oracle': 57.3014, 'estimated': 57.3014}\n"}
+,{"stream_name":"stdout","time":547.276803087,"data":"sigma x0.75 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 44.0502, 'fixed': 57.3913, 'oracle': 57.3014, 'estimated': 57.3014}\n"}
+,{"stream_name":"stdout","time":557.769304249,"data":"sigma x1.25 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7742, 'fixed': 57.4108, 'oracle': 57.3447, 'estimated': 57.3447}\n"}
+,{"stream_name":"stdout","time":557.971330495,"data":"sigma x1.25 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7742, 'fixed': 57.4108, 'oracle': 57.3447, 'estimated': 57.3447}\n"}
+,{"stream_name":"stdout","time":568.434725695,"data":"sigma x1.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.5448, 'fixed': 57.3852, 'oracle': 57.2437, 'estimated': 57.2437}\n"}
+,{"stream_name":"stdout","time":568.639205329,"data":"sigma x1.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.5448, 'fixed': 57.3852, 'oracle': 57.2437, 'estimated': 57.2437}\n"}
+,{"stream_name":"stdout","time":579.122455327,"data":"sigma x2 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.3203, 'fixed': 57.339, 'oracle': 57.1004, 'estimated': 57.1004}\n"}
+,{"stream_name":"stdout","time":579.324551449,"data":"sigma x2 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.3203, 'fixed': 57.339, 'oracle': 57.1004, 'estimated': 57.1004}\n"}
+,{"stream_name":"stdout","time":589.864291127,"data":"shift -12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8887, 'fixed': 57.2736, 'oracle': 53.4352, 'estimated': 53.4352}\n"}
+,{"stream_name":"stdout","time":590.066450212,"data":"shift -12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8887, 'fixed': 57.2736, 'oracle': 53.4352, 'estimated': 53.4352}\n"}
+,{"stream_name":"stdout","time":600.657104245,"data":"shift -8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8636, 'fixed': 57.3865, 'oracle': 55.2385, 'estimated': 55.2385}\n"}
+,{"stream_name":"stdout","time":600.861681325,"data":"shift -8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8636, 'fixed': 57.3865, 'oracle': 55.2385, 'estimated': 55.2385}\n"}
+,{"stream_name":"stdout","time":611.488521531,"data":"shift -4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.9788, 'fixed': 57.4275, 'oracle': 56.7678, 'estimated': 56.7678}\n"}
+,{"stream_name":"stdout","time":611.69063938,"data":"shift -4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.9788, 'fixed': 57.4275, 'oracle': 56.7678, 'estimated': 56.7678}\n"}
+,{"stream_name":"stdout","time":622.319978751,"data":"shift +4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2823, 'fixed': 57.3988, 'oracle': 56.7152, 'estimated': 56.7152}\n"}
+,{"stream_name":"stdout","time":622.522143443,"data":"shift +4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2823, 'fixed': 57.3988, 'oracle': 56.7152, 'estimated': 56.7152}\n"}
+,{"stream_name":"stdout","time":633.124917977,"data":"shift +8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2888, 'fixed': 57.343, 'oracle': 55.1675, 'estimated': 55.1675}\n"}
+,{"stream_name":"stdout","time":633.329715789,"data":"shift +8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2888, 'fixed': 57.343, 'oracle': 55.1675, 'estimated': 55.1675}\n"}
+,{"stream_name":"stdout","time":643.905116276,"data":"shift +12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.3551, 'fixed': 57.2501, 'oracle': 53.4827, 'estimated': 53.4827}\n"}
+,{"stream_name":"stdout","time":644.107215326,"data":"shift +12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.3551, 'fixed': 57.2501, 'oracle': 53.4827, 'estimated': 53.4827}\n"}
+,{"stream_name":"stdout","time":654.721466858,"data":"snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.0343, 'fixed': 55.0327, 'oracle': 55.0327, 'estimated': 55.0327}\n"}
+,{"stream_name":"stdout","time":654.923682163,"data":"snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.0343, 'fixed': 55.0327, 'oracle': 55.0327, 'estimated': 55.0327}\n"}
+,{"stream_name":"stdout","time":665.517942517,"data":"snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7074, 'fixed': 52.7021, 'oracle': 52.7021, 'estimated': 52.7021}\n"}
+,{"stream_name":"stdout","time":665.722839296,"data":"snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7074, 'fixed': 52.7021, 'oracle': 52.7021, 'estimated': 52.7021}\n"}
+,{"stream_name":"stdout","time":676.320204636,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 41.8375, 'fixed': 49.3292, 'oracle': 49.3292, 'estimated': 49.3292}\n"}
+,{"stream_name":"stdout","time":676.522282202,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 41.8375, 'fixed': 49.3292, 'oracle': 49.3292, 'estimated': 49.3292}\n"}
+,{"stream_name":"stdout","time":687.13912556,"data":"sigma x1.5, shift +8 nm, snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.1874, 'fixed': 52.6347, 'oracle': 51.6517, 'estimated': 51.6517}\n"}
+,{"stream_name":"stdout","time":687.341332773,"data":"sigma x1.5, shift +8 nm, snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.1874, 'fixed': 52.6347, 'oracle': 51.6517, 'estimated': 51.6517}\n"}
+,{"stream_name":"stdout","time":697.963879656,"data":"sigma x0.75, shift -8 nm, snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.4661, 'fixed': 55.0026, 'oracle': 53.5714, 'estimated': 53.5714}\n"}
+,{"stream_name":"stdout","time":698.168964392,"data":"sigma x0.75, shift -8 nm, snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.4661, 'fixed': 55.0026, 'oracle': 53.5714, 'estimated': 53.5714}\n"}
+,{"stream_name":"stdout","time":708.799719335,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.006 shift_err 0.00 {'gsa_oracle': 41.2617, 'fixed': 49.2533, 'oracle': 48.122, 'estimated': 48.1219}\n"}
+,{"stream_name":"stdout","time":709.00182956,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.006 shift_err 0.00 {'gsa_oracle': 41.2617, 'fixed': 49.2533, 'oracle': 48.122, 'estimated': 48.1219}\n"}
+,{"stream_name":"stdout","time":719.59673769,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.14 shift_err 0.00 {'gsa_oracle': 43.0863, 'fixed': 57.2619, 'oracle': 57.2968, 'estimated': 57.2699}\n"}
+,{"stream_name":"stdout","time":719.79889217,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.14 shift_err 0.00 {'gsa_oracle': 43.0863, 'fixed': 57.2619, 'oracle': 57.2968, 'estimated': 57.2699}\n"}
+,{"stream_name":"stdout","time":730.386317219,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 0.00 {'gsa_oracle': 44.0015, 'fixed': 56.976, 'oracle': 57.0208, 'estimated': 56.7431}\n"}
+,{"stream_name":"stdout","time":730.59112998,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 0.00 {'gsa_oracle': 44.0015, 'fixed': 56.976, 'oracle': 57.0208, 'estimated': 56.7431}\n"}
+,{"stream_name":"stdout","time":741.177004671,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 0.00 {'gsa_oracle': 44.449, 'fixed': 57.307, 'oracle': 57.0912, 'estimated': 57.1843}\n"}
+,{"stream_name":"stdout","time":741.379125163,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 0.00 {'gsa_oracle': 44.449, 'fixed': 57.307, 'oracle': 57.0912, 'estimated': 57.1843}\n"}
+,{"stream_name":"stdout","time":749.071233217,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 0.00 {'gsa_oracle': 38.4753, 'fixed': 39.4289, 'estimated': 39.4292}\n"}
+,{"stream_name":"stdout","time":749.273498084,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 0.00 {'gsa_oracle': 38.4753, 'fixed': 39.4289, 'estimated': 39.4292}\n"}
+,{"stream_name":"stdout","time":756.957202241,"data":"MSI misregistered 1 px sigma_err 0.719 shift_err 0.12 {'gsa_oracle': 34.0338, 'fixed': 33.7006, 'estimated': 33.695}\n"}
+,{"stream_name":"stdout","time":757.159569782,"data":"MSI misregistered 1 px sigma_err 0.719 shift_err 0.12 {'gsa_oracle': 34.0338, 'fixed': 33.7006, 'estimated': 33.695}\n"}
+,{"stream_name":"stdout","time":764.889249852,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.11 shift_err 0.00 {'gsa_oracle': 38.2635, 'fixed': 39.3195, 'estimated': 39.3172}\n"}
+,{"stream_name":"stdout","time":765.094515336,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.11 shift_err 0.00 {'gsa_oracle': 38.2635, 'fixed': 39.3195, 'estimated': 39.3172}\n"}
+,{"stream_name":"stdout","time":765.525430872,"data":"END cond-chikusei-x4-nocond rc 0\n"}
+,{"stream_name":"stdout","time":767.294587741,"data":"RUN cond-pavia-x4-puformer : python cond_eval.py --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat'  --dataset pavia --scale 4 --model puformer --pad reflect --ckpt /kaggle/input/notebooks/tummapudinavadeep/puf-r02/out/cond-pavia-x4-puformer/best_ema.pt --out /kaggle/working/out/cond-pavia-x4-puformer\n"}
+,{"stream_name":"stdout","time":779.12377563,"data":"sensitivity sigma x0.5: residual 0.0972 PSNR 39.00\n"}
+,{"stream_name":"stdout","time":779.325834828,"data":"sensitivity sigma x0.5: residual 0.0972 PSNR 39.00\n"}
+,{"stream_name":"stdout","time":780.328991359,"data":"sensitivity sigma x0.75: residual 0.0349 PSNR 46.12\n"}
+,{"stream_name":"stdout","time":780.530892277,"data":"sensitivity sigma x0.75: residual 0.0349 PSNR 46.12\n"}
+,{"stream_name":"stdout","time":781.535532517,"data":"sensitivity sigma x0.9: residual 0.0113 PSNR 49.71\n"}
+,{"stream_name":"stdout","time":781.737460765,"data":"sensitivity sigma x0.9: residual 0.0113 PSNR 49.71\n"}
+,{"stream_name":"stdout","time":782.743750812,"data":"sensitivity sigma x1: residual 0.0000 PSNR 50.45\n"}
+,{"stream_name":"stdout","time":782.945917857,"data":"sensitivity sigma x1: residual 0.0000 PSNR 50.45\n"}
+,{"stream_name":"stdout","time":783.953510273,"data":"sensitivity sigma x1.1: residual 0.0088 PSNR 50.02\n"}
+,{"stream_name":"stdout","time":784.155536579,"data":"sensitivity sigma x1.1: residual 0.0088 PSNR 50.02\n"}
+,{"stream_name":"stdout","time":785.166075739,"data":"sensitivity sigma x1.25: residual 0.0185 PSNR 49.05\n"}
+,{"stream_name":"stdout","time":785.368072459,"data":"sensitivity sigma x1.25: residual 0.0185 PSNR 49.05\n"}
+,{"stream_name":"stdout","time":786.380643697,"data":"sensitivity sigma x1.5: residual 0.0291 PSNR 47.88\n"}
+,{"stream_name":"stdout","time":786.582730801,"data":"sensitivity sigma x1.5: residual 0.0291 PSNR 47.88\n"}
+,{"stream_name":"stdout","time":787.596660986,"data":"sensitivity sigma x2: residual 0.0398 PSNR 46.75\n"}
+,{"stream_name":"stdout","time":787.798876076,"data":"sensitivity sigma x2: residual 0.0398 PSNR 46.75\n"}
+,{"stream_name":"stdout","time":791.973878224,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7757, 'fixed': 50.4508, 'oracle': 50.4508, 'estimated': 50.4508}\n"}
+,{"stream_name":"stdout","time":792.176004393,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7757, 'fixed': 50.4508, 'oracle': 50.4508, 'estimated': 50.4508}\n"}
+,{"stream_name":"stdout","time":796.314842091,"data":"sigma x0.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 37.1167, 'fixed': 40.4818, 'oracle': 50.3084, 'estimated': 50.3084}\n"}
+,{"stream_name":"stdout","time":796.520057145,"data":"sigma x0.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 37.1167, 'fixed': 40.4818, 'oracle': 50.3084, 'estimated': 50.3084}\n"}
+,{"stream_name":"stdout","time":800.69279797,"data":"sigma x0.75 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 35.5943, 'fixed': 46.8312, 'oracle': 50.4488, 'estimated': 50.4488}\n"}
+,{"stream_name":"stdout","time":800.894857045,"data":"sigma x0.75 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 35.5943, 'fixed': 46.8312, 'oracle': 50.4488, 'estimated': 50.4488}\n"}
+,{"stream_name":"stdout","time":805.088995228,"data":"sigma x1.25 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.3622, 'fixed': 48.827, 'oracle': 50.433, 'estimated': 50.433}\n"}
+,{"stream_name":"stdout","time":805.291090847,"data":"sigma x1.25 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.3622, 'fixed': 48.827, 'oracle': 50.433, 'estimated': 50.433}\n"}
+,{"stream_name":"stdout","time":809.518471625,"data":"sigma x1.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.1347, 'fixed': 47.3259, 'oracle': 50.4157, 'estimated': 50.4157}\n"}
+,{"stream_name":"stdout","time":809.72049881,"data":"sigma x1.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.1347, 'fixed': 47.3259, 'oracle': 50.4157, 'estimated': 50.4157}\n"}
+,{"stream_name":"stdout","time":813.950948946,"data":"sigma x2 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.9096, 'fixed': 45.802, 'oracle': 50.3901, 'estimated': 50.3901}\n"}
+,{"stream_name":"stdout","time":814.152892065,"data":"sigma x2 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.9096, 'fixed': 45.802, 'oracle': 50.3901, 'estimated': 50.3901}\n"}
+,{"stream_name":"stdout","time":818.357750041,"data":"shift -12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.4496, 'fixed': 48.7541, 'oracle': 50.2783, 'estimated': 50.2783}\n"}
+,{"stream_name":"stdout","time":818.559781955,"data":"shift -12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.4496, 'fixed': 48.7541, 'oracle': 50.2783, 'estimated': 50.2783}\n"}
+,{"stream_name":"stdout","time":822.730665427,"data":"shift -8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.5801, 'fixed': 49.6177, 'oracle': 50.3832, 'estimated': 50.3832}\n"}
+,{"stream_name":"stdout","time":822.932736361,"data":"shift -8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.5801, 'fixed': 49.6177, 'oracle': 50.3832, 'estimated': 50.3832}\n"}
+,{"stream_name":"stdout","time":827.074256614,"data":"shift -4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.6875, 'fixed': 50.2224, 'oracle': 50.4336, 'estimated': 50.4336}\n"}
+,{"stream_name":"stdout","time":827.2798658,"data":"shift -4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.6875, 'fixed': 50.2224, 'oracle': 50.4336, 'estimated': 50.4336}\n"}
+,{"stream_name":"stdout","time":831.4011642,"data":"shift +4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7595, 'fixed': 50.2605, 'oracle': 50.4459, 'estimated': 50.4459}\n"}
+,{"stream_name":"stdout","time":831.603246294,"data":"shift +4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7595, 'fixed': 50.2605, 'oracle': 50.4459, 'estimated': 50.4459}\n"}
+,{"stream_name":"stdout","time":835.70451596,"data":"shift +8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7933, 'fixed': 49.7253, 'oracle': 50.4193, 'estimated': 50.4193}\n"}
+,{"stream_name":"stdout","time":835.906573142,"data":"shift +8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7933, 'fixed': 49.7253, 'oracle': 50.4193, 'estimated': 50.4193}\n"}
+,{"stream_name":"stdout","time":839.999493434,"data":"shift +12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7822, 'fixed': 48.9786, 'oracle': 50.3659, 'estimated': 50.3659}\n"}
+,{"stream_name":"stdout","time":840.201604601,"data":"shift +12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7822, 'fixed': 48.9786, 'oracle': 50.3659, 'estimated': 50.3659}\n"}
+,{"stream_name":"stdout","time":844.299716749,"data":"snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7076, 'fixed': 48.8714, 'oracle': 48.8714, 'estimated': 48.8714}\n"}
+,{"stream_name":"stdout","time":844.501761065,"data":"snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7076, 'fixed': 48.8714, 'oracle': 48.8714, 'estimated': 48.8714}\n"}
+,{"stream_name":"stdout","time":848.600717257,"data":"snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.5659, 'fixed': 47.1006, 'oracle': 47.1006, 'estimated': 47.1006}\n"}
+,{"stream_name":"stdout","time":848.802888287,"data":"snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.5659, 'fixed': 47.1006, 'oracle': 47.1006, 'estimated': 47.1006}\n"}
+,{"stream_name":"stdout","time":852.902297371,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.1636, 'fixed': 44.2963, 'oracle': 44.2963, 'estimated': 44.2963}\n"}
+,{"stream_name":"stdout","time":853.104458888,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.1636, 'fixed': 44.2963, 'oracle': 44.2963, 'estimated': 44.2963}\n"}
+,{"stream_name":"stdout","time":857.20425445,"data":"sigma x1.5, shift +8 nm, snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.9666, 'fixed': 45.2949, 'oracle': 47.0708, 'estimated': 47.0708}\n"}
+,{"stream_name":"stdout","time":857.409971882,"data":"sigma x1.5, shift +8 nm, snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.9666, 'fixed': 45.2949, 'oracle': 47.0708, 'estimated': 47.0708}\n"}
+,{"stream_name":"stdout","time":861.507413188,"data":"sigma x0.75, shift -8 nm, snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 35.2875, 'fixed': 45.9348, 'oracle': 48.8289, 'estimated': 48.8289}\n"}
+,{"stream_name":"stdout","time":861.709540282,"data":"sigma x0.75, shift -8 nm, snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 35.2875, 'fixed': 45.9348, 'oracle': 48.8289, 'estimated': 48.8289}\n"}
+,{"stream_name":"stdout","time":865.817453241,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.3999, 'fixed': 42.4834, 'oracle': 44.2654, 'estimated': 44.2654}\n"}
+,{"stream_name":"stdout","time":866.019589707,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.3999, 'fixed': 42.4834, 'oracle': 44.2654, 'estimated': 44.2654}\n"}
+,{"stream_name":"stdout","time":870.119926005,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.09 shift_err 0.50 {'gsa_oracle': 34.722, 'fixed': 46.7083, 'oracle': 50.4286, 'estimated': 46.8605}\n"}
+,{"stream_name":"stdout","time":870.321960582,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.09 shift_err 0.50 {'gsa_oracle': 34.722, 'fixed': 46.7083, 'oracle': 50.4286, 'estimated': 46.8605}\n"}
+,{"stream_name":"stdout","time":874.428950205,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 1.00 {'gsa_oracle': 35.5877, 'fixed': 44.2885, 'oracle': 50.3889, 'estimated': 45.0821}\n"}
+,{"stream_name":"stdout","time":874.631029809,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 1.00 {'gsa_oracle': 35.5877, 'fixed': 44.2885, 'oracle': 50.3889, 'estimated': 45.0821}\n"}
+,{"stream_name":"stdout","time":878.747538789,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 1.00 {'gsa_oracle': 35.9999, 'fixed': 45.3549, 'oracle': 50.4201, 'estimated': 48.38}\n"}
+,{"stream_name":"stdout","time":878.949645185,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 1.00 {'gsa_oracle': 35.9999, 'fixed': 45.3549, 'oracle': 50.4201, 'estimated': 48.38}\n"}
+,{"stream_name":"stdout","time":881.867369376,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 2.25 {'gsa_oracle': 30.1386, 'fixed': 31.9398, 'estimated': 31.9663}\n"}
+,{"stream_name":"stdout","time":882.069802148,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 2.25 {'gsa_oracle': 30.1386, 'fixed': 31.9398, 'estimated': 31.9663}\n"}
+,{"stream_name":"stdout","time":884.986278366,"data":"MSI misregistered 1 px sigma_err 0.850 shift_err 5.00 {'gsa_oracle': 26.012, 'fixed': 26.5788, 'estimated': 26.4797}\n"}
+,{"stream_name":"stdout","time":885.188628366,"data":"MSI misregistered 1 px sigma_err 0.850 shift_err 5.00 {'gsa_oracle': 26.012, 'fixed': 26.5788, 'estimated': 26.4797}\n"}
+,{"stream_name":"stdout","time":888.128347292,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.02 shift_err 1.75 {'gsa_oracle': 30.1118, 'fixed': 31.7461, 'estimated': 31.7616}\n"}
+,{"stream_name":"stdout","time":888.337340452,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.02 shift_err 1.75 {'gsa_oracle': 30.1118, 'fixed': 31.7461, 'estimated': 31.7616}\n"}
+,{"stream_name":"stdout","time":888.774254291,"data":"END cond-pavia-x4-puformer rc 0\n"}
+,{"stream_name":"stdout","time":890.443267342,"data":"RUN cond-pavia-x4-nocond : python cond_eval.py --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat'  --dataset pavia --scale 4 --model puformer --pad reflect --ckpt /kaggle/input/notebooks/tummapudinavadeep/puf-r02/out/cond-pavia-x4-nocond/best_ema.pt --out /kaggle/working/out/cond-pavia-x4-nocond\n"}
+,{"stream_name":"stdout","time":901.56901919,"data":"sensitivity sigma x0.5: residual 0.0972 PSNR 48.21\n"}
+,{"stream_name":"stdout","time":901.771029204,"data":"sensitivity sigma x0.5: residual 0.0972 PSNR 48.21\n"}
+,{"stream_name":"stdout","time":902.779925525,"data":"sensitivity sigma x0.75: residual 0.0349 PSNR 50.33\n"}
+,{"stream_name":"stdout","time":902.981971349,"data":"sensitivity sigma x0.75: residual 0.0349 PSNR 50.33\n"}
+,{"stream_name":"stdout","time":903.992932695,"data":"sensitivity sigma x0.9: residual 0.0113 PSNR 50.39\n"}
+,{"stream_name":"stdout","time":904.195444483,"data":"sensitivity sigma x0.9: residual 0.0113 PSNR 50.39\n"}
+,{"stream_name":"stdout","time":905.206989946,"data":"sensitivity sigma x1: residual 0.0000 PSNR 50.40\n"}
+,{"stream_name":"stdout","time":905.409522547,"data":"sensitivity sigma x1: residual 0.0000 PSNR 50.40\n"}
+,{"stream_name":"stdout","time":906.423748156,"data":"sensitivity sigma x1.1: residual 0.0088 PSNR 50.39\n"}
+,{"stream_name":"stdout","time":906.62583804,"data":"sensitivity sigma x1.1: residual 0.0088 PSNR 50.39\n"}
+,{"stream_name":"stdout","time":907.641910444,"data":"sensitivity sigma x1.25: residual 0.0185 PSNR 50.37\n"}
+,{"stream_name":"stdout","time":907.843851802,"data":"sensitivity sigma x1.25: residual 0.0185 PSNR 50.37\n"}
+,{"stream_name":"stdout","time":908.868656929,"data":"sensitivity sigma x1.5: residual 0.0291 PSNR 50.34\n"}
+,{"stream_name":"stdout","time":909.070717065,"data":"sensitivity sigma x1.5: residual 0.0291 PSNR 50.34\n"}
+,{"stream_name":"stdout","time":910.090018234,"data":"sensitivity sigma x2: residual 0.0398 PSNR 50.28\n"}
+,{"stream_name":"stdout","time":910.292200666,"data":"sensitivity sigma x2: residual 0.0398 PSNR 50.28\n"}
+,{"stream_name":"stdout","time":914.494141856,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7757, 'fixed': 50.3987, 'oracle': 50.3987, 'estimated': 50.3987}\n"}
+,{"stream_name":"stdout","time":914.696340421,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7757, 'fixed': 50.3987, 'oracle': 50.3987, 'estimated': 50.3987}\n"}
+,{"stream_name":"stdout","time":918.866946873,"data":"sigma x0.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 37.1167, 'fixed': 50.1856, 'oracle': 49.8418, 'estimated': 49.8418}\n"}
+,{"stream_name":"stdout","time":919.073100171,"data":"sigma x0.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 37.1167, 'fixed': 50.1856, 'oracle': 49.8418, 'estimated': 49.8418}\n"}
+,{"stream_name":"stdout","time":923.259275729,"data":"sigma x0.75 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 35.5943, 'fixed': 50.3822, 'oracle': 50.3258, 'estimated': 50.3258}\n"}
+,{"stream_name":"stdout","time":923.461200047,"data":"sigma x0.75 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 35.5943, 'fixed': 50.3822, 'oracle': 50.3258, 'estimated': 50.3258}\n"}
+,{"stream_name":"stdout","time":927.692096457,"data":"sigma x1.25 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.3622, 'fixed': 50.3832, 'oracle': 50.3606, 'estimated': 50.3606}\n"}
+,{"stream_name":"stdout","time":927.894184088,"data":"sigma x1.25 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.3622, 'fixed': 50.3832, 'oracle': 50.3606, 'estimated': 50.3606}\n"}
+,{"stream_name":"stdout","time":932.123143785,"data":"sigma x1.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.1347, 'fixed': 50.3636, 'oracle': 50.3183, 'estimated': 50.3183}\n"}
+,{"stream_name":"stdout","time":932.325353893,"data":"sigma x1.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.1347, 'fixed': 50.3636, 'oracle': 50.3183, 'estimated': 50.3183}\n"}
+,{"stream_name":"stdout","time":936.512874066,"data":"sigma x2 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.9096, 'fixed': 50.333, 'oracle': 50.2595, 'estimated': 50.2595}\n"}
+,{"stream_name":"stdout","time":936.715250816,"data":"sigma x2 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.9096, 'fixed': 50.333, 'oracle': 50.2595, 'estimated': 50.2595}\n"}
+,{"stream_name":"stdout","time":940.896033773,"data":"shift -12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.4496, 'fixed': 50.1909, 'oracle': 48.5202, 'estimated': 48.5202}\n"}
+,{"stream_name":"stdout","time":941.098235571,"data":"shift -12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.4496, 'fixed': 50.1909, 'oracle': 48.5202, 'estimated': 48.5202}\n"}
+,{"stream_name":"stdout","time":945.241336999,"data":"shift -8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.5801, 'fixed': 50.2961, 'oracle': 49.4151, 'estimated': 49.4151}\n"}
+,{"stream_name":"stdout","time":945.443451311,"data":"shift -8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.5801, 'fixed': 50.2961, 'oracle': 49.4151, 'estimated': 49.4151}\n"}
+,{"stream_name":"stdout","time":949.559939094,"data":"shift -4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.6875, 'fixed': 50.3658, 'oracle': 50.1095, 'estimated': 50.1095}\n"}
+,{"stream_name":"stdout","time":949.767374957,"data":"shift -4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.6875, 'fixed': 50.3658, 'oracle': 50.1095, 'estimated': 50.1095}\n"}
+,{"stream_name":"stdout","time":953.865852804,"data":"shift +4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7595, 'fixed': 50.3983, 'oracle': 50.1789, 'estimated': 50.1789}\n"}
+,{"stream_name":"stdout","time":954.06793588,"data":"shift +4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7595, 'fixed': 50.3983, 'oracle': 50.1789, 'estimated': 50.1789}\n"}
+,{"stream_name":"stdout","time":958.162565826,"data":"shift +8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7933, 'fixed': 50.37, 'oracle': 49.5055, 'estimated': 49.5055}\n"}
+,{"stream_name":"stdout","time":958.364718713,"data":"shift +8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7933, 'fixed': 50.37, 'oracle': 49.5055, 'estimated': 49.5055}\n"}
+,{"stream_name":"stdout","time":962.454639867,"data":"shift +12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7822, 'fixed': 50.3155, 'oracle': 48.5856, 'estimated': 48.5856}\n"}
+,{"stream_name":"stdout","time":962.656833382,"data":"shift +12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7822, 'fixed': 50.3155, 'oracle': 48.5856, 'estimated': 48.5856}\n"}
+,{"stream_name":"stdout","time":966.749453285,"data":"snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7076, 'fixed': 48.71, 'oracle': 48.71, 'estimated': 48.71}\n"}
+,{"stream_name":"stdout","time":966.951528679,"data":"snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7076, 'fixed': 48.71, 'oracle': 48.71, 'estimated': 48.71}\n"}
+,{"stream_name":"stdout","time":971.047939583,"data":"snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.5659, 'fixed': 46.7531, 'oracle': 46.7531, 'estimated': 46.7531}\n"}
+,{"stream_name":"stdout","time":971.250497535,"data":"snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.5659, 'fixed': 46.7531, 'oracle': 46.7531, 'estimated': 46.7531}\n"}
+,{"stream_name":"stdout","time":975.355889407,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.1636, 'fixed': 43.7225, 'oracle': 43.7225, 'estimated': 43.7225}\n"}
+,{"stream_name":"stdout","time":975.557969471,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.1636, 'fixed': 43.7225, 'oracle': 43.7225, 'estimated': 43.7225}\n"}
+,{"stream_name":"stdout","time":979.662781082,"data":"sigma x1.5, shift +8 nm, snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.9666, 'fixed': 46.7201, 'oracle': 46.3552, 'estimated': 46.3552}\n"}
+,{"stream_name":"stdout","time":979.869475705,"data":"sigma x1.5, shift +8 nm, snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.9666, 'fixed': 46.7201, 'oracle': 46.3552, 'estimated': 46.3552}\n"}
+,{"stream_name":"stdout","time":983.980106577,"data":"sigma x0.75, shift -8 nm, snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 35.2875, 'fixed': 48.6447, 'oracle': 48.0387, 'estimated': 48.0387}\n"}
+,{"stream_name":"stdout","time":984.182193631,"data":"sigma x0.75, shift -8 nm, snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 35.2875, 'fixed': 48.6447, 'oracle': 48.0387, 'estimated': 48.0387}\n"}
+,{"stream_name":"stdout","time":988.30126808,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.3999, 'fixed': 43.6922, 'oracle': 43.2939, 'estimated': 43.2939}\n"}
+,{"stream_name":"stdout","time":988.503330435,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.3999, 'fixed': 43.6922, 'oracle': 43.2939, 'estimated': 43.2939}\n"}
+,{"stream_name":"stdout","time":992.613831376,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.09 shift_err 0.50 {'gsa_oracle': 34.722, 'fixed': 50.0028, 'oracle': 50.2712, 'estimated': 50.0044}\n"}
+,{"stream_name":"stdout","time":992.815921404,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.09 shift_err 0.50 {'gsa_oracle': 34.722, 'fixed': 50.0028, 'oracle': 50.2712, 'estimated': 50.0044}\n"}
+,{"stream_name":"stdout","time":996.939739135,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 1.00 {'gsa_oracle': 35.5877, 'fixed': 49.8782, 'oracle': 50.1545, 'estimated': 49.6837}\n"}
+,{"stream_name":"stdout","time":997.141803679,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 1.00 {'gsa_oracle': 35.5877, 'fixed': 49.8782, 'oracle': 50.1545, 'estimated': 49.6837}\n"}
+,{"stream_name":"stdout","time":1001.275711871,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 1.00 {'gsa_oracle': 35.9999, 'fixed': 50.1387, 'oracle': 50.1569, 'estimated': 49.9893}\n"}
+,{"stream_name":"stdout","time":1001.47799722,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 1.00 {'gsa_oracle': 35.9999, 'fixed': 50.1387, 'oracle': 50.1569, 'estimated': 49.9893}\n"}
+,{"stream_name":"stdout","time":1004.407395133,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 2.25 {'gsa_oracle': 30.1386, 'fixed': 31.3489, 'estimated': 31.3652}\n"}
+,{"stream_name":"stdout","time":1004.609379775,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 2.25 {'gsa_oracle': 30.1386, 'fixed': 31.3489, 'estimated': 31.3652}\n"}
+,{"stream_name":"stdout","time":1007.536014221,"data":"MSI misregistered 1 px sigma_err 0.850 shift_err 5.00 {'gsa_oracle': 26.012, 'fixed': 25.8107, 'estimated': 25.8347}\n"}
+,{"stream_name":"stdout","time":1007.738049372,"data":"MSI misregistered 1 px sigma_err 0.850 shift_err 5.00 {'gsa_oracle': 26.012, 'fixed': 25.8107, 'estimated': 25.8347}\n"}
+,{"stream_name":"stdout","time":1010.68493118,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.02 shift_err 1.75 {'gsa_oracle': 30.1118, 'fixed': 31.344, 'estimated': 31.3538}\n"}
+,{"stream_name":"stdout","time":1010.892228864,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.02 shift_err 1.75 {'gsa_oracle': 30.1118, 'fixed': 31.344, 'estimated': 31.3538}\n"}
+,{"stream_name":"stdout","time":1011.344770812,"data":"END cond-pavia-x4-nocond rc 0\n"}
+,{"stream_name":"stdout","time":1012.697223992,"data":"RUN bench-chikusei-x4-puformer : python cond_eval.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model puformer --pad reflect --ckpt /kaggle/input/notebooks/tummapudinavadeep/puf-s06/out/bench-chikusei-x4-puformer/best_ema.pt --out /kaggle/working/out/bench-chikusei-x4-puformer\n"}
+,{"stream_name":"stdout","time":1024.936528342,"data":"sensitivity sigma x0.5: residual 0.0617 PSNR 46.19\n"}
+,{"stream_name":"stdout","time":1025.138668706,"data":"sensitivity sigma x0.5: residual 0.0617 PSNR 46.19\n"}
+,{"stream_name":"stdout","time":1027.844796301,"data":"sensitivity sigma x0.75: residual 0.0227 PSNR 51.55\n"}
+,{"stream_name":"stdout","time":1028.047049117,"data":"sensitivity sigma x0.75: residual 0.0227 PSNR 51.55\n"}
+,{"stream_name":"stdout","time":1030.763178303,"data":"sensitivity sigma x0.9: residual 0.0074 PSNR 56.30\n"}
+,{"stream_name":"stdout","time":1030.965392277,"data":"sensitivity sigma x0.9: residual 0.0074 PSNR 56.30\n"}
+,{"stream_name":"stdout","time":1033.689434459,"data":"sensitivity sigma x1: residual 0.0000 PSNR 57.95\n"}
+,{"stream_name":"stdout","time":1033.891598326,"data":"sensitivity sigma x1: residual 0.0000 PSNR 57.95\n"}
+,{"stream_name":"stdout","time":1036.62307538,"data":"sensitivity sigma x1.1: residual 0.0058 PSNR 56.93\n"}
+,{"stream_name":"stdout","time":1036.825268484,"data":"sensitivity sigma x1.1: residual 0.0058 PSNR 56.93\n"}
+,{"stream_name":"stdout","time":1039.569160104,"data":"sensitivity sigma x1.25: residual 0.0123 PSNR 54.85\n"}
+,{"stream_name":"stdout","time":1039.771379918,"data":"sensitivity sigma x1.25: residual 0.0123 PSNR 54.85\n"}
+,{"stream_name":"stdout","time":1042.533427584,"data":"sensitivity sigma x1.5: residual 0.0193 PSNR 52.86\n"}
+,{"stream_name":"stdout","time":1042.740707848,"data":"sensitivity sigma x1.5: residual 0.0193 PSNR 52.86\n"}
+,{"stream_name":"stdout","time":1045.506165075,"data":"sensitivity sigma x2: residual 0.0265 PSNR 51.22\n"}
+,{"stream_name":"stdout","time":1045.708982982,"data":"sensitivity sigma x2: residual 0.0265 PSNR 51.22\n"}
+,{"stream_name":"stdout","time":1056.506168913,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.1966, 'fixed': 57.9458, 'oracle': 57.9458, 'estimated': 57.9458}\n"}
+,{"stream_name":"stdout","time":1056.708635945,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.1966, 'fixed': 57.9458, 'oracle': 57.9458, 'estimated': 57.9458}\n"}
+,{"stream_name":"stdout","time":1067.35199404,"data":"sigma x0.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 45.6771, 'fixed': 44.2235, 'oracle': 54.3272, 'estimated': 54.3272}\n"}
+,{"stream_name":"stdout","time":1067.554256531,"data":"sigma x0.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 45.6771, 'fixed': 44.2235, 'oracle': 54.3272, 'estimated': 54.3272}\n"}
+,{"stream_name":"stdout","time":1078.103551085,"data":"sigma x0.75 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 44.0502, 'fixed': 51.4117, 'oracle': 57.752, 'estimated': 57.752}\n"}
+,{"stream_name":"stdout","time":1078.311080258,"data":"sigma x0.75 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 44.0502, 'fixed': 51.4117, 'oracle': 57.752, 'estimated': 57.752}\n"}
+,{"stream_name":"stdout","time":1088.804656373,"data":"sigma x1.25 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7742, 'fixed': 54.5885, 'oracle': 57.8558, 'estimated': 57.8558}\n"}
+,{"stream_name":"stdout","time":1089.006919558,"data":"sigma x1.25 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7742, 'fixed': 54.5885, 'oracle': 57.8558, 'estimated': 57.8558}\n"}
+,{"stream_name":"stdout","time":1099.511727668,"data":"sigma x1.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.5448, 'fixed': 52.3207, 'oracle': 57.6985, 'estimated': 57.6985}\n"}
+,{"stream_name":"stdout","time":1099.714133075,"data":"sigma x1.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.5448, 'fixed': 52.3207, 'oracle': 57.6985, 'estimated': 57.6985}\n"}
+,{"stream_name":"stdout","time":1110.250634225,"data":"sigma x2 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.3203, 'fixed': 50.3327, 'oracle': 57.4444, 'estimated': 57.4444}\n"}
+,{"stream_name":"stdout","time":1110.463112316,"data":"sigma x2 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.3203, 'fixed': 50.3327, 'oracle': 57.4444, 'estimated': 57.4444}\n"}
+,{"stream_name":"stdout","time":1121.029550576,"data":"shift -12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8887, 'fixed': 45.5215, 'oracle': 51.971, 'estimated': 51.971}\n"}
+,{"stream_name":"stdout","time":1121.232574289,"data":"shift -12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8887, 'fixed': 45.5215, 'oracle': 51.971, 'estimated': 51.971}\n"}
+,{"stream_name":"stdout","time":1131.829937745,"data":"shift -8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8636, 'fixed': 49.2496, 'oracle': 54.2211, 'estimated': 54.2211}\n"}
+,{"stream_name":"stdout","time":1132.032326658,"data":"shift -8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8636, 'fixed': 49.2496, 'oracle': 54.2211, 'estimated': 54.2211}\n"}
+,{"stream_name":"stdout","time":1142.625236909,"data":"shift -4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.9788, 'fixed': 54.0857, 'oracle': 56.5904, 'estimated': 56.5904}\n"}
+,{"stream_name":"stdout","time":1142.832788268,"data":"shift -4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.9788, 'fixed': 54.0857, 'oracle': 56.5904, 'estimated': 56.5904}\n"}
+,{"stream_name":"stdout","time":1153.405954893,"data":"shift +4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2823, 'fixed': 54.2779, 'oracle': 56.5189, 'estimated': 56.5189}\n"}
+,{"stream_name":"stdout","time":1153.608312967,"data":"shift +4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2823, 'fixed': 54.2779, 'oracle': 56.5189, 'estimated': 56.5189}\n"}
+,{"stream_name":"stdout","time":1164.176028895,"data":"shift +8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2888, 'fixed': 50.0466, 'oracle': 54.2387, 'estimated': 54.2387}\n"}
+,{"stream_name":"stdout","time":1164.378721567,"data":"shift +8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2888, 'fixed': 50.0466, 'oracle': 54.2387, 'estimated': 54.2387}\n"}
+,{"stream_name":"stdout","time":1174.927704241,"data":"shift +12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.3551, 'fixed': 46.9139, 'oracle': 52.2195, 'estimated': 52.2195}\n"}
+,{"stream_name":"stdout","time":1175.140123709,"data":"shift +12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.3551, 'fixed': 46.9139, 'oracle': 52.2195, 'estimated': 52.2195}\n"}
+,{"stream_name":"stdout","time":1185.742940048,"data":"snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.0343, 'fixed': 53.1313, 'oracle': 53.1313, 'estimated': 53.1313}\n"}
+,{"stream_name":"stdout","time":1185.945249447,"data":"snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.0343, 'fixed': 53.1313, 'oracle': 53.1313, 'estimated': 53.1313}\n"}
+,{"stream_name":"stdout","time":1196.548906702,"data":"snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7074, 'fixed': 49.2806, 'oracle': 49.2806, 'estimated': 49.2806}\n"}
+,{"stream_name":"stdout","time":1196.751206928,"data":"snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7074, 'fixed': 49.2806, 'oracle': 49.2806, 'estimated': 49.2806}\n"}
+,{"stream_name":"stdout","time":1207.372246869,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 41.8375, 'fixed': 44.8339, 'oracle': 44.8339, 'estimated': 44.8339}\n"}
+,{"stream_name":"stdout","time":1207.580316777,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 41.8375, 'fixed': 44.8339, 'oracle': 44.8339, 'estimated': 44.8339}\n"}
+,{"stream_name":"stdout","time":1218.199395892,"data":"sigma x1.5, shift +8 nm, snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.1874, 'fixed': 46.1993, 'oracle': 48.5292, 'estimated': 48.5292}\n"}
+,{"stream_name":"stdout","time":1218.401599685,"data":"sigma x1.5, shift +8 nm, snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.1874, 'fixed': 46.1993, 'oracle': 48.5292, 'estimated': 48.5292}\n"}
+,{"stream_name":"stdout","time":1229.0367077,"data":"sigma x0.75, shift -8 nm, snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.4661, 'fixed': 46.808, 'oracle': 51.4861, 'estimated': 51.4861}\n"}
+,{"stream_name":"stdout","time":1229.238929049,"data":"sigma x0.75, shift -8 nm, snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.4661, 'fixed': 46.808, 'oracle': 51.4861, 'estimated': 51.4861}\n"}
+,{"stream_name":"stdout","time":1239.873811634,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.006 shift_err 0.00 {'gsa_oracle': 41.2617, 'fixed': 42.305, 'oracle': 44.3512, 'estimated': 44.3515}\n"}
+,{"stream_name":"stdout","time":1240.081615984,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.006 shift_err 0.00 {'gsa_oracle': 41.2617, 'fixed': 42.305, 'oracle': 44.3512, 'estimated': 44.3515}\n"}
+,{"stream_name":"stdout","time":1250.658319409,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.14 shift_err 0.00 {'gsa_oracle': 43.0863, 'fixed': 52.4596, 'oracle': 57.8008, 'estimated': 52.7282}\n"}
+,{"stream_name":"stdout","time":1250.860500934,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.14 shift_err 0.00 {'gsa_oracle': 43.0863, 'fixed': 52.4596, 'oracle': 57.8008, 'estimated': 52.7282}\n"}
+,{"stream_name":"stdout","time":1261.445422004,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 0.00 {'gsa_oracle': 44.0015, 'fixed': 48.3169, 'oracle': 57.0109, 'estimated': 49.712}\n"}
+,{"stream_name":"stdout","time":1261.648196231,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 0.00 {'gsa_oracle': 44.0015, 'fixed': 48.3169, 'oracle': 57.0109, 'estimated': 49.712}\n"}
+,{"stream_name":"stdout","time":1272.23458204,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 0.00 {'gsa_oracle': 44.449, 'fixed': 49.6969, 'oracle': 55.1839, 'estimated': 55.1705}\n"}
+,{"stream_name":"stdout","time":1272.442544966,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 0.00 {'gsa_oracle': 44.449, 'fixed': 49.6969, 'oracle': 55.1839, 'estimated': 55.1705}\n"}
+,{"stream_name":"stdout","time":1280.119444475,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 0.00 {'gsa_oracle': 38.4753, 'fixed': 40.5135, 'estimated': 40.5133}\n"}
+,{"stream_name":"stdout","time":1280.321571562,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 0.00 {'gsa_oracle': 38.4753, 'fixed': 40.5135, 'estimated': 40.5133}\n"}
+,{"stream_name":"stdout","time":1287.998089605,"data":"MSI misregistered 1 px sigma_err 0.719 shift_err 0.12 {'gsa_oracle': 34.0338, 'fixed': 34.8524, 'estimated': 34.7279}\n"}
+,{"stream_name":"stdout","time":1288.200153772,"data":"MSI misregistered 1 px sigma_err 0.719 shift_err 0.12 {'gsa_oracle': 34.0338, 'fixed': 34.8524, 'estimated': 34.7279}\n"}
+,{"stream_name":"stdout","time":1295.920125408,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.11 shift_err 0.00 {'gsa_oracle': 38.2635, 'fixed': 39.7852, 'estimated': 39.7914}\n"}
+,{"stream_name":"stdout","time":1296.122406834,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.11 shift_err 0.00 {'gsa_oracle': 38.2635, 'fixed': 39.7852, 'estimated': 39.7914}\n"}
+,{"stream_name":"stdout","time":1296.528811872,"data":"END bench-chikusei-x4-puformer rc 0\n"}
+,{"stream_name":"stdout","time":1298.042199324,"data":"RUN bench-chikusei-x4-mimformer : python cond_eval.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model mimformer --ckpt /kaggle/input/notebooks/tummapudinavadeep/puf-s06/out/bench-chikusei-x4-mimformer/best_ema.pt --out /kaggle/working/out/bench-chikusei-x4-mimformer\n"}
+,{"stream_name":"stderr","time":1300.908823351,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stderr","time":1301.110949345,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stderr","time":1301.110986037,"data":"\n"}
+,{"stream_name":"stderr","time":1301.110997118,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stderr","time":1333.191319421,"data":"fatal: unable to access 'https://github.com/meiruni/MIMFormer/': Could not resolve host: github.com\n"}
+,{"stream_name":"stderr","time":1333.20286488,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":1333.203905245,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 222, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":1333.203927769,"data":"    main()\n"}
+,{"stream_name":"stderr","time":1333.203934242,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":1333.203938757,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 144, in main\n"}
+,{"stream_name":"stderr","time":1333.203943336,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":1333.203947413,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":1333.203953328,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 46, in build_model\n"}
+,{"stream_name":"stderr","time":1333.20396115,"data":"    return build(a.model, deg)\n"}
+,{"stream_name":"stderr","time":1333.203964077,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 308, in build\n"}
+,{"stream_name":"stderr","time":1333.203966932,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale)\n"}
+,{"stream_name":"stderr","time":1333.203969782,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 123, in build_external\n"}
+,{"stream_name":"stderr","time":1333.203980681,"data":"    root = fetch(name)\n"}
+,{"stream_name":"stderr","time":1333.203983117,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 53, in fetch\n"}
+,{"stream_name":"stderr","time":1333.203985416,"data":"    subprocess.run([\"git\", \"clone\", \"--depth\", \"1\", url, path], check=True)\n"}
+,{"stream_name":"stderr","time":1333.203988007,"data":"    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":1333.203990318,"data":"  File \"/usr/lib/python3.13/subprocess.py\", line 577, in run\n"}
+,{"stream_name":"stderr","time":1333.203992682,"data":"    raise CalledProcessError(retcode, process.args,\n"}
+,{"stream_name":"stderr","time":1333.203994896,"data":"                             output=stdout, stderr=stderr)\n"}
+,{"stream_name":"stderr","time":1333.203997182,"data":"subprocess.CalledProcessError: Command '['git', 'clone', '--depth', '1', 'https://github.com/meiruni/MIMFormer', '/kaggle/working/ext/MIMFormer']' returned non-zero exit status 128.\n"}
+,{"stream_name":"stderr","time":1333.404000165,"data":"fatal: unable to access 'https://github.com/meiruni/MIMFormer/': Could not resolve host: github.com\n"}
+,{"stream_name":"stderr","time":1333.40402736,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":1333.404032794,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 222, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":1333.404038029,"data":"    main()\n"}
+,{"stream_name":"stderr","time":1333.404042195,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":1333.40404583,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 144, in main\n"}
+,{"stream_name":"stderr","time":1333.404049579,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":1333.404053213,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":1333.404056876,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 46, in build_model\n"}
+,{"stream_name":"stderr","time":1333.404060592,"data":"    return build(a.model, deg)\n"}
+,{"stream_name":"stderr","time":1333.404064026,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 308, in build\n"}
+,{"stream_name":"stderr","time":1333.404067938,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale)\n"}
+,{"stream_name":"stderr","time":1333.40407754,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 123, in build_external\n"}
+,{"stream_name":"stderr","time":1333.404080542,"data":"    root = fetch(name)\n"}
+,{"stream_name":"stderr","time":1333.404082888,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 53, in fetch\n"}
+,{"stream_name":"stderr","time":1333.404085419,"data":"    subprocess.run([\"git\", \"clone\", \"--depth\", \"1\", url, path], check=True)\n"}
+,{"stream_name":"stderr","time":1333.404088227,"data":"    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":1333.404090769,"data":"  File \"/usr/lib/python3.13/subprocess.py\", line 577, in run\n"}
+,{"stream_name":"stderr","time":1333.404093395,"data":"    raise CalledProcessError(retcode, process.args,\n"}
+,{"stream_name":"stderr","time":1333.404095898,"data":"                             output=stdout, stderr=stderr)\n"}
+,{"stream_name":"stderr","time":1333.404098545,"data":"subprocess.CalledProcessError: Command '['git', 'clone', '--depth', '1', 'https://github.com/meiruni/MIMFormer', '/kaggle/working/ext/MIMFormer']' returned non-zero exit status 128.\n"}
+,{"stream_name":"stderr","time":1333.404101372,"data":"\n"}
+,{"stream_name":"stderr","time":1333.404129699,"data":"fatal: unable to access 'https://github.com/meiruni/MIMFormer/': Could not resolve host: github.com\n"}
+,{"stream_name":"stderr","time":1333.404135055,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":1333.404139245,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 222, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":1333.404143638,"data":"    main()\n"}
+,{"stream_name":"stderr","time":1333.404147103,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":1333.404150471,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 144, in main\n"}
+,{"stream_name":"stderr","time":1333.404154101,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":1333.40415765,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":1333.404161062,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 46, in build_model\n"}
+,{"stream_name":"stderr","time":1333.404164712,"data":"    return build(a.model, deg)\n"}
+,{"stream_name":"stderr","time":1333.404168227,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 308, in build\n"}
+,{"stream_name":"stderr","time":1333.404172034,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale)\n"}
+,{"stream_name":"stderr","time":1333.40417556,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 123, in build_external\n"}
+,{"stream_name":"stderr","time":1333.404179166,"data":"    root = fetch(name)\n"}
+,{"stream_name":"stderr","time":1333.40418371,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 53, in fetch\n"}
+,{"stream_name":"stderr","time":1333.404187616,"data":"    subprocess.run([\"git\", \"clone\", \"--depth\", \"1\", url, path], check=True)\n"}
+,{"stream_name":"stderr","time":1333.404196998,"data":"    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":1333.40419977,"data":"  File \"/usr/lib/python3.13/subprocess.py\", line 577, in run\n"}
+,{"stream_name":"stderr","time":1333.404202176,"data":"    raise CalledProcessError(retcode, process.args,\n"}
+,{"stream_name":"stderr","time":1333.404204565,"data":"                             output=stdout, stderr=stderr)\n"}
+,{"stream_name":"stderr","time":1333.404207442,"data":"subprocess.CalledProcessError: Command '['git', 'clone', '--depth', '1', 'https://github.com/meiruni/MIMFormer', '/kaggle/working/ext/MIMFormer']' returned non-zero exit status 128.\n"}
+,{"stream_name":"stdout","time":1333.744772749,"data":"END bench-chikusei-x4-mimformer rc 1\n"}
+,{"stream_name":"stdout","time":1335.062484654,"data":"RUN bench-pavia-x4-mimformer : python cond_eval.py --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat'  --dataset pavia --scale 4 --model mimformer --ckpt /kaggle/input/notebooks/tummapudinavadeep/puf-s02/out/bench-pavia-x4-mimformer/best_ema.pt --out /kaggle/working/out/bench-pavia-x4-mimformer\n"}
+,{"stream_name":"stderr","time":1338.94800252,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stderr","time":1339.150129145,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stderr","time":1339.150151447,"data":"\n"}
+,{"stream_name":"stderr","time":1339.150161338,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stderr","time":1370.967797866,"data":"fatal: unable to access 'https://github.com/meiruni/MIMFormer/': Could not resolve host: github.com\n"}
+,{"stream_name":"stderr","time":1370.971325113,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":1370.972375799,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 222, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":1370.97240369,"data":"    main()\n"}
+,{"stream_name":"stderr","time":1370.972407983,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":1370.972411218,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 144, in main\n"}
+,{"stream_name":"stderr","time":1370.972414629,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":1370.972417832,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":1370.972421036,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 46, in build_model\n"}
+,{"stream_name":"stderr","time":1370.97243048,"data":"    return build(a.model, deg)\n"}
+,{"stream_name":"stderr","time":1370.972433826,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 308, in build\n"}
+,{"stream_name":"stderr","time":1370.97243721,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale)\n"}
+,{"stream_name":"stderr","time":1370.972440681,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 123, in build_external\n"}
+,{"stream_name":"stderr","time":1370.972444268,"data":"    root = fetch(name)\n"}
+,{"stream_name":"stderr","time":1370.972447398,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 53, in fetch\n"}
+,{"stream_name":"stderr","time":1370.97245519,"data":"    subprocess.run([\"git\", \"clone\", \"--depth\", \"1\", url, path], check=True)\n"}
+,{"stream_name":"stderr","time":1370.972458003,"data":"    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":1370.972460478,"data":"  File \"/usr/lib/python3.13/subprocess.py\", line 577, in run\n"}
+,{"stream_name":"stderr","time":1370.97246283,"data":"    raise CalledProcessError(retcode, process.args,\n"}
+,{"stream_name":"stderr","time":1370.972465079,"data":"                             output=stdout, stderr=stderr)\n"}
+,{"stream_name":"stderr","time":1370.97246738,"data":"subprocess.CalledProcessError: Command '['git', 'clone', '--depth', '1', 'https://github.com/meiruni/MIMFormer', '/kaggle/working/ext/MIMFormer']' returned non-zero exit status 128.\n"}
+,{"stream_name":"stderr","time":1371.18092447,"data":"fatal: unable to access 'https://github.com/meiruni/MIMFormer/': Could not resolve host: github.com\n"}
+,{"stream_name":"stderr","time":1371.180948704,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":1371.180953486,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 222, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":1371.180958127,"data":"    main()\n"}
+,{"stream_name":"stderr","time":1371.180962067,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":1371.180965792,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 144, in main\n"}
+,{"stream_name":"stderr","time":1371.18096943,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":1371.180972786,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":1371.18097613,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 46, in build_model\n"}
+,{"stream_name":"stderr","time":1371.180980327,"data":"    return build(a.model, deg)\n"}
+,{"stream_name":"stderr","time":1371.180984333,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 308, in build\n"}
+,{"stream_name":"stderr","time":1371.180988394,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale)\n"}
+,{"stream_name":"stderr","time":1371.18099216,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 123, in build_external\n"}
+,{"stream_name":"stderr","time":1371.180996596,"data":"    root = fetch(name)\n"}
+,{"stream_name":"stderr","time":1371.181011723,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 53, in fetch\n"}
+,{"stream_name":"stderr","time":1371.181015437,"data":"    subprocess.run([\"git\", \"clone\", \"--depth\", \"1\", url, path], check=True)\n"}
+,{"stream_name":"stderr","time":1371.181019246,"data":"    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":1371.18102284,"data":"  File \"/usr/lib/python3.13/subprocess.py\", line 577, in run\n"}
+,{"stream_name":"stderr","time":1371.181026352,"data":"    raise CalledProcessError(retcode, process.args,\n"}
+,{"stream_name":"stderr","time":1371.181034509,"data":"                             output=stdout, stderr=stderr)\n"}
+,{"stream_name":"stderr","time":1371.181037001,"data":"subprocess.CalledProcessError: Command '['git', 'clone', '--depth', '1', 'https://github.com/meiruni/MIMFormer', '/kaggle/working/ext/MIMFormer']' returned non-zero exit status 128.\n"}
+,{"stream_name":"stderr","time":1371.181039472,"data":"\n"}
+,{"stream_name":"stderr","time":1371.181041664,"data":"fatal: unable to access 'https://github.com/meiruni/MIMFormer/': Could not resolve host: github.com\n"}
+,{"stream_name":"stderr","time":1371.181043981,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":1371.181046239,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 222, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":1371.181048689,"data":"    main()\n"}
+,{"stream_name":"stderr","time":1371.181050904,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":1371.181053105,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 144, in main\n"}
+,{"stream_name":"stderr","time":1371.181055392,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":1371.181057611,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":1371.181059816,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 46, in build_model\n"}
+,{"stream_name":"stderr","time":1371.181062654,"data":"    return build(a.model, deg)\n"}
+,{"stream_name":"stderr","time":1371.18108159,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 308, in build\n"}
+,{"stream_name":"stderr","time":1371.181085685,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale)\n"}
+,{"stream_name":"stderr","time":1371.181089567,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 123, in build_external\n"}
+,{"stream_name":"stderr","time":1371.181093391,"data":"    root = fetch(name)\n"}
+,{"stream_name":"stderr","time":1371.181098507,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 53, in fetch\n"}
+,{"stream_name":"stderr","time":1371.181102272,"data":"    subprocess.run([\"git\", \"clone\", \"--depth\", \"1\", url, path], check=True)\n"}
+,{"stream_name":"stderr","time":1371.181106017,"data":"    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":1371.18110947,"data":"  File \"/usr/lib/python3.13/subprocess.py\", line 577, in run\n"}
+,{"stream_name":"stderr","time":1371.181112878,"data":"    raise CalledProcessError(retcode, process.args,\n"}
+,{"stream_name":"stderr","time":1371.181116209,"data":"                             output=stdout, stderr=stderr)\n"}
+,{"stream_name":"stderr","time":1371.181119591,"data":"subprocess.CalledProcessError: Command '['git', 'clone', '--depth', '1', 'https://github.com/meiruni/MIMFormer', '/kaggle/working/ext/MIMFormer']' returned non-zero exit status 128.\n"}
+,{"stream_name":"stdout","time":1371.567883713,"data":"END bench-pavia-x4-mimformer rc 1\n"}
+,{"stream_name":"stderr","time":1373.983443022,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":1373.983483306,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":1374.159711915,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":1374.159753018,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":1374.935643133,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":1375.028636708,"data":"[NbConvertApp] Writing 90703 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":1377.477296118,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":1378.015401095,"data":"[NbConvertApp] Writing 374049 bytes to __results__.html\n"}
+]

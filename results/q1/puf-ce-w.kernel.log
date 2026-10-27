@@ -1,0 +1,161 @@
+[{"stream_name":"stderr","time":6.386086886,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.386124991,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.386131838,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.386136293,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":6.945858599,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.945899005,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.945910235,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.945913728,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":7.988566689,"data":"code sha256 a00f2fdb71e8fcdfc9af3b827591db544abbd21317a2f22c51daa7557e74cb3f from git d7d032a+local changes\n"}
+,{"stream_name":"stdout","time":7.991165532,"data":"4\n"}
+,{"stream_name":"stdout","time":8.003204267,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":8.003222225,"data":"Mem:              31           1          25           0           4          30\n"}
+,{"stream_name":"stderr","time":8.185215969,"data":"/tmp/ipykernel_23/105131770.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":8.185243272,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":8.185249717,"data":"\n"}
+,{"stream_name":"stderr","time":8.185254257,"data":"/tmp/ipykernel_23/105131770.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":8.185259022,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":8.188406718,"data":"4\n"}
+,{"stream_name":"stdout","time":8.188432488,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":8.18843698,"data":"Mem:              31           1          25           0           4          30\n"}
+,{"stream_name":"stdout","time":12.401474396,"data":"RUN abl-chikusei-x4-mres : python cond_eval.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model puformer --pad reflect --mres 1 --ckpt /kaggle/input/notebooks/hruthwikch/puf-v02/out/abl-chikusei-x4-mres/best_ema.pt --out /kaggle/working/out/abl-chikusei-x4-mres\n"}
+,{"stream_name":"stdout","time":327.690878221,"data":"sensitivity sigma x0.5: residual 0.0617 PSNR 39.82\n"}
+,{"stream_name":"stdout","time":327.894806518,"data":"sensitivity sigma x0.5: residual 0.0617 PSNR 39.82\n"}
+,{"stream_name":"stdout","time":330.484592944,"data":"sensitivity sigma x0.75: residual 0.0227 PSNR 51.85\n"}
+,{"stream_name":"stdout","time":330.687016837,"data":"sensitivity sigma x0.75: residual 0.0227 PSNR 51.85\n"}
+,{"stream_name":"stdout","time":333.288618785,"data":"sensitivity sigma x0.9: residual 0.0074 PSNR 56.76\n"}
+,{"stream_name":"stdout","time":333.491005643,"data":"sensitivity sigma x0.9: residual 0.0074 PSNR 56.76\n"}
+,{"stream_name":"stdout","time":336.100609293,"data":"sensitivity sigma x1: residual 0.0000 PSNR 58.04\n"}
+,{"stream_name":"stdout","time":336.302988414,"data":"sensitivity sigma x1: residual 0.0000 PSNR 58.04\n"}
+,{"stream_name":"stdout","time":338.913831735,"data":"sensitivity sigma x1.1: residual 0.0058 PSNR 57.30\n"}
+,{"stream_name":"stdout","time":339.116335061,"data":"sensitivity sigma x1.1: residual 0.0058 PSNR 57.30\n"}
+,{"stream_name":"stdout","time":341.739574368,"data":"sensitivity sigma x1.25: residual 0.0123 PSNR 55.84\n"}
+,{"stream_name":"stdout","time":341.942050552,"data":"sensitivity sigma x1.25: residual 0.0123 PSNR 55.84\n"}
+,{"stream_name":"stdout","time":344.573574685,"data":"sensitivity sigma x1.5: residual 0.0193 PSNR 54.30\n"}
+,{"stream_name":"stdout","time":344.775786231,"data":"sensitivity sigma x1.5: residual 0.0193 PSNR 54.30\n"}
+,{"stream_name":"stdout","time":347.416213013,"data":"sensitivity sigma x2: residual 0.0265 PSNR 52.91\n"}
+,{"stream_name":"stdout","time":347.618481967,"data":"sensitivity sigma x2: residual 0.0265 PSNR 52.91\n"}
+,{"stream_name":"stdout","time":358.103796711,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.1966, 'fixed': 58.0358, 'oracle': 58.0358, 'estimated': 58.0358}\n"}
+,{"stream_name":"stdout","time":358.307391509,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.1966, 'fixed': 58.0358, 'oracle': 58.0358, 'estimated': 58.0358}\n"}
+,{"stream_name":"stdout","time":368.739333416,"data":"sigma x0.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 45.6771, 'fixed': 46.2862, 'oracle': 56.7422, 'estimated': 56.7422}\n"}
+,{"stream_name":"stdout","time":368.941814678,"data":"sigma x0.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 45.6771, 'fixed': 46.2862, 'oracle': 56.7422, 'estimated': 56.7422}\n"}
+,{"stream_name":"stdout","time":379.479339117,"data":"sigma x0.75 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 44.0502, 'fixed': 52.8818, 'oracle': 57.9038, 'estimated': 57.9038}\n"}
+,{"stream_name":"stdout","time":379.681821649,"data":"sigma x0.75 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 44.0502, 'fixed': 52.8818, 'oracle': 57.9038, 'estimated': 57.9038}\n"}
+,{"stream_name":"stdout","time":390.351768306,"data":"sigma x1.25 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7742, 'fixed': 55.5461, 'oracle': 57.9562, 'estimated': 57.9562}\n"}
+,{"stream_name":"stdout","time":390.556429554,"data":"sigma x1.25 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7742, 'fixed': 55.5461, 'oracle': 57.9562, 'estimated': 57.9562}\n"}
+,{"stream_name":"stdout","time":401.362533382,"data":"sigma x1.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.5448, 'fixed': 53.6425, 'oracle': 57.8478, 'estimated': 57.8478}\n"}
+,{"stream_name":"stdout","time":401.564626206,"data":"sigma x1.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.5448, 'fixed': 53.6425, 'oracle': 57.8478, 'estimated': 57.8478}\n"}
+,{"stream_name":"stdout","time":412.505250176,"data":"sigma x2 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.3203, 'fixed': 51.9034, 'oracle': 57.6933, 'estimated': 57.6933}\n"}
+,{"stream_name":"stdout","time":412.707288163,"data":"sigma x2 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.3203, 'fixed': 51.9034, 'oracle': 57.6933, 'estimated': 57.6933}\n"}
+,{"stream_name":"stdout","time":423.816571739,"data":"shift -12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8887, 'fixed': 40.5876, 'oracle': 54.3234, 'estimated': 54.3234}\n"}
+,{"stream_name":"stdout","time":424.020215013,"data":"shift -12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8887, 'fixed': 40.5876, 'oracle': 54.3234, 'estimated': 54.3234}\n"}
+,{"stream_name":"stdout","time":435.286132422,"data":"shift -8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8636, 'fixed': 44.2341, 'oracle': 56.12, 'estimated': 56.12}\n"}
+,{"stream_name":"stdout","time":435.488280196,"data":"shift -8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8636, 'fixed': 44.2341, 'oracle': 56.12, 'estimated': 56.12}\n"}
+,{"stream_name":"stdout","time":446.824859918,"data":"shift -4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.9788, 'fixed': 50.8323, 'oracle': 57.5255, 'estimated': 57.5255}\n"}
+,{"stream_name":"stdout","time":447.027195145,"data":"shift -4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.9788, 'fixed': 50.8323, 'oracle': 57.5255, 'estimated': 57.5255}\n"}
+,{"stream_name":"stdout","time":458.22650883,"data":"shift +4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2823, 'fixed': 50.5451, 'oracle': 57.4309, 'estimated': 57.4309}\n"}
+,{"stream_name":"stdout","time":458.430420408,"data":"shift +4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2823, 'fixed': 50.5451, 'oracle': 57.4309, 'estimated': 57.4309}\n"}
+,{"stream_name":"stdout","time":469.524799096,"data":"shift +8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2888, 'fixed': 44.3727, 'oracle': 56.0318, 'estimated': 56.0318}\n"}
+,{"stream_name":"stdout","time":469.726793884,"data":"shift +8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2888, 'fixed': 44.3727, 'oracle': 56.0318, 'estimated': 56.0318}\n"}
+,{"stream_name":"stdout","time":480.792654942,"data":"shift +12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.3551, 'fixed': 40.7671, 'oracle': 54.5234, 'estimated': 54.5234}\n"}
+,{"stream_name":"stdout","time":480.994741788,"data":"shift +12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.3551, 'fixed': 40.7671, 'oracle': 54.5234, 'estimated': 54.5234}\n"}
+,{"stream_name":"stdout","time":492.124290057,"data":"snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.0343, 'fixed': 52.9005, 'oracle': 52.9005, 'estimated': 52.9005}\n"}
+,{"stream_name":"stdout","time":492.327864939,"data":"snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.0343, 'fixed': 52.9005, 'oracle': 52.9005, 'estimated': 52.9005}\n"}
+,{"stream_name":"stdout","time":503.482558534,"data":"snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7074, 'fixed': 49.0202, 'oracle': 49.0202, 'estimated': 49.0202}\n"}
+,{"stream_name":"stdout","time":503.684639693,"data":"snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7074, 'fixed': 49.0202, 'oracle': 49.0202, 'estimated': 49.0202}\n"}
+,{"stream_name":"stdout","time":514.875493217,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 41.8375, 'fixed': 44.5513, 'oracle': 44.5513, 'estimated': 44.5513}\n"}
+,{"stream_name":"stdout","time":515.077674164,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 41.8375, 'fixed': 44.5513, 'oracle': 44.5513, 'estimated': 44.5513}\n"}
+,{"stream_name":"stdout","time":526.290621019,"data":"sigma x1.5, shift +8 nm, snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.1874, 'fixed': 42.8972, 'oracle': 48.8076, 'estimated': 48.8076}\n"}
+,{"stream_name":"stdout","time":526.494688567,"data":"sigma x1.5, shift +8 nm, snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.1874, 'fixed': 42.8972, 'oracle': 48.8076, 'estimated': 48.8076}\n"}
+,{"stream_name":"stdout","time":537.690040621,"data":"sigma x0.75, shift -8 nm, snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.4661, 'fixed': 43.3763, 'oracle': 52.2961, 'estimated': 52.2961}\n"}
+,{"stream_name":"stdout","time":537.892098517,"data":"sigma x0.75, shift -8 nm, snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.4661, 'fixed': 43.3763, 'oracle': 52.2961, 'estimated': 52.2961}\n"}
+,{"stream_name":"stdout","time":549.082685356,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.006 shift_err 0.00 {'gsa_oracle': 41.2617, 'fixed': 39.0423, 'oracle': 44.5045, 'estimated': 44.5048}\n"}
+,{"stream_name":"stdout","time":549.284806254,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.006 shift_err 0.00 {'gsa_oracle': 41.2617, 'fixed': 39.0423, 'oracle': 44.5045, 'estimated': 44.5048}\n"}
+,{"stream_name":"stdout","time":560.417711598,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.14 shift_err 0.00 {'gsa_oracle': 43.0863, 'fixed': 54.0948, 'oracle': 57.9331, 'estimated': 54.3904}\n"}
+,{"stream_name":"stdout","time":560.621562655,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.14 shift_err 0.00 {'gsa_oracle': 43.0863, 'fixed': 54.0948, 'oracle': 57.9331, 'estimated': 54.3904}\n"}
+,{"stream_name":"stdout","time":571.751398818,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 0.00 {'gsa_oracle': 44.0015, 'fixed': 49.7362, 'oracle': 57.5969, 'estimated': 49.871}\n"}
+,{"stream_name":"stdout","time":571.953668195,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 0.00 {'gsa_oracle': 44.0015, 'fixed': 49.7362, 'oracle': 57.5969, 'estimated': 49.871}\n"}
+,{"stream_name":"stdout","time":583.072141687,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 0.00 {'gsa_oracle': 44.449, 'fixed': 51.4086, 'oracle': 57.561, 'estimated': 54.9013}\n"}
+,{"stream_name":"stdout","time":583.274493134,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 0.00 {'gsa_oracle': 44.449, 'fixed': 51.4086, 'oracle': 57.561, 'estimated': 54.9013}\n"}
+,{"stream_name":"stdout","time":591.35245076,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 0.00 {'gsa_oracle': 38.4753, 'fixed': 40.1461, 'estimated': 40.1473}\n"}
+,{"stream_name":"stdout","time":591.556557149,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 0.00 {'gsa_oracle': 38.4753, 'fixed': 40.1461, 'estimated': 40.1473}\n"}
+,{"stream_name":"stdout","time":599.617350184,"data":"MSI misregistered 1 px sigma_err 0.719 shift_err 0.12 {'gsa_oracle': 34.0338, 'fixed': 34.3984, 'estimated': 34.2824}\n"}
+,{"stream_name":"stdout","time":599.819479546,"data":"MSI misregistered 1 px sigma_err 0.719 shift_err 0.12 {'gsa_oracle': 34.0338, 'fixed': 34.3984, 'estimated': 34.2824}\n"}
+,{"stream_name":"stdout","time":607.9361618,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.11 shift_err 0.00 {'gsa_oracle': 38.2635, 'fixed': 39.5291, 'estimated': 39.5246}\n"}
+,{"stream_name":"stdout","time":608.138649948,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.11 shift_err 0.00 {'gsa_oracle': 38.2635, 'fixed': 39.5291, 'estimated': 39.5246}\n"}
+,{"stream_name":"stdout","time":610.869599568,"data":"END abl-chikusei-x4-mres rc 0\n"}
+,{"stream_name":"stdout","time":611.94185972,"data":"RUN abl-pavia-x4-mres : python cond_eval.py --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat'  --dataset pavia --scale 4 --model puformer --pad reflect --mres 1 --ckpt /kaggle/input/notebooks/hruthwikch/puf-v02/out/abl-pavia-x4-mres/best_ema.pt --out /kaggle/working/out/abl-pavia-x4-mres\n"}
+,{"stream_name":"stdout","time":625.700149263,"data":"sensitivity sigma x0.5: residual 0.0972 PSNR 34.14\n"}
+,{"stream_name":"stdout","time":625.904787128,"data":"sensitivity sigma x0.5: residual 0.0972 PSNR 34.14\n"}
+,{"stream_name":"stdout","time":626.95749976,"data":"sensitivity sigma x0.75: residual 0.0349 PSNR 45.11\n"}
+,{"stream_name":"stdout","time":627.159793652,"data":"sensitivity sigma x0.75: residual 0.0349 PSNR 45.11\n"}
+,{"stream_name":"stdout","time":628.216737617,"data":"sensitivity sigma x0.9: residual 0.0113 PSNR 49.62\n"}
+,{"stream_name":"stdout","time":628.419158109,"data":"sensitivity sigma x0.9: residual 0.0113 PSNR 49.62\n"}
+,{"stream_name":"stdout","time":629.480768202,"data":"sensitivity sigma x1: residual 0.0000 PSNR 50.64\n"}
+,{"stream_name":"stdout","time":629.682984848,"data":"sensitivity sigma x1: residual 0.0000 PSNR 50.64\n"}
+,{"stream_name":"stdout","time":630.747194788,"data":"sensitivity sigma x1.1: residual 0.0088 PSNR 50.09\n"}
+,{"stream_name":"stdout","time":630.949457327,"data":"sensitivity sigma x1.1: residual 0.0088 PSNR 50.09\n"}
+,{"stream_name":"stdout","time":632.018503511,"data":"sensitivity sigma x1.25: residual 0.0185 PSNR 48.88\n"}
+,{"stream_name":"stdout","time":632.220748222,"data":"sensitivity sigma x1.25: residual 0.0185 PSNR 48.88\n"}
+,{"stream_name":"stdout","time":633.292741302,"data":"sensitivity sigma x1.5: residual 0.0291 PSNR 47.54\n"}
+,{"stream_name":"stdout","time":633.495532081,"data":"sensitivity sigma x1.5: residual 0.0291 PSNR 47.54\n"}
+,{"stream_name":"stdout","time":634.568053657,"data":"sensitivity sigma x2: residual 0.0398 PSNR 46.31\n"}
+,{"stream_name":"stdout","time":634.770480983,"data":"sensitivity sigma x2: residual 0.0398 PSNR 46.31\n"}
+,{"stream_name":"stdout","time":639.152972791,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7757, 'fixed': 50.6366, 'oracle': 50.6366, 'estimated': 50.6366}\n"}
+,{"stream_name":"stdout","time":639.355309401,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7757, 'fixed': 50.6366, 'oracle': 50.6366, 'estimated': 50.6366}\n"}
+,{"stream_name":"stdout","time":643.734540622,"data":"sigma x0.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 37.1167, 'fixed': 40.1145, 'oracle': 49.8094, 'estimated': 49.8094}\n"}
+,{"stream_name":"stdout","time":643.936777844,"data":"sigma x0.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 37.1167, 'fixed': 40.1145, 'oracle': 49.8094, 'estimated': 49.8094}\n"}
+,{"stream_name":"stdout","time":648.339784104,"data":"sigma x0.75 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 35.5943, 'fixed': 46.1259, 'oracle': 50.5826, 'estimated': 50.5826}\n"}
+,{"stream_name":"stdout","time":648.54242311,"data":"sigma x0.75 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 35.5943, 'fixed': 46.1259, 'oracle': 50.5826, 'estimated': 50.5826}\n"}
+,{"stream_name":"stdout","time":652.97869607,"data":"sigma x1.25 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.3622, 'fixed': 48.5708, 'oracle': 50.6125, 'estimated': 50.6125}\n"}
+,{"stream_name":"stdout","time":653.181288663,"data":"sigma x1.25 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.3622, 'fixed': 48.5708, 'oracle': 50.6125, 'estimated': 50.6125}\n"}
+,{"stream_name":"stdout","time":657.645322299,"data":"sigma x1.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.1347, 'fixed': 46.8382, 'oracle': 50.5771, 'estimated': 50.5771}\n"}
+,{"stream_name":"stdout","time":657.851493952,"data":"sigma x1.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.1347, 'fixed': 46.8382, 'oracle': 50.5771, 'estimated': 50.5771}\n"}
+,{"stream_name":"stdout","time":662.320460119,"data":"sigma x2 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.9096, 'fixed': 45.2569, 'oracle': 50.5207, 'estimated': 50.5207}\n"}
+,{"stream_name":"stdout","time":662.522789175,"data":"sigma x2 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.9096, 'fixed': 45.2569, 'oracle': 50.5207, 'estimated': 50.5207}\n"}
+,{"stream_name":"stdout","time":666.966787681,"data":"shift -12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.4496, 'fixed': 48.5381, 'oracle': 46.3149, 'estimated': 46.3149}\n"}
+,{"stream_name":"stdout","time":667.169174887,"data":"shift -12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.4496, 'fixed': 48.5381, 'oracle': 46.3149, 'estimated': 46.3149}\n"}
+,{"stream_name":"stdout","time":671.57178593,"data":"shift -8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.5801, 'fixed': 49.6415, 'oracle': 47.8327, 'estimated': 47.8327}\n"}
+,{"stream_name":"stdout","time":671.774173688,"data":"shift -8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.5801, 'fixed': 49.6415, 'oracle': 47.8327, 'estimated': 47.8327}\n"}
+,{"stream_name":"stdout","time":676.143538093,"data":"shift -4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.6875, 'fixed': 50.3895, 'oracle': 49.7592, 'estimated': 49.7592}\n"}
+,{"stream_name":"stdout","time":676.345870625,"data":"shift -4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.6875, 'fixed': 50.3895, 'oracle': 49.7592, 'estimated': 49.7592}\n"}
+,{"stream_name":"stdout","time":680.691522334,"data":"shift +4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7595, 'fixed': 50.3892, 'oracle': 50.3152, 'estimated': 50.3152}\n"}
+,{"stream_name":"stdout","time":680.893814877,"data":"shift +4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7595, 'fixed': 50.3892, 'oracle': 50.3152, 'estimated': 50.3152}\n"}
+,{"stream_name":"stdout","time":685.222151233,"data":"shift +8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7933, 'fixed': 49.7331, 'oracle': 48.9551, 'estimated': 48.9551}\n"}
+,{"stream_name":"stdout","time":685.42456672,"data":"shift +8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7933, 'fixed': 49.7331, 'oracle': 48.9551, 'estimated': 48.9551}\n"}
+,{"stream_name":"stdout","time":689.732852347,"data":"shift +12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7822, 'fixed': 48.8161, 'oracle': 47.1546, 'estimated': 47.1546}\n"}
+,{"stream_name":"stdout","time":689.939369292,"data":"shift +12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7822, 'fixed': 48.8161, 'oracle': 47.1546, 'estimated': 47.1546}\n"}
+,{"stream_name":"stdout","time":694.258191789,"data":"snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7076, 'fixed': 47.5217, 'oracle': 47.5217, 'estimated': 47.5217}\n"}
+,{"stream_name":"stdout","time":694.460602688,"data":"snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7076, 'fixed': 47.5217, 'oracle': 47.5217, 'estimated': 47.5217}\n"}
+,{"stream_name":"stdout","time":698.772426761,"data":"snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.5659, 'fixed': 44.3169, 'oracle': 44.3169, 'estimated': 44.3169}\n"}
+,{"stream_name":"stdout","time":698.974746767,"data":"snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.5659, 'fixed': 44.3169, 'oracle': 44.3169, 'estimated': 44.3169}\n"}
+,{"stream_name":"stdout","time":703.283939636,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.1636, 'fixed': 40.118, 'oracle': 40.118, 'estimated': 40.118}\n"}
+,{"stream_name":"stdout","time":703.48622546,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.1636, 'fixed': 40.118, 'oracle': 40.118, 'estimated': 40.118}\n"}
+,{"stream_name":"stdout","time":707.801152316,"data":"sigma x1.5, shift +8 nm, snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.9666, 'fixed': 43.0011, 'oracle': 43.9165, 'estimated': 43.9165}\n"}
+,{"stream_name":"stdout","time":708.00342742,"data":"sigma x1.5, shift +8 nm, snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.9666, 'fixed': 43.0011, 'oracle': 43.9165, 'estimated': 43.9165}\n"}
+,{"stream_name":"stdout","time":712.320615526,"data":"sigma x0.75, shift -8 nm, snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 35.2875, 'fixed': 44.6051, 'oracle': 45.8673, 'estimated': 45.8673}\n"}
+,{"stream_name":"stdout","time":712.522674669,"data":"sigma x0.75, shift -8 nm, snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 35.2875, 'fixed': 44.6051, 'oracle': 45.8673, 'estimated': 45.8673}\n"}
+,{"stream_name":"stdout","time":716.851399988,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.3999, 'fixed': 39.1913, 'oracle': 39.7792, 'estimated': 39.7792}\n"}
+,{"stream_name":"stdout","time":717.053530133,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.3999, 'fixed': 39.1913, 'oracle': 39.7792, 'estimated': 39.7792}\n"}
+,{"stream_name":"stdout","time":721.374840752,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.09 shift_err 0.50 {'gsa_oracle': 34.722, 'fixed': 46.1577, 'oracle': 50.6039, 'estimated': 46.3287}\n"}
+,{"stream_name":"stdout","time":721.579934985,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.09 shift_err 0.50 {'gsa_oracle': 34.722, 'fixed': 46.1577, 'oracle': 50.6039, 'estimated': 46.3287}\n"}
+,{"stream_name":"stdout","time":725.908263106,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 1.00 {'gsa_oracle': 35.5877, 'fixed': 43.7464, 'oracle': 50.4872, 'estimated': 43.9991}\n"}
+,{"stream_name":"stdout","time":726.110372611,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 1.00 {'gsa_oracle': 35.5877, 'fixed': 43.7464, 'oracle': 50.4872, 'estimated': 43.9991}\n"}
+,{"stream_name":"stdout","time":730.453229213,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 1.00 {'gsa_oracle': 35.9999, 'fixed': 44.6179, 'oracle': 50.2938, 'estimated': 47.4634}\n"}
+,{"stream_name":"stdout","time":730.655393559,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 1.00 {'gsa_oracle': 35.9999, 'fixed': 44.6179, 'oracle': 50.2938, 'estimated': 47.4634}\n"}
+,{"stream_name":"stdout","time":733.733100213,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 2.25 {'gsa_oracle': 30.1386, 'fixed': 31.9186, 'estimated': 31.9536}\n"}
+,{"stream_name":"stdout","time":733.935179682,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 2.25 {'gsa_oracle': 30.1386, 'fixed': 31.9186, 'estimated': 31.9536}\n"}
+,{"stream_name":"stdout","time":737.004977083,"data":"MSI misregistered 1 px sigma_err 0.850 shift_err 5.00 {'gsa_oracle': 26.012, 'fixed': 26.4481, 'estimated': 26.3351}\n"}
+,{"stream_name":"stdout","time":737.207418928,"data":"MSI misregistered 1 px sigma_err 0.850 shift_err 5.00 {'gsa_oracle': 26.012, 'fixed': 26.4481, 'estimated': 26.3351}\n"}
+,{"stream_name":"stdout","time":740.293444478,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.02 shift_err 1.75 {'gsa_oracle': 30.1118, 'fixed': 31.6054, 'estimated': 31.625}\n"}
+,{"stream_name":"stdout","time":740.496194954,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.02 shift_err 1.75 {'gsa_oracle': 30.1118, 'fixed': 31.6054, 'estimated': 31.625}\n"}
+,{"stream_name":"stdout","time":740.951279203,"data":"END abl-pavia-x4-mres rc 0\n"}
+,{"stream_name":"stderr","time":743.224034617,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":743.224063217,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":743.378289907,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":743.378316179,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":744.101590086,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":744.179791353,"data":"[NbConvertApp] Writing 73006 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":746.591357525,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":747.082095315,"data":"[NbConvertApp] Writing 354371 bytes to __results__.html\n"}
+]

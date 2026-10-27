@@ -1,0 +1,1260 @@
+{
+ "dataset": "pavia",
+ "scale": 4,
+ "model": "puformer",
+ "pad": "reflect",
+ "op": "exact",
+ "physics": 1,
+ "ckpt": "/kaggle/input/notebooks/tummapudinavadeep/puf-r02/out/cond-pavia-x4-puformer/best_ema.pt",
+ "nominal_sigma": 2.0,
+ "swappable": true,
+ "conditions": {
+  "nominal": {
+   "sigma": 2.0,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.0,
+    2.0,
+    2.0,
+    2.0
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 34.7757,
+    "SAM": 5.2291,
+    "ERGAS": 3.4939,
+    "SSIM": 0.9438,
+    "RMSE_DN": 157.9259
+   },
+   "fixed": {
+    "PSNR": 50.4508,
+    "SAM": 1.9347,
+    "ERGAS": 0.6355,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.1835
+   },
+   "oracle": {
+    "PSNR": 50.4508,
+    "SAM": 1.9347,
+    "ERGAS": 0.6355,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.1835
+   },
+   "estimated": {
+    "PSNR": 50.4508,
+    "SAM": 1.9347,
+    "ERGAS": 0.6355,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.1835
+   }
+  },
+  "sigma x0.5": {
+   "sigma": 1.0,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 37.1167,
+    "SAM": 4.6216,
+    "ERGAS": 2.6325,
+    "SSIM": 0.9638,
+    "RMSE_DN": 118.3096
+   },
+   "fixed": {
+    "PSNR": 40.4818,
+    "SAM": 3.8411,
+    "ERGAS": 1.7098,
+    "SSIM": 0.9876,
+    "RMSE_DN": 77.1532
+   },
+   "oracle": {
+    "PSNR": 50.3084,
+    "SAM": 1.9478,
+    "ERGAS": 0.6429,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.5894
+   },
+   "estimated": {
+    "PSNR": 50.3084,
+    "SAM": 1.9478,
+    "ERGAS": 0.6429,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.5894
+   }
+  },
+  "sigma x0.75": {
+   "sigma": 1.5,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    1.5,
+    1.5,
+    1.5,
+    1.5
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 35.5943,
+    "SAM": 4.9938,
+    "ERGAS": 3.1689,
+    "SSIM": 0.9516,
+    "RMSE_DN": 142.973
+   },
+   "fixed": {
+    "PSNR": 46.8312,
+    "SAM": 2.3781,
+    "ERGAS": 0.8829,
+    "SSIM": 0.9952,
+    "RMSE_DN": 36.9304
+   },
+   "oracle": {
+    "PSNR": 50.4488,
+    "SAM": 1.933,
+    "ERGAS": 0.6351,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.19
+   },
+   "estimated": {
+    "PSNR": 50.4488,
+    "SAM": 1.933,
+    "ERGAS": 0.6351,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.19
+   }
+  },
+  "sigma x1.25": {
+   "sigma": 2.5,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.5,
+    2.5,
+    2.5,
+    2.5
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 34.3622,
+    "SAM": 5.3578,
+    "ERGAS": 3.6689,
+    "SSIM": 0.9394,
+    "RMSE_DN": 165.971
+   },
+   "fixed": {
+    "PSNR": 48.827,
+    "SAM": 2.1232,
+    "ERGAS": 0.7327,
+    "SSIM": 0.9961,
+    "RMSE_DN": 29.2461
+   },
+   "oracle": {
+    "PSNR": 50.433,
+    "SAM": 1.9378,
+    "ERGAS": 0.6367,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.233
+   },
+   "estimated": {
+    "PSNR": 50.433,
+    "SAM": 1.9378,
+    "ERGAS": 0.6367,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.233
+   }
+  },
+  "sigma x1.5": {
+   "sigma": 3.0,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    3.0,
+    3.0,
+    3.0,
+    3.0
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 34.1347,
+    "SAM": 5.4316,
+    "ERGAS": 3.7685,
+    "SSIM": 0.9369,
+    "RMSE_DN": 170.5454
+   },
+   "fixed": {
+    "PSNR": 47.3259,
+    "SAM": 2.2848,
+    "ERGAS": 0.8415,
+    "SSIM": 0.9953,
+    "RMSE_DN": 34.8695
+   },
+   "oracle": {
+    "PSNR": 50.4157,
+    "SAM": 1.9405,
+    "ERGAS": 0.6378,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.2808
+   },
+   "estimated": {
+    "PSNR": 50.4157,
+    "SAM": 1.9405,
+    "ERGAS": 0.6378,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.2808
+   }
+  },
+  "sigma x2": {
+   "sigma": 4.0,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    4.0,
+    4.0,
+    4.0,
+    4.0
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 33.9096,
+    "SAM": 5.5068,
+    "ERGAS": 3.8693,
+    "SSIM": 0.9343,
+    "RMSE_DN": 175.1763
+   },
+   "fixed": {
+    "PSNR": 45.802,
+    "SAM": 2.4646,
+    "ERGAS": 0.9759,
+    "SSIM": 0.9941,
+    "RMSE_DN": 41.6742
+   },
+   "oracle": {
+    "PSNR": 50.3901,
+    "SAM": 1.9441,
+    "ERGAS": 0.6394,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.3516
+   },
+   "estimated": {
+    "PSNR": 50.3901,
+    "SAM": 1.9441,
+    "ERGAS": 0.6394,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.3516
+   }
+  },
+  "shift -12 nm": {
+   "sigma": 2.0,
+   "shift_nm": -12,
+   "snr_db": null,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.0,
+    2.0,
+    2.0,
+    2.0
+   ],
+   "shift_hat": [
+    -12.0,
+    -12.0,
+    -12.0,
+    -12.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 34.4496,
+    "SAM": 5.4383,
+    "ERGAS": 3.6179,
+    "SSIM": 0.9411,
+    "RMSE_DN": 162.6244
+   },
+   "fixed": {
+    "PSNR": 48.7541,
+    "SAM": 2.084,
+    "ERGAS": 0.7637,
+    "SSIM": 0.9964,
+    "RMSE_DN": 29.4449
+   },
+   "oracle": {
+    "PSNR": 50.2783,
+    "SAM": 1.9446,
+    "ERGAS": 0.6413,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.6768
+   },
+   "estimated": {
+    "PSNR": 50.2783,
+    "SAM": 1.9446,
+    "ERGAS": 0.6413,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.6768
+   }
+  },
+  "shift -8 nm": {
+   "sigma": 2.0,
+   "shift_nm": -8,
+   "snr_db": null,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.0,
+    2.0,
+    2.0,
+    2.0
+   ],
+   "shift_hat": [
+    -8.0,
+    -8.0,
+    -8.0,
+    -8.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 34.5801,
+    "SAM": 5.3586,
+    "ERGAS": 3.5656,
+    "SSIM": 0.9422,
+    "RMSE_DN": 160.7588
+   },
+   "fixed": {
+    "PSNR": 49.6177,
+    "SAM": 2.004,
+    "ERGAS": 0.6949,
+    "SSIM": 0.9966,
+    "RMSE_DN": 26.6505
+   },
+   "oracle": {
+    "PSNR": 50.3832,
+    "SAM": 1.9378,
+    "ERGAS": 0.6365,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.3755
+   },
+   "estimated": {
+    "PSNR": 50.3832,
+    "SAM": 1.9378,
+    "ERGAS": 0.6365,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.3755
+   }
+  },
+  "shift -4 nm": {
+   "sigma": 2.0,
+   "shift_nm": -4,
+   "snr_db": null,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.0,
+    2.0,
+    2.0,
+    2.0
+   ],
+   "shift_hat": [
+    -4.0,
+    -4.0,
+    -4.0,
+    -4.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 34.6875,
+    "SAM": 5.2915,
+    "ERGAS": 3.5259,
+    "SSIM": 0.943,
+    "RMSE_DN": 159.2476
+   },
+   "fixed": {
+    "PSNR": 50.2224,
+    "SAM": 1.9524,
+    "ERGAS": 0.6503,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.8407
+   },
+   "oracle": {
+    "PSNR": 50.4336,
+    "SAM": 1.9354,
+    "ERGAS": 0.6351,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.2324
+   },
+   "estimated": {
+    "PSNR": 50.4336,
+    "SAM": 1.9354,
+    "ERGAS": 0.6351,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.2324
+   }
+  },
+  "shift +4 nm": {
+   "sigma": 2.0,
+   "shift_nm": 4,
+   "snr_db": null,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.0,
+    2.0,
+    2.0,
+    2.0
+   ],
+   "shift_hat": [
+    4.0,
+    4.0,
+    4.0,
+    4.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 34.7595,
+    "SAM": 5.2233,
+    "ERGAS": 3.4985,
+    "SSIM": 0.9436,
+    "RMSE_DN": 158.2349
+   },
+   "fixed": {
+    "PSNR": 50.2605,
+    "SAM": 1.9536,
+    "ERGAS": 0.6529,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.725
+   },
+   "oracle": {
+    "PSNR": 50.4459,
+    "SAM": 1.9358,
+    "ERGAS": 0.6371,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.1962
+   },
+   "estimated": {
+    "PSNR": 50.4459,
+    "SAM": 1.9358,
+    "ERGAS": 0.6371,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.1962
+   }
+  },
+  "shift +8 nm": {
+   "sigma": 2.0,
+   "shift_nm": 8,
+   "snr_db": null,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.0,
+    2.0,
+    2.0,
+    2.0
+   ],
+   "shift_hat": [
+    8.0,
+    8.0,
+    8.0,
+    8.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 34.7933,
+    "SAM": 5.1965,
+    "ERGAS": 3.4894,
+    "SSIM": 0.9438,
+    "RMSE_DN": 157.7034
+   },
+   "fixed": {
+    "PSNR": 49.7253,
+    "SAM": 2.004,
+    "ERGAS": 0.6999,
+    "SSIM": 0.9966,
+    "RMSE_DN": 26.3277
+   },
+   "oracle": {
+    "PSNR": 50.4193,
+    "SAM": 1.939,
+    "ERGAS": 0.64,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.2695
+   },
+   "estimated": {
+    "PSNR": 50.4193,
+    "SAM": 1.939,
+    "ERGAS": 0.64,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.2695
+   }
+  },
+  "shift +12 nm": {
+   "sigma": 2.0,
+   "shift_nm": 12,
+   "snr_db": null,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.0,
+    2.0,
+    2.0,
+    2.0
+   ],
+   "shift_hat": [
+    12.0,
+    12.0,
+    12.0,
+    12.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 34.7822,
+    "SAM": 5.1902,
+    "ERGAS": 3.4922,
+    "SSIM": 0.9437,
+    "RMSE_DN": 157.7185
+   },
+   "fixed": {
+    "PSNR": 48.9786,
+    "SAM": 2.0787,
+    "ERGAS": 0.7709,
+    "SSIM": 0.9964,
+    "RMSE_DN": 28.7455
+   },
+   "oracle": {
+    "PSNR": 50.3659,
+    "SAM": 1.9457,
+    "ERGAS": 0.6448,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.4192
+   },
+   "estimated": {
+    "PSNR": 50.3659,
+    "SAM": 1.9457,
+    "ERGAS": 0.6448,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.4192
+   }
+  },
+  "snr 40 dB": {
+   "sigma": 2.0,
+   "shift_nm": 0,
+   "snr_db": 40,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.0,
+    2.0,
+    2.0,
+    2.0
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 34.7076,
+    "SAM": 5.3636,
+    "ERGAS": 3.5227,
+    "SSIM": 0.9424,
+    "RMSE_DN": 158.8764
+   },
+   "fixed": {
+    "PSNR": 48.8714,
+    "SAM": 2.331,
+    "ERGAS": 0.7512,
+    "SSIM": 0.9953,
+    "RMSE_DN": 29.049
+   },
+   "oracle": {
+    "PSNR": 48.8714,
+    "SAM": 2.331,
+    "ERGAS": 0.7512,
+    "SSIM": 0.9953,
+    "RMSE_DN": 29.049
+   },
+   "estimated": {
+    "PSNR": 48.8714,
+    "SAM": 2.331,
+    "ERGAS": 0.7512,
+    "SSIM": 0.9953,
+    "RMSE_DN": 29.049
+   }
+  },
+  "snr 35 dB": {
+   "sigma": 2.0,
+   "shift_nm": 0,
+   "snr_db": 35,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.0,
+    2.0,
+    2.0,
+    2.0
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 34.5659,
+    "SAM": 5.6363,
+    "ERGAS": 3.584,
+    "SSIM": 0.9395,
+    "RMSE_DN": 160.873
+   },
+   "fixed": {
+    "PSNR": 47.1006,
+    "SAM": 2.8264,
+    "ERGAS": 0.9026,
+    "SSIM": 0.9929,
+    "RMSE_DN": 35.6891
+   },
+   "oracle": {
+    "PSNR": 47.1006,
+    "SAM": 2.8264,
+    "ERGAS": 0.9026,
+    "SSIM": 0.9929,
+    "RMSE_DN": 35.6891
+   },
+   "estimated": {
+    "PSNR": 47.1006,
+    "SAM": 2.8264,
+    "ERGAS": 0.9026,
+    "SSIM": 0.9929,
+    "RMSE_DN": 35.6891
+   }
+  },
+  "snr 30 dB": {
+   "sigma": 2.0,
+   "shift_nm": 0,
+   "snr_db": 30,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.0,
+    2.0,
+    2.0,
+    2.0
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 34.1636,
+    "SAM": 6.3745,
+    "ERGAS": 3.7646,
+    "SSIM": 0.9303,
+    "RMSE_DN": 166.9039
+   },
+   "fixed": {
+    "PSNR": 44.2963,
+    "SAM": 3.8278,
+    "ERGAS": 1.214,
+    "SSIM": 0.987,
+    "RMSE_DN": 49.4102
+   },
+   "oracle": {
+    "PSNR": 44.2963,
+    "SAM": 3.8278,
+    "ERGAS": 1.214,
+    "SSIM": 0.987,
+    "RMSE_DN": 49.4102
+   },
+   "estimated": {
+    "PSNR": 44.2963,
+    "SAM": 3.8278,
+    "ERGAS": 1.214,
+    "SSIM": 0.987,
+    "RMSE_DN": 49.4102
+   }
+  },
+  "sigma x1.5, shift +8 nm, snr 35 dB": {
+   "sigma": 3.0,
+   "shift_nm": 8,
+   "snr_db": 35,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    3.0,
+    3.0,
+    3.0,
+    3.0
+   ],
+   "shift_hat": [
+    8.0,
+    8.0,
+    8.0,
+    8.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 33.9666,
+    "SAM": 5.7839,
+    "ERGAS": 3.8472,
+    "SSIM": 0.9328,
+    "RMSE_DN": 173.0517
+   },
+   "fixed": {
+    "PSNR": 45.2949,
+    "SAM": 3.0149,
+    "ERGAS": 1.0751,
+    "SSIM": 0.9915,
+    "RMSE_DN": 44.0993
+   },
+   "oracle": {
+    "PSNR": 47.0708,
+    "SAM": 2.8271,
+    "ERGAS": 0.9083,
+    "SSIM": 0.9929,
+    "RMSE_DN": 35.8103
+   },
+   "estimated": {
+    "PSNR": 47.0708,
+    "SAM": 2.8271,
+    "ERGAS": 0.9083,
+    "SSIM": 0.9929,
+    "RMSE_DN": 35.8103
+   }
+  },
+  "sigma x0.75, shift -8 nm, snr 40 dB": {
+   "sigma": 1.5,
+   "shift_nm": -8,
+   "snr_db": 40,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    1.5,
+    1.5,
+    1.5,
+    1.5
+   ],
+   "shift_hat": [
+    -8.0,
+    -8.0,
+    -8.0,
+    -8.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 35.2875,
+    "SAM": 5.2769,
+    "ERGAS": 3.2779,
+    "SSIM": 0.9486,
+    "RMSE_DN": 147.1058
+   },
+   "fixed": {
+    "PSNR": 45.9348,
+    "SAM": 2.7192,
+    "ERGAS": 0.9835,
+    "SSIM": 0.9937,
+    "RMSE_DN": 40.9773
+   },
+   "oracle": {
+    "PSNR": 48.8289,
+    "SAM": 2.3352,
+    "ERGAS": 0.7512,
+    "SSIM": 0.9953,
+    "RMSE_DN": 29.1954
+   },
+   "estimated": {
+    "PSNR": 48.8289,
+    "SAM": 2.3352,
+    "ERGAS": 0.7512,
+    "SSIM": 0.9953,
+    "RMSE_DN": 29.1954
+   }
+  },
+  "sigma x2, shift +12 nm, snr 30 dB": {
+   "sigma": 4.0,
+   "shift_nm": 12,
+   "snr_db": 30,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    4.0,
+    4.0,
+    4.0,
+    4.0
+   ],
+   "shift_hat": [
+    12.0,
+    12.0,
+    12.0,
+    12.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 33.3999,
+    "SAM": 6.532,
+    "ERGAS": 4.1149,
+    "SSIM": 0.9213,
+    "RMSE_DN": 183.1075
+   },
+   "fixed": {
+    "PSNR": 42.4834,
+    "SAM": 4.0336,
+    "ERGAS": 1.4628,
+    "SSIM": 0.9843,
+    "RMSE_DN": 61.0722
+   },
+   "oracle": {
+    "PSNR": 44.2654,
+    "SAM": 3.8287,
+    "ERGAS": 1.2237,
+    "SSIM": 0.987,
+    "RMSE_DN": 49.5743
+   },
+   "estimated": {
+    "PSNR": 44.2654,
+    "SAM": 3.8287,
+    "ERGAS": 1.2237,
+    "SSIM": 0.987,
+    "RMSE_DN": 49.5743
+   }
+  },
+  "aniso blur 1.5/0.75 sigma0, 30 deg": {
+   "sigma": null,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": [
+    "aniso",
+    1.5,
+    0.75,
+    30.0
+   ],
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.1,
+    1.95,
+    2.1,
+    2.2
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    -1.0,
+    -1.0
+   ],
+   "sigma_abs_err": null,
+   "shift_abs_err": 0.5,
+   "gsa_oracle": {
+    "PSNR": 34.722,
+    "SAM": 5.2373,
+    "ERGAS": 3.5269,
+    "SSIM": 0.9429,
+    "RMSE_DN": 159.6946
+   },
+   "fixed": {
+    "PSNR": 46.7083,
+    "SAM": 2.3845,
+    "ERGAS": 0.8948,
+    "SSIM": 0.9947,
+    "RMSE_DN": 37.6065
+   },
+   "oracle": {
+    "PSNR": 50.4286,
+    "SAM": 1.9393,
+    "ERGAS": 0.6366,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.2446
+   },
+   "estimated": {
+    "PSNR": 46.8605,
+    "SAM": 2.367,
+    "ERGAS": 0.8823,
+    "SSIM": 0.9948,
+    "RMSE_DN": 36.8881
+   }
+  },
+  "aniso blur 1.25/0.5 sigma0, 0 deg": {
+   "sigma": null,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": [
+    "aniso",
+    1.25,
+    0.5,
+    0.0
+   ],
+   "msi_px": 0.0,
+   "sigma_hat": [
+    1.55,
+    1.5,
+    1.6,
+    1.6
+   ],
+   "shift_hat": [
+    0.0,
+    -1.0,
+    -1.0,
+    -2.0
+   ],
+   "sigma_abs_err": null,
+   "shift_abs_err": 1.0,
+   "gsa_oracle": {
+    "PSNR": 35.5877,
+    "SAM": 5.0027,
+    "ERGAS": 3.1855,
+    "SSIM": 0.9512,
+    "RMSE_DN": 143.6833
+   },
+   "fixed": {
+    "PSNR": 44.2885,
+    "SAM": 2.6612,
+    "ERGAS": 1.1362,
+    "SSIM": 0.9934,
+    "RMSE_DN": 49.4746
+   },
+   "oracle": {
+    "PSNR": 50.3889,
+    "SAM": 1.9427,
+    "ERGAS": 0.638,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.3566
+   },
+   "estimated": {
+    "PSNR": 45.0821,
+    "SAM": 2.496,
+    "ERGAS": 1.0469,
+    "SSIM": 0.994,
+    "RMSE_DN": 45.2216
+   }
+  },
+  "disk blur r = 1.25 sigma0": {
+   "sigma": null,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": [
+    "disk",
+    1.25
+   ],
+   "msi_px": 0.0,
+   "sigma_hat": [
+    1.45,
+    1.45,
+    1.45,
+    1.45
+   ],
+   "shift_hat": [
+    -1.0,
+    -1.0,
+    -1.0,
+    -1.0
+   ],
+   "sigma_abs_err": null,
+   "shift_abs_err": 1.0,
+   "gsa_oracle": {
+    "PSNR": 35.9999,
+    "SAM": 4.8923,
+    "ERGAS": 3.0228,
+    "SSIM": 0.955,
+    "RMSE_DN": 136.1168
+   },
+   "fixed": {
+    "PSNR": 45.3549,
+    "SAM": 2.6536,
+    "ERGAS": 1.022,
+    "SSIM": 0.9941,
+    "RMSE_DN": 43.9135
+   },
+   "oracle": {
+    "PSNR": 50.4201,
+    "SAM": 1.9463,
+    "ERGAS": 0.6369,
+    "SSIM": 0.9968,
+    "RMSE_DN": 24.2627
+   },
+   "estimated": {
+    "PSNR": 48.38,
+    "SAM": 2.1306,
+    "ERGAS": 0.7636,
+    "SSIM": 0.9961,
+    "RMSE_DN": 30.8855
+   }
+  },
+  "MSI misregistered 0.5 px": {
+   "sigma": 2.0,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": null,
+   "msi_px": 0.5,
+   "sigma_hat": [
+    2.0,
+    1.95,
+    2.0,
+    1.95
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    1.0,
+    8.0
+   ],
+   "sigma_abs_err": 0.025000000000000022,
+   "shift_abs_err": 2.25,
+   "gsa_oracle": {
+    "PSNR": 30.1386,
+    "SAM": 5.9685,
+    "ERGAS": 5.855,
+    "SSIM": 0.852,
+    "RMSE_DN": 260.4599
+   },
+   "fixed": {
+    "PSNR": 31.9398,
+    "SAM": 4.2988,
+    "ERGAS": 4.8174,
+    "SSIM": 0.9081,
+    "RMSE_DN": 210.1387
+   },
+   "estimated": {
+    "PSNR": 31.9663,
+    "SAM": 4.286,
+    "ERGAS": 4.8008,
+    "SSIM": 0.9086,
+    "RMSE_DN": 209.4156
+   }
+  },
+  "MSI misregistered 1 px": {
+   "sigma": 2.0,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": null,
+   "msi_px": 1.0,
+   "sigma_hat": [
+    2.85,
+    2.9,
+    2.8,
+    2.85
+   ],
+   "shift_hat": [
+    -2.0,
+    -3.0,
+    1.0,
+    14.0
+   ],
+   "sigma_abs_err": 0.85,
+   "shift_abs_err": 5.0,
+   "gsa_oracle": {
+    "PSNR": 26.012,
+    "SAM": 7.7064,
+    "ERGAS": 9.3674,
+    "SSIM": 0.6734,
+    "RMSE_DN": 413.8939
+   },
+   "fixed": {
+    "PSNR": 26.5788,
+    "SAM": 6.7026,
+    "ERGAS": 8.8978,
+    "SSIM": 0.7327,
+    "RMSE_DN": 389.182
+   },
+   "estimated": {
+    "PSNR": 26.4797,
+    "SAM": 6.8154,
+    "ERGAS": 8.9772,
+    "SSIM": 0.7322,
+    "RMSE_DN": 393.2553
+   }
+  },
+  "aniso blur, MSI 0.5 px, snr 35 dB": {
+   "sigma": null,
+   "shift_nm": 0,
+   "snr_db": 35,
+   "kernel": [
+    "aniso",
+    1.5,
+    0.75,
+    30.0
+   ],
+   "msi_px": 0.5,
+   "sigma_hat": [
+    2.05,
+    1.9,
+    2.05,
+    2.1
+   ],
+   "shift_hat": [
+    0.0,
+    -1.0,
+    0.0,
+    6.0
+   ],
+   "sigma_abs_err": null,
+   "shift_abs_err": 1.75,
+   "gsa_oracle": {
+    "PSNR": 30.1118,
+    "SAM": 6.3753,
+    "ERGAS": 5.8849,
+    "SSIM": 0.8499,
+    "RMSE_DN": 260.9041
+   },
+   "fixed": {
+    "PSNR": 31.7461,
+    "SAM": 4.8406,
+    "ERGAS": 4.9217,
+    "SSIM": 0.9017,
+    "RMSE_DN": 214.7781
+   },
+   "estimated": {
+    "PSNR": 31.7616,
+    "SAM": 4.8369,
+    "ERGAS": 4.9116,
+    "SSIM": 0.9022,
+    "RMSE_DN": 214.3222
+   }
+  }
+ },
+ "sensitivity": [
+  {
+   "sigma_factor": 0.5,
+   "rel_op_residual": 0.09718377888202667,
+   "PSNR": 39.0013,
+   "SAM": 3.3757,
+   "ERGAS": 2.0095,
+   "SSIM": 0.9815,
+   "RMSE_DN": 91.96
+  },
+  {
+   "sigma_factor": 0.75,
+   "rel_op_residual": 0.034937646239995956,
+   "PSNR": 46.12,
+   "SAM": 2.3967,
+   "ERGAS": 0.9447,
+   "SSIM": 0.9945,
+   "RMSE_DN": 40.1927
+  },
+  {
+   "sigma_factor": 0.9,
+   "rel_op_residual": 0.011328634805977345,
+   "PSNR": 49.7086,
+   "SAM": 2.0239,
+   "ERGAS": 0.6774,
+   "SSIM": 0.9965,
+   "RMSE_DN": 26.3809
+  },
+  {
+   "sigma_factor": 1.0,
+   "rel_op_residual": 0.0,
+   "PSNR": 50.4508,
+   "SAM": 1.9347,
+   "ERGAS": 0.6355,
+   "SSIM": 0.9968,
+   "RMSE_DN": 24.1835
+  },
+  {
+   "sigma_factor": 1.1,
+   "rel_op_residual": 0.008777603507041931,
+   "PSNR": 50.0167,
+   "SAM": 1.988,
+   "ERGAS": 0.6599,
+   "SSIM": 0.9967,
+   "RMSE_DN": 25.4464
+  },
+  {
+   "sigma_factor": 1.25,
+   "rel_op_residual": 0.018535498529672623,
+   "PSNR": 49.0466,
+   "SAM": 2.1034,
+   "ERGAS": 0.719,
+   "SSIM": 0.9963,
+   "RMSE_DN": 28.5007
+  },
+  {
+   "sigma_factor": 1.5,
+   "rel_op_residual": 0.029072096571326256,
+   "PSNR": 47.8802,
+   "SAM": 2.2522,
+   "ERGAS": 0.8005,
+   "SSIM": 0.9957,
+   "RMSE_DN": 32.652
+  },
+  {
+   "sigma_factor": 2.0,
+   "rel_op_residual": 0.03977541625499725,
+   "PSNR": 46.7536,
+   "SAM": 2.4212,
+   "ERGAS": 0.8921,
+   "SSIM": 0.995,
+   "RMSE_DN": 37.2264
+  }
+ ]
+}
