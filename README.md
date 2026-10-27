@@ -192,6 +192,7 @@ the repository (see `.gitignore`).
 
 | Document | Contents |
 |---|---|
+| [docs/KEY_PAPERS.md](docs/KEY_PAPERS.md) | The 17 papers most relevant to PUFormer: protocol, retrained baselines, closest methods and theory |
 | [docs/CHIKUSEI_SOTA_SURVEY.md](docs/CHIKUSEI_SOTA_SURVEY.md) | Chikusei SOTA from peer-reviewed IEEE papers, protocols, metric definitions |
 | [docs/THEORY_AND_RESULTS.md](docs/THEORY_AND_RESULTS.md) | Theorems P1–P4, KrylovNet / NullFusion results, protocol and statistics |
 | [docs/SOTA_COMPARISON.md](docs/SOTA_COMPARISON.md) | CAVE / Houston SOTA tables |
