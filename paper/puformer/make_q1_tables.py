@@ -837,6 +837,55 @@ def gain_table():
         "\\bottomrule", "\\end{tabular}}", "\\end{table*}"])
 
 
+NULL_ROWS = [("bicubic", "Bicubic"), ("gsa", "GSA"), ("ssrnet", "SSR-NET"), ("psrt", "PSRT"), ("dct", "DCT"),
+             ("mimformer", "MIMFormer"), ("dhif", "DHIF-Net"), ("puformer", "PUFormer")]
+
+
+def null_table():
+    """Error of every method split into the observed subspace and the fusion null space (Theorem 3)."""
+    sets = [(d, t, load(f"null-{d}-x4", "null_analysis.json")) for d, t in (("chikusei", "Chikusei"),
+                                                                             ("pavia", "Pavia Centre"))]
+    sets = [x for x in sets if x[2]]
+    if not sets:
+        write("q1_null.tex", ["% null_analysis.json not available yet"])
+        return
+    body = []
+    for m, lab in NULL_ROWS:
+        cells = []
+        for d, _, r in sets:
+            v = r["methods"].get(m)
+            if v is None:
+                cells += ["--"] * 4
+                continue
+            cells += [fmt(v["psnr"], 2), f"{v['mse_observed'] * 1e6:.3f}", f"{100 * v['null_share']:.1f}",
+                      fmt(v["psnr_null_only"], 2)]
+            NUM[f"null-{d}-{m}-obs"] = f"{v['mse_observed'] * 1e6:.3f}"
+            NUM[f"null-{d}-{m}-share"] = f"{100 * v['null_share']:.1f}"
+            NUM[f"null-{d}-{m}-psnrnull"] = f"{v['psnr_null_only']:.2f}"
+        if m == "ssrnet":
+            body.append("\\midrule")
+        body.append(f"{lab} & " + " & ".join(cells) + " \\\\")
+    for d, _, r in sets:
+        p, q = r["methods"].get("puformer"), r["methods"].get("mimformer")
+        if p and q:
+            NUM[f"null-{d}-obs-ratio"] = f"{q['mse_observed'] / p['mse_observed']:.1f}"
+            NUM[f"null-{d}-consistency-gain"] = f"{q['psnr_null_only'] - q['psnr']:.2f}"
+            NUM[f"null-{d}-prior-gain"] = f"{p['psnr_null_only'] - q['psnr_null_only']:.2f}"
+    head = " & ".join(f"\\multicolumn{{4}}{{c}}{{{t} $\\times$4}}" for _, t, _ in sets)
+    rules = "".join(f"\\cmidrule(lr){{{2 + 4 * i}-{5 + 4 * i}}}" for i in range(len(sets)))
+    sub = " & ".join(["PSNR & Obs.\\ MSE & Null (\\%) & PSNR$_{\\mathcal{N}}$"] * len(sets))
+    write("q1_null.tex", [
+        "\\begin{table*}[t]", "\\centering",
+        "\\caption{Where the error lies (Theorem~\\ref{thm:kron}). Obs.\\ MSE: mean squared error in the observed "
+        "subspace $\\mathrm{row}(\\D)+\\mathrm{row}(\\R)$, the part that contradicts the observations "
+        "($\\times10^{-6}$, normalized intensities). Null: share of the squared error in the fusion null space, which "
+        "only a prior can reduce. PSNR$_{\\mathcal{N}}$: the PSNR the method would reach if its observed part were "
+        "exact. Equal-budget models, single pass.}",
+        "\\label{tab:null}", "\\setlength{\\tabcolsep}{3pt}", "\\resizebox{\\textwidth}{!}{%",
+        f"\\begin{{tabular}}{{@{{}}l{'c' * 4 * len(sets)}@{{}}}}", "\\toprule", f" & {head} \\\\", rules,
+        f"Method & {sub} \\\\", "\\midrule", *body, "\\bottomrule", "\\end{tabular}}", "\\end{table*}"])
+
+
 def seed_numbers():
     """PUFormer and MIMFormer over three seeds at x4: mean, standard deviation and the gap."""
     for ds in ("chikusei", "pavia"):
@@ -873,6 +922,7 @@ def main():
     cond_table()
     neon_table()
     gain_table()
+    null_table()
     seed_numbers()
     write("q1_numbers.tex", [f"\\expandafter\\def\\csname qone@{k}\\endcsname{{{v}}}" for k, v in sorted(NUM.items())])
     print(f"{len(NUM)} numbers;", ", ".join(f"{k}={v}" for k, v in sorted(NUM.items())[:40]))

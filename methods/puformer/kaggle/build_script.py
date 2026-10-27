@@ -16,7 +16,7 @@ import os
 from build_jobs import DATASETS, notebook
 from build_notebook import HERE, code_blob, git_rev
 
-CELL = r'''import base64, glob, hashlib, io, os, subprocess, tarfile
+CELL = r'''import base64, glob, hashlib, io, os, shlex, subprocess, tarfile
 raw = base64.b64decode('{b64}')
 assert hashlib.sha256(raw).hexdigest() == '{sha}'
 CODE, OUT = '/kaggle/working/code', '/kaggle/working/out'
@@ -35,6 +35,7 @@ P = dict(chikusei=sorted(chik, key=len)[0] if chik else '', pavia=find('Pavia.ma
          cave=os.path.dirname(os.path.dirname(os.path.dirname(find('Train/HSI/balloons.mat') or '/x/x/x/x'))),
          harvard=os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(find('Data/Train/HSI/img*.mat') or '/x/x/x/x/x')))),
          cache_chikusei='/tmp/chikusei.npy', OUT=OUT)
+P = {{k: shlex.quote(v) for k, v in P.items()}}
 for cmd in {cmds}:
     cmd = cmd.format(**P)
     print('RUN', cmd, flush=True)

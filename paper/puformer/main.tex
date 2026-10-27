@@ -80,7 +80,8 @@ For given operator parameters and noise levels, and a prior $p(\X)\propto\exp(-\
 \end{equation}
 Half-quadratic splitting~\cite{zhang2020usrnet} introduces an auxiliary image $\Z$ coupled to $\X$ by a penalty $\tfrac{\mu_k}{2}\|\Z-\X\|^2$ and alternates, for $k=1,\dots,K$, a data step and a prior step:
 \begin{align}
-\Z_k&=\arg\min_{\Z}\ \tfrac{1}{2\varsigma_{\mathrm{H}}^2}\|\D_\theta\Z-\YH\|^2+\tfrac{1}{2\varsigma_{\mathrm{M}}^2}\|\R_\phi\Z-\YM\|^2+\tfrac{\mu_k}{2}\|\Z-\X_{k-1}\|^2,\label{eq:xstep}\\
+\Z_k&=\arg\min_{\Z}\ \tfrac{1}{2\varsigma_{\mathrm{H}}^2}\|\D_\theta\Z-\YH\|^2+\tfrac{1}{2\varsigma_{\mathrm{M}}^2}\|\R_\phi\Z-\YM\|^2\nonumber\\
+&\qquad+\tfrac{\mu_k}{2}\|\Z-\X_{k-1}\|^2,\label{eq:xstep}\\
 \X_k&=\mathrm{prox}_{(\lambda/\mu_k)\Phi}(\Z_k).\label{eq:zstep}
 \end{align}
 With $\alpha_k=1/(\mu_k\varsigma_{\mathrm{H}}^2)$ and $\beta_k=1/(\mu_k\varsigma_{\mathrm{M}}^2)$, the data step~\eqref{eq:xstep} is the symmetric positive definite linear system
@@ -407,6 +408,12 @@ Two checks address the fairness of a fixed budget. First, the retrained baseline
 \caption{Equal-budget benchmark: ground truth in false color and the mean absolute error over all bands (DN) of every method on the test image on which PUFormer has its lowest PSNR. The color scale is set by the retrained networks (clipped at the 99.5th percentile of their errors), so GSA saturates. The number in each map is its mean.}
 \label{fig:q1visual}
 \end{figure*}}{}
+
+\subsection{Where the error lies}
+\label{sec:nullsplit}
+Theorem~\ref{thm:kron}(c) splits the error of any fused image into a component in the observed subspace $\mathrm{row}(\D)+\mathrm{row}(\R)$, which contradicts the observations, and a component in the fusion null space, which no data step can correct and only a prior can reduce. Table~\ref{tab:null} applies this split to the test predictions of every method of the benchmark. Bicubic interpolation and GSA err mostly in the observed subspace: only \qone{null-chikusei-bicubic-share}\% and \qone{null-chikusei-gsa-share}\% of their squared error lies in the null space on Chikusei, so they do not even reproduce their inputs. The learned methods differ mainly in how much of the observed part they get wrong. PUFormer's error in the observed subspace is \qone{null-chikusei-obs-ratio} times smaller than MIMFormer's on Chikusei and \qone{null-pavia-obs-ratio} times on Pavia Centre, and \qone{null-chikusei-puformer-share}\% of its remaining error lies in the null space. The split also attributes PUFormer's margin: correcting MIMFormer's observed part alone would raise its PSNR by \qone{null-chikusei-consistency-gain}~dB on Chikusei, and the remaining \qone{null-chikusei-prior-gain}~dB come from a better estimate of the null-space component. The exact data steps account for the first part of the margin and the prior for the second; neither the attention mechanism nor any other single module of the prior is responsible for it (Section~\ref{sec:ablation}).
+
+\qtab{q1_null}
 
 \subsection{Comparison with reported results on Chikusei}
 The comparisons in this and the next subsection place PUFormer against the 17 methods tabulated in~\cite{chen2026twostage}. They are less controlled than Section~\ref{sec:bench}: the other rows are copied from~\cite{chen2026twostage}, our test images follow its protocol but are not necessarily the same pixels, and the PUFormer models here were trained longer (Table~\ref{tab:impl}). Table~\ref{tab:main} lists all Chikusei results of~\cite{chen2026twostage} together with PUFormer. The compared methods are GSA~\cite{aiazzi2007gsa}, CNMF~\cite{yokoya2012cnmf}, FUSE~\cite{wei2015fuse}, U2Net~\cite{peng2023u2net}, PSRT~\cite{deng2023psrt}, DCT~\cite{ma2024reciprocal}, DDIF~\cite{cao2024ddif}, MIMFormer~\cite{li2024mimformer}, MIMO-SST~\cite{fang2024mimosst}, OTPNet~\cite{yu2025otpnet}, SMGU~\cite{yan2025smgu}, AMSF~\cite{liu2025amsf}, SSDT~\cite{fu2025ssdt}, ASMNet~\cite{liu2025asmnet}, DPFormer~\cite{liu2026dpformer}, CLSNet~\cite{yang2026clsnet} and the two-stage conditional diffusion model~\cite{chen2026twostage}; their values are copied from~\cite{chen2026twostage}.

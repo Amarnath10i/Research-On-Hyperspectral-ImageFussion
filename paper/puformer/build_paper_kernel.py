@@ -30,7 +30,8 @@ RESULTS = ["results/puformer_chikusei_x4/puformer/*.json", "results/puformer_chi
            "results/puformer_chikusei_x4/tip26_table4_comparison.csv", "results/puformer_chikusei_x4_v3/*/*.json",
            "results/puformer_pavia_x4/*.csv", "results/puformer_pavia_x4/*/*.json",
            "results/q1/*/results.json", "results/q1/*/gaps.json", "results/q1/*/blind.json",
-           "results/q1/complexity.json"]
+           "results/q1/*/cond_eval.json", "results/q1/*/null_analysis.json", "results/q1/*/neon_fullres.json",
+           "results/q1/*/neon_fullres_crop.npz", "results/q1/neon/*.json", "results/q1/complexity.json"]
 # datasets (test ground truth for the visual comparison) and the uploaded test predictions of the benchmark jobs
 Q1_DATA = ["mingliu123/chikusei", "mlxlx0000/paviadata", "amarnath10chinu/puformer-q1-preds"]
 SOURCES = ["amarnath10chinu/puformer-chikusei-paper-analysis", "amarnath10chinu/puformer-pavia-analysis"]
