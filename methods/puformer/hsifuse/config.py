@@ -26,6 +26,9 @@ def add_ablation_args(p):
     g.add_argument("--omc", type=int, default=0, help="1: observation-model conditioning - the data-step sizes and "
                    "the prior (FiLM) depend on the operator's blur width and SRF shift and on the noise level "
                    "estimated from each observation")
+    g.add_argument("--reg", type=int, default=0, help="1: the observation code also carries the column blur width "
+                   "and the sub-pixel offsets of the LR-HSI grid (operator family with anisotropic blur and "
+                   "misregistration; train with --rand_aniso / --rand_offset)")
 
 
 def blur_of(scale: int) -> tuple[int, float]:
@@ -34,11 +37,14 @@ def blur_of(scale: int) -> tuple[int, float]:
     return 2 * scale - 1, scale / 2.0
 
 
-def make_deg(a, sigma: float | None = None, shift_nm: float = 0.0) -> Degradation:
-    """The true (simulation) operator of the protocol; `sigma` overrides the blur width (robustness study)."""
+def make_deg(a, sigma: float | None = None, shift_nm: float = 0.0, sigma_c: float | None = None,
+             off: tuple = (0.0, 0.0)) -> Degradation:
+    """The true (simulation) operator of the protocol; `sigma` overrides the blur width (robustness study), `sigma_c`
+    the width along columns (anisotropic blur) and `off` the sub-pixel offsets of the LR-HSI grid (misregistration)."""
     k, s0 = blur_of(a.scale)
-    return Degradation(dataset_srf(a.dataset, shift_nm=shift_nm), scale=a.scale, ksize=k,
-                       sigma=s0 if sigma is None else sigma, pad=a.pad, shift_nm=shift_nm)
+    sig = s0 if sigma is None else sigma
+    return Degradation(dataset_srf(a.dataset, shift_nm=shift_nm), scale=a.scale, ksize=k, sigma=sig, pad=a.pad,
+                       shift_nm=shift_nm, sigma_c=sig if sigma_c is None else sigma_c, off=off)
 
 
 def build_model(a, deg: Degradation):
@@ -51,7 +57,8 @@ def build_model(a, deg: Degradation):
         op = LearnedDegradation(*deg.srf.shape, scale=a.scale, ksize=deg.ksize)
     return build("puformer", op, width=a.width, stages=a.stages, physics=bool(a.physics),
                  res_input=bool(a.res_input), memory=bool(a.memory), mixer=a.mixer, omc=bool(getattr(a, "omc", 0)),
-                 dstep=getattr(a, "dstep", "grad"), cg_iters=getattr(a, "cg_iters", 5), mres=bool(getattr(a, "mres", 0)))
+                 dstep=getattr(a, "dstep", "grad"), cg_iters=getattr(a, "cg_iters", 5), mres=bool(getattr(a, "mres", 0)),
+                 reg=bool(getattr(a, "reg", 0)))
 
 
 def set_metric_scale(a, dn_peak: float):

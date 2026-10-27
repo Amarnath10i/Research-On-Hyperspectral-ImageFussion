@@ -10,6 +10,9 @@ checkpoint. Each model is scored with
                blur width sigma and SRF shift d, D_sigma(Y_M) = R_d(Y_H) exactly, and
                    (sigma_hat, d_hat) = argmin ||D_sigma(Y_M) - R_d(Y_H)||^2
                over a grid (0.025 sigma0 and 1 nm steps), per test image
+    estimated_ext  the same criterion over the wider separable family: blur widths along rows and columns and the
+               sub-pixel offsets of the LR-HSI grid (coordinate search started at the estimate above); for models
+               trained with --reg 1 this is their 'estimated' operator
 Only operator-explicit models (PUFormer with a data step and a fixed exact or zero-border operator) use the oracle
 and the estimate. GSA with the true operator is listed as a reference. Noise is drawn from a fixed seed per
 condition, so every model sees the same inputs. NEON: the measured RGB cannot be re-simulated with another
@@ -56,6 +59,11 @@ def conditions(neon: bool):
     if not neon:
         c += [("MSI misregistered 0.5 px", 1.0, 0, None, None, 0.5), ("MSI misregistered 1 px", 1.0, 0, None, None, 1.0),
               ("aniso blur, MSI 0.5 px, snr 35 dB", 1.0, 0, 35, ("aniso", 1.5, 0.75, 30.0), 0.5)]
+    # the LR-HSI sampled on a grid offset against the HR grid of the HR-MSI and the reference (misregistration with
+    # the output on the HR-MSI grid), alone and with an axis-aligned anisotropic blur and noise
+    c += [("HSI grid offset 0.5/0.5 px", 1.0, 0, None, ("gauss", 1.0, 1.0, 0.5, 0.5), 0.0),
+          ("HSI grid offset 1/-1 px", 1.0, 0, None, ("gauss", 1.0, 1.0, 1.0, -1.0), 0.0),
+          ("aniso 0.75/1.5 sigma0 + offset 0.5/-0.25 px, snr 35 dB", 1.0, 0, 35, ("gauss", 0.75, 1.5, 0.5, -0.25), 0.0)]
     return c
 
 
@@ -81,9 +89,9 @@ def translate(x, px):
     return torch.nn.functional.grid_sample(x, grid, mode="bilinear", padding_mode="reflection", align_corners=True)
 
 
-def deg_at(a, sigma, shift=0.0, pad=None):
+def deg_at(a, sigma, shift=0.0, pad=None, sigma_c=None, off=(0.0, 0.0)):
     return Degradation(dataset_srf(a.dataset, shift_nm=shift), scale=a.scale, ksize=blur_of(a.scale)[0],
-                       sigma=sigma, pad=pad or a.pad, shift_nm=shift)
+                       sigma=sigma, pad=pad or a.pad, shift_nm=shift, sigma_c=sigma_c, off=off)
 
 
 def add_noise(x, snr_db, g):
@@ -99,6 +107,37 @@ def estimate(lr, ms, a, sig_grid, shift_grid, dev):
                        .flatten(2).mean(2) for sg in sig_grid])                              # (Gs, Gd, N)
     flat = err.flatten(0, 1).argmin(0).cpu().numpy()
     return sig_grid[flat // len(shift_grid)], shift_grid[flat % len(shift_grid)]
+
+
+OFF_GRID = np.arange(-1.5, 1.5 + 1e-9, 0.125)
+
+
+@torch.no_grad()
+def estimate_ext(lr, ms, a, sig_grid, shift_grid, sig0, sh0, dev, sweeps=3):
+    """Per image, coordinate search for (sigma_r, sigma_c, off_r, off_c, d) minimising ||D(Y_M) - R_d(Y_H)||^2 over
+    the separable family, started at the isotropic, centered estimate (sig0, sh0)."""
+    out = []
+    for i in range(lr.shape[0]):
+        yh, ym = lr[i:i + 1], ms[i:i + 1]
+        th = dict(s=float(sig0[i]), c=float(sig0[i]), r=0.0, q=0.0, d=float(sh0[i]))
+        ryh = {}
+
+        def j(t):
+            if t["d"] not in ryh:
+                ryh[t["d"]] = deg_at(a, 1.0, t["d"]).to(dev).R(yh)
+            d = deg_at(a, t["s"], pad="reflect", sigma_c=t["c"], off=(t["r"], t["q"])).to(dev)
+            return float(((d.D(ym, pad_mode="reflect") - ryh[t["d"]]) ** 2).mean())
+
+        for _ in range(sweeps):
+            for key, grid in (("r", OFF_GRID), ("q", OFF_GRID), ("s", sig_grid), ("c", sig_grid), ("d", shift_grid)):
+                vals = [j(dict(th, **{key: float(g)})) for g in grid]
+                th[key] = float(grid[int(np.argmin(vals))])
+        out.append(th)
+    return out
+
+
+def deg_of(a, th, dev):
+    return deg_at(a, th["s"], th["d"], sigma_c=th["c"], off=(th["r"], th["q"])).to(dev)
 
 
 @torch.no_grad()
@@ -187,8 +226,12 @@ def sensitivity(a, gt, gtb, base, model, s0, dev):
 
 def evaluate_condition(idx, cond, a, gt, gtb, base, model, swappable, s0, sig_grid, shift_grid, dev, res):
     name, f, shift, snr, kernel, msi_px = cond
-    true = deg_at(a, f * s0, shift).to(dev)
-    if kernel is not None:
+    if kernel is not None and kernel[0] == "gauss":           # separable: anisotropic widths, grid offsets
+        _, fr, fc, orr, oc = kernel
+        true = deg_at(a, fr * s0, shift, sigma_c=fc * s0, off=(orr, oc)).to(dev)
+    else:
+        true = deg_at(a, f * s0, shift).to(dev)
+    if kernel is not None and kernel[0] != "gauss":
         true.k = torch.from_numpy(true_kernel(kernel, true.ksize, s0))[None, None].to(dev)
         true.gaussian = False
     lr, ms, _ = make_pairs(gt, true)
@@ -198,11 +241,20 @@ def evaluate_condition(idx, cond, a, gt, gtb, base, model, swappable, s0, sig_gr
         g = torch.Generator().manual_seed(1000 + idx)
         lr, ms = add_noise(lr, snr, g), add_noise(ms, snr, g)
     sig, sh = estimate(lr, ms, a, sig_grid, shift_grid, dev)
+    ext = estimate_ext(lr, ms, a, sig_grid, shift_grid, sig, sh, dev) if swappable else None
     gauss = kernel is None
     row = dict(sigma=f * s0 if gauss else None, shift_nm=shift, snr_db=snr, kernel=kernel, msi_px=msi_px,
                sigma_hat=[float(v) for v in sig], shift_hat=[float(v) for v in sh],
                sigma_abs_err=float(np.abs(sig - f * s0).mean()) if gauss else None,
                shift_abs_err=float(np.abs(sh - shift).mean()))
+    if ext is not None:
+        row["ext_hat"] = ext
+        if kernel is not None and kernel[0] == "gauss":
+            row["ext_abs_err"] = dict(
+                sigma_r=float(np.mean([abs(t["s"] - kernel[1] * s0) for t in ext])),
+                sigma_c=float(np.mean([abs(t["c"] - kernel[2] * s0) for t in ext])),
+                off_r=float(np.mean([abs(t["r"] - kernel[3]) for t in ext])),
+                off_c=float(np.mean([abs(t["q"] - kernel[4]) for t in ext])))
     row["gsa_oracle"] = score(gtb, gsa(lr, ms, true).clamp(0, 1))
     if swappable:
         model.deg = base
@@ -210,8 +262,12 @@ def evaluate_condition(idx, cond, a, gt, gtb, base, model, swappable, s0, sig_gr
     if swappable:
         if not msi_px:                                     # a misregistration has no operator to supply
             row["oracle"] = score(gtb, run(model, lr, ms, [true] * len(lr)))
-        row["estimated"] = score(gtb, run(model, lr, ms, [deg_at(a, float(sg), float(d)).to(dev)
-                                                          for sg, d in zip(sig, sh)]))
+        iso = [deg_at(a, float(sg), float(d)).to(dev) for sg, d in zip(sig, sh)]
+        wide = [deg_of(a, t, dev) for t in ext]
+        reg = bool(getattr(model, "reg", False))
+        row["estimated"] = score(gtb, run(model, lr, ms, wide if reg else iso))
+        if not reg:
+            row["estimated_ext"] = score(gtb, run(model, lr, ms, wide))
         model.deg = base
     res["conditions"][name] = row
     err = f"sigma_err {row['sigma_abs_err']:.3f}" if gauss else f"sigma_hat {np.mean(sig):.2f}"

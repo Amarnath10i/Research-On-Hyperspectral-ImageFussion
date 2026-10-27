@@ -63,7 +63,8 @@ def job(name, dataset, scale, model, extra="", hours=HOURS, robust=False, seed=0
     if model == "puformer":
         args += f" --pad reflect {FULL_LOSS}"
     # eval_gaps.py takes the protocol and the model-structure flags, not the training ones
-    struct = ("--pad", "--physics", "--res_input", "--memory", "--mixer", "--op", "--stages", "--omc", "--dstep", "--cg_iters", "--mres")
+    struct = ("--pad", "--physics", "--res_input", "--memory", "--mixer", "--op", "--stages", "--omc", "--dstep", "--cg_iters", "--mres",
+              "--reg")
     toks = f"{args} {extra}".split()
     rargs = [f"--dataset {dataset} --scale {scale} --model {model}"]
     rargs += [f"{t} {v}" for t, v in zip(toks[::1], toks[1::1]) if t in struct]
@@ -152,12 +153,29 @@ def all_jobs():
     for m in ("puformer", "mimformer"):
         n = f"long-pavia-x4-{m}"
         jobs[n] = job(n, "pavia", 4, m, hours=8.0)
-    # further published networks of the comparison in Chen et al. (TIP 2026), x4 on all four datasets
+    # further published networks of the comparison in Chen et al. (TIP 2026), x4 on all four datasets, and x8 on
+    # Chikusei and Pavia Centre for those whose code supports it (SMGU-Net is written for x4 only)
     for d in ("chikusei", "pavia", "cave", "harvard"):
         for m in NEW_METHODS:
             n = f"bench-{d}-x4-{m}"
             jobs[n] = job(n, d, 4, m)
+    for d in ("chikusei", "pavia"):
+        for m in NEW_METHODS:
+            if m != "smgu":
+                n = f"bench-{d}-x8-{m}"
+                jobs[n] = job(n, d, 8, m)
+    # the wider operator family: axis-aligned anisotropic blur and sub-pixel offsets of the LR-HSI grid
+    # (misregistration) on top of RAND; PUFormer gets the batch's operator and the 7-dim observation code, MIMFormer
+    # the same randomized data
+    for d in ("chikusei", "pavia"):
+        n = f"cond-{d}-x4-reg"
+        jobs[n] = job(n, d, 4, "puformer", f"{RAND} {WIDE} --omc 1 --reg 1", robust=True, eval_extra="--wide 1")
+        n = f"cond-{d}-x4-mimreg"
+        jobs[n] = job(n, d, 4, "mimformer", f"{RAND} {WIDE}", robust=True, eval_extra="--wide 1")
     return jobs
+
+
+WIDE = "--rand_aniso 1 --rand_offset 1.0"
 
 
 NEW_METHODS = ["smgu", "clsnet", "otpnet", "u2net", "mimosst"]
@@ -278,4 +296,9 @@ SESSIONS = {
     # further published networks (SMGU-Net, CLSNet, OTPNet, U2Net, MIMO-SST), x4
     **{f"puf-b{i:02d}": ([f"bench-chikusei-x4-{m}"], [f"bench-pavia-x4-{m}"]) for i, m in enumerate(NEW_METHODS, 1)},
     **{f"puf-b{i + 5:02d}": ([f"bench-cave-x4-{m}"], [f"bench-harvard-x4-{m}"]) for i, m in enumerate(NEW_METHODS, 1)},
+    **{f"puf-b{i + 10:02d}": ([f"bench-chikusei-x8-{m}"], [f"bench-pavia-x8-{m}"])
+       for i, m in enumerate([m for m in NEW_METHODS if m != "smgu"], 1)},
+    # the wider operator family (anisotropic blur + misregistration): PUFormer, and MIMFormer on the same data
+    "puf-r06": (["cond-chikusei-x4-reg"], ["cond-pavia-x4-reg"]),
+    "puf-r07": (["cond-chikusei-x4-mimreg"], ["cond-pavia-x4-mimreg"]),
 }

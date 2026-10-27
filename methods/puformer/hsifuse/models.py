@@ -189,9 +189,12 @@ class PUFormer(nn.Module):
 
     def __init__(self, deg: Degradation, bands=128, msi=8, stages=3, width=48,
                  depth=(2, 3, 4), heads=(1, 2, 4), physics=True, res_input=True, memory=True, mixer="mdta",
-                 omc=False, dstep="grad", cg_iters=5, mres=False):
+                 omc=False, dstep="grad", cg_iters=5, mres=False, reg=False):
         super().__init__()
         self.deg, self.K, self.bands = deg, stages, bands
+        self.reg = reg
+        if reg:                               # + column blur width and the two sub-pixel offsets
+            self.CODE = 7
         self.physics, self.res_input = physics, res_input and physics
         self.dstep, self.cg_iters, self.mres = dstep, cg_iters, mres and physics
         self.amp = False                      # fp16 autocast for the priors only
@@ -220,9 +223,13 @@ class PUFormer(nn.Module):
         n = yh.shape[0]
         s0 = self.deg.scale / 2.0
         sig, sh = getattr(self.deg, "sigma", s0), getattr(self.deg, "shift_nm", 0.0)
-        return torch.stack([torch.full((n,), sig / s0 - 1.0, device=yh.device),
-                            torch.full((n,), sh / 12.0, device=yh.device),
-                            torch.log10(noise_level(yh)) + 2.0, torch.log10(noise_level(ym)) + 2.0], 1)
+        c = [torch.full((n,), sig / s0 - 1.0, device=yh.device), torch.full((n,), sh / 12.0, device=yh.device),
+             torch.log10(noise_level(yh)) + 2.0, torch.log10(noise_level(ym)) + 2.0]
+        if self.reg:
+            c += [torch.full((n,), getattr(self.deg, "sigma_c", sig) / s0 - 1.0, device=yh.device),
+                  torch.full((n,), getattr(self.deg, "off_r", 0.0), device=yh.device),
+                  torch.full((n,), getattr(self.deg, "off_c", 0.0), device=yh.device)]
+        return torch.stack(c, 1)
 
     def prox_cg(self, x, yh, ym, a, b):
         """Exact proximal data step: argmin_z 1/2||z - x||^2 + a s^2/2 ||D z - Y_H||^2 + b/2 ||R z - Y_M||^2, i.e.

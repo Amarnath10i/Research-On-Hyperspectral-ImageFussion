@@ -122,10 +122,20 @@ def dataset_wl(name: str) -> np.ndarray:
     return dict(pavia=PAVIA_WL, cave=CAVE_WL, harvard=HARVARD_WL).get(name, CHIKUSEI_WL)
 
 
-def gaussian_kernel(size: int = 7, sigma: float = 2.0) -> np.ndarray:
-    ax = np.arange(size, dtype=np.float64) - (size - 1) / 2
-    k = np.exp(-(ax[:, None] ** 2 + ax[None, :] ** 2) / (2 * sigma ** 2))
-    return (k / k.sum()).astype(np.float32)
+def gauss1d(size: int, sigma: float, off: float = 0.0) -> np.ndarray:
+    """Normalized 1-D Gaussian of width sigma whose center is moved by off pixels (a sub-pixel misregistration of the
+    LR-HSI sampling grid against the HR grid)."""
+    ax = np.arange(size, dtype=np.float64) - (size - 1) / 2 - off
+    g = np.exp(-ax ** 2 / (2 * sigma ** 2))
+    return g / g.sum()
+
+
+def gaussian_kernel(size: int = 7, sigma: float = 2.0, sigma_c: float | None = None, off_r: float = 0.0,
+                    off_c: float = 0.0) -> np.ndarray:
+    """Separable Gaussian: width sigma and offset off_r along rows, sigma_c (default sigma) and off_c along columns.
+    The defaults give the isotropic, centered kernel of the protocol."""
+    k = np.outer(gauss1d(size, sigma, off_r), gauss1d(size, sigma if sigma_c is None else sigma_c, off_c))
+    return k.astype(np.float32)
 
 
 def reflect_pad_adjoint(g: torch.Tensor, p: int) -> torch.Tensor:
@@ -145,14 +155,12 @@ def reflect_pad_adjoint(g: torch.Tensor, p: int) -> torch.Tensor:
     return res
 
 
-def axis_operator(n: int, scale: int, ksize: int, sigma: float, pad: str) -> np.ndarray:
+def axis_operator(n: int, scale: int, ksize: int, sigma: float, pad: str, off: float = 0.0) -> np.ndarray:
     """(n / scale, n) matrix of D along one image axis: pad by p = ksize // 2 (reflect or zeros), correlate with the
     normalized 1-D Gaussian, keep every scale-th sample from index 0. The 2-D Gaussian of gaussian_kernel is the
     outer product of this 1-D kernel, so D = D_rows x D_cols exactly (Kronecker), border included."""
     p = ksize // 2
-    ax = np.arange(ksize, dtype=np.float64) - p
-    g = np.exp(-ax ** 2 / (2 * sigma ** 2))
-    g /= g.sum()
+    g = gauss1d(ksize, sigma, off)
     m = np.zeros((n // scale, n))
     for i in range(n // scale):
         for t in range(ksize):
@@ -171,8 +179,9 @@ class KronFactors:
     V (x) U_rows (x) U_cols, with eigenvalues lam_rows[k] * lam_cols[l] (spatial) and nu[b] (spectral)."""
 
     def __init__(self, deg, h: int, w: int, device):
-        dr = axis_operator(h, deg.scale, deg.ksize, deg.sigma, deg.pad)
-        dc = axis_operator(w, deg.scale, deg.ksize, deg.sigma, deg.pad)
+        dr = axis_operator(h, deg.scale, deg.ksize, deg.sigma, deg.pad, getattr(deg, "off_r", 0.0))
+        dc = axis_operator(w, deg.scale, deg.ksize, getattr(deg, "sigma_c", deg.sigma), deg.pad,
+                           getattr(deg, "off_c", 0.0))
         srf = deg.srf.detach().double().cpu().numpy()                       # (B, M)
         lr, ur = np.linalg.eigh(dr.T @ dr)
         lc, uc = np.linalg.eigh(dc.T @ dc)
@@ -198,7 +207,8 @@ class KronFactors:
 def kron_factors(deg, h: int, w: int, device) -> KronFactors:
     """Cached per operator object and image size."""
     cache = deg.__dict__.setdefault("_kron", {})
-    key = (h, w, str(device), deg.sigma, deg.pad)
+    key = (h, w, str(device), deg.sigma, getattr(deg, "sigma_c", None), getattr(deg, "off_r", 0.0),
+           getattr(deg, "off_c", 0.0), deg.pad)
     if key not in cache:
         cache[key] = KronFactors(deg, h, w, device)
     return cache[key]
@@ -256,13 +266,17 @@ class Degradation(nn.Module):
     """Differentiable D (blur + decimate), its adjoint Dt, spectral R and Rt."""
 
     def __init__(self, srf: np.ndarray, scale: int = 4, ksize: int = 7, sigma: float = 2.0, pad: str = "zeros",
-                 shift_nm: float = 0.0):
+                 shift_nm: float = 0.0, sigma_c: float | None = None, off: tuple = (0.0, 0.0)):
         super().__init__()
         assert pad in ("zeros", "reflect"), pad
         self.scale, self.ksize, self.pad = scale, ksize, pad
         self.sigma, self.shift_nm = float(sigma), float(shift_nm)   # operator parameters (read by --omc models)
+        # blur width along columns (anisotropic, axis-aligned) and sub-pixel offsets of the LR sampling grid
+        self.sigma_c = float(sigma if sigma_c is None else sigma_c)
+        self.off_r, self.off_c = float(off[0]), float(off[1])
         self.gaussian = True        # False once k is replaced by another kernel (then D is not separable)
-        self.register_buffer("k", torch.from_numpy(gaussian_kernel(ksize, sigma))[None, None])
+        self.register_buffer("k", torch.from_numpy(gaussian_kernel(ksize, sigma, self.sigma_c, self.off_r,
+                                                                   self.off_c))[None, None])
         self.register_buffer("srf", torch.from_numpy(srf))  # (B, M)
 
     def _k(self, x: torch.Tensor) -> torch.Tensor:

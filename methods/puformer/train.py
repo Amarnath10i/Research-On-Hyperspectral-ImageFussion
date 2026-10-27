@@ -105,6 +105,10 @@ def get_args():
     p.add_argument("--rand_sigma", default="", help="blur width per batch, uniform in [lo, hi] x the nominal "
                    "sigma, e.g. 0.5,2.0 (off by default)")
     p.add_argument("--rand_shift", type=float, default=0.0, help="SRF shift per batch, uniform in [-x, x] nm")
+    p.add_argument("--rand_aniso", type=int, default=0, help="1: the column blur width is drawn independently of "
+                   "the row width (axis-aligned anisotropic Gaussian, same range as --rand_sigma)")
+    p.add_argument("--rand_offset", type=float, default=0.0, help="sub-pixel offsets of the LR-HSI grid per batch, "
+                   "uniform in [-x, x] HR pixels along each axis (misregistration), on a 1/8-pixel grid")
     p.add_argument("--rand_snr", default="", help="Gaussian noise on both inputs at an SNR uniform in [lo, hi] dB "
                    "(per batch, with probability --noise_prob), e.g. 30,50")
     p.add_argument("--noise_prob", type=float, default=0.5)
@@ -296,7 +300,7 @@ def main():
             log("start: " + evaluate_ema(it, float("nan"), 0.0))
 
     # operator randomization: a small bank of operators on a 0.05 sigma / 1 nm grid, built on first use
-    rand_ops = bool(a.rand_sigma or a.rand_shift)
+    rand_ops = bool(a.rand_sigma or a.rand_shift or a.rand_offset)
     if rand_ops or a.rand_snr:
         assert world == 1, "operator randomization runs on one GPU"
     s0 = blur_of(a.scale)[1]
@@ -306,15 +310,23 @@ def main():
     bank = {}
 
     def batch_op():
-        sig = round(s0 * float(np.random.uniform(sig_lo, sig_hi)) / 0.05) * 0.05
+        draw = lambda: round(s0 * float(np.random.uniform(sig_lo, sig_hi)) / 0.05) * 0.05
+        sig = draw()
+        sig_c = draw() if a.rand_aniso else sig
         sh = float(round(np.random.uniform(-a.rand_shift, a.rand_shift))) if a.rand_shift else 0.0
-        if (sig, sh) not in bank:
-            bank[(sig, sh)] = make_deg(a, sigma=sig, shift_nm=sh).to(dev)
-        return bank[(sig, sh)]
+        off = tuple(round(float(np.random.uniform(-a.rand_offset, a.rand_offset)) * 8) / 8 if a.rand_offset else 0.0
+                    for _ in range(2))
+        key = (sig, sig_c, sh, off)
+        if key not in bank:
+            if len(bank) >= 4000:                        # many combinations: keep the bank bounded
+                bank.pop(next(iter(bank)))
+            bank[key] = make_deg(a, sigma=sig, shift_nm=sh, sigma_c=sig_c, off=off).to(dev)
+        return bank[key]
 
     if rand_ops or a.rand_snr:
-        log(f"randomized degradation: sigma in [{sig_lo * s0:.2f}, {sig_hi * s0:.2f}], SRF shift within "
-            f"+-{a.rand_shift:g} nm, noise {a.rand_snr or 'off'} (p={a.noise_prob}); "
+        log(f"randomized degradation: sigma in [{sig_lo * s0:.2f}, {sig_hi * s0:.2f}]"
+            f"{' per axis' if a.rand_aniso else ''}, SRF shift within +-{a.rand_shift:g} nm, offsets within "
+            f"+-{a.rand_offset:g} px, noise {a.rand_snr or 'off'} (p={a.noise_prob}); "
             f"{'operator given to the data steps' if conditioned else 'nominal operator in the network'}")
 
     total = a.iters

@@ -637,14 +637,16 @@ COND_MODELS = [("bench-{d}-x4-mimformer", "MIMFormer, nominal training", ("fixed
                ("cond-{d}-x4-zeros", "PUFormer, randomized, zero border", ("estimated",)),
                ("cond-{d}-x4-puformer", "PUFormer, randomized + operator", ("fixed", "estimated", "oracle")),
                ("cond-{d}-x4-omc", "+ observation-model conditioning", ("fixed", "estimated", "oracle"))]
-MISMATCH = ("aniso", "disk", "MSI")          # conditions outside the operator family the network knows
+MISMATCH = ("aniso", "disk", "MSI", "HSI")   # conditions outside the (isotropic, co-registered) operator family
 COND_GROUPS = [("nominal", "Training operator", lambda k: k == "nominal"),
                ("blur", "Blur $\\times$0.5--2", lambda k: k.startswith("sigma x") and "snr" not in k),
                ("shift", "SRF shift $\\pm$4--12~nm", lambda k: k.startswith("shift ")),
                ("noise", "Noise 40--30~dB", lambda k: k.startswith("snr ")),
                ("combined", "Blur + SRF + noise", lambda k: k.startswith("sigma x") and "snr" in k),
                ("worst", "Worst of the above", None),
-               ("kernel", "Blur outside the family$^\\dagger$", lambda k: k.startswith(("aniso", "disk")) and "MSI" not in k),
+               ("kernel", "Blur outside the family$^\\dagger$",
+                lambda k: k.startswith(("aniso", "disk")) and "MSI" not in k and "offset" not in k),
+               ("offset", "LR-HSI grid offset", lambda k: "offset" in k),
                ("misreg", "HR-MSI misregistered$^\\ddagger$", lambda k: "MSI" in k)]
 MODE_LAB = {"fixed": "fixed", "estimated": "est.", "oracle": "true"}
 
@@ -1117,9 +1119,12 @@ CV_COND = [("bench-{d}-x4-mimformer", "fixed", "MIMFormer"),
            ("cond-{d}-x4-omc", "estimated", "\\quad + conditioning"),
            ("cond-{d}-x4-kron", "estimated", "\\quad + closed-form step"),
            ("cond-{d}-x4-kl", "estimated", "\\quad + learned gains"),
+           ("cond-{d}-x4-omc", "estimated_ext", "\\quad conditioning, wide estimate"),
+           ("cond-{d}-x4-mimreg", "fixed", "MIMFormer, wider family data"),
+           ("cond-{d}-x4-reg", "estimated", "PUFormer, wider family (+ aniso, offsets)"),
            ("cond-{d}-x4-omc", "oracle", "\\quad conditioning, true operator")]
-CV_GROUPS = ("nominal", "blur", "shift", "noise", "combined", "kernel", "misreg")
-CV_GLAB = ("Nom.", "Blur", "SRF", "Noise", "All", "Kernel$^\\dagger$", "Misreg.$^\\ddagger$")
+CV_GROUPS = ("nominal", "blur", "shift", "noise", "combined", "kernel", "offset", "misreg")
+CV_GLAB = ("Nom.", "Blur", "SRF", "Noise", "All", "Kernel$^\\dagger$", "Offset$^\\S$", "Misreg.$^\\ddagger$")
 
 
 def cvpr_cond():
@@ -1165,7 +1170,9 @@ def cvpr_cond():
         "Randomized: blur width ($0.5$--$2\\sigma_0$), SRF shift ($\\pm12$~nm) and noise (30--50~dB) drawn anew for every "
         "training batch. The operator is the training one (MIMFormer, randomized data), or estimated from the test pair "
         "with~\\eqref{eq:J}; the last row uses the true operator (reference, not marked). $^\\dagger$Anisotropic and "
-        "defocus blurs, outside the family. $^\\ddagger$HR-MSI shifted by 0.5--1 pixel. Best per column in bold.}",
+        "defocus blurs, outside the family. $^\\S$LR-HSI sampled on a grid offset by 0.5--1 HR pixel (output on the "
+        "HR-MSI grid), alone and with an axis-aligned anisotropic blur. $^\\ddagger$HR-MSI shifted by 0.5--1 pixel "
+        "against the reference. Best per column in bold.}",
         "\\label{tab:cond}", "\\setlength{\\tabcolsep}{2.6pt}", "\\resizebox{\\textwidth}{!}{%",
         f"\\begin{{tabular}}{{@{{}}l{'c' * 2 * k}@{{}}}}", "\\toprule",
         f" & \\multicolumn{{{k}}}{{c}}{{Chikusei $\\times$4}} & \\multicolumn{{{k}}}{{c}}{{Pavia Centre $\\times$4}} \\\\",
