@@ -180,7 +180,7 @@ The gain lies in $(\tfrac12,2)$ times the exact one, which keeps every factor of
 
 A fixed budget raises two questions. First, does our pipeline weaken the baselines? It does not: the retrained networks match or exceed the values reported for them, e.g., MIMFormer reaches \qone{chikusei4-mimformer-psnr}~dB on Chikusei against 53.36~dB in~\cite{chen2026twostage}, and their authors' own training recipes do not improve them (\supp). Second, does the budget favor fast networks? Partly: DCT completes only \qone{pavia4-dct-iters} iterations in 4~h on Pavia Centre, against \qone{pavia4-puformer-iters} for ExactFuse. With 8~h of training, ExactFuse and MIMFormer reach \qone{long-chikusei-exactfuse-psnr} and \qone{long-chikusei-mimformer-psnr}~dB on Chikusei; the gap narrows from \qone{long-chikusei-gap-4h} to \qone{long-chikusei-gap}~dB but remains, although ExactFuse completes \qone{long-chikusei-exactfuse-iters} iterations against \qone{long-chikusei-mimformer-iters}.
 
-For context, \supp\ lists the long-trained base model next to the 17 methods tabulated in~\cite{chen2026twostage}; that table cannot rank methods, since our retrained baselines exceed their reported values by up to 3.6~dB, and its strongest entry, a diffusion model, has no public code.
+For context, \supp\ lists ExactFuse trained for 8~h next to the 17 methods tabulated in~\cite{chen2026twostage}; that table cannot rank methods, since our retrained baselines exceed their reported values by up to 3.6~dB, and its strongest entry, a diffusion model, has no public code.
 
 \IfFileExists{figures/q1_visual.pdf}{%
 \begin{figure*}[t]

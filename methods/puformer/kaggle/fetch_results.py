@@ -17,9 +17,10 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEST = os.path.normpath(os.path.join(HERE, "..", "..", "..", "results", "q1"))
 SMALL = ("results.json", "history.json", "gaps.json", "train.log", "cond_eval.json", "neon_fullres.json",
-         "neon_fullres_crop.npz", "null_analysis.json", "family_eval.json", "unc_eval.json")
+         "neon_fullres_crop.npz", "null_analysis.json", "family_eval.json", "unc_eval.json",
+         "operator_analysis.json")
 MARKERS = ("results.json", "cond_eval.json", "neon_fullres.json", "null_analysis.json", "family_eval.json",
-           "unc_eval.json")                                    # a folder holding one of these is a job
+           "unc_eval.json", "operator_analysis.json")          # a folder holding one of these is a job
 
 
 def merge_cond(src, dst):

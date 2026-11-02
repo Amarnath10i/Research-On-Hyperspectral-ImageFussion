@@ -127,13 +127,14 @@ it leads that network by 1.76 dB (Chikusei, 55.97 dB) and 1.99 dB (Pavia Centre,
 
 | | PSNR ↑ | SSIM ↑ | SAM ↓ | ERGAS ↓ | Q2n ↑ | CC ↑ | SCC ↑ | RMSE (DN) ↓ | Source |
 |---|---|---|---|---|---|---|---|---|---|
-| **PUFormer, long-trained (ours)** | **58.20** | **0.9989** | **0.713** | **1.330** | 0.9931 | **0.9967** | **0.9992** | **18.94** | [results](results/puformer_chikusei_x4_v3/) |
+| **ExactFuse, 8 h (ours)** | **58.21** | **0.9989** | **0.713** | **1.326** | 0.9931 | **0.9967** | **0.9992** | **18.91** | [results](results/q1/long-chikusei-x4-ng/) |
 | Two-Stage Cond. Diffusion (IEEE TIP 2026) | 56.19 | 0.9982 | 0.720 | 1.516 | **0.9969** | 0.9948 | 0.9891 | 25.73 | [survey](docs/CHIKUSEI_SOTA_SURVEY.md) |
 | CLSNet (2026) | 55.20 | 0.9979 | 0.784 | 1.632 | 0.9943 | 0.9941 | 0.9869 | 29.06 | reported in TIP 2026 |
 | SMGU-Net (Pattern Recognition 2025) | 54.52 | 0.9977 | 0.872 | 1.641 | 0.9952 | 0.9939 | 0.9875 | 31.29 | reported in TIP 2026 |
 
-The long-trained model (20.4 h in two runs, 2-fold self-ensemble) is 1st of 18 against the full TIP'26 Table IV on
-seven of the eight metrics and 10th on Q2n; on Pavia Centre ×4 it reaches 50.69 dB against 47.16 dB reported
+ExactFuse trained for 8 h (one run, 2-fold self-ensemble) is 1st of 18 against the full TIP'26 Table IV on seven of
+the eight metrics and 10th on Q2n; in a single pass it reaches 58.18 dB, above the base model trained for 20.4 h
+(58.15 dB). On Pavia Centre ×4 the long-trained base model reaches 50.69 dB against 47.16 dB reported
 ([results](results/puformer_pavia_x4/)). These tables give context, not a ranking: the reported numbers come
 from other implementations of the protocol, and our retrained baselines exceed their reported values by up to
 3.6 dB. SSIM here is PSRT's definition (data range 1); the Q2n deficit comes from the ultraviolet bands 0–7, which

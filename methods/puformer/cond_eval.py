@@ -175,6 +175,39 @@ def estimate_ext(lr, ms, a, sig_grid, shift_grid, sig0, sh0, dev, sweeps=3, ksiz
     return out
 
 
+@torch.no_grad()
+def estimate_np(lr, ms, a, sh, dev, ksize=None, ridge=1e-8):
+    """Per image, the blur kernel of any shape from D_k(Y_M) = R_d(Y_H) (Theorem ident.(a)): the relation is
+    linear in k, so k is the least-squares solution over all bands and low-resolution pixels with taps summing to
+    one (KKT system; d: the response shift of the separable estimate). Patches are taken exactly as D samples:
+    reflect padding by ksize // 2, a ksize x ksize correlation window, stride = scale, starting at 0."""
+    ks = ksize or blur_of(a.scale)[0]
+    p, n, out = ks // 2, ks * ks, []
+    for i in range(lr.shape[0]):
+        ryh = deg_at(a, 1.0, float(sh[i])).to(dev).R(lr[i:i + 1])                      # (1, M, h, w)
+        ym = torch.nn.functional.pad(ms[i:i + 1], (p, p, p, p), mode="reflect")
+        m = ym.shape[1]
+        patches = torch.nn.functional.unfold(ym, ks, stride=a.scale)                     # (1, M*n, h*w)
+        A = patches.view(m, n, -1).permute(0, 2, 1).reshape(-1, n).double()
+        b = ryh.reshape(-1).double()
+        assert A.shape[0] == b.shape[0], (A.shape, b.shape)
+        G, g = A.T @ A, A.T @ b
+        G = G + ridge * torch.trace(G) / n * torch.eye(n, dtype=G.dtype, device=G.device)
+        K = torch.zeros(n + 1, n + 1, dtype=G.dtype, device=G.device)
+        K[:n, :n], K[:n, n], K[n, :n] = G, 1.0, 1.0
+        rhs = torch.cat([g, torch.ones(1, dtype=G.dtype, device=G.device)])
+        out.append(torch.linalg.solve(K, rhs)[:n].view(ks, ks).float())
+    return out
+
+
+def deg_np(a, k, sig, sh, dev):
+    """The operator with the nonparametric kernel k (not separable: the network takes its general data step)."""
+    d = deg_at(a, float(sig), float(sh)).to(dev)
+    d.k = k[None, None].to(dev)
+    d.gaussian = False
+    return d
+
+
 def deg_of(a, th, dev):
     return deg_at(a, th["s"], th["d"], sigma_c=th["c"], off=(th["r"], th["q"])).to(dev)
 
@@ -226,6 +259,8 @@ def main():
     p.add_argument("--pad", default="reflect", choices=["reflect", "zeros"])
     add_ablation_args(p)
     p.add_argument("--out", required=True)
+    p.add_argument("--np_kernel", type=int, default=0, help="1: also give the network the nonparametric kernel "
+                   "estimated by least squares from D_k(Y_M) = R_d(Y_H) (mode estimated_np)")
     p.add_argument("--only", default="", help="comma-separated parts of condition names: evaluate only the matching "
                    "conditions and skip the sensitivity sweep, which runs alone with --only sensitivity "
                    "(fetch_results.py merges the result into the full file)")
@@ -339,6 +374,12 @@ def evaluate_condition(idx, cond, a, gt, gtb, base, model, swappable, s0, sig_gr
         row["estimated"] = score(gtb, run(model, lr, ms, wide if reg else iso))
         if not reg:
             row["estimated_ext"] = score(gtb, run(model, lr, ms, wide))
+        if getattr(a, "np_kernel", 0):
+            npk = estimate_np(lr, ms, a, sh, dev)
+            row["estimated_np"] = score(gtb, run(model, lr, ms, [deg_np(a, k, sg, d, dev)
+                                                             for k, sg, d in zip(npk, sig, sh)]))
+            kt = true.k[0, 0].float()
+            row["np_kernel_relerr"] = float(np.mean([float((k.to(kt) - kt).norm() / kt.norm()) for k in npk]))
         if masks is not None and getattr(model, "cwd", False):
             row["change_auroc"] = change_auroc(model, lr, ms, wide if reg else iso, masks)
         model.deg = base

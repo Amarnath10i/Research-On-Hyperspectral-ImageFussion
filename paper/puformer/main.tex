@@ -365,11 +365,11 @@ Table~\ref{tab:general} repeats the equal-budget benchmark on the indoor CAVE~\c
 \qtab{q1_ablation_general}
 
 \subsection{Comparison with reported results on Chikusei}
-The comparisons in this and the next subsection place the long-trained base model against the 17 methods tabulated in~\cite{chen2026twostage}. They are less controlled than Section~\ref{sec:bench}: the other rows are copied from~\cite{chen2026twostage}, our test images follow its protocol but are not necessarily the same pixels, and the ExactFuse models here were trained longer (Table~\ref{tab:impl}). Table~\ref{tab:main} lists all Chikusei results of~\cite{chen2026twostage} together with ExactFuse. The compared methods are GSA~\cite{aiazzi2007gsa}, CNMF~\cite{yokoya2012cnmf}, FUSE~\cite{wei2015fuse}, U2Net~\cite{peng2023u2net}, PSRT~\cite{deng2023psrt}, DCT~\cite{ma2024reciprocal}, DDIF~\cite{cao2024ddif}, MIMFormer~\cite{li2024mimformer}, MIMO-SST~\cite{fang2024mimosst}, OTPNet~\cite{yu2025otpnet}, SMGU~\cite{yan2025smgu}, AMSF~\cite{liu2025amsf}, SSDT~\cite{fu2025ssdt}, ASMNet~\cite{liu2025asmnet}, DPFormer~\cite{liu2026dpformer}, CLSNet~\cite{yang2026clsnet} and the two-stage conditional diffusion model~\cite{chen2026twostage}; their values are copied from~\cite{chen2026twostage}.
+The comparisons in this and the next subsection place ExactFuse trained for 8~h (Chikusei) and the long-trained base model (Pavia Centre) against the 17 methods tabulated in~\cite{chen2026twostage}. They are less controlled than Section~\ref{sec:bench}: the other rows are copied from~\cite{chen2026twostage}, our test images follow its protocol but are not necessarily the same pixels, and the ExactFuse models here were trained longer (Table~\ref{tab:impl}). Table~\ref{tab:main} lists all Chikusei results of~\cite{chen2026twostage} together with ExactFuse. The compared methods are GSA~\cite{aiazzi2007gsa}, CNMF~\cite{yokoya2012cnmf}, FUSE~\cite{wei2015fuse}, U2Net~\cite{peng2023u2net}, PSRT~\cite{deng2023psrt}, DCT~\cite{ma2024reciprocal}, DDIF~\cite{cao2024ddif}, MIMFormer~\cite{li2024mimformer}, MIMO-SST~\cite{fang2024mimosst}, OTPNet~\cite{yu2025otpnet}, SMGU~\cite{yan2025smgu}, AMSF~\cite{liu2025amsf}, SSDT~\cite{fu2025ssdt}, ASMNet~\cite{liu2025asmnet}, DPFormer~\cite{liu2026dpformer}, CLSNet~\cite{yang2026clsnet} and the two-stage conditional diffusion model~\cite{chen2026twostage}; their values are copied from~\cite{chen2026twostage}.
 
 \begin{table*}[t]
 \centering
-\caption{Chikusei $\times$4 comparison. All rows except ExactFuse are reported in~\cite{chen2026twostage}. Best value per column in bold. SSIM of ExactFuse uses the PSRT definition (data range 1); with data range equal to each image's maximum it is 0.9969 (single pass) and 0.9970 (self-ensemble).}
+\caption{Chikusei $\times$4 comparison. All rows except ExactFuse are reported in~\cite{chen2026twostage}. Best value per column in bold. SSIM of ExactFuse uses the PSRT definition (data range 1); with data range equal to each image's maximum it is 0.9969 (single pass and self-ensemble).}
 \label{tab:main}
 \begin{tabular}{@{}lcccccccc@{}}
 \toprule
@@ -393,8 +393,8 @@ DPFormer~\cite{liu2026dpformer} & 53.1632 & 0.9970 & 0.9483 & 1.8795 & 0.9949 & 
 CLSNet~\cite{yang2026clsnet} & 55.2007 & 0.9979 & 0.7836 & 1.6318 & 0.9943 & 0.9941 & 0.9869 & 29.06 \\
 Two-stage diffusion~\cite{chen2026twostage} & 56.1871 & 0.9982 & 0.7203 & 1.5158 & \best{0.9969} & 0.9948 & 0.9891 & 25.73 \\
 \midrule
-Base model (single pass) & 58.1467 & \best{0.9989} & 0.7171 & 1.3367 & 0.9930 & \best{0.9967} & \best{0.9992} & 19.06 \\
-Base model (self-ensemble) & \best{58.2016} & \best{0.9989} & \best{0.7126} & \best{1.3304} & 0.9931 & \best{0.9967} & \best{0.9992} & \best{18.94} \\
+ExactFuse, 8~h (single pass) & 58.1840 & \best{0.9989} & 0.7146 & 1.3284 & 0.9931 & \best{0.9967} & \best{0.9992} & 18.96 \\
+ExactFuse, 8~h (self-ensemble) & \best{58.2129} & \best{0.9989} & \best{0.7129} & \best{1.3260} & 0.9931 & \best{0.9967} & \best{0.9992} & \best{18.91} \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -411,7 +411,7 @@ The Q2n shortfall on this dataset, and part of the SAM shortfall, come from one 
 
 \subsection{Robustness of the long-trained models}
 \label{sec:robust}
-The long-trained base models of Tables~\ref{tab:main} and~\ref{tab:pavia} behave like the ablation models under a blur mismatch (Table~S-II and Fig.~S3 of \supp). With the training operator, a blur with $\sigma$ between 1.5 and 3.0 costs 3.9--7.5~dB on Chikusei and \pav{blur-fixed-loss-min}--\pav{blur-fixed-loss-max}~dB on Pavia Centre; with the true blur swapped in, it costs at most 0.26 and \pav{blur-swap-loss-max}~dB. A spectral response shifted by 8~nm costs about 5~dB on Chikusei and is not compensated by swapping in the shifted response, because the priors rely on the training response beyond the data step; on Pavia Centre, whose IKONOS bands are 66--96~nm wide, the shift costs about 1~dB. Noise is the main weakness of models trained on noise-free data: at 30~dB SNR, ExactFuse exceeds GSA by only 2.8~dB on Chikusei and by \pav{noise30-margin}~dB on Pavia Centre.
+The long-trained base models behave like the ablation models under a blur mismatch (Table~S-II and Fig.~S3 of \supp). With the training operator, a blur with $\sigma$ between 1.5 and 3.0 costs 3.9--7.5~dB on Chikusei and \pav{blur-fixed-loss-min}--\pav{blur-fixed-loss-max}~dB on Pavia Centre; with the true blur swapped in, it costs at most 0.26 and \pav{blur-swap-loss-max}~dB. A spectral response shifted by 8~nm costs about 5~dB on Chikusei and is not compensated by swapping in the shifted response, because the priors rely on the training response beyond the data step; on Pavia Centre, whose IKONOS bands are 66--96~nm wide, the shift costs about 1~dB. Noise is the main weakness of models trained on noise-free data: at 30~dB SNR, ExactFuse exceeds GSA by only 2.8~dB on Chikusei and by \pav{noise30-margin}~dB on Pavia Centre.
 
 \subsection{One network for a family of observation models}
 \label{sec:cond}
