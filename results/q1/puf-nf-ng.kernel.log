@@ -1,0 +1,37 @@
+[{"stream_name":"stderr","time":8.333844002,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.333935002,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.333940102,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.333944062,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":9.006728963,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":9.006773464,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":9.006776713,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":9.006779593,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":10.320110294,"data":"code sha256 5170e0ebb944321d8e32b1d1ad9b8d3deea68a139926cca06933db561e86d44f from git fc2f350+local changes\n"}
+,{"stream_name":"stdout","time":10.323259689,"data":"4\n"}
+,{"stream_name":"stdout","time":10.337771258,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":10.337882098,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stderr","time":10.515677291,"data":"/tmp/ipykernel_16/4045842215.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":10.515718161,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":10.515722051000001,"data":"\n"}
+,{"stream_name":"stderr","time":10.515724731,"data":"/tmp/ipykernel_16/4045842215.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":10.515728421,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":10.520614257,"data":"4\n"}
+,{"stream_name":"stdout","time":10.520650188,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":10.520653588,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stdout","time":12.639632174,"data":"RUN nb-nogate-neon-x4 : python neon_fullres.py --mat /kaggle/input  --dataset neon --scale 4 --model puformer --pad reflect --dstep kronlearn --mres 1 --sa 1 --ckpt /kaggle/input/notebooks/amarnath10chinu/puf-n27/out/nb-nogate-neon-x4/best_ema.pt --out /kaggle/working/out/nb-nogate-neon-x4 \n"}
+,{"stream_name":"stdout","time":1432.824488118,"data":"368000_4304000 {'bicubic': {'D_lambda': 0.2434, 'D_s': 0.0496, 'HQNR': 0.7186, 'cons_H_dB': 41.1785, 'cons_M_dB': 31.8024, 'SAM_DxH': 1.9439}, 'gsa': {'D_lambda': 0.5225, 'D_s': 0.2468, 'HQNR': 0.3709, 'cons_H_dB': 38.6603, 'cons_M_dB': 34.3536, 'SAM_DxH': 5.2399}, 'model': {'D_lambda': 0.03, 'D_s': 0.0454, 'HQNR': 0.9259, 'cons_H_dB': 59.8606, 'cons_M_dB': 30.954, 'SAM_DxH': 0.506}}\n"}
+,{"stream_name":"stdout","time":1433.029328238,"data":"368000_4304000 {'bicubic': {'D_lambda': 0.2434, 'D_s': 0.0496, 'HQNR': 0.7186, 'cons_H_dB': 41.1785, 'cons_M_dB': 31.8024, 'SAM_DxH': 1.9439}, 'gsa': {'D_lambda': 0.5225, 'D_s': 0.2468, 'HQNR': 0.3709, 'cons_H_dB': 38.6603, 'cons_M_dB': 34.3536, 'SAM_DxH': 5.2399}, 'model': {'D_lambda': 0.03, 'D_s': 0.0454, 'HQNR': 0.9259, 'cons_H_dB': 59.8606, 'cons_M_dB': 30.954, 'SAM_DxH': 0.506}}\n"}
+,{"stream_name":"stdout","time":2868.332013744,"data":"368000_4308000 {'bicubic': {'D_lambda': 0.1499, 'D_s': 0.0822, 'HQNR': 0.7802, 'cons_H_dB': 35.7776, 'cons_M_dB': 32.6323, 'SAM_DxH': 1.129}, 'gsa': {'D_lambda': 0.3293, 'D_s': 0.1293, 'HQNR': 0.5839, 'cons_H_dB': 35.2908, 'cons_M_dB': 35.7928, 'SAM_DxH': 2.5227}, 'model': {'D_lambda': 0.0119, 'D_s': 0.0744, 'HQNR': 0.9147, 'cons_H_dB': 53.9354, 'cons_M_dB': 32.3341, 'SAM_DxH': 0.1767}}\n"}
+,{"stream_name":"stdout","time":2868.332124344,"data":"mean: {'bicubic': {'D_lambda': 0.1966387778520584, 'D_s': 0.06592842866666615, 'HQNR': 0.7493931387633553, 'cons_H_dB': 38.47803020477295, 'cons_M_dB': 32.21736240386963, 'SAM_DxH': 1.5364467427134514}, 'gsa': {'D_lambda': 0.4259265288710594, 'D_s': 0.18805000558495522, 'HQNR': 0.4773686418177374, 'cons_H_dB': 36.97555589675903, 'cons_M_dB': 35.07320547103882, 'SAM_DxH': 3.8813148736953735}, 'model': {'D_lambda': 0.020907461643218994, 'D_s': 0.05986788682639599, 'HQNR': 0.9203451613605963, 'cons_H_dB': 56.897984981536865, 'cons_M_dB': 31.64402961730957, 'SAM_DxH': 0.34133378602564335}}\n"}
+,{"stream_name":"stdout","time":2868.537371523,"data":"368000_4308000 {'bicubic': {'D_lambda': 0.1499, 'D_s': 0.0822, 'HQNR': 0.7802, 'cons_H_dB': 35.7776, 'cons_M_dB': 32.6323, 'SAM_DxH': 1.129}, 'gsa': {'D_lambda': 0.3293, 'D_s': 0.1293, 'HQNR': 0.5839, 'cons_H_dB': 35.2908, 'cons_M_dB': 35.7928, 'SAM_DxH': 2.5227}, 'model': {'D_lambda': 0.0119, 'D_s': 0.0744, 'HQNR': 0.9147, 'cons_H_dB': 53.9354, 'cons_M_dB': 32.3341, 'SAM_DxH': 0.1767}}\n"}
+,{"stream_name":"stdout","time":2868.537427843,"data":"mean: {'bicubic': {'D_lambda': 0.1966387778520584, 'D_s': 0.06592842866666615, 'HQNR': 0.7493931387633553, 'cons_H_dB': 38.47803020477295, 'cons_M_dB': 32.21736240386963, 'SAM_DxH': 1.5364467427134514}, 'gsa': {'D_lambda': 0.4259265288710594, 'D_s': 0.18805000558495522, 'HQNR': 0.4773686418177374, 'cons_H_dB': 36.97555589675903, 'cons_M_dB': 35.07320547103882, 'SAM_DxH': 3.8813148736953735}, 'model': {'D_lambda': 0.020907461643218994, 'D_s': 0.05986788682639599, 'HQNR': 0.9203451613605963, 'cons_H_dB': 56.897984981536865, 'cons_M_dB': 31.64402961730957, 'SAM_DxH': 0.34133378602564335}}\n"}
+,{"stream_name":"stdout","time":2868.94469508,"data":"END nb-nogate-neon-x4 rc 0\n"}
+,{"stream_name":"stderr","time":2872.552635674,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":2872.552673774,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":2872.774619611,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":2872.774662281,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":2873.629479175,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":2873.695637241,"data":"[NbConvertApp] Writing 99886 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":2876.712384277,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":2877.279901636,"data":"[NbConvertApp] Writing 381364 bytes to __results__.html\n"}
+]

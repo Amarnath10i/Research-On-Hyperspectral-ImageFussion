@@ -1,0 +1,112 @@
+{
+ "dataset": "chikusei",
+ "model": "mimformer",
+ "sa": 1,
+ "sensor": "worldview2",
+ "mode": "sensors",
+ "ckpt": "/kaggle/input/notebooks/captainh210606/puf-s21/out/sa-chikusei-x4-mimformer/best_ema.pt",
+ "results": {
+  "landsat8_measured": {
+   "bands": 5,
+   "gsa": {
+    "PSNR": 35.5523,
+    "SAM": 4.8566,
+    "ERGAS": 4.4819,
+    "SSIM": 0.8565,
+    "RMSE_DN": 257.6162
+   },
+   "model": {
+    "PSNR": 42.0078,
+    "SAM": 1.6935,
+    "ERGAS": 2.4141,
+    "SSIM": 0.9797,
+    "RMSE_DN": 120.4021
+   }
+  },
+  "sentinel2a_measured": {
+   "bands": 10,
+   "gsa": {
+    "PSNR": 38.8241,
+    "SAM": 4.4659,
+    "ERGAS": 3.9694,
+    "SSIM": 0.9259,
+    "RMSE_DN": 177.3045
+   },
+   "model": {
+    "PSNR": 52.5552,
+    "SAM": 1.2067,
+    "ERGAS": 1.9295,
+    "SSIM": 0.9935,
+    "RMSE_DN": 35.9115
+   }
+  },
+  "sentinel2b_measured": {
+   "bands": 10,
+   "gsa": {
+    "PSNR": 38.7949,
+    "SAM": 4.4816,
+    "ERGAS": 3.9726,
+    "SSIM": 0.9257,
+    "RMSE_DN": 177.8565
+   },
+   "model": {
+    "PSNR": 52.2394,
+    "SAM": 1.2247,
+    "ERGAS": 1.94,
+    "SSIM": 0.9933,
+    "RMSE_DN": 37.2117
+   }
+  },
+  "olci_measured": {
+   "bands": 21,
+   "gsa": {
+    "PSNR": 37.0685,
+    "SAM": 4.8641,
+    "ERGAS": 4.2873,
+    "SSIM": 0.9008,
+    "RMSE_DN": 216.6539
+   },
+   "model": {
+    "PSNR": 49.6736,
+    "SAM": 1.2435,
+    "ERGAS": 2.0485,
+    "SSIM": 0.9919,
+    "RMSE_DN": 50.1943
+   }
+  },
+  "probav_measured": {
+   "bands": 3,
+   "gsa": {
+    "PSNR": 38.2133,
+    "SAM": 4.6037,
+    "ERGAS": 4.1075,
+    "SSIM": 0.9111,
+    "RMSE_DN": 190.465
+   },
+   "model": {
+    "PSNR": 50.5713,
+    "SAM": 1.4491,
+    "ERGAS": 2.0793,
+    "SSIM": 0.9907,
+    "RMSE_DN": 45.0051
+   }
+  },
+  "modis_measured": {
+   "bands": 11,
+   "gsa": {
+    "PSNR": 36.1494,
+    "SAM": 4.9289,
+    "ERGAS": 4.4094,
+    "SSIM": 0.873,
+    "RMSE_DN": 240.7287
+   },
+   "model": {
+    "PSNR": 44.7464,
+    "SAM": 1.4194,
+    "ERGAS": 2.2397,
+    "SSIM": 0.987,
+    "RMSE_DN": 87.9257
+   }
+  }
+ }
+}

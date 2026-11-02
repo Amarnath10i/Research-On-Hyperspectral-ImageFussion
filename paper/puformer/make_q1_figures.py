@@ -109,19 +109,19 @@ def visual_figure():
                       glob.glob("/kaggle/input/**/Train/HSI/balloons.mat", recursive=True)],
                 harvard=[os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(p)))) for p in
                          glob.glob("/kaggle/input/**/Data/Train/HSI/img1.mat", recursive=True)])
-    cols = [("gsa", "GSA")] + METHODS
+    extra = [("mimosst", "MIMO-SST"), ("otpnet", "OTPNet")]          # newer baselines, if their predictions exist
+    cols = [("gsa", "GSA")] + METHODS + extra
     rows = [d for d in DATASETS if data[d]]
-    fig, axes = plt.subplots(len(rows), len(cols) + 1, figsize=(7.16, 1.02 * len(rows) + 0.25))
-    axes = np.atleast_2d(axes)
-    for i, ds in enumerate(rows):
+    panels = {}
+    import torch  # noqa: E402
+    from hsifuse.baselines import gsa  # noqa: E402
+    from hsifuse.ops import Degradation, dataset_srf  # noqa: E402
+    for ds in rows:
         _, te, _, peak = load_dataset(ds, sorted(data[ds], key=len)[0], "/tmp/harvard" if ds == "harvard" else None)
         p = load(f"bench-{ds}-x4-puformer")
         k = int(np.argmin([x["PSNR"] for x in p["test_per_image"]])) if p else 0   # hardest image for ExactFuse
         gt = np.asarray(te[k], np.float32)
         errs = {}
-        import torch  # noqa: E402
-        from hsifuse.baselines import gsa  # noqa: E402
-        from hsifuse.ops import Degradation, dataset_srf  # noqa: E402
         deg = Degradation(dataset_srf(ds), scale=4, pad="reflect")
         lr, ms = deg.simulate(torch.from_numpy(gt)[None])
         errs["gsa"] = np.abs(gsa(lr, ms, deg).clamp(0, 1)[0].numpy() - gt).mean(0) * peak
@@ -132,30 +132,44 @@ def visual_figure():
             if m == "puformer":       # ExactFuse's predictions (a separate dataset under /kaggle/input)
                 hits = sorted(glob.glob(f"/kaggle/input/**/arch-{ds}-x4-nogate/test_pred_f16.npy", recursive=True))
                 f = hits[0] if hits else ""
-            if os.path.exists(f):
+            elif not os.path.exists(f):
+                hits = sorted(glob.glob(f"/kaggle/input/**/bench-{ds}-x4-{m}/test_pred_f16.npy", recursive=True))
+                f = hits[0] if hits else ""
+            if f and os.path.exists(f):
                 errs[m] = np.abs(np.load(f, mmap_mode="r")[k].astype(np.float32) - gt).mean(0) * peak
         # color scale from the learned methods only (GSA's much larger error saturates)
         learned = [e.ravel() for m, e in errs.items() if m != "gsa"]
         vmax = np.percentile(np.concatenate(learned), 99.5) if learned else 1
-        axes[i, 0].imshow(false_color(gt, ds))
-        axes[i, 0].set_ylabel(DATASETS[ds][0], fontsize=7)
-        for j, (m, lab) in enumerate(cols, start=1):
-            ax = axes[i, j]
-            if m in errs:
-                ax.imshow(errs[m], cmap="magma", vmin=0, vmax=vmax)
-                ax.text(0.03, 0.04, f"{errs[m].mean():.2f}", transform=ax.transAxes, color="white", fontsize=5.5)
+        panels[ds] = (gt, errs, vmax)
+
+    def draw(sub, name):
+        cs = [c for c in cols if c[0] not in dict(extra) or all(c[0] in panels[d][1] for d in sub)]
+        fig, axes = plt.subplots(len(sub), len(cs) + 1, figsize=(7.16, 7.16 / (len(cs) + 1) * len(sub) + 0.25))
+        axes = np.atleast_2d(axes)
+        for i, ds in enumerate(sub):
+            gt, errs, vmax = panels[ds]
+            axes[i, 0].imshow(false_color(gt, ds))
+            axes[i, 0].set_ylabel(DATASETS[ds][0], fontsize=7)
+            for j, (m, lab) in enumerate(cs, start=1):
+                ax = axes[i, j]
+                if m in errs:
+                    ax.imshow(errs[m], cmap="magma", vmin=0, vmax=vmax)
+                    ax.text(0.03, 0.04, f"{errs[m].mean():.2f}", transform=ax.transAxes, color="white", fontsize=5.5)
+                if i == 0:
+                    ax.set_title(lab, fontsize=7)
             if i == 0:
-                ax.set_title(lab, fontsize=7)
-        if i == 0:
-            axes[i, 0].set_title("Ground truth", fontsize=7)
-    for ax in axes.ravel():
-        ax.set_xticks([]), ax.set_yticks([]), ax.grid(False)
-        for s in ax.spines.values():
-            s.set_visible(False)
-    fig.tight_layout(pad=0.2, w_pad=0.1, h_pad=0.2)
-    fig.savefig(os.path.join(FIG, "q1_visual.pdf"), dpi=220)
-    fig.savefig(os.path.join(FIG, "q1_visual.png"), dpi=150)       # preview for checking the figure
-    plt.close(fig)
+                axes[i, 0].set_title("Ground truth", fontsize=7)
+        for ax in axes.ravel():
+            ax.set_xticks([]), ax.set_yticks([]), ax.grid(False)
+            for sp in ax.spines.values():
+                sp.set_visible(False)
+        fig.tight_layout(pad=0.2, w_pad=0.1, h_pad=0.2)
+        fig.savefig(os.path.join(FIG, name + ".pdf"), dpi=220)
+        fig.savefig(os.path.join(FIG, name + ".png"), dpi=150)       # preview for checking the figure
+        plt.close(fig)
+
+    draw(rows, "q1_visual")
+    draw(rows[:1], "q1_visual_main")
 
 
 COND_LINES = [("bench-{d}-x4-mimformer", "fixed", "MIMFormer, nominal", "#7d52c7", ":"),
@@ -200,7 +214,7 @@ def cond_figure():
 
 
 NEON_FIG = [("bench-neon-x4-mimformer", "MIMFormer"), ("bench-neon-x4-dhif", "DHIF-Net"),
-            ("bench-neon-x4-puformer", "Base model")]          # full resolution: base model only
+            ("nb-nogate-neon-x4", "ExactFuse")]
 
 
 def neon_figure():

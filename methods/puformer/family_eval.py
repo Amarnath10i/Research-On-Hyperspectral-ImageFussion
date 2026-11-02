@@ -23,7 +23,7 @@ from hsifuse.baselines import gsa
 from hsifuse.config import DATASETS, MODELS, add_ablation_args, build_model, make_deg, set_metric_scale
 from hsifuse.data import load_dataset, make_pairs
 from hsifuse.metrics import evaluate
-from hsifuse.ops import SENSORS, dataset_wl, sensor_srf
+from hsifuse.ops import MEASURED_SENSORS, SENSORS, dataset_wl, sensor_srf
 
 KEEP = ("PSNR", "SAM", "ERGAS", "SSIM", "RMSE_DN")
 OWN = {"chikusei": "worldview2", "pavia": "ikonos", "cave": "rgb", "harvard": "rgb"}
@@ -56,6 +56,8 @@ def main():
     p.add_argument("--scales", default="4,8,16")
     p.add_argument("--scale_free", type=int, default=0, help="1: the model was trained over scales (--rand_scale)")
     add_ablation_args(p)
+    p.add_argument("--measured", type=int, default=0, help="1: the six sensors with measured responses "
+                   "(hsifuse.srf_measured) instead of the band-edge models")
     p.add_argument("--out", required=True)
     a = p.parse_args()
     os.makedirs(a.out, exist_ok=True)
@@ -76,7 +78,7 @@ def main():
                ckpt=a.ckpt, results={})
     if a.mode == "sensors":
         own = a.sensor or OWN.get(a.dataset)
-        for name in SENSORS:
+        for name in (MEASURED_SENSORS if a.measured else SENSORS):
             srf = sensor_srf(name, dataset_wl(a.dataset))
             deg = make_deg(a, srf=srf).to(dev)
             lr, ms, _ = make_pairs(gt, deg)
@@ -85,7 +87,7 @@ def main():
                 row["model"] = score(gt, run(model, lr, ms, deg if explicit else None))
             res["results"][name] = row
             print(name, row["bands"], "bands", {k: v["PSNR"] for k, v in row.items() if isinstance(v, dict)}, flush=True)
-            with open(os.path.join(a.out, "family_eval.json"), "w") as fh:
+            with open(os.path.join(a.out, "family_eval_measured.json" if a.measured else "family_eval.json"), "w") as fh:
                 json.dump(res, fh, indent=1)
     else:
         for s in (int(v) for v in a.scales.split(",")):
@@ -98,7 +100,7 @@ def main():
                 row["model"] = score(gt, run(model, lr, ms, deg if a.model == "puformer" else None))
             res["results"][f"x{s}"] = row
             print(f"x{s}", {k: v["PSNR"] for k, v in row.items()}, flush=True)
-            with open(os.path.join(a.out, "family_eval.json"), "w") as fh:
+            with open(os.path.join(a.out, "family_eval_measured.json" if a.measured else "family_eval.json"), "w") as fh:
                 json.dump(res, fh, indent=1)
 
 

@@ -74,7 +74,10 @@ same training recipe for both, ExactFuse leads MIMFormer by 0.53 / 0.40 dB (our 
 baselines'). With twice the budget (8 h) on Chikusei, ExactFuse reaches 58.18 dB and MIMFormer 57.37 dB:
 the gap narrows from 1.10 to 0.81 dB but remains, although ExactFuse completes 63,850 iterations against 186,800
 (the base model on Pavia Centre: 1.00 → 0.69 dB). ExactFuse has 10.45 M
-parameters and takes 221 ms for a 256 × 256 Chikusei image on a T4. All metrics per job are in
+parameters. The whole pipeline takes 0.39 s for a 256 × 256 Chikusei pair on a T4 (operator estimate 0.08 s,
+eigendecompositions 0.07 s, cached per image size, network 0.24 s, 0.54 GB); the closed-form data step is
+cheaper than a conjugate-gradient step (0.24 vs 0.33 s with 5 iterations), and ExactFuse is about 2.5× slower than
+MIMFormer at every image size (5.3 vs 1.9 s at 1024 × 1024). All metrics per job are in
 [results/q1/](results/q1/); the jobs are defined in [methods/puformer/kaggle/jobs.py](methods/puformer/kaggle/jobs.py).
 
 ## What the HR-MSI adds
@@ -139,6 +142,25 @@ the eight metrics and 10th on Q2n; in a single pass it reaches 58.18 dB, above t
 from other implementations of the protocol, and our retrained baselines exceed their reported values by up to
 3.6 dB. SSIM here is PSRT's definition (data range 1); the Q2n deficit comes from the ultraviolet bands 0–7, which
 the WorldView-2 MSI does not cover.
+
+## Theory
+
+With a separable blur and the true border rule, the data step has a closed form and the fusion null space is
+explicit. The operators are identifiable from the observation pair over continuous parameters: two sensor
+configurations are indistinguishable exactly when the scene lies in the null space of
+D_θ R_φ* − R_φ D_θ*, which happens only for degenerate scenes (spatially constant ones for the blur, ones with
+equal bands for the response shift), and the estimate moves by at most ‖n‖ / σ_min(G) under observation noise
+n, where G is the Jacobian of the identifiability residual. An operator error moves the reconstruction by an
+amount bounded independently of the learned weights, so the noise is carried through the operator estimate to
+the reconstruction. On the test images G has full rank for two blur widths, two grid offsets and the response
+shift (condition number 1.28 on Chikusei after column scaling), and the predicted error of the offsets matches
+the measured one (0.0013 px at 30 dB SNR); the blur estimate has a small second-order noise bias.
+Analysis: [methods/puformer/operator_analysis.py](methods/puformer/operator_analysis.py).
+
+**Real data.** On NEON (airborne spectrometer and RGB camera) ExactFuse is the most accurate at reduced
+resolution (38.70 vs 38.45 dB for MIMFormer) and has the best no-reference score at full resolution (HQNR 0.920
+vs 0.892; spectral distortion 0.021 vs 0.064), with a slightly higher spatial distortion than MIMFormer and
+DHIF-Net (0.060 vs 0.047 and 0.039).
 
 ## Novelty check
 

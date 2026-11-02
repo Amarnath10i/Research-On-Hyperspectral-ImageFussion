@@ -64,9 +64,32 @@ SENSOR_BANDS = {
 SENSORS = ("worldview2", "ikonos", "quickbird", "planetscope", "landsat8", "sentinel2", "rgb")
 
 
+def measured_srf(name: str, wl: np.ndarray) -> np.ndarray:
+    """(B, M) response of a sensor from its measured band curves (hsifuse.srf_measured), interpolated onto the
+    hyperspectral wavelengths wl; a band is kept when at least half of its response lies inside wl."""
+    from hsifuse.srf_measured import MEASURED
+    cols = []
+    for _, start, step, vals in MEASURED[name]:
+        w = start + step * np.arange(len(vals))
+        v = np.clip(np.asarray(vals, np.float64), 0, None)
+        inside = v[(w >= wl[0]) & (w <= wl[-1])].sum()
+        if inside < 0.5 * v.sum():
+            continue
+        c = np.interp(wl, w, v, left=0.0, right=0.0)
+        if c.sum() > 0:
+            cols.append(c / c.sum())
+    return np.stack(cols, 1).astype(np.float32)
+
+
+MEASURED_SENSORS = ("landsat8_measured", "sentinel2a_measured", "sentinel2b_measured", "olci_measured",
+                    "probav_measured", "modis_measured")
+
+
 def sensor_srf(name: str, wl: np.ndarray, rolloff_nm: float = 4.0) -> np.ndarray:
     """(B, M) response of a named multispectral sensor on the wavelengths wl; bands that lie (mostly) outside wl are
     dropped, so the same sensor has fewer bands on a narrower hyperspectral range."""
+    if name.endswith("_measured"):
+        return measured_srf(name, wl)
     if name == "rgb":                            # Nikon D700 curves (400-700 nm), interpolated onto wl
         counts = np.stack([np.interp(wl, CAVE_WL, NIKON_D700_COUNTS[:, j], left=0.0, right=0.0) for j in range(3)], 1)
         return (counts / counts.sum(0, keepdims=True)).astype(np.float32)

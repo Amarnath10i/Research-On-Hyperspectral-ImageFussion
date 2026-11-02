@@ -1,0 +1,114 @@
+[{"stream_name":"stderr","time":12.244361986,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":12.244445723,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":12.244451662,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":12.244454709,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":13.343616064,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":13.343683465,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":13.343689221,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":13.343692511,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":14.984435664,"data":"code sha256 2df351f0970ab3c6c2b44cb29fd3d00d71dc875a92525fe12054521b38ba95ea from git ef40812+local changes\n"}
+,{"stream_name":"stdout","time":14.98861318,"data":"4\n"}
+,{"stream_name":"stdout","time":15.019845468,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":15.019881776,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stderr","time":15.17732826,"data":"/tmp/ipykernel_16/4219314825.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":15.177378393,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":15.177383502,"data":"\n"}
+,{"stream_name":"stderr","time":15.177386783,"data":"/tmp/ipykernel_16/4219314825.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":15.177390488,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":15.183994125,"data":"4\n"}
+,{"stream_name":"stdout","time":15.184025553,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":15.18402944,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stdout","time":17.202777284,"data":"RUN cond-chikusei-x4-ng : python operator_analysis.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model puformer --pad reflect --omc 1 --dstep kronlearn --mres 1 --sa 1 --ckpt /kaggle/input/notebooks/hruthwikch/puf-n20/out/cond-chikusei-x4-ng/best_ema.pt --out /kaggle/working/out/cond-chikusei-x4-ng \n"}
+,{"stream_name":"stdout","time":280.455469945,"data":"nominal 40 dB: crb sd [0.0006 0.0005 0.0004 0.0004 0.003 ] rmse [0.0008 0.0008 0.0005 0.0004 0.0028] coverage [0.88 0.88 0.92 1.   1.  ]\n"}
+,{"stream_name":"stdout","time":280.665135961,"data":"nominal 40 dB: crb sd [0.0006 0.0005 0.0004 0.0004 0.003 ] rmse [0.0008 0.0008 0.0005 0.0004 0.0028] coverage [0.88 0.88 0.92 1.   1.  ]\n"}
+,{"stream_name":"stdout","time":333.353576605,"data":"nominal 30 dB: crb sd [0.0018 0.0017 0.0014 0.0013 0.0095] rmse [0.0043 0.0041 0.0011 0.0015 0.0134] coverage [0.62 0.54 0.96 0.83 0.88]\n"}
+,{"stream_name":"stdout","time":333.56418918,"data":"nominal 30 dB: crb sd [0.0018 0.0017 0.0014 0.0013 0.0095] rmse [0.0043 0.0041 0.0011 0.0015 0.0134] coverage [0.62 0.54 0.96 0.83 0.88]\n"}
+,{"stream_name":"stdout","time":387.625895919,"data":"nominal 20 dB: crb sd [0.0056 0.0053 0.0044 0.004  0.0301] rmse [0.0407 0.0318 0.0041 0.0035 0.0329] coverage [0.04 0.   0.96 1.   0.96]\n"}
+,{"stream_name":"stdout","time":387.853286438,"data":"nominal 20 dB: crb sd [0.0056 0.0053 0.0044 0.004  0.0301] rmse [0.0407 0.0318 0.0041 0.0035 0.0329] coverage [0.04 0.   0.96 1.   0.96]\n"}
+,{"stream_name":"stderr","time":398.092220383,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":398.093073623,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 208, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":398.09313408,"data":"    main()\n"}
+,{"stream_name":"stderr","time":398.093141866,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":398.093147517,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 147, in main\n"}
+,{"stream_name":"stderr","time":398.093153308,"data":"    th = gauss_newton(a, th0, lrn[i:i + 1], msn[i:i + 1], ks, dev)\n"}
+,{"stream_name":"stderr","time":398.093160682,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 85, in gauss_newton\n"}
+,{"stream_name":"stderr","time":398.093170116,"data":"    step = torch.linalg.solve(H + 1e-9 * torch.diag(torch.diag(H)), G.T @ r).cpu().numpy()\n"}
+,{"stream_name":"stderr","time":398.093173811,"data":"           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":398.093177374,"data":"torch._C._LinAlgError: torch.linalg.solve: The solver failed because the input matrix is singular.\n"}
+,{"stream_name":"stderr","time":398.296032111,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":398.296103311,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 208, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":398.296114324,"data":"    main()\n"}
+,{"stream_name":"stderr","time":398.296120491,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":398.296125442,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 147, in main\n"}
+,{"stream_name":"stderr","time":398.296130687,"data":"    th = gauss_newton(a, th0, lrn[i:i + 1], msn[i:i + 1], ks, dev)\n"}
+,{"stream_name":"stderr","time":398.296135944,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 85, in gauss_newton\n"}
+,{"stream_name":"stderr","time":398.296141313,"data":"    step = torch.linalg.solve(H + 1e-9 * torch.diag(torch.diag(H)), G.T @ r).cpu().numpy()\n"}
+,{"stream_name":"stderr","time":398.296153693,"data":"           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":398.296157665,"data":"torch._C._LinAlgError: torch.linalg.solve: The solver failed because the input matrix is singular.\n"}
+,{"stream_name":"stderr","time":398.296161206,"data":"\n"}
+,{"stream_name":"stderr","time":398.29616438,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":398.296167632,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 208, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":398.29617164,"data":"    main()\n"}
+,{"stream_name":"stderr","time":398.296174944,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":398.296179078,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 147, in main\n"}
+,{"stream_name":"stderr","time":398.296200524,"data":"    th = gauss_newton(a, th0, lrn[i:i + 1], msn[i:i + 1], ks, dev)\n"}
+,{"stream_name":"stderr","time":398.296206499,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 85, in gauss_newton\n"}
+,{"stream_name":"stderr","time":398.296233379,"data":"    step = torch.linalg.solve(H + 1e-9 * torch.diag(torch.diag(H)), G.T @ r).cpu().numpy()\n"}
+,{"stream_name":"stderr","time":398.296238147,"data":"           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":398.296242319,"data":"torch._C._LinAlgError: torch.linalg.solve: The solver failed because the input matrix is singular.\n"}
+,{"stream_name":"stdout","time":398.820381326,"data":"END cond-chikusei-x4-ng rc 1\n"}
+,{"stream_name":"stdout","time":399.481313825,"data":"RUN cond-pavia-x4-ng : python operator_analysis.py --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat'  --dataset pavia --scale 4 --model puformer --pad reflect --omc 1 --dstep kronlearn --mres 1 --sa 1 --ckpt /kaggle/input/notebooks/hruthwikch/puf-n20/out/cond-pavia-x4-ng/best_ema.pt --out /kaggle/working/out/cond-pavia-x4-ng \n"}
+,{"stream_name":"stdout","time":419.457208688,"data":"nominal 40 dB: crb sd [0.0004 0.0004 0.0003 0.0003 0.0119] rmse [0.0004 0.0004 0.0002 0.0003 0.0217] coverage [1.   1.   1.   0.92 0.83]\n"}
+,{"stream_name":"stdout","time":419.669708179,"data":"nominal 40 dB: crb sd [0.0004 0.0004 0.0003 0.0003 0.0119] rmse [0.0004 0.0004 0.0002 0.0003 0.0217] coverage [1.   1.   1.   0.92 0.83]\n"}
+,{"stream_name":"stdout","time":433.621443403,"data":"nominal 30 dB: crb sd [0.0014 0.0014 0.0009 0.001  0.0377] rmse [0.0015 0.0017 0.001  0.0015 0.0755] coverage [0.92 0.92 0.92 0.75 0.5 ]\n"}
+,{"stream_name":"stdout","time":433.824415657,"data":"nominal 30 dB: crb sd [0.0014 0.0014 0.0009 0.001  0.0377] rmse [0.0015 0.0017 0.001  0.0015 0.0755] coverage [0.92 0.92 0.92 0.75 0.5 ]\n"}
+,{"stream_name":"stdout","time":450.785270069,"data":"nominal 20 dB: crb sd [0.0043 0.0044 0.003  0.0031 0.1191] rmse [0.0109 0.0144 0.0038 0.0041 0.6966] coverage [0.33 0.17 0.83 0.83 0.  ]\n"}
+,{"stream_name":"stdout","time":450.996016254,"data":"nominal 20 dB: crb sd [0.0043 0.0044 0.003  0.0031 0.1191] rmse [0.0109 0.0144 0.0038 0.0041 0.6966] coverage [0.33 0.17 0.83 0.83 0.  ]\n"}
+,{"stream_name":"stderr","time":453.287411147,"data":"/kaggle/working/code/hsifuse/ops.py:168: RuntimeWarning: invalid value encountered in divide\n"}
+,{"stream_name":"stderr","time":453.287486115,"data":"  return g / g.sum()\n"}
+,{"stream_name":"stderr","time":453.490158285,"data":"/kaggle/working/code/hsifuse/ops.py:168: RuntimeWarning: invalid value encountered in divide\n"}
+,{"stream_name":"stderr","time":453.490195773,"data":"  return g / g.sum()\n"}
+,{"stream_name":"stderr","time":453.490201059,"data":"\n"}
+,{"stream_name":"stderr","time":453.490205399,"data":"/kaggle/working/code/hsifuse/ops.py:168: RuntimeWarning: invalid value encountered in divide\n"}
+,{"stream_name":"stderr","time":453.490209933,"data":"  return g / g.sum()\n"}
+,{"stream_name":"stderr","time":456.40030918,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":456.402341737,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 208, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":456.402555589,"data":"    main()\n"}
+,{"stream_name":"stderr","time":456.402573777,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":456.402584587,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 147, in main\n"}
+,{"stream_name":"stderr","time":456.402590891,"data":"    th = gauss_newton(a, th0, lrn[i:i + 1], msn[i:i + 1], ks, dev)\n"}
+,{"stream_name":"stderr","time":456.402596146,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 85, in gauss_newton\n"}
+,{"stream_name":"stderr","time":456.402601291,"data":"    step = torch.linalg.solve(H + 1e-9 * torch.diag(torch.diag(H)), G.T @ r).cpu().numpy()\n"}
+,{"stream_name":"stderr","time":456.402622586,"data":"           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":456.402647325,"data":"torch._C._LinAlgError: torch.linalg.solve: The solver failed because the input matrix is singular.\n"}
+,{"stream_name":"stderr","time":456.604663536,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":456.604704089,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 208, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":456.60470996,"data":"    main()\n"}
+,{"stream_name":"stderr","time":456.604714033,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":456.604717895,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 147, in main\n"}
+,{"stream_name":"stderr","time":456.604721978,"data":"    th = gauss_newton(a, th0, lrn[i:i + 1], msn[i:i + 1], ks, dev)\n"}
+,{"stream_name":"stderr","time":456.604725707,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 85, in gauss_newton\n"}
+,{"stream_name":"stderr","time":456.604729579,"data":"    step = torch.linalg.solve(H + 1e-9 * torch.diag(torch.diag(H)), G.T @ r).cpu().numpy()\n"}
+,{"stream_name":"stderr","time":456.604733511,"data":"           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":456.604737342,"data":"torch._C._LinAlgError: torch.linalg.solve: The solver failed because the input matrix is singular.\n"}
+,{"stream_name":"stderr","time":456.604741401,"data":"\n"}
+,{"stream_name":"stderr","time":456.604745194,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":456.604748851,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 208, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":456.604753102,"data":"    main()\n"}
+,{"stream_name":"stderr","time":456.60475654,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":456.60476004,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 147, in main\n"}
+,{"stream_name":"stderr","time":456.604763803,"data":"    th = gauss_newton(a, th0, lrn[i:i + 1], msn[i:i + 1], ks, dev)\n"}
+,{"stream_name":"stderr","time":456.604767466,"data":"  File \"/kaggle/working/code/operator_analysis.py\", line 85, in gauss_newton\n"}
+,{"stream_name":"stderr","time":456.604771358,"data":"    step = torch.linalg.solve(H + 1e-9 * torch.diag(torch.diag(H)), G.T @ r).cpu().numpy()\n"}
+,{"stream_name":"stderr","time":456.604775218,"data":"           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":456.604779359,"data":"torch._C._LinAlgError: torch.linalg.solve: The solver failed because the input matrix is singular.\n"}
+,{"stream_name":"stdout","time":457.072813258,"data":"END cond-pavia-x4-ng rc 1\n"}
+,{"stream_name":"stderr","time":461.288804195,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":461.288849727,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":461.592780841,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":461.592817438,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":462.743674302,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":462.84605878,"data":"[NbConvertApp] Writing 106925 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":466.615625795,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":467.335763338,"data":"[NbConvertApp] Writing 388099 bytes to __results__.html\n"}
+]

@@ -1,0 +1,112 @@
+{
+ "dataset": "pavia",
+ "model": "mimformer",
+ "sa": 1,
+ "sensor": "ikonos",
+ "mode": "sensors",
+ "ckpt": "/kaggle/input/notebooks/captainh210606/puf-s21/out/sa-pavia-x4-mimformer/best_ema.pt",
+ "results": {
+  "landsat8_measured": {
+   "bands": 3,
+   "gsa": {
+    "PSNR": 28.3095,
+    "SAM": 7.1369,
+    "ERGAS": 6.0127,
+    "SSIM": 0.8298,
+    "RMSE_DN": 311.8109
+   },
+   "model": {
+    "PSNR": 33.4712,
+    "SAM": 3.6969,
+    "ERGAS": 3.4393,
+    "SSIM": 0.9585,
+    "RMSE_DN": 171.2737
+   }
+  },
+  "sentinel2a_measured": {
+   "bands": 7,
+   "gsa": {
+    "PSNR": 32.7768,
+    "SAM": 6.497,
+    "ERGAS": 4.2602,
+    "SSIM": 0.9191,
+    "RMSE_DN": 193.9892
+   },
+   "model": {
+    "PSNR": 39.2764,
+    "SAM": 3.0655,
+    "ERGAS": 2.2419,
+    "SSIM": 0.9875,
+    "RMSE_DN": 88.4698
+   }
+  },
+  "sentinel2b_measured": {
+   "bands": 7,
+   "gsa": {
+    "PSNR": 32.8233,
+    "SAM": 6.4758,
+    "ERGAS": 4.2443,
+    "SSIM": 0.9197,
+    "RMSE_DN": 193.1138
+   },
+   "model": {
+    "PSNR": 39.6841,
+    "SAM": 3.0517,
+    "ERGAS": 2.148,
+    "SSIM": 0.9882,
+    "RMSE_DN": 84.3413
+   }
+  },
+  "olci_measured": {
+   "bands": 13,
+   "gsa": {
+    "PSNR": 29.4964,
+    "SAM": 7.6394,
+    "ERGAS": 5.3864,
+    "SSIM": 0.8619,
+    "RMSE_DN": 272.8829
+   },
+   "model": {
+    "PSNR": 35.6061,
+    "SAM": 3.3056,
+    "ERGAS": 3.2757,
+    "SSIM": 0.9768,
+    "RMSE_DN": 135.3892
+   }
+  },
+  "probav_measured": {
+   "bands": 2,
+   "gsa": {
+    "PSNR": 33.2214,
+    "SAM": 6.1358,
+    "ERGAS": 4.4751,
+    "SSIM": 0.9209,
+    "RMSE_DN": 184.1754
+   },
+   "model": {
+    "PSNR": 40.7478,
+    "SAM": 3.3237,
+    "ERGAS": 2.2581,
+    "SSIM": 0.9826,
+    "RMSE_DN": 74.4689
+   }
+  },
+  "modis_measured": {
+   "bands": 9,
+   "gsa": {
+    "PSNR": 29.84,
+    "SAM": 7.6823,
+    "ERGAS": 5.2698,
+    "SSIM": 0.8728,
+    "RMSE_DN": 263.0001
+   },
+   "model": {
+    "PSNR": 36.3134,
+    "SAM": 2.9411,
+    "ERGAS": 2.6543,
+    "SSIM": 0.9811,
+    "RMSE_DN": 124.097
+   }
+  }
+ }
+}

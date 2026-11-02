@@ -1,0 +1,111 @@
+{
+ "gpu": "Tesla T4",
+ "pipeline": {
+  "estimate_isotropic_s": 0.081,
+  "estimate_wide_s": 0.6,
+  "estimate_nonparametric_s": 0.0048,
+  "eigendecompositions_s": 0.0687,
+  "network": {
+   "seconds": 0.2408,
+   "gpu_GB": 0.541
+  }
+ },
+ "data_step": {
+  "closed form, learned gains": {
+   "seconds": 0.2401,
+   "gpu_GB": 0.54
+  },
+  "closed form": {
+   "seconds": 0.2424,
+   "gpu_GB": 0.54
+  },
+  "gradient step": {
+   "seconds": 0.206,
+   "gpu_GB": 0.603
+  },
+  "conjugate gradient, 5 iterations": {
+   "seconds": 0.3332,
+   "gpu_GB": 0.54
+  },
+  "conjugate gradient, 10 iterations": {
+   "seconds": 0.4471,
+   "gpu_GB": 0.54
+  }
+ },
+ "size": {
+  "128": {
+   "eigendecompositions_s": 0.0074,
+   "exactfuse": {
+    "seconds": 0.0899,
+    "gpu_GB": 0.175
+   },
+   "mimformer": {
+    "seconds": 0.0531,
+    "gpu_GB": 0.173
+   }
+  },
+  "256": {
+   "eigendecompositions_s": 0.0225,
+   "exactfuse": {
+    "seconds": 0.2421,
+    "gpu_GB": 0.541
+   },
+   "mimformer": {
+    "seconds": 0.1154,
+    "gpu_GB": 0.455
+   }
+  },
+  "512": {
+   "eigendecompositions_s": 0.0711,
+   "exactfuse": {
+    "seconds": 1.1915,
+    "gpu_GB": 2.016
+   },
+   "mimformer": {
+    "seconds": 0.4448,
+    "gpu_GB": 1.581
+   }
+  },
+  "1024": {
+   "eigendecompositions_s": 0.3744,
+   "exactfuse": {
+    "seconds": 5.3005,
+    "gpu_GB": 7.917
+   },
+   "mimformer": {
+    "seconds": 1.9306,
+    "gpu_GB": 6.11
+   }
+  }
+ },
+ "bands": {
+  "31": {
+   "eigendecompositions_s": 0.0167,
+   "exactfuse": {
+    "seconds": 0.1872,
+    "gpu_GB": 0.29
+   }
+  },
+  "64": {
+   "eigendecompositions_s": 0.025,
+   "exactfuse": {
+    "seconds": 0.1968,
+    "gpu_GB": 0.379
+   }
+  },
+  "128": {
+   "eigendecompositions_s": 0.0183,
+   "exactfuse": {
+    "seconds": 0.2444,
+    "gpu_GB": 0.565
+   }
+  },
+  "224": {
+   "eigendecompositions_s": 0.0235,
+   "exactfuse": {
+    "seconds": 0.3836,
+    "gpu_GB": 0.921
+   }
+  }
+ }
+}

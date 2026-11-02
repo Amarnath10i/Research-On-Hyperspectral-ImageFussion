@@ -12,6 +12,8 @@ methods/puformer/kaggle/fetch_results.py. Missing jobs are printed as "--", so t
 """
 import json
 import math
+
+import numpy as np
 import os
 import re
 
@@ -75,7 +77,7 @@ ADOPT = [(r"bench-(chikusei|pavia)-x4-puformer", r"arch-\1-x4-nogate"),
          (r"rec-(chikusei|pavia)-x4-puformer", r"rec-\1-x4-ng"),
          (r"bench-neon-x4-puformer", r"nb-nogate-neon-x4"),
          (r"cond-neon-x4-puformer", r"cond-neon-x4-ng")]
-NOT_ADOPTED = ("neon_fullres.json",)          # run for the base model only
+NOT_ADOPTED = ()          # every result file of the adopted jobs is used (NEON full resolution: nb-nogate-neon-x4)
 
 
 def _read(job, name):
@@ -857,9 +859,10 @@ def cond_table():
 NEON_ROWS = [("bicubic", "Bicubic", None), ("gsa", "GSA", None), ("bench-neon-x4-ssrnet", "SSR-NET", "zhang2021ssrnet"),
              ("bench-neon-x4-psrt", "PSRT", "deng2023psrt"), ("bench-neon-x4-dct", "DCT", "ma2024reciprocal"),
              ("bench-neon-x4-mimformer", "MIMFormer", "li2024mimformer"), ("bench-neon-x4-dhif", "DHIF-Net", "huang2022dhif"),
-             ("bench-neon-x4-puformer", "base model", None), ("abl-neon-x4-zeros", "\\quad zero border", None),
-             ("abl-neon-x4-learned", "\\quad learned operator", None), ("abl-neon-x4-nophys", "\\quad no data step", None),
-             ("cond-neon-x4-puformer", "\\quad blur + noise randomized", None)]
+             ("bench-neon-x4-puformer", "ExactFuse", None), ("cond-neon-x4-puformer", "\\quad blur + noise randomized", None),
+             ("base:abl-neon-x4-zeros", "base model, zero border", None),
+             ("base:abl-neon-x4-learned", "base model, learned operator", None),
+             ("base:abl-neon-x4-nophys", "base model, no data step", None)]
 NEON_RR = [("PSNR", "PSNR", 2, True), ("SAM", "SAM", 3, False), ("ERGAS", "ERGAS", 3, False), ("SSIM", "SSIM", 4, True)]
 NEON_FR = [("D_lambda", "$D_\\lambda$", 4, False), ("D_s", "$D_s$", 4, False), ("HQNR", "HQNR", 4, True)]
 
@@ -1517,6 +1520,189 @@ def _scale_row(row):
     return f"{lab} & {per(c[:4])} & {per(c[4:])} \\\\"
 
 
+def _sd3(v, d=4):
+    return "--" if v is None or (isinstance(v, float) and math.isnan(v)) else f"{v:.{d}f}"
+
+
+def cvpr_operator_analysis():
+    """Conditioning and stability of the operator estimate: first-order prediction of Theorem ident.(c) against the
+    measured error of the estimate (results/q1/cond-*-x4-ng/operator_analysis.json)."""
+    body = []
+    for d, title in (("chikusei", "Chikusei"), ("pavia", "Pavia Centre")):
+        r = load(f"cond-{d}-x4-ng", "operator_analysis.json")
+        if not r:
+            continue
+        snrs = [str(x) for x in r["snrs"]]
+        for case, c in r["cases"].items():
+            tag = {"nominal": "", "anisotropic": "-aniso", "offsets and shift": "-off"}.get(case, "-" + case)
+            NUM[f"opan-{d}-condnorm{tag}"] = f"{c['cond_norm']:.2f}"
+            cells = [title if case == "nominal" else "", case, f"{c['cond_norm']:.2f}"]
+            for snr in snrs:
+                crb, emp = c["crb"][snr], c["empirical"][snr]
+                pred_s, meas_s = (crb[0] + crb[1]) / 2, (emp["rmse"][0] + emp["rmse"][1]) / 2
+                pred_o, meas_o = (crb[2] + crb[3]) / 2, (emp["rmse"][2] + emp["rmse"][3]) / 2
+                cov = emp.get("coverage")
+                for key, v in (("crb", pred_s), ("rmse", meas_s)):
+                    NUM[f"opan-{d}{tag}-{key}{snr}-sigma"] = _sd3(v)
+                for key, v in (("crb", pred_o), ("rmse", meas_o)):
+                    NUM[f"opan-{d}{tag}-{key}{snr}-off"] = _sd3(v)
+                NUM[f"opan-{d}{tag}-crb{snr}-shift"] = _sd3(crb[4], 3)
+                NUM[f"opan-{d}{tag}-rmse{snr}-shift"] = _sd3(emp["rmse"][4], 3)
+                NUM[f"opan-{d}{tag}-bias{snr}-sigma"] = _sd3((emp["bias"][0] + emp["bias"][1]) / 2)
+                if cov:
+                    NUM[f"opan-{d}{tag}-cover{snr}"] = f"{100 * np.mean(cov):.0f}"
+                cells += [_sd3(pred_s), _sd3(meas_s), _sd3(pred_o), _sd3(meas_o), _sd3(crb[4], 3), _sd3(emp["rmse"][4], 3)]
+            body.append(" & ".join(cells) + " \\\\")
+        # scenes for which the theory predicts indistinguishable configurations: column norms of G, relative to the
+        # nominal case (a vanishing column is an unidentifiable parameter)
+        nom = r["cases"].get("nominal")
+        for name, g in r.get("degenerate", {}).items():
+            if nom:
+                ref = np.mean([[1.0] * 5], 0)
+                key = {"spatially constant": "const", "spectrally flat": "flat"}.get(name, "smooth")
+                for j, pn in enumerate(("sigma", "sigma", "off", "off", "shift")):
+                    NUM[f"opan-{d}-deg-{key}-col{j}"] = f"{g['col_norm'][j]:.1e}"
+        for x in r.get("residual", []):
+            if x["rel_sigma_err"] > 0:
+                NUM[f"opan-{d}-res{int(round(100 * x['rel_sigma_err']))}"] = f"{100 * x['rho_true']:.2f}"
+                NUM[f"opan-{d}-res{int(round(100 * x['rel_sigma_err']))}-lin"] = f"{100 * x['rho_first_order']:.2f}"
+    if not body:
+        write("cvpr_opan.tex", ["% operator_analysis.json not available yet"])
+        return
+    snr_head = " & ".join(f"\\multicolumn{{6}}{{c}}{{{snr}~dB SNR}}" for snr in ("40", "30", "20"))
+    sub = " & ".join(["pred. & meas. & pred. & meas. & pred. & meas."] * 3)
+    write("cvpr_opan.tex", [
+        "\\begin{table*}[t]", "\\centering",
+        "\\caption{Conditioning and stability of the operator estimate (Theorem~\\mref{thm:ident}(c)) on the test "
+        "images. $\\tilde\\kappa$: condition number of the Jacobian $\\mathbf{G}$ of the residual with respect to the "
+        "five parameters (two blur widths, two grid offsets, response shift) after scaling its columns to unit norm. "
+        "pred.: first-order standard deviation $\\mathbf{G}^{+}\\boldsymbol{\\Sigma}_{\\mathbf{n}}\\mathbf{G}^{+\\top}$; "
+        "meas.: RMSE of the estimate (grid search refined by Levenberg--Marquardt) over the test images and three noise "
+        "draws. Blur width and offset in pixels (mean of the two axes), response shift in nm.}",
+        "\\label{tab:opan}", "\\setlength{\\tabcolsep}{2.4pt}", "\\resizebox{\\textwidth}{!}{%",
+        "\\begin{tabular}{@{}llc" + "cccccc" * 3 + "@{}}", "\\toprule",
+        f" & & & {snr_head} \\\\",
+        "\\cmidrule(lr){4-9}\\cmidrule(lr){10-15}\\cmidrule(l){16-21}",
+        " & & & " + " & ".join(["\\multicolumn{2}{c}{blur} & \\multicolumn{2}{c}{offset} & \\multicolumn{2}{c}{shift}"] * 3)
+        + " \\\\",
+        f"Dataset & Case & $\\tilde\\kappa$ & {sub} \\\\", "\\midrule", *body, "\\bottomrule", "\\end{tabular}}",
+        "\\end{table*}"])
+
+
+def cvpr_cost_table():
+    """End-to-end cost on a T4 (results/q1/arch-chikusei-x4-nogate/pipeline_cost.json)."""
+    r = load("arch-chikusei-x4-nogate", "pipeline_cost.json")
+    if not r:
+        write("cvpr_cost.tex", ["% pipeline_cost.json not available yet"])
+        return
+    pl, ds = r["pipeline"], r["data_step"]
+    NUM["pc-iso-s"] = f"{pl['estimate_isotropic_s']:.2f}"
+    NUM["pc-wide-s"] = f"{pl['estimate_wide_s']:.2f}"
+    NUM["pc-np-s"] = f"{pl['estimate_nonparametric_s'] * 1000:.0f}"
+    NUM["pc-eig-s"] = f"{pl['eigendecompositions_s']:.2f}"
+    NUM["pc-net-s"] = f"{pl['network']['seconds']:.2f}"
+    NUM["pc-net-gb"] = f"{pl['network']['gpu_GB']:.2f}"
+    NUM["pc-total-s"] = f"{pl['estimate_isotropic_s'] + pl['eigendecompositions_s'] + pl['network']['seconds']:.2f}"
+    key = {"closed form, learned gains": "kl", "closed form": "kron", "gradient step": "grad",
+           "conjugate gradient, 5 iterations": "cg5", "conjugate gradient, 10 iterations": "cg10"}
+    for name, v in ds.items():
+        if "seconds" in v:
+            NUM[f"pc-{key[name]}-s"] = f"{v['seconds']:.2f}"
+    rows = [f"Operator estimate, isotropic grid & {pl['estimate_isotropic_s']:.3f} & -- \\\\",
+            f"Operator estimate, wide family & {pl['estimate_wide_s']:.3f} & -- \\\\",
+            f"Operator estimate, nonparametric kernel & {pl['estimate_nonparametric_s']:.4f} & -- \\\\",
+            f"Eigendecompositions (once per image size) & {pl['eigendecompositions_s']:.3f} & -- \\\\",
+            f"Network, closed-form step with learned gains & {pl['network']['seconds']:.3f} & {pl['network']['gpu_GB']:.2f} \\\\",
+            "\\midrule"]
+    rows += [f"Network, {name} & {v['seconds']:.3f} & {v['gpu_GB']:.2f} \\\\" for name, v in ds.items()
+             if "seconds" in v and name != "closed form, learned gains"]
+    rows.append("\\midrule")
+    for size, v in r["size"].items():
+        ef, mf = v.get("exactfuse", {}), v.get("mimformer", {})
+        NUM[f"pc-size{size}-s"] = f"{ef.get('seconds', float('nan')):.2f}"
+        NUM[f"pc-size{size}-mim-s"] = f"{mf.get('seconds', float('nan')):.2f}"
+        NUM[f"pc-size{size}-eig-s"] = f"{v['eigendecompositions_s']:.3f}"
+        rows.append(f"${size}\\times{size}$: ExactFuse / MIMFormer / eigendecompositions & "
+                    f"{ef.get('seconds', float('nan')):.3f} / {mf.get('seconds', float('nan')):.3f} / "
+                    f"{v['eigendecompositions_s']:.3f} & {ef.get('gpu_GB', float('nan')):.2f} / "
+                    f"{mf.get('gpu_GB', float('nan')):.2f} \\\\")
+    rows.append("\\midrule")
+    for b, v in r["bands"].items():
+        ef = v.get("exactfuse", {})
+        NUM[f"pc-bands{b}-s"] = f"{ef.get('seconds', float('nan')):.2f}"
+        rows.append(f"{b} bands ($256\\times256$, $M=8$): ExactFuse & {ef.get('seconds', float('nan')):.3f} & "
+                    f"{ef.get('gpu_GB', float('nan')):.2f} \\\\")
+    write("cvpr_cost.tex", [
+        "\\begin{table}[t]", "\\centering",
+        f"\\caption{{End-to-end cost on one {r['gpu']} (batch 1, Chikusei bands and a $256\\times256$ HR-MSI unless "
+        "stated; seconds per image and peak GPU memory). The data-step rows use the same network with another data "
+        "step.}", "\\label{tab:cost}", "\\setlength{\\tabcolsep}{3pt}", "\\resizebox{\\columnwidth}{!}{%",
+        "\\begin{tabular}{@{}lcc@{}}", "\\toprule", "Step & Time (s) & Memory (GB) \\\\", "\\midrule", *rows,
+        "\\bottomrule", "\\end{tabular}}", "\\end{table}"])
+
+
+def np_kernel_numbers():
+    """Out-of-family blur with the nonparametric kernel estimated by least squares (mode estimated_np)."""
+    pick = {g: f for g, _, f in COND_GROUPS}
+    for d in ("chikusei", "pavia"):
+        for j in ("cond-{d}-x4-ng", "cond-{d}-x4-regng"):
+            e = load(j.format(d=d), "cond_eval.json")
+            for g in ("kernel", "nominal", "noise"):
+                v = _cond_value(e, "estimated_np", pick[g])
+                if v is not None:
+                    NUM[f"np-{d}-{j.split('-')[-1]}-{g}"] = f"{v:.2f}"
+            errs = [r["np_kernel_relerr"] for k, r in (e or {}).get("conditions", {}).items()
+                    if pick["kernel"](k) and "np_kernel_relerr" in r]
+            if errs:
+                NUM[f"np-{d}-{j.split('-')[-1]}-kerr"] = f"{100 * np.mean(errs):.1f}"
+
+
+def cvpr_measured_table():
+    """The sensor-independent networks on six sensors with measured responses (family_eval_measured.json)."""
+    sets = ("chikusei", "pavia")
+    one = {(d, m): load(f"sa-{d}-x4-{'ng' if m == 'puformer' else m}", "family_eval_measured.json")
+           for d in sets for m in ("puformer", "mimformer")}
+    if not any(one.values()):
+        write("cvpr_family_measured.tex", ["% family_eval_measured.json not available yet"])
+        return
+    lab = {"landsat8_measured": "Landsat~8 OLI", "sentinel2a_measured": "Sentinel-2A MSI",
+           "sentinel2b_measured": "Sentinel-2B MSI", "olci_measured": "Sentinel-3 OLCI",
+           "probav_measured": "PROBA-V", "modis_measured": "MODIS (Aqua)"}
+    body, gains, leads = [], {d: [] for d in sets}, {d: [] for d in sets}
+    for sn, name in lab.items():
+        cells = []
+        for d in sets:
+            res = {m: ((one[(d, m)] or {}).get("results") or {}).get(sn) for m in ("puformer", "mimformer")}
+            r0 = next((x for x in res.values() if x), None)
+            g = r0["gsa"]["PSNR"] if r0 else None
+            mf = (res["mimformer"] or {}).get("model", {}).get("PSNR")
+            ef = (res["puformer"] or {}).get("model", {}).get("PSNR")
+            if ef is not None and g is not None:
+                gains[d].append(ef - g)
+            if ef is not None and mf is not None:
+                leads[d].append(ef - mf)
+            best = max([v for v in (mf, ef) if v is not None], default=None)
+            cells += [str(r0["bands"]) if r0 else "--", fmt(g, 2)]
+            cells += [f"\\best{{{fmt(v, 2)}}}" if v is not None and round(v, 2) == round(best, 2) else fmt(v, 2)
+                      for v in (mf, ef)]
+        body.append(f"{name} & " + " & ".join(cells) + " \\\\")
+    for d in sets:
+        if gains[d]:
+            NUM[f"famm-{d}-gsa-min"], NUM[f"famm-{d}-gsa-max"] = f"{min(gains[d]):.1f}", f"{max(gains[d]):.1f}"
+        if leads[d]:
+            NUM[f"famm-{d}-mim-min"], NUM[f"famm-{d}-mim-max"] = f"{min(leads[d]):.1f}", f"{max(leads[d]):.1f}"
+    write("cvpr_family_measured.tex", [
+        "\\begin{table}[t]", "\\centering",
+        "\\caption{The sensor-independent networks of Tab.~\\ref{tab:family} (trained on random responses) on six sensors "
+        "with measured spectral responses (6S filter functions), none seen in training; $M$: bands inside the "
+        "hyperspectral range. Test PSNR (dB).}", "\\label{tab:measured}", "\\setlength{\\tabcolsep}{2.5pt}",
+        "\\resizebox{\\columnwidth}{!}{%", "\\begin{tabular}{@{}lcccccccc@{}}", "\\toprule",
+        " & \\multicolumn{4}{c}{Chikusei} & \\multicolumn{4}{c}{Pavia Centre} \\\\",
+        "\\cmidrule(lr){2-5}\\cmidrule(l){6-9}",
+        "Sensor & $M$ & GSA & MIMF. & ExactFuse & $M$ & GSA & MIMF. & ExactFuse \\\\", "\\midrule", *body,
+        "\\bottomrule", "\\end{tabular}}", "\\end{table}"])
+
+
 def main():
     for ds in DATASETS:
         bench_table(ds)             # numbers quoted in the text (the per-dataset tables are not used)
@@ -1544,6 +1730,10 @@ def main():
     cvpr_ablation()
     cvpr_cond()
     cvpr_family()
+    cvpr_operator_analysis()
+    cvpr_cost_table()
+    np_kernel_numbers()
+    cvpr_measured_table()
     write("q1_numbers.tex", [f"\\expandafter\\def\\csname qone@{k}\\endcsname{{{v}}}" for k, v in sorted(NUM.items())])
     print(f"{len(NUM)} numbers;", ", ".join(f"{k}={v}" for k, v in sorted(NUM.items())[:40]))
 

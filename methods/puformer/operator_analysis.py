@@ -65,7 +65,7 @@ def noise_var(a, th, yh_clean, ym_clean, snr, ks, dev):
 
 
 def ls_cov(G, v):
-    hinv = torch.linalg.inv(G.T @ G)
+    hinv = torch.linalg.pinv(G.T @ G)
     return hinv @ (G.T @ (G * v[:, None])) @ hinv
 
 
@@ -76,17 +76,31 @@ def svd_stats(G):
     return dict(sv=s.tolist(), cond=float(s[0] / s[-1]), sv_norm=sn.tolist(), cond_norm=float(sn[0] / sn[-1]))
 
 
-def gauss_newton(a, th0, yh, ym, ks, dev, iters=12):
-    th = np.array(th0, float)
+LIMIT = np.array([0.5, 0.5, 0.5, 0.5, 2.0])                    # largest step per iteration: px, px, px, px, nm
+
+
+def gauss_newton(a, th0, yh, ym, ks, dev, iters=20):
+    """Levenberg-Marquardt refinement of theta from th0: damped normal equations, step-limited, descent only."""
+    th, lam = np.array(th0, float), 1e-3
+    j_old = float(residual(a, th, yh, ym, ks, dev).pow(2).sum())
     for _ in range(iters):
         r = residual(a, th, yh, ym, ks, dev)
         G = jacobian(a, th, yh, ym, ks, dev)
         H = G.T @ G
-        step = torch.linalg.solve(H + 1e-9 * torch.diag(torch.diag(H)), G.T @ r).cpu().numpy()
-        th = th - step
-        th[:2] = np.maximum(th[:2], 0.2)
-        if np.abs(step).max() < 1e-6:
-            break
+        damp = lam * torch.diag(torch.diag(H).clamp_min(1e-12))
+        step = torch.linalg.lstsq(H + damp, (G.T @ r)[:, None]).solution[:, 0].cpu().numpy()
+        step = np.clip(step, -LIMIT, LIMIT)
+        cand = th - step
+        cand[:2] = np.maximum(cand[:2], 0.2)
+        j_new = float(residual(a, cand, yh, ym, ks, dev).pow(2).sum())
+        if j_new < j_old:
+            th, j_old, lam = cand, j_new, max(lam / 3, 1e-9)
+            if np.abs(step).max() < 1e-6:
+                break
+        else:
+            lam *= 10
+            if lam > 1e8:
+                break
     return th
 
 
@@ -137,27 +151,32 @@ def main():
                 sd.append(torch.sqrt(torch.diag(ls_cov(G, noise_var(a, th_true, lr[i:i + 1], ms[i:i + 1], snr, ks,
                                                                      dev)))).tolist())
             row["crb"][str(snr)] = np.mean(sd, 0).tolist()
-            errs, cover = [], []
+            errs, cover, failed = [], [], []
             for seed in range(a.seeds):
                 g = torch.Generator().manual_seed(5000 + 97 * seed + snr)
                 lrn, msn = add_noise(lr.float(), snr, g).double(), add_noise(ms.float(), snr, g).double()
                 sig, sh = estimate(lrn.float(), msn.float(), a, sig_grid, shift_grid, dev)
                 for i in range(len(gt)):
                     th0 = (float(sig[i]), float(sig[i]), 0.0, 0.0, float(sh[i]))
-                    th = gauss_newton(a, th0, lrn[i:i + 1], msn[i:i + 1], ks, dev)
-                    G = jacobian(a, th, lrn[i:i + 1], msn[i:i + 1], ks, dev)
-                    sd_hat = torch.sqrt(torch.diag(ls_cov(G, noise_var(a, th, lr[i:i + 1], ms[i:i + 1], snr, ks,
-                                                                       dev)))).numpy()
+                    try:
+                        th = gauss_newton(a, th0, lrn[i:i + 1], msn[i:i + 1], ks, dev)
+                        G = jacobian(a, th, lrn[i:i + 1], msn[i:i + 1], ks, dev)
+                        sd_hat = torch.sqrt(torch.diag(ls_cov(G, noise_var(a, th, lr[i:i + 1], ms[i:i + 1], snr, ks,
+                                                                           dev)))).numpy()
+                    except Exception as err:                          # noqa: BLE001 - record and continue
+                        failed.append(f"{snr} dB seed {seed} image {i}: {err!r}"[:200])
+                        continue
                     e = th - np.array(th_true)
                     errs.append(e)
                     cover.append(np.abs(e) <= 2 * sd_hat)
-            errs = np.array(errs)
+            errs = np.array(errs) if errs else np.full((1, 5), np.nan)
             row["empirical"][str(snr)] = dict(rmse=np.sqrt((errs ** 2).mean(0)).tolist(), bias=errs.mean(0).tolist(),
                                               max_abs=np.abs(errs).max(0).tolist(),
-                                              coverage=np.mean(cover, 0).tolist())
+                                              coverage=np.mean(cover, 0).tolist() if cover else None,
+                                              n=len(errs), failed=failed)
             print(name, snr, "dB: crb sd", np.round(row["crb"][str(snr)], 4), "rmse",
                   np.round(row["empirical"][str(snr)]["rmse"], 4), "coverage",
-                  np.round(row["empirical"][str(snr)]["coverage"], 2), flush=True)
+                  np.round(row["empirical"][str(snr)]["coverage"] or [], 2), flush=True)
         res["cases"][name] = row
         save()
 
