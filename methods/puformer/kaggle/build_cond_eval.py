@@ -57,7 +57,7 @@ def main():
     ap.add_argument("--sources", required=True, help="comma-separated session slugs of the same account")
     ap.add_argument("--jobs", required=True, help="comma-separated job names (jobs.py)")
     ap.add_argument("--slug", default="puf-cond-eval")
-    ap.add_argument("--script", default="cond_eval.py", choices=["cond_eval.py", "neon_fullres.py", "test.py", "family_eval.py", "unc_eval.py", "operator_analysis.py", "pipeline_cost.py"],
+    ap.add_argument("--script", default="cond_eval.py", choices=["cond_eval.py", "neon_fullres.py", "test.py", "family_eval.py", "unc_eval.py", "operator_analysis.py", "pipeline_cost.py", "null_check.py"],
                     help="test.py: score a checkpoint again (e.g. with new inference settings), with the training "
                     "summary from its history.json")
     ap.add_argument("--gpu", action="store_true")

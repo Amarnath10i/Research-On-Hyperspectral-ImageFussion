@@ -209,7 +209,7 @@ def bench_x4():
     per = {ds: {m: method_metrics(ds, 4, m) for m, *_ in ALL} for ds, _ in sets}
     best = {ds: best_marks([per[ds][m] for m in BASELINES + ("puformer",)], BENCH) for ds, _ in sets}
     body = []
-    for m, lab, cite in METHODS:
+    for m, lab, cite in ALL:                # all eleven retrained networks
         name = lab + (f"~\\cite{{{cite}}}" if cite else "")
         cells = []
         for ds, _ in sets:
@@ -1491,7 +1491,7 @@ def cvpr_family():
         "\\caption{One network for any multispectral sensor and for several scale factors (test PSNR, dB; Chikusei and "
         "Pavia Centre). Top: networks with the sensor-independent input $\\R^{+}\\YM$ trained on random responses "
         "(3--10 bands of random position and width, drawn anew for every batch) and tested on the responses of seven "
-        "real sensors, none of which was seen in training ($M$: bands inside the hyperspectral range), against GSA and "
+        "real sensors, none of which was seen in training (the pairs are simulated from the reference with these responses, not acquired by the sensors; $M$: bands inside the hyperspectral range), against GSA and "
         "against networks trained for that one sensor (Retr.). Bottom: ExactFuse trained over $\\times$4 and $\\times$8 "
         "and tested at $\\times$4, $\\times$8 and $\\times$16, against ExactFuse trained at each scale and the best "
         "retrained network of that scale. --: not run. Best of the two sensor-independent networks in bold.}",
@@ -1694,13 +1694,135 @@ def cvpr_measured_table():
     write("cvpr_family_measured.tex", [
         "\\begin{table}[t]", "\\centering",
         "\\caption{The sensor-independent networks of Tab.~\\ref{tab:family} (trained on random responses) on six sensors "
-        "with measured spectral responses (6S filter functions), none seen in training; $M$: bands inside the "
+        "with measured spectral responses (6S filter functions), none seen in training; the pairs are simulated from the reference with these responses, not acquired by the sensors; $M$: bands inside the "
         "hyperspectral range. Test PSNR (dB).}", "\\label{tab:measured}", "\\setlength{\\tabcolsep}{2.5pt}",
         "\\resizebox{\\columnwidth}{!}{%", "\\begin{tabular}{@{}lcccccccc@{}}", "\\toprule",
         " & \\multicolumn{4}{c}{Chikusei} & \\multicolumn{4}{c}{Pavia Centre} \\\\",
         "\\cmidrule(lr){2-5}\\cmidrule(l){6-9}",
         "Sensor & $M$ & GSA & MIMF. & ExactFuse & $M$ & GSA & MIMF. & ExactFuse \\\\", "\\midrule", *body,
         "\\bottomrule", "\\end{tabular}}", "\\end{table}"])
+
+
+def corruption_numbers():
+    """Confidence-weighted network (cond-*-cwdng): PSNR under corrupted observations, against the network without
+    confidence weighting (cond-*-corng, same corruption training) and ExactFuse trained over the family (cond-*-ng),
+    and the ROC AUC of its confidence map 1 - w against the corruption masks."""
+    tags = {"MSI local changes": "changes", "HSI stripes": "stripes", "MSI changes + HSI stripes, snr 35 dB": "both",
+            "MSI locally misregistered": "locreg", "HSI band-dependent noise 25-45 dB": "bandnoise",
+            "MSI locally misregistered + HSI band noise": "locregband"}
+    for d in ("chikusei", "pavia"):
+        for job in ("cwdng", "corng", "ng", "regng"):
+            e = load(f"cond-{d}-x4-{job}", "cond_eval.json")
+            for cname, tag in tags.items():
+                c = (e or {}).get("conditions", {}).get(cname)
+                if not c:
+                    continue
+                mode = "fixed" if "fixed" in c else "estimated"
+                NUM[f"corr-{d}-{job}-{tag}"] = f"{c[mode]['PSNR']:.2f}"
+                if job == "cwdng":
+                    NUM[f"corr-{d}-gsa-{tag}"] = f"{c['gsa_oracle']['PSNR']:.2f}"
+                    for side, v in c.get("change_auroc", {}).items():
+                        NUM[f"corr-{d}-auroc-{tag}-{side}"] = f"{v:.2f}"
+
+
+CI_SETTINGS = [("chikusei", 4), ("pavia", 4), ("cave", 4), ("harvard", 4), ("cave", 8), ("chikusei", 8), ("pavia", 8),
+               ("chikusei", 16), ("harvard", 8), ("pavia", 16)]
+
+
+def _strongest(d, s):
+    others = {m: load(f"bench-{d}-x{s}-{m}") for m in BASELINES}
+    others = {m: o for m, o in others.items() if o and o.get("test_per_image")}
+    return max(others.items(), key=lambda kv: kv[1]["test"]["PSNR"]) if others else (None, None)
+
+
+def gain_ci():
+    """Paired bootstrap (10,000 resamples of the test images, fixed seed) of the mean per-image PSNR gain over the
+    strongest retrained network of each setting, and per-image win counts."""
+    rng = np.random.default_rng(0)
+    rows, pooled = [], []
+    for d, s in CI_SETTINGS:
+        p = load(f"bench-{d}-x{s}-puformer")
+        m, b = _strongest(d, s)
+        if not p or not p.get("test_per_image") or b is None or len(p["test_per_image"]) != len(b["test_per_image"]):
+            continue
+        a, c = p["test_per_image"], b["test_per_image"]
+        diff = np.array([x["PSNR"] - y["PSNR"] for x, y in zip(a, c)])
+        pooled += list(diff)
+        boot = diff[rng.integers(0, len(diff), (10000, len(diff)))].mean(1)
+        lo, hi = np.percentile(boot, [2.5, 97.5])
+        wins = {k: sum((x[k] > y[k]) if k == "PSNR" else (x[k] < y[k]) for x, y in zip(a, c)) for k in ("PSNR", "SAM", "ERGAS")}
+        key = f"{d}{s}"
+        NUM[f"ci-{key}-gain"], NUM[f"ci-{key}-lo"], NUM[f"ci-{key}-hi"] = f"{diff.mean():.2f}", f"{lo:.2f}", f"{hi:.2f}"
+        for k, v in wins.items():
+            NUM[f"ci-{key}-wins-{k.lower()}"] = f"{v}/{len(diff)}"
+        lab = dict((k, l) for k, l, _ in ALL)[m]
+        rows.append(f"{SHORT_TITLE.get(d, d.title())} $\\times${s} & {lab} & {len(diff)} & {diff.mean():.2f} & "
+                    f"[{lo:.2f}, {hi:.2f}] & {wins['PSNR']}/{len(diff)} & {wins['SAM']}/{len(diff)} & "
+                    f"{wins['ERGAS']}/{len(diff)} \\\\")
+    if pooled:
+        pooled = np.array(pooled)
+        boot = pooled[rng.integers(0, len(pooled), (10000, len(pooled)))].mean(1)
+        lo, hi = np.percentile(boot, [2.5, 97.5])
+        NUM["ci-pooled-gain"], NUM["ci-pooled-lo"], NUM["ci-pooled-hi"] = f"{pooled.mean():.2f}", f"{lo:.2f}", f"{hi:.2f}"
+    if not rows:
+        write("cvpr_ci.tex", ["% per-image results not available yet"])
+        return
+    write("cvpr_ci.tex", [
+        "\\begin{table}[t]", "\\centering",
+        "\\caption{Per-image gain of ExactFuse over the strongest retrained network of each setting (by mean PSNR): "
+        "mean PSNR gain (dB) with its 95\\% paired bootstrap interval over the test images (10{,}000 resamples), and "
+        "the number of test images on which ExactFuse has the higher PSNR and the lower SAM and ERGAS.}",
+        "\\label{tab:ci}", "\\setlength{\\tabcolsep}{2.5pt}", "\\resizebox{\\columnwidth}{!}{%",
+        "\\begin{tabular}{@{}llcccccc@{}}", "\\toprule",
+        "Setting & Strongest & $n$ & Gain & 95\\% CI & PSNR & SAM & ERGAS \\\\", "\\midrule", *rows, "\\bottomrule",
+        "\\end{tabular}}", "\\end{table}"])
+
+
+def perimage_table():
+    """PSNR, SAM and ERGAS of every test image, ExactFuse against the strongest retrained network."""
+    body = []
+    for d, title in (("chikusei", "Chikusei"), ("pavia", "Pavia Centre")):
+        p = load(f"bench-{d}-x4-puformer")
+        m, b = _strongest(d, 4)
+        if not p or b is None:
+            continue
+        lab = dict((k, l) for k, l, _ in ALL)[m]
+        body.append(f"\\multicolumn{{7}}{{@{{}}l}}{{\\textit{{{title} $\\times$4, ExactFuse / {lab}}}}} \\\\")
+        for i, (x, y) in enumerate(zip(p["test_per_image"], b["test_per_image"]), 1):
+            cells = []
+            for k, dd, hi in (("PSNR", 2, True), ("SAM", 3, False), ("ERGAS", 3, False)):
+                bx = (x[k] > y[k]) if hi else (x[k] < y[k])
+                cells += [f"\\best{{{x[k]:.{dd}f}}}" if bx else f"{x[k]:.{dd}f}",
+                          f"{y[k]:.{dd}f}" if bx else f"\\best{{{y[k]:.{dd}f}}}"]
+            body.append(f"{i} & " + " & ".join(cells) + " \\\\")
+    if not body:
+        return
+    write("cvpr_perimage.tex", [
+        "\\begin{table}[t]", "\\centering",
+        "\\caption{Every test image: PSNR (dB), SAM (degrees) and ERGAS of ExactFuse and of the strongest retrained "
+        "network; the better value of each pair in bold.}", "\\label{tab:perimage}", "\\setlength{\\tabcolsep}{3pt}",
+        "\\resizebox{\\columnwidth}{!}{%", "\\begin{tabular}{@{}lcccccc@{}}", "\\toprule",
+        "Image & \\multicolumn{2}{c}{PSNR} & \\multicolumn{2}{c}{SAM} & \\multicolumn{2}{c}{ERGAS} \\\\", "\\midrule",
+        *body, "\\bottomrule", "\\end{tabular}}", "\\end{table}"])
+
+
+def curve_numbers():
+    """Gain of validation PSNR in the last quarter of each network's budget (results/q1/curves.json)."""
+    f = os.path.join(RES, "curves.json")
+    if not os.path.exists(f):
+        return
+    cur = json.load(open(f))
+    for d, r in cur.items():
+        late = {}
+        for lab, pts in r.items():
+            T = max(h for h, _ in pts)
+            best = max(v for _, v in pts)
+            early = max([v for h, v in pts if h <= 0.75 * T] or [best])
+            late[lab] = best - early
+            NUM[f"late-{d}-{lab.lower().replace('-', '')}"] = f"{best - early:.2f}"
+        strong = [late[k] for k in ("MIMO-SST", "OTPNet", "MIMFormer", "CLSNet") if k in late]
+        if strong:
+            NUM[f"late-{d}-strong-max"] = f"{max(strong):.2f}"
 
 
 def main():
@@ -1734,6 +1856,10 @@ def main():
     cvpr_cost_table()
     np_kernel_numbers()
     cvpr_measured_table()
+    corruption_numbers()
+    gain_ci()
+    perimage_table()
+    curve_numbers()
     write("q1_numbers.tex", [f"\\expandafter\\def\\csname qone@{k}\\endcsname{{{v}}}" for k, v in sorted(NUM.items())])
     print(f"{len(NUM)} numbers;", ", ".join(f"{k}={v}" for k, v in sorted(NUM.items())[:40]))
 

@@ -191,8 +191,33 @@ Obs. & mean squared error of the part of $\hat\X-\X$ in $\mathrm{row}(\D)+\mathr
 \qtab{cvpr_family}
 
 \qtab{cvpr_opan}
+\qtab{cvpr_ci}
+\qtab{cvpr_perimage}
+\IfFileExists{figures/q1_curves.pdf}{%
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.8\textwidth]{figures/q1_curves.pdf}
+\caption{Validation PSNR of every network during its training budget (4~h on one T4; SSR-NET 1.5~h), Chikusei and Pavia Centre $\times$4.}
+\label{fig:curves}
+\end{figure*}}{}
+\IfFileExists{tables/q1_bands_numbers.tex}{\input{tables/q1_bands_numbers.tex}}{}
+\IfFileExists{figures/q1_bands.pdf}{%
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/q1_bands.pdf}
+\caption{RMSE (DN) of every band on the Chikusei test images. Shaded: wavelengths to which the WorldView-2 HR-MSI responds.}
+\label{fig:bands}
+\end{figure}}{}
+
+\paragraph{Confidence intervals and per-image results.} The 95\% paired bootstrap interval of ExactFuse's mean per-image gain over the strongest retrained network excludes zero in every setting (\cref{tab:ci}); the smallest gain, \qone{ci-harvard4-gain}~dB on Harvard, has the interval [\qone{ci-harvard4-lo}, \qone{ci-harvard4-hi}]~dB, and pooled over all test images the gain is \qone{ci-pooled-gain}~dB [\qone{ci-pooled-lo}, \qone{ci-pooled-hi}]. ExactFuse has the lower SAM and ERGAS on every test image of every setting and the higher PSNR on all but one Harvard image (\cref{tab:perimage} lists Chikusei and Pavia Centre).
+
+\paragraph{Training curves.} Is the budget long enough? \Cref{fig:curves} shows the validation PSNR of every network. The four strongest baselines gain at most \qone{late-chikusei-strong-max}~dB on Chikusei and \qone{late-pavia-strong-max}~dB on Pavia Centre in the last quarter of their budget (MIMO-SST \qone{late-chikusei-mimosst}~dB, ExactFuse \qone{late-chikusei-exactfuse}~dB on Chikusei), so they are close to converged. DCT and DHIF-Net, the slowest per iteration, still gain \qone{late-chikusei-dct} and \qone{late-chikusei-dhifnet}~dB and are undertrained, but end more than 3~dB below the strongest networks; the 8~h runs of the main paper test the effect of a longer budget.
+
+\qoneif{bands-exactfuse-out}{\paragraph{Spectral regions without HR-MSI coverage.} The WorldView-2 HR-MSI does not respond to \qone{bands-nout} of the 128 Chikusei bands (\cref{fig:bands}); there only the LR-HSI and the prior inform the result. ExactFuse's mean RMSE in these bands is \qone{bands-exactfuse-out}~DN, against \qone{bands-mimosst-out}~DN for MIMO-SST and \qone{bands-mimformer-out}~DN for MIMFormer, and \qone{bands-exactfuse-in}, \qone{bands-mimosst-in} and \qone{bands-mimformer-in}~DN in the covered bands.}
 \qtab{cvpr_cost}
-\qtab{cvpr_family_measured}
+\qoneif{famm-chikusei-gsa-min}{\qtab{cvpr_family_measured}}
+
+\paragraph{Corrupted observations.} An exact data step trusts its observations, so corrupted pixels pass into the reconstruction. With local scene changes in the HR-MSI, dead LR-HSI columns and 35~dB noise, ExactFuse trained over the operator family reaches \qone{corr-chikusei-ng-both}~dB on Chikusei; trained on corrupted pairs with a confidence-weighted data step, which replaces each observation by $w\mathbf{Y}+(1-w)\mathbf{A}\X$ with a learned per-pixel weight $w$, it reaches \qone{corr-chikusei-cwdng-both}~dB (GSA \qone{corr-chikusei-gsa-both}~dB). The map $1-w$ is a detector of the corrupted pixels: its ROC AUC against the corruption masks is \qone{corr-chikusei-auroc-stripes-hsi} for the dead columns and \qone{corr-chikusei-auroc-changes-msi} for the changed regions on Chikusei. It fails for changes in the four-band HR-MSI of Pavia Centre (AUROC \qone{corr-pavia-auroc-changes-msi}), where the network still tolerates them (\qone{corr-pavia-cwdng-changes}~dB against \qone{corr-pavia-ng-changes}~dB without confidence weighting) but does not localize them; dead columns are found there as well (\qone{corr-pavia-auroc-stripes-hsi}).
 \begin{figure*}[t]
 \centering
 \IfFileExists{figures/q1_visual.pdf}{\includegraphics[width=\textwidth]{figures/q1_visual.pdf}}{}
@@ -200,7 +225,7 @@ Obs. & mean squared error of the part of $\hat\X-\X$ in $\mathrm{row}(\D)+\mathr
 \label{fig:visual_all}
 \end{figure*}
 
-\paragraph{Stability of the operator estimate.} \Cref{tab:opan} checks Theorem~\mref{thm:ident}(c) on the test images. The Jacobian has full rank for all five parameters, with condition numbers of \qone{opan-chikusei-condnorm} (Chikusei) and \qone{opan-pavia-condnorm} (Pavia Centre) after scaling its columns, so the parameters are nearly uncorrelated. For the grid offsets and the response shift the first-order prediction matches the measured error; for the blur widths the measured error exceeds it as the SNR falls, because noise also enters the Jacobian and biases the blur estimate upward (next paragraph), an effect of second order that the first-order bound does not contain. Even at 20~dB SNR the errors stay far below the grid step of 0.05~px. For scenes in the null space of $\mathcal{C}_{\theta\phi}$ the corresponding columns of $\mathbf{G}$ vanish: blur and offsets for spatially constant scenes, the response shift for scenes with equal bands.
+\paragraph{Stability of the operator estimate.} \Cref{tab:opan} checks Theorem~\mref{thm:ident}(c) on the test images. The Jacobian has full rank for all five parameters, with condition numbers of \qone{opan-chikusei-condnorm} (Chikusei) and \qone{opan-pavia-condnorm} (Pavia Centre) after scaling its columns, so the parameters are nearly uncorrelated. For the grid offsets and the response shift the first-order prediction matches the measured error; for the blur widths the measured error exceeds it as the SNR falls, because noise also enters the Jacobian and biases the blur estimate upward (next paragraph), an effect of second order that the first-order bound does not contain. Even at 20~dB SNR the errors stay far below the grid step of 0.05~px. The conditioning is as good for two different blur widths (\qone{opan-chikusei-condnorm-aniso}) and with grid offsets and a response shift (\qone{opan-chikusei-condnorm-off}). For scenes in the null space of $\mathcal{C}_{\theta\phi}$ the corresponding columns of $\mathbf{G}$ vanish, as part (b) states: for spatially constant scenes the blur and offset columns fall to \qone{opan-chikusei-deg-const-col0} and \qone{opan-chikusei-deg-const-col2} (Chikusei), and for scenes with equal bands the response-shift column falls to \qone{opan-chikusei-deg-flat-col4}. The first-order relative operator residual used in the corollary matches the true one closely for blur errors up to 10\% (\qone{opan-chikusei-res10-lin}\% against \qone{opan-chikusei-res10}\% at $+10\%$ on Chikusei).
 
 \paragraph{Which assumptions hold for the trained network.} Theorem~\mref{thm:mismatch}(a)--(b) and Proposition~\mref{prop:kl} hold for every value of the learned weights: the step sizes are positive by construction (softplus) and the learned gains lie in $(\tfrac12,2)$ by construction, so the trained data steps keep the ground truth fixed and are nonexpansive. Part (c) needs priors with $\mathcal{P}_k(\X^*)=\mathbf{0}$ and a Lipschitz constant $L_k$, which training does not enforce; we therefore do not claim convergence of the unrolled network, and report instead that \qone{null-chikusei-puformer-share}\% of ExactFuse's error lies in the fusion null space (Tab.~\mref{tab:bench}), i.e., its output keeps the observed part.
 

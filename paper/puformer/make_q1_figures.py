@@ -249,8 +249,105 @@ def neon_figure():
     plt.close(fig)
 
 
+
+def curves_figure():
+    """Validation PSNR against training time of every network under the equal budget (Chikusei, Pavia Centre x4)."""
+    f = os.path.join(RES, "curves.json")
+    if not os.path.exists(f):
+        print("curves.json not available: training-curve figure skipped")
+        return
+    cur = json.load(open(f))
+    fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.4))
+    for ax, (d, title) in zip(axes, (("chikusei", "Chikusei $\\times$4"), ("pavia", "Pavia Centre $\\times$4"))):
+        for lab, pts in sorted(cur.get(d, {}).items()):
+            h, v = zip(*pts)
+            ef = lab == "ExactFuse"
+            ax.plot(h, v, lw=1.6 if ef else 0.8, color=ORANGE if ef else None, zorder=3 if ef else 2,
+                    label=lab, alpha=1.0 if ef else 0.8)
+        vals = [v for pts in cur.get(d, {}).values() for _, v in pts]
+        if vals:
+            top = max(vals)
+            ax.set_ylim(top - 6, top + 0.5)
+        ax.set_xlabel("training time (h, one T4)", fontsize=7)
+        ax.set_title(title, fontsize=8)
+        ax.tick_params(labelsize=6)
+    axes[0].set_ylabel("validation PSNR (dB)", fontsize=7)
+    axes[1].legend(fontsize=5, ncol=2, loc="lower right", frameon=False)
+    fig.tight_layout(pad=0.3)
+    fig.savefig(os.path.join(FIG, "q1_curves.pdf"))
+    plt.close(fig)
+
+
+def bands_figure():
+    """Per-band RMSE (DN) on the Chikusei test images against wavelength, ExactFuse and the strongest networks, with the
+    spectral coverage of the WorldView-2 HR-MSI shaded; numbers inside and outside the coverage for the text."""
+    if not PREDS:
+        print("Q1_PREDS not set: band figure skipped")
+        return
+    sys.path.insert(0, os.path.join(HERE, "..", "..", "methods", "puformer"))
+    from hsifuse.data import load_dataset  # noqa: E402
+    from hsifuse.ops import CHIKUSEI_WL, dataset_srf  # noqa: E402
+    mats = sorted(p for p in glob.glob("/kaggle/input/**/*.mat", recursive=True)
+                  if "chikusei" in p.lower() and "Ground" not in p)
+    if not mats:
+        print("Chikusei data not attached: band figure skipped")
+        return
+    _, te, _, peak = load_dataset("chikusei", sorted(mats, key=len)[0], None)
+    gt = np.asarray(te, np.float32)
+    srf = dataset_srf("chikusei")
+    covered = srf.sum(1) > 0.05 * srf.sum(1).max()               # bands the HR-MSI responds to
+    curves = {}
+    for m, lab in (("puformer", "ExactFuse"), ("mimosst", "MIMO-SST"), ("otpnet", "OTPNet"), ("mimformer", "MIMFormer")):
+        if m == "puformer":
+            hits = sorted(glob.glob("/kaggle/input/**/arch-chikusei-x4-nogate/test_pred_f16.npy", recursive=True))
+        else:
+            hits = sorted(glob.glob(f"/kaggle/input/**/bench-chikusei-x4-{m}/test_pred_f16.npy", recursive=True))
+        if not hits:
+            continue
+        pred = np.load(hits[0], mmap_mode="r")
+        se = np.zeros(gt.shape[1])
+        for i in range(gt.shape[0]):
+            se += ((pred[i].astype(np.float32) - gt[i]) ** 2).mean((1, 2))
+        curves[lab] = np.sqrt(se / gt.shape[0]) * peak
+    if "ExactFuse" not in curves:
+        print("ExactFuse predictions not found: band figure skipped")
+        return
+    fig, ax = plt.subplots(figsize=(3.4, 2.2))
+    lo = None
+    for b, c in enumerate(covered):
+        if c and lo is None:
+            lo = CHIKUSEI_WL[b]
+        if (not c or b == len(covered) - 1) and lo is not None:
+            ax.axvspan(lo, CHIKUSEI_WL[b], color="0.9", lw=0, zorder=0)
+            lo = None
+    for lab, c in curves.items():
+        ef = lab == "ExactFuse"
+        ax.plot(CHIKUSEI_WL, c, lw=1.4 if ef else 0.8, color=ORANGE if ef else None, label=lab, zorder=3 if ef else 2)
+    ax.set_xlabel("wavelength (nm)", fontsize=7)
+    ax.set_ylabel("RMSE (DN)", fontsize=7)
+    ax.tick_params(labelsize=6)
+    ax.legend(fontsize=5.5, frameon=False)
+    fig.tight_layout(pad=0.3)
+    fig.savefig(os.path.join(FIG, "q1_bands.pdf"))
+    plt.close(fig)
+    lines = []
+    for lab, c in curves.items():
+        key = lab.lower().replace("-", "")
+        for part, sel in (("in", covered), ("out", ~covered)):
+            lines.append("\\expandafter\\def\\csname qone@bands-%s-%s\\endcsname{%.1f}" % (key, part, float(c[sel].mean())))
+    lines.append("\\expandafter\\def\\csname qone@bands-nout\\endcsname{%d}" % int((~covered).sum()))
+    with open(os.path.join(HERE, "tables", "q1_bands_numbers.tex"), "w") as fh:
+        fh.write("\n".join(lines) + "\n")
+    print("band figure:", {k: (float(v[covered].mean()), float(v[~covered].mean())) for k, v in curves.items()})
+
+
 if __name__ == "__main__":
     operator_figure()          # (scales_figure needs several scale factors; the paper reports x4 only)
     cond_figure()
     neon_figure()
     visual_figure()
+    for extra in (curves_figure, bands_figure):        # optional figures: a failure must not stop the build
+        try:
+            extra()
+        except Exception as err:  # noqa: BLE001
+            print(extra.__name__, "failed:", repr(err))
