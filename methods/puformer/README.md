@@ -1,112 +1,119 @@
-# PUFormer: Physics-Unfolded Transformer for Chikusei HSI–MSI Fusion (×4)
+# PUFormer: unfolded HSI–MSI fusion with exact observation operators
 
-Goal: beat the best **published** Chikusei ×4 result, 56.19 dB PSNR from TIP 2026
-(Two-Stage Conditional Diffusion), under that paper's protocol. Literature review:
-[docs/CHIKUSEI_SOTA_SURVEY.md](../../docs/CHIKUSEI_SOTA_SURVEY.md). It covers only peer-reviewed, subscription IEEE papers.
-
-The same code also runs Pavia Centre ×4 (`--dataset pavia`: bands 11–102, IKONOS 4-band SRF, 4 test
-tiles of 256²). Result: 50.69 dB against the best reported 47.16 dB, 1st on 6 of 8 metrics; see
-[results/puformer_pavia_x4](../../results/puformer_pavia_x4/). `kaggle/build_pavia_notebook.py` writes the
-one-session notebook (train, test, robustness), `kaggle/build_analysis_notebook.py --dataset pavia` the
-CPU analysis kernel (`paper_analysis.py`, `sam_analysis.py`).
-
-## Protocol (TIP'26, Table II / Sec. IV-B)
-
-| Item | Setting |
-|---|---|
-| Data | Chikusei, central 2048×2048×128 crop, divided by its max (15133 DN) |
-| LR-HSI | Gaussian blur 7×7, σ = 2, ×4 decimation (reflect padding per image) |
-| HR-MSI | WorldView-2 8-band SRF (DigitalGlobe 5 %-edge table) |
-| Test / val / train | 8 × 256² tiles (rows 0–256) / 64 × 64² patches (rows 272–400) / random 64² crops from rows 416–2048 |
-| Model selection | validation PSNR only; test is scored once |
-| Headline PSNR | 10·log10(1/MSE), i.e. peak = the dataset's global max. TIP'26's RMSE column is in DN, and RMSE·10^(PSNR/20) gives a constant 16.6k–17.1k DN peak across all their Chikusei rows (verified). PSRT-style and band-wise PSNR are reported as well. |
+PUFormer fuses a low-resolution hyperspectral image (LR-HSI) and a high-resolution multispectral image (HR-MSI)
+into a high-resolution hyperspectral image. It alternates data steps with learned priors, and its data steps use
+the **exact** observation operators: the blur, decimation and spectral response that produced the data, with the
+border rule of the simulation. Results and the comparison with ten retrained networks are in the
+[repository README](../../README.md); the paper is in [paper/puformer](../../paper/puformer/).
 
 ## Method
 
 ```
-X0 = bicubic(Y_H)
-for k = 1..K:
-    Z_k = X_{k-1} − η_H·Dᵀ(D X − Y_H) − η_M·Rᵀ(R X − Y_M)       exact physics step (fp32)
-    X_k = Z_k + Prior_k([Z_k, Y_M, Dᵀ(D Z_k − Y_H)], memory_{k−1})
+X0 = upsample(Y_H)
+for k = 1..K:                                                  (K = 3)
+    Z_k = data step on X_{k-1} with the exact D (blur + decimation) and R (spectral response)
+    X_k = Z_k + Prior_k([Z_k, Y_M, s² Dᵀ(D Z_k − Y_H)], memory_{k−1})
 ```
-* `D` and `R` are the exact forward operators, and `Dᵀ` and `Rᵀ` are their exact adjoints
-  (inner-product test error < 1e-14). Since v3, `D` uses reflect padding, so it is exactly the
-  operator that simulates the LR-HSI (`D X = Y_H` for the true image), and `Dᵀ` folds the reflected
-  border back (`--pad zeros` reproduces the first run).
-* The prior is a 3-level U-Net of Restormer blocks. Its transposed attention attends over
-  spectral feature channels. Its output layer starts at zero, so training begins from the
-  physics solution.
-* Decoder features pass from each stage to the next (cross-stage memory).
-* Loss is L1 on the final output plus 0.1 × L1 on intermediate stages. Training uses EMA weights
-  and fp16 autocast in the prior only.
 
-## Gaps in the surveyed papers that this work addresses
+* **Exact operators.** `D` uses the simulation's reflect border and `Dᵀ`, `Rᵀ` are its exact adjoints (inner-product
+  test error < 1e-14), so `D X = Y_H` and `R X = Y_M` hold for the true image.
+* **Closed-form data step.** With a separable blur, `D` and `R` act on the three axes of the cube separately. In
+  the product eigenbasis of the three factors the exact proximal data step is a per-component division
+  (`--dstep kron`), and the fusion null space, the part of the image neither observation measures, is explicit:
+  a fraction (1 − M/B)(1 − 1/s²) of the unknowns. `--dstep kronlearn` learns per-component gains in (1/2, 2) times
+  the exact ones, which keeps the ground truth a fixed point and the step non-expansive. `grad` (one gradient step)
+  and `cg` (conjugate gradient) are the alternatives for non-separable operators.
+* **Prior.** A 3-level U-Net (widths 48, 96, 192) of Restormer blocks with transposed attention (`--prior unet`),
+  or the eigen-operator network (`--prior eon`), which mixes globally in the operator's eigenbasis with
+  eigenvalue-conditioned filters and has no down-sampling. The output layers start at zero, so training begins
+  from the physics solution. Decoder features pass from stage to stage (cross-stage memory).
+* **Operator family.** Training draws a new operator for every batch (`--rand_*` flags below). With `--omc 1` the
+  step sizes and the prior (FiLM) are conditioned on the blur width, the spectral shift and the noise level
+  estimated from each observation. At test time the operators are given or estimated from the pair by
+  minimising ‖D(Y_M) − R(Y_H)‖² (`cond_eval.py`).
+* **Loss.** L1 on the output + 0.1 × L1 on the intermediate stages + 0.05 × SAM + 0.1 × (1 − SSIM); AdamW, EMA weights.
 
-| Gap in the literature | What we do |
+### Optional modules
+
+Each is zero-initialized, so a model with the module starts as the model without it. A module joins the
+default configuration only if it does not lower any benchmark metric.
+
+| Flag | Module |
 |---|---|
-| Networks are a black box, and nobody checks whether the fused image reproduces its own inputs | We report **observation-consistency PSNR** `PSNR(D X̂, Y_H)` and `PSNR(R X̂, Y_M)`; the unfolding steps enforce it |
-| Everyone trains and tests with one fixed blur and SRF | We test **blur σ ∈ {1.5, 2.5, 3}** and **SRF shift ±8 nm**. PUFormer can take the true operator at test time (**operator swap**) with no retraining |
-| Robustness to noise is rarely measured (only HDGMamba does) | We test Gaussian input noise at 40 / 35 / 30 dB SNR |
-| PSNR definitions differ, so the same method spans 24–56 dB across papers | We report three PSNR definitions plus RMSE in DN. A training-free GSA is included for calibration |
+| `--nsp 1` | Null-space-gated prior: the prior's correction acts fully in the null space and with a learned weight in the observed subspace |
+| `--ntp 1` | Null-space transfer: the LR-HSI enters the U-Net bottleneck and a per-pixel spectral branch carries the MSI's fine detail to the other bands |
+| `--cwd 1` | Confidence-weighted data step: small networks down-weight measurements that disagree locally with the estimate (changes, clouds, stripes); gives change maps |
+| `--unc 1` | Uncertainty head: predicts the size of the error left in the null space |
+| `--sa 1` | Sensor-independent input: the HR-MSI enters as R⁺Y_M in the hyperspectral bands, so one network serves any MSI sensor |
+| `--reg 1` | Wider operator family: anisotropic blur and sub-pixel offsets of the LR-HSI grid in the observation code |
+| `--mres 1` | HR-MSI residual (B/M) Rᵀ(R Z − Y_M) as an extra prior input |
+| `--nomsi 1`, `--nohsi 1` | Input ablations: LR-HSI only (super-resolution) or HR-MSI only (spectral super-resolution), same network and data step |
 
-## Results (Chikusei ×4, 8 test tiles)
+Ablation switches of the base model: `--physics 0`, `--res_input 0`, `--memory 0`, `--mixer window|conv`,
+`--op learned`, `--pad zeros`, `--stages K`.
 
-| Method | PSNR ↑ | SSIM ↑ | SAM ↓ | ERGAS ↓ | Q2n ↑ | CC ↑ | SCC ↑ | RMSE (DN) ↓ |
-|---|---|---|---|---|---|---|---|---|
-| Two-Stage Diffusion (TIP'26, reported) | 56.1871 | 0.9982 | 0.7203 | 1.5158 | **0.9969** | 0.9948 | 0.9891 | 25.73 |
-| CLSNet (reported in TIP'26) | 55.2007 | 0.9979 | 0.7836 | 1.6318 | 0.9943 | 0.9941 | 0.9869 | 29.06 |
-| SSRNet (our run) | 49.9841 | – | 1.7606 | 2.4684 | – | 0.9911 | – | 48.83 |
-| Bicubic (our run) | 33.6333 | 0.8500 | 4.4061 | 9.0115 | – | 0.8408 | 0.7648 | 321.81 |
-| PUFormer first run | 57.9944 | 0.9989 | 0.7281 | 1.3560 | 0.9929 | 0.9966 | 0.9991 | 19.35 |
-| **PUFormer v3** (self-ensemble) | **58.2016** | **0.9989** | **0.7126** | **1.3304** | 0.9931 | **0.9967** | **0.9992** | **18.94** |
+## Protocol (Wald)
 
-SSIM is PSRT's `cal_ssim.py` (data range 1), consistent with the fixed-peak PSNR of TIP'26. With data
-range = each image's own max, v3 scores 0.9970. Q2n and SCC follow Vivone's toolbox
-(`q2n.m`, `SCC.m`). Against all 17 methods of TIP'26 Table IV, v3 is 1st on PSNR, SSIM, SAM, ERGAS,
-CC, SCC and RMSE and 10th on Q2n. The Q2n deficit sits in bands 0–7 (363–404 nm), which the
-WorldView-2 MSI does not cover and whose fine detail is noise-like. Single pass without
-self-ensemble: 58.1467 dB, SAM 0.7171, also 1st on the same seven metrics.
+| Dataset | Bands | HR-MSI | Test images |
+|---|---|---|---|
+| Chikusei | 128 (363–1018 nm), divided by its max | WorldView-2, 8 bands | 8 × 256² |
+| Pavia Centre | 92 (bands 11–102) | IKONOS, 4 bands | 4 × 256² |
+| CAVE / Harvard | 31 | Nikon RGB | 12 / 20 scenes |
+| NEON (real) | spectrometer + co-registered camera RGB | fitted response | reduced and full resolution |
 
-* First run: [results/puformer_chikusei_x4](../../results/puformer_chikusei_x4/). From scratch,
-  1 × T4, 88,946 iterations, zero-padded physics.
-* v3: [results/puformer_chikusei_x4_v3](../../results/puformer_chikusei_x4_v3/). Kaggle
-  [`puformer-chikusei-x4-v3`](https://www.kaggle.com/code/amarnath10chinu/puformer-chikusei-x4-v3):
-  fine-tuned from the first run with reflect (exact) physics, + SAM and SSIM loss, 2 × T4 DDP,
-  94,450 iterations. It also contains the Q2n analysis, the robustness study with operator swap
-  (blur mismatch now recovers to within 0.26 dB of nominal), and why the v2 run was killed.
+The LR-HSI is a Gaussian blur, (2s − 1) × (2s − 1) with σ = s/2 (7 × 7, σ = 2 at ×4), followed by ×s decimation, each
+crop simulated on its own with a reflect border. Model selection uses validation PSNR only; the test set is scored
+once. PSNR uses the dataset's peak; SSIM, SAM, ERGAS, Q2n, CC, SCC and RMSE in DN are reported as well.
 
-## Reproduce
+## Scripts
+
+| Script | Purpose |
+|---|---|
+| `train.py` | Train and test one model (`--model puformer` or a retrained baseline, see `hsifuse/external.py`) |
+| `test.py`, `eval_gaps.py` | Full test report; observation consistency and test-time operator swap |
+| `cond_eval.py` | Changed blur, SRF, noise, anisotropic/defocus blur, grid offsets, misregistration, corrupted inputs; operators estimated from the pair; change-map AUROC |
+| `family_eval.py` | One checkpoint on other MSI sensors and scale factors |
+| `unc_eval.py` | Predicted against real null-space error |
+| `null_analysis.py` | Splits each method's error into the observed subspace and the null space |
+| `msi_value.py` | What the HR-MSI adds: energy shares of the observed and null parts and the PSNR fixed by the measurements alone |
+| `blind_eval.py`, `neon_fullres.py`, `complexity.py` | Estimated operators, real full-resolution data, parameters and run time |
+| `selfcheck.py`, `kron_check.py`, `reg_check.py`, `sa_check.py`, `arch_check.py`, `arch2_check.py`, `arch3_check.py`, `ext_smoke.py` | Numerical checks of the operators, the closed form, the modules and the baseline adapters |
+
+## Running
+
+All training, tests and checks run as Kaggle kernels; the local machine only edits code and pushes kernels.
 
 ```bash
 cd methods/puformer
-python selfcheck.py                                   # adjoints, Q2n / SCC ports, forward pass (CPU, ~10 s)
-python train.py --mat /path/to/HyperspecVNIR_Chikusei_20140729.mat --model puformer --hours 9.5 --out out/puformer
-# v3 recipe: fine-tune on 2 GPUs (--bs is per GPU)
-torchrun --standalone --nproc_per_node 2 train.py --mat ... --init_ckpt first_run/best_ema.pt --pad reflect     --bs 8 --lr 1.5e-4 --w_sam 0.05 --w_ssim 0.1 --hours 10.8 --out out/v3
-python test.py --mat ... --ckpt out/v3/best_ema.pt --pad reflect --out out/v3_test     # full test report
-python eval_gaps.py --mat ... --ckpt out/v3/best_ema.pt --pad reflect --out out/v3
-python compare_tip26.py out/v3/results.json                                            # rank vs TIP'26
-# Kaggle: python kaggle/build_notebook.py --slug <slug> --hours 11 ; kaggle kernels push -p kaggle
+# one job (the jobs of the paper are defined in kaggle/jobs.py)
+python train.py --dataset chikusei --mat /kaggle/input/chikusei --scale 4 --model puformer --hours 4 --out out/puformer
+# family training with the estimated operator and conditioning
+python train.py ... --rand_sigma 0.5,2.0 --rand_shift 12 --rand_snr 30,50 --noise_prob 0.5 --omc 1
+python cond_eval.py --dataset chikusei --mat ... --ckpt out/puformer/best_ema.pt --model puformer --omc 1
+# a 2 x T4 session from kaggle/jobs.py, and its results into results/q1/<job>/
+cd kaggle && python build_jobs.py --session puf-a10 --user <user> && kaggle kernels push -p sessions/puf-a10
+python fetch_results.py --kernel <user>/puf-a10 --small
 ```
 
-The Kaggle notebook embeds this folder's code (with its sha256), builds the data cache, re-scores
-the warm-start checkpoint, probes DDP against one GPU, trains until a deadline inside the 12 h limit
-(resuming on one GPU if training dies), then runs the final test and the robustness study.
+`fetch_results.py` merges a new `cond_eval.json` into an existing one by condition, so a cancelled or partial
+evaluation never removes results.
 
 ### Training options
 
 | Flag | Meaning |
 |---|---|
-| `--pad reflect/zeros` | Border mode of `D`/`Dᵀ` inside the network (reflect = the simulation operator; default) |
-| `--epochs N` | Train for N epochs. An epoch is one pass-equivalent over the training area: 800 patches of 64², i.e. 800/(bs · GPUs) iterations. Overrides `--iters` |
-| `--eval_every I` / `--eval_epochs E` | Score validation (used for model selection) and test (logged only), and save `last.pt` |
-| `--snap_epochs S` | Also keep an EMA snapshot `ema_ep#####.pt` every S epochs |
-| `--hours H` / `--deadline T` | Stop cleanly after H hours / at unix time T. The cosine then spans the iterations that fit, re-estimated from the measured speed |
-| `--resume path/last.pt` | Continue an earlier session (Kaggle: mount the previous kernel's output). The cosine then counts iterations only (`--sched time` to keep it time-based) |
-| `--init_ckpt best_ema.pt` | Warm start (fine-tune) from earlier weights; scored before training (`--eval_init`) |
-| `--w_sam`, `--w_ssim` | Add a SAM (radians) and a (1 − SSIM) loss term to L1 |
-| `--probe N` | Speed test: time N iterations, print samples/s, exit |
-| multi-GPU | launch with `torchrun --nproc_per_node G` (DistributedDataParallel; `--bs` is per GPU) |
+| `--dataset`, `--scale` | Dataset and resolution ratio (the blur follows the scale) |
+| `--hours H` / `--deadline T` | Stop cleanly after H hours / at unix time T; the cosine schedule spans the iterations that fit |
+| `--rand_sigma lo,hi` | Blur width per batch, uniform in [lo, hi] × the nominal width |
+| `--rand_shift x` | SRF shift per batch, uniform in [−x, x] nm |
+| `--rand_snr lo,hi` | Gaussian noise on both inputs, SNR uniform in [lo, hi] dB |
+| `--rand_aniso 1`, `--rand_offset x` | Independent column blur width; sub-pixel offsets of the LR-HSI grid |
+| `--rand_srf 1` | A random multispectral sensor per batch (3–10 bands) |
+| `--rand_scale 4,8` | Resolution ratio per batch |
+| `--rand_corrupt p` | Corrupted observations with probability p (local changes, stripes, local misregistration, band noise) |
+| `--w_sam`, `--w_ssim`, `--w_deep`, `--w_unc` | Loss weights |
+| `--init_ckpt`, `--resume` | Warm start / continue an earlier session |
+| multi-GPU | `torchrun --nproc_per_node G train.py ...` (`--bs` is per GPU) |
 
-The final test is reported twice: plain, and with a 2-fold self-ensemble (identity + transpose).
-Flips are not used because they would shift the ×4 sampling grid.
+The final test is reported twice: plain, and with a 2-fold self-ensemble (identity + transpose); flips would shift
+the decimation grid.

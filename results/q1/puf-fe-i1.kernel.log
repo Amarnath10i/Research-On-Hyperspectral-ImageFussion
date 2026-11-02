@@ -1,0 +1,61 @@
+[{"stream_name":"stderr","time":8.848671069,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.848720796,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.848727616,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.848731711,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":9.601698305,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":9.601731992,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":9.601737827000001,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":9.601741802,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":10.930574781,"data":"code sha256 80c583a6fc1ae2292aedf942bbf2a43506540e70a8e41fd253e81d493caf04fd from git fc2f350+local changes\n"}
+,{"stream_name":"stdout","time":10.932648225,"data":"4\n"}
+,{"stream_name":"stdout","time":10.950654521,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":10.950686063,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stderr","time":11.124617496,"data":"/tmp/ipykernel_16/1387441228.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":11.124653584,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":11.124658752,"data":"\n"}
+,{"stream_name":"stderr","time":11.124662451,"data":"/tmp/ipykernel_16/1387441228.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":11.124666545,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":11.131472421,"data":"4\n"}
+,{"stream_name":"stdout","time":11.131505659,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":11.131510376,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stdout","time":12.96265745,"data":"RUN sa-chikusei-x4-ng : python family_eval.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model puformer --pad reflect --omc 1 --dstep kronlearn --mres 1 --sa 1 --mode sensors --ckpt /kaggle/input/notebooks/ironmanh/puf-n22/out/sa-chikusei-x4-ng/best_ema.pt --out /kaggle/working/out/sa-chikusei-x4-ng \n"}
+,{"stream_name":"stdout","time":657.526832225,"data":"worldview2 8 bands {'gsa': 43.1966, 'model': 56.2608}\n"}
+,{"stream_name":"stdout","time":657.731975826,"data":"worldview2 8 bands {'gsa': 43.1966, 'model': 56.2608}\n"}
+,{"stream_name":"stdout","time":1242.204944796,"data":"ikonos 4 bands {'gsa': 42.6448, 'model': 53.5731}\n"}
+,{"stream_name":"stdout","time":1242.421603084,"data":"ikonos 4 bands {'gsa': 42.6448, 'model': 53.5731}\n"}
+,{"stream_name":"stdout","time":1807.392192327,"data":"quickbird 4 bands {'gsa': 42.6988, 'model': 53.9304}\n"}
+,{"stream_name":"stdout","time":1807.59857363,"data":"quickbird 4 bands {'gsa': 42.6988, 'model': 53.9304}\n"}
+,{"stream_name":"stdout","time":2283.431082574,"data":"planetscope 4 bands {'gsa': 40.6372, 'model': 53.9801}\n"}
+,{"stream_name":"stdout","time":2283.653155224,"data":"planetscope 4 bands {'gsa': 40.6372, 'model': 53.9801}\n"}
+,{"stream_name":"stdout","time":2935.230306195,"data":"landsat8 5 bands {'gsa': 40.6659, 'model': 54.1229}\n"}
+,{"stream_name":"stdout","time":2935.437440768,"data":"landsat8 5 bands {'gsa': 40.6659, 'model': 54.1229}\n"}
+,{"stream_name":"stdout","time":3598.236269173,"data":"sentinel2 10 bands {'gsa': 43.4277, 'model': 56.0638}\n"}
+,{"stream_name":"stdout","time":3598.441877657,"data":"sentinel2 10 bands {'gsa': 43.4277, 'model': 56.0638}\n"}
+,{"stream_name":"stdout","time":4252.791782637,"data":"rgb 3 bands {'gsa': 34.4854, 'model': 44.4099}\n"}
+,{"stream_name":"stdout","time":4252.997182421,"data":"rgb 3 bands {'gsa': 34.4854, 'model': 44.4099}\n"}
+,{"stream_name":"stdout","time":4253.674134412,"data":"END sa-chikusei-x4-ng rc 0\n"}
+,{"stream_name":"stdout","time":4254.131245257,"data":"RUN sa-pavia-x4-ng : python family_eval.py --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat'  --dataset pavia --scale 4 --model puformer --pad reflect --omc 1 --dstep kronlearn --mres 1 --sa 1 --mode sensors --ckpt /kaggle/input/notebooks/ironmanh/puf-n22/out/sa-pavia-x4-ng/best_ema.pt --out /kaggle/working/out/sa-pavia-x4-ng \n"}
+,{"stream_name":"stdout","time":4485.623118677,"data":"worldview2 6 bands {'gsa': 34.6911, 'model': 50.2835}\n"}
+,{"stream_name":"stdout","time":4485.829515927,"data":"worldview2 6 bands {'gsa': 34.6911, 'model': 50.2835}\n"}
+,{"stream_name":"stdout","time":4719.878857576,"data":"ikonos 4 bands {'gsa': 34.7757, 'model': 49.3929}\n"}
+,{"stream_name":"stdout","time":4720.089523864,"data":"ikonos 4 bands {'gsa': 34.7757, 'model': 49.3929}\n"}
+,{"stream_name":"stdout","time":4956.291868597,"data":"quickbird 4 bands {'gsa': 34.6633, 'model': 49.3507}\n"}
+,{"stream_name":"stdout","time":4956.503747158,"data":"quickbird 4 bands {'gsa': 34.6633, 'model': 49.3507}\n"}
+,{"stream_name":"stdout","time":5196.264332665,"data":"planetscope 3 bands {'gsa': 29.8198, 'model': 40.9524}\n"}
+,{"stream_name":"stdout","time":5196.482951211,"data":"planetscope 3 bands {'gsa': 29.8198, 'model': 40.9524}\n"}
+,{"stream_name":"stdout","time":5430.220904671,"data":"landsat8 3 bands {'gsa': 29.8187, 'model': 40.7683}\n"}
+,{"stream_name":"stdout","time":5430.432817277,"data":"landsat8 3 bands {'gsa': 29.8187, 'model': 40.7683}\n"}
+,{"stream_name":"stdout","time":5664.711371032,"data":"sentinel2 7 bands {'gsa': 35.2411, 'model': 50.5182}\n"}
+,{"stream_name":"stdout","time":5664.921631399,"data":"sentinel2 7 bands {'gsa': 35.2411, 'model': 50.5182}\n"}
+,{"stream_name":"stdout","time":5899.776452707,"data":"rgb 3 bands {'gsa': 29.7721, 'model': 40.296}\n"}
+,{"stream_name":"stdout","time":5899.986121327,"data":"rgb 3 bands {'gsa': 29.7721, 'model': 40.296}\n"}
+,{"stream_name":"stdout","time":5900.491370488,"data":"END sa-pavia-x4-ng rc 0\n"}
+,{"stream_name":"stderr","time":5904.355759332,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":5904.355791193,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":5904.592815049,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":5904.592844453,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":5905.486064693,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":5905.580296265,"data":"[NbConvertApp] Writing 99293 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":5908.535487563,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":5909.218669099,"data":"[NbConvertApp] Writing 380519 bytes to __results__.html\n"}
+]

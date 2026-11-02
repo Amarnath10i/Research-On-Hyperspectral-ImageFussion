@@ -26,17 +26,18 @@ PAPER = ["paper/puformer/" + f for f in ("main.tex", "supplementary.tex", "pream
                                           "cvpr.sty", "ieeenat_fullname.bst",
                                           "numbers.tex", "make_numbers.py",
                                           "make_tables.py", "make_figures.py", "make_q1_tables.py",
-                                          "make_q1_figures.py")]
+                                          "make_q1_figures.py", "novelty_check.py")]
 PAPER += ["methods/puformer/hsifuse/" + f for f in sorted(os.listdir(os.path.join(REPO, "methods", "puformer", "hsifuse")))
           if f.endswith(".py")]
 RESULTS = ["results/puformer_chikusei_x4/puformer/*.json", "results/puformer_chikusei_x4/ssrnet/*.json",
            "results/puformer_chikusei_x4/tip26_table4_comparison.csv", "results/puformer_chikusei_x4_v3/*/*.json",
            "results/puformer_pavia_x4/*.csv", "results/puformer_pavia_x4/*/*.json",
            "results/q1/*/results.json", "results/q1/*/gaps.json", "results/q1/*/blind.json",
-           "results/q1/*/cond_eval.json", "results/q1/*/null_analysis.json", "results/q1/*/neon_fullres.json",
+           "results/q1/*/cond_eval.json", "results/q1/*/family_eval.json", "results/q1/*/unc_eval.json", "results/q1/*/null_analysis.json", "results/q1/*/msi_value.json", "results/q1/*/neon_fullres.json",
            "results/q1/neon/*.json", "results/q1/complexity.json"]
 # datasets (test ground truth for the visual comparison) and the uploaded test predictions of the benchmark jobs
-Q1_DATA = ["mingliu123/chikusei", "mlxlx0000/paviadata", "amarnath10chinu/puformer-q1-preds"]
+Q1_DATA = ["mingliu123/chikusei", "mlxlx0000/paviadata", "amarnath10chinu/puformer-q1-preds",
+           "amarnath10chinu/exactfuse-q1-preds"]           # ExactFuse's test predictions (arch-*-x4-nogate)
 SOURCES = ["amarnath10chinu/puformer-chikusei-paper-analysis", "amarnath10chinu/puformer-pavia-analysis"]
 
 CELL = r'''import base64, glob, hashlib, io, os, shutil, subprocess, tarfile
@@ -64,7 +65,7 @@ for src in glob.glob('/kaggle/input/**/visual.npz', recursive=True) + glob.glob(
     shutil.copyfile(src, dst)
     print('npz:', src, '->', dst)
 if {generate}:
-    sh('python make_numbers.py && python make_tables.py && python make_figures.py && python make_q1_tables.py')
+    sh('python make_numbers.py && python make_tables.py && python make_figures.py && python make_q1_tables.py && python novelty_check.py')
     preds = sorted(glob.glob('/kaggle/input/**/bench-*/test_pred_f16.npy', recursive=True))
     pdir = os.path.dirname(os.path.dirname(preds[0])) if preds else ''
     sh(f'Q1_PREDS={{pdir}} python make_q1_figures.py')
@@ -108,6 +109,19 @@ def git_rev():
     return rev + ("+local changes" if dirty else "")
 
 
+def compact_json(data):
+    """Result files without what the tables never read (per-image operator estimates of the wide search) and with
+    floats rounded to 6 significant digits, written without indentation: keeps the notebook under Kaggle's size
+    limit."""
+    def prune(o):
+        if isinstance(o, dict):
+            return {k: prune(v) for k, v in o.items() if k not in ("ext_hat", "reg_hat", "args")}
+        if isinstance(o, list):
+            return [prune(v) for v in o]
+        return float(f"{o:.6g}") if isinstance(o, float) else o
+    return json.dumps(prune(json.loads(data)), separators=(",", ":")).encode()
+
+
 def blob(test):
     """tar.gz of the paper sources and result files, working tree or (test) HEAD."""
     if test:
@@ -124,6 +138,8 @@ def blob(test):
         for n in names:
             data = read(n)
             data = data if n.endswith(".pdf") else data.replace(b"\r\n", b"\n")
+            if n.startswith("results/q1/") and n.endswith(".json"):
+                data = compact_json(data)
             info = tarfile.TarInfo(n)
             info.size, info.mtime = len(data), 0
             tar.addfile(info, io.BytesIO(data))

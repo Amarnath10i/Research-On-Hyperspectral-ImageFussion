@@ -92,14 +92,14 @@ def robustness():
     rows = [("Blur $\\sigma$=1.5", "sigma=1.5"), ("Blur $\\sigma$=2.5", "sigma=2.5"), ("Blur $\\sigma$=3.0", "sigma=3.0"),
             ("SRF shift $-$8 nm", "srf_shift=-8nm"), ("SRF shift +8 nm", "srf_shift=+8nm"),
             ("Noise 40 dB", "noise_40dB"), ("Noise 35 dB", "noise_35dB"), ("Noise 30 dB", "noise_30dB")]
-    panels = (("Chikusei (PUFormer)", load(os.path.join(V3, "puformer", "gaps.json"))),
-              ("Pavia Centre (PUFormer)", load(os.path.join(PAV, "puformer", "gaps.json"))))
+    panels = (("Chikusei (base model)", load(os.path.join(V3, "puformer", "gaps.json"))),
+              ("Pavia Centre (base model)", load(os.path.join(PAV, "puformer", "gaps.json"))))
     fig, axes = plt.subplots(1, 2, figsize=(7.0, 2.45), sharey=True)
     y = np.arange(len(rows))[::-1]
     for ax, (title, g) in zip(axes, panels):
         allx = []
-        for (name, key, color, marker) in (("GSA", "gsa", AQUA, "^"), ("PUFormer, training operator", "fixed", ORANGE, "o"),
-                                           ("PUFormer, true operator swapped in", "swap", BLUE, "s")):
+        for (name, key, color, marker) in (("GSA", "gsa", AQUA, "^"), ("base model, training operator", "fixed", ORANGE, "o"),
+                                           ("base model, true operator swapped in", "swap", BLUE, "s")):
             xs = [g[k][key]["PSNR"] if key in g[k] else np.nan for _, k in rows]
             allx += [v for v in xs if v == v]
             ax.plot(xs, y, ls="none", marker=marker, color=color, markersize=4.2, markeredgecolor=SURF,
@@ -120,9 +120,9 @@ def robustness():
 
 
 def band_wise():
-    final = "PUFormer, final model"
+    final = "base model, long-trained"
     sets = (("Chikusei", "chikusei", load(os.path.join(ANA, "per_band.json")),
-             (("GSA", "GSA", AQUA), ("PUFormer (first run)", "PUFormer, first run (Chikusei)", ORANGE),
+             (("GSA", "GSA", AQUA), ("PUFormer (first run)", "base model, first run (Chikusei)", ORANGE),
               ("PUFormer v3", final, BLUE))),             # key of the Chikusei result file
             ("Pavia Centre", "pavia", load(os.path.join(PANA, "per_band.json")),
              (("GSA", "GSA", AQUA), ("PUFormer", final, BLUE))))
@@ -161,7 +161,7 @@ def q2n_analysis():
     axes[0].set_title("Worst 10% of 32$\\times$32 blocks", loc="left")
     c = q["q2n_vs_psnr_blend_to_bicubic"]
     axes[1].plot([r["PSNR"] for r in c], [r["Q2n"] for r in c], color=BLUE, marker="s", **MARK,
-                 label="PUFormer blended toward bicubic (our Q2n)")
+                 label="base model blended toward bicubic (our Q2n)")
     axes[1].plot([float(r["PSNR"]) for r in rows], [float(r["Q2n"]) for r in rows], ls="none", marker="o",
                  color=ORANGE, markersize=3.6, markeredgecolor=SURF, markeredgewidth=0.6, label="Methods as reported in TIP'26")
     axes[1].set_xlabel("PSNR (dB)")
@@ -182,7 +182,8 @@ def visual_panel(v, tile, out, vmax=60.0):
     axes[1, 0].axis("off")
     for i, n in enumerate(names):
         axes[0, i + 1].imshow(show(v[f"rgb_{i}"][tile]))
-        axes[0, i + 1].set_title(n.replace("PUFormer ", "PUFormer\n"), fontsize=7)
+        axes[0, i + 1].set_title(n.replace("PUFormer v3", "Base model").replace("PUFormer", "Base model")
+                                 .replace("Base model ", "Base model\n"), fontsize=7)
         im = axes[1, i + 1].imshow(v[f"mae_{i}"][tile].astype(np.float32), cmap="magma", vmin=0, vmax=vmax)
         axes[1, i + 1].set_xlabel(f"MAE {float(v[f'mae_{i}'][tile].astype(np.float32).mean()):.1f} DN", fontsize=6.5)
     for ax in axes.flat:

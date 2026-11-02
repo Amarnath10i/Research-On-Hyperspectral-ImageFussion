@@ -1,0 +1,151 @@
+{
+ "all prior work": {
+  "unique": [
+   "border rule and adjoint of the simulation",
+   "uncertainty output",
+   "global mixing in the operator's eigenbasis"
+  ],
+  "partly": [
+   "closed-form exact data step",
+   "one network for any MSI response (no retraining)",
+   "fixed-point / non-expansiveness guarantees"
+  ],
+  "nearest": [
+   [
+    0.34375,
+    "USRNet (CVPR'20, SR)"
+   ],
+   [
+    0.1875,
+    "IR&ArF (TIP'25)"
+   ],
+   [
+    0.15625,
+    "PGU-Net (arXiv'26)"
+   ]
+  ],
+  "unique_share": 0.1875,
+  "new_or_partly_share": 0.28125
+ },
+ "fusion methods only": {
+  "unique": [
+   "border rule and adjoint of the simulation",
+   "learned filters in the operator's eigen domain",
+   "trained over a family of observation models",
+   "operator / noise conditioning",
+   "prior confined to the null space (range-null)",
+   "uncertainty output",
+   "global mixing in the operator's eigenbasis"
+  ],
+  "partly": [
+   "closed-form exact data step",
+   "one network for any MSI response (no retraining)",
+   "fixed-point / non-expansiveness guarantees"
+  ],
+  "nearest": [
+   [
+    0.1875,
+    "IR&ArF (TIP'25)"
+   ],
+   [
+    0.15625,
+    "PGU-Net (arXiv'26)"
+   ],
+   [
+    0.125,
+    "Robust fusion CD (TGRS'18)"
+   ]
+  ],
+  "unique_share": 0.4375,
+  "new_or_partly_share": 0.53125
+ },
+ "semantic": {
+  "ranked": [
+   {
+    "similarity": 0.9657,
+    "title": "Hyperspectral Image Fusion with Spectral-Band and Fusion-Scale Agnosticism",
+    "year": 2026,
+    "nearest_prior": 0.9766
+   },
+   {
+    "similarity": 0.9617,
+    "title": "Deep Hyperspectral Image Fusion Network With Iterative Spatio-Spectral Regularization",
+    "year": 2022,
+    "nearest_prior": 0.9831
+   },
+   {
+    "similarity": 0.9546,
+    "title": "Model-Guided Deep Hyperspectral Image Super-Resolution",
+    "year": 2021,
+    "nearest_prior": 0.9805
+   },
+   {
+    "similarity": 0.9544,
+    "title": "Multispectral and Hyperspectral Image Fusion by MS/HS Fusion Net",
+    "year": 2019,
+    "nearest_prior": 0.9831
+   },
+   {
+    "similarity": 0.9526,
+    "title": "IR&ArF: Toward Deep Interpretable Arbitrary Resolution Fusion of Unregistered Hyperspectral and Multispectral Images",
+    "year": 2025,
+    "nearest_prior": 0.9751
+   },
+   {
+    "similarity": 0.9481,
+    "title": "A Two-Stage Conditional Diffusion Model With Differential Attention for Hyperspectral and Multispectral Image Fusion",
+    "year": 2026,
+    "nearest_prior": 0.9532
+   },
+   {
+    "similarity": 0.9439,
+    "title": "MIMFormer: Multiscale Inception Mixer Transformer for Hyperspectral and Multispectral Image Fusion",
+    "year": 2024,
+    "nearest_prior": 0.9722
+   },
+   {
+    "similarity": 0.936,
+    "title": "Deep Unfolding Network for Image Super-Resolution",
+    "year": 2020,
+    "nearest_prior": 0.9475
+   },
+   {
+    "similarity": 0.9354,
+    "title": "A Convex Formulation for Hyperspectral Image Superresolution via Subspace-Based Regularization",
+    "year": 2014,
+    "nearest_prior": 0.9628
+   },
+   {
+    "similarity": 0.9214,
+    "title": "Robust Fusion of Multiband Images With Different Spatial and Spectral Resolutions for Change Detection",
+    "year": 2017,
+    "nearest_prior": 0.9421
+   },
+   {
+    "similarity": 0.9161,
+    "title": "Hyperspectral Super-Resolution by Coupled Spectral Unmixing",
+    "year": 2015,
+    "nearest_prior": 0.9583
+   },
+   {
+    "similarity": 0.9102,
+    "title": "Zero-Shot Image Restoration Using Denoising Diffusion Null-Space Model",
+    "year": 2022,
+    "nearest_prior": 0.9342
+   },
+   {
+    "similarity": 0.9063,
+    "title": "Interpretable Operator Learning for Inverse Problems via Adaptive Spectral Filtering: Convergence and Discretization Invariance",
+    "year": 2026,
+    "nearest_prior": 0.914
+   }
+  ],
+  "calibration": {
+   "ours_max": 0.9657,
+   "prior_nearest_mean": 0.9602,
+   "prior_nearest_min": 0.914,
+   "prior_nearest_max": 0.9831,
+   "papers": 13
+  }
+ }
+}

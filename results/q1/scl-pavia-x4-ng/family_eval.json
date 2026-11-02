@@ -1,0 +1,58 @@
+{
+ "dataset": "pavia",
+ "model": "puformer",
+ "sa": 1,
+ "sensor": "ikonos",
+ "mode": "scales",
+ "ckpt": "/kaggle/input/notebooks/captainh210606/puf-s24/out/scl-pavia-x4-ng/best_ema.pt",
+ "results": {
+  "x4": {
+   "gsa": {
+    "PSNR": 34.7757,
+    "SAM": 5.2291,
+    "ERGAS": 3.4939,
+    "SSIM": 0.9438,
+    "RMSE_DN": 157.9259
+   },
+   "model": {
+    "PSNR": 50.4727,
+    "SAM": 1.9095,
+    "ERGAS": 0.6285,
+    "SSIM": 0.9969,
+    "RMSE_DN": 24.1196
+   }
+  },
+  "x8": {
+   "gsa": {
+    "PSNR": 30.2353,
+    "SAM": 7.1627,
+    "ERGAS": 5.9193,
+    "SSIM": 0.8731,
+    "RMSE_DN": 269.2206
+   },
+   "model": {
+    "PSNR": 49.9614,
+    "SAM": 1.9848,
+    "ERGAS": 0.6587,
+    "SSIM": 0.9967,
+    "RMSE_DN": 25.575
+   }
+  },
+  "x16": {
+   "gsa": {
+    "PSNR": 27.069,
+    "SAM": 8.9604,
+    "ERGAS": 8.5403,
+    "SSIM": 0.7779,
+    "RMSE_DN": 381.6035
+   },
+   "model": {
+    "PSNR": 49.3757,
+    "SAM": 2.0708,
+    "ERGAS": 0.692,
+    "SSIM": 0.9965,
+    "RMSE_DN": 27.3332
+   }
+  }
+ }
+}

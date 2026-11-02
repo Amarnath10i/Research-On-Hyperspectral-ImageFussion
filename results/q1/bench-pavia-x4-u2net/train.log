@@ -1,0 +1,125 @@
+pavia x4: train [(92, 424, 715), (92, 512, 187)] test (4, 92, 256, 256) val (63, 92, 64, 64), 1.0 = 8000 DN  (27s)
+[external] u2net: https://github.com/PSRben/U2Net @ 32e214c19b4b1dea72258b4da3157258f67612b9
+u2net (reflect borders): 1.90M params on 1 x cuda; batch 8 x 1; epoch = 12 iters; eval every 1000 iters; deadline in 3.99 h; schedule by time
+bicubic test: {'PSNR': 25.5166, 'PSNR_psrt': 25.1078, 'MPSNR_peak1': 25.8716, 'SSIM': 0.6282, 'SSIM_psrt': 0.6427, 'SAM': 6.5539, 'ERGAS': 9.8525, 'RMSE_DN': 436.3207, 'CC': 0.8174, 'SCC': 0.7526, 'Q2n': 0.6806}
+GSA test: {'PSNR': 34.7757, 'PSNR_psrt': 34.3668, 'MPSNR_peak1': 35.1931, 'SSIM': 0.9438, 'SSIM_psrt': 0.945, 'SAM': 5.2291, 'ERGAS': 3.4939, 'RMSE_DN': 157.9259, 'CC': 0.9958, 'SCC': 0.9922, 'Q2n': 0.9276}
+ep    83.3 it   1000 loss 0.04843 lr 1.00e-03 val PSNR 31.855 SSIM 0.9061 SAM 6.661 | best val 31.855 (0.09 h)
+ep   166.7 it   2000 loss 0.01189 lr 9.97e-04 val PSNR 36.125 SSIM 0.9603 SAM 4.590 | best val 36.125 (0.16 h)
+ep   250.0 it   3000 loss 0.00955 lr 9.92e-04 val PSNR 38.243 SSIM 0.9742 SAM 3.779 | best val 38.243 (0.23 h)
+ep   333.3 it   4000 loss 0.00852 lr 9.87e-04 val PSNR 40.149 SSIM 0.9826 SAM 3.225 | best val 40.149 (0.31 h)
+ep   416.7 it   5000 loss 0.00804 lr 9.79e-04 val PSNR 41.428 SSIM 0.9862 SAM 2.887 | best val 41.428 (0.38 h)
+ep   500.0 it   6000 loss 0.00791 lr 9.70e-04 val PSNR 42.069 SSIM 0.9876 SAM 2.734 | best val 42.069 (0.45 h)
+ep   583.3 it   7000 loss 0.00764 lr 9.59e-04 val PSNR 42.461 SSIM 0.9885 SAM 2.637 | best val 42.461 (0.53 h)
+ep   666.7 it   8000 loss 0.00749 lr 9.47e-04 val PSNR 42.755 SSIM 0.9891 SAM 2.568 | best val 42.755 (0.60 h)
+ep   750.0 it   9000 loss 0.00731 lr 9.33e-04 val PSNR 42.990 SSIM 0.9897 SAM 2.516 | best val 42.990 (0.68 h)
+ep   833.3 it  10000 loss 0.00722 lr 9.18e-04 val PSNR 43.175 SSIM 0.9900 SAM 2.473 | best val 43.175 (0.75 h)
+ep   916.7 it  11000 loss 0.00711 lr 9.01e-04 val PSNR 43.357 SSIM 0.9904 SAM 2.429 | best val 43.357 (0.82 h)
+ep  1000.0 it  12000 loss 0.00688 lr 8.83e-04 val PSNR 43.516 SSIM 0.9908 SAM 2.386 | best val 43.516 (0.90 h)
+ep  1083.3 it  13000 loss 0.00664 lr 8.64e-04 val PSNR 43.675 SSIM 0.9911 SAM 2.349 | best val 43.675 (0.97 h)
+ep  1166.7 it  14000 loss 0.00656 lr 8.44e-04 val PSNR 43.851 SSIM 0.9915 SAM 2.305 | best val 43.851 (1.04 h)
+ep  1250.0 it  15000 loss 0.00631 lr 8.22e-04 val PSNR 44.067 SSIM 0.9920 SAM 2.257 | best val 44.067 (1.12 h)
+ep  1333.3 it  16000 loss 0.00620 lr 7.99e-04 val PSNR 44.241 SSIM 0.9923 SAM 2.219 | best val 44.241 (1.19 h)
+ep  1416.7 it  17000 loss 0.00591 lr 7.76e-04 val PSNR 44.422 SSIM 0.9926 SAM 2.179 | best val 44.422 (1.26 h)
+ep  1500.0 it  18000 loss 0.00577 lr 7.51e-04 val PSNR 44.519 SSIM 0.9928 SAM 2.155 | best val 44.519 (1.34 h)
+ep  1583.3 it  19000 loss 0.00556 lr 7.25e-04 val PSNR 44.603 SSIM 0.9929 SAM 2.134 | best val 44.603 (1.41 h)
+ep  1666.7 it  20000 loss 0.00539 lr 6.99e-04 val PSNR 44.705 SSIM 0.9931 SAM 2.111 | best val 44.705 (1.49 h)
+ep  1750.0 it  21000 loss 0.00511 lr 6.72e-04 val PSNR 44.797 SSIM 0.9932 SAM 2.091 | best val 44.797 (1.56 h)
+ep  1833.3 it  22000 loss 0.00498 lr 6.45e-04 val PSNR 44.863 SSIM 0.9933 SAM 2.077 | best val 44.863 (1.63 h)
+ep  1916.7 it  23000 loss 0.00479 lr 6.17e-04 val PSNR 44.941 SSIM 0.9934 SAM 2.060 | best val 44.941 (1.71 h)
+ep  2000.0 it  24000 loss 0.00455 lr 5.88e-04 val PSNR 45.021 SSIM 0.9935 SAM 2.042 | best val 45.021 (1.78 h)
+ep  2083.3 it  25000 loss 0.00444 lr 5.60e-04 val PSNR 45.098 SSIM 0.9935 SAM 2.024 | best val 45.098 (1.85 h)
+ep  2166.7 it  26000 loss 0.00422 lr 5.31e-04 val PSNR 45.168 SSIM 0.9936 SAM 2.007 | best val 45.168 (1.93 h)
+ep  2250.0 it  27000 loss 0.00405 lr 5.02e-04 val PSNR 45.226 SSIM 0.9937 SAM 1.992 | best val 45.226 (2.00 h)
+ep  2333.3 it  28000 loss 0.00388 lr 4.73e-04 val PSNR 45.301 SSIM 0.9938 SAM 1.975 | best val 45.301 (2.07 h)
+ep  2416.7 it  29000 loss 0.00368 lr 4.44e-04 val PSNR 45.351 SSIM 0.9939 SAM 1.963 | best val 45.351 (2.15 h)
+ep  2500.0 it  30000 loss 0.00357 lr 4.15e-04 val PSNR 45.414 SSIM 0.9939 SAM 1.949 | best val 45.414 (2.22 h)
+ep  2583.3 it  31000 loss 0.00349 lr 3.87e-04 val PSNR 45.465 SSIM 0.9940 SAM 1.938 | best val 45.465 (2.30 h)
+ep  2666.7 it  32000 loss 0.00337 lr 3.59e-04 val PSNR 45.525 SSIM 0.9941 SAM 1.926 | best val 45.525 (2.37 h)
+ep  2750.0 it  33000 loss 0.00325 lr 3.31e-04 val PSNR 45.566 SSIM 0.9941 SAM 1.917 | best val 45.566 (2.44 h)
+ep  2833.3 it  34000 loss 0.00316 lr 3.04e-04 val PSNR 45.632 SSIM 0.9942 SAM 1.902 | best val 45.632 (2.52 h)
+ep  2916.7 it  35000 loss 0.00310 lr 2.78e-04 val PSNR 45.664 SSIM 0.9942 SAM 1.895 | best val 45.664 (2.59 h)
+ep  3000.0 it  36000 loss 0.00300 lr 2.52e-04 val PSNR 45.700 SSIM 0.9943 SAM 1.886 | best val 45.700 (2.66 h)
+ep  3083.3 it  37000 loss 0.00294 lr 2.27e-04 val PSNR 45.714 SSIM 0.9943 SAM 1.882 | best val 45.714 (2.74 h)
+ep  3166.7 it  38000 loss 0.00289 lr 2.03e-04 val PSNR 45.756 SSIM 0.9944 SAM 1.873 | best val 45.756 (2.81 h)
+ep  3250.0 it  39000 loss 0.00283 lr 1.81e-04 val PSNR 45.788 SSIM 0.9944 SAM 1.866 | best val 45.788 (2.88 h)
+ep  3333.3 it  40000 loss 0.00280 lr 1.59e-04 val PSNR 45.814 SSIM 0.9944 SAM 1.859 | best val 45.814 (2.96 h)
+ep  3416.7 it  41000 loss 0.00277 lr 1.38e-04 val PSNR 45.825 SSIM 0.9944 SAM 1.855 | best val 45.825 (3.03 h)
+ep  3500.0 it  42000 loss 0.00273 lr 1.19e-04 val PSNR 45.847 SSIM 0.9945 SAM 1.851 | best val 45.847 (3.11 h)
+ep  3583.3 it  43000 loss 0.00271 lr 1.01e-04 val PSNR 45.875 SSIM 0.9945 SAM 1.845 | best val 45.875 (3.18 h)
+ep  3666.7 it  44000 loss 0.00269 lr 8.39e-05 val PSNR 45.898 SSIM 0.9945 SAM 1.840 | best val 45.898 (3.25 h)
+ep  3750.0 it  45000 loss 0.00267 lr 6.86e-05 val PSNR 45.909 SSIM 0.9945 SAM 1.837 | best val 45.909 (3.33 h)
+ep  3833.3 it  46000 loss 0.00267 lr 5.46e-05 val PSNR 45.916 SSIM 0.9946 SAM 1.835 | best val 45.916 (3.40 h)
+ep  3916.7 it  47000 loss 0.00264 lr 4.22e-05 val PSNR 45.917 SSIM 0.9946 SAM 1.834 | best val 45.917 (3.47 h)
+ep  4000.0 it  48000 loss 0.00264 lr 3.13e-05 val PSNR 45.927 SSIM 0.9946 SAM 1.831 | best val 45.927 (3.55 h)
+ep  4083.3 it  49000 loss 0.00263 lr 2.20e-05 val PSNR 45.940 SSIM 0.9946 SAM 1.829 | best val 45.940 (3.62 h)
+ep  4166.7 it  50000 loss 0.00262 lr 1.43e-05 val PSNR 45.960 SSIM 0.9946 SAM 1.824 | best val 45.960 (3.69 h)
+ep  4250.0 it  51000 loss 0.00262 lr 8.24e-06 val PSNR 45.961 SSIM 0.9946 SAM 1.824 | best val 45.961 (3.77 h)
+ep  4333.3 it  52000 loss 0.00262 lr 3.83e-06 val PSNR 45.973 SSIM 0.9946 SAM 1.822 | best val 45.973 (3.84 h)
+ep  4416.7 it  53000 loss 0.00261 lr 1.08e-06 val PSNR 45.972 SSIM 0.9946 SAM 1.822 | best val 45.973 (3.92 h)
+ep  4500.0 it  54000 loss 0.00261 lr 1.00e-06 val PSNR 45.972 SSIM 0.9946 SAM 1.822 | best val 45.973 (3.99 h)
+ep  4512.5 it  54150 loss 0.00259 lr 1.00e-06 val PSNR 45.972 SSIM 0.9946 SAM 1.822 | best val 45.973 (4.00 h)
+time budget reached at it 54150 (epoch 4512.5); continue with --resume <out>/last.pt
+Traceback (most recent call last):
+  File "/kaggle/working/code/train.py", line 473, in <module>
+    main()
+    ~~~~^^
+  File "/kaggle/working/code/train.py", line 460, in main
+    res = final_test(ema, test, deg, a.out, full=bool(a.q2n))
+  File "/usr/local/lib/python3.13/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+  File "/kaggle/working/code/hsifuse/evaluation.py", line 46, in final_test
+    pred = predict(model, lr, ms)
+  File "/usr/local/lib/python3.13/dist-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+  File "/kaggle/working/code/hsifuse/evaluation.py", line 16, in predict
+    return torch.cat([model(lr[i:i + bs], ms[i:i + bs]) for i in range(0, lr.shape[0], bs)])
+                      ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/kaggle/working/code/hsifuse/external.py", line 126, in forward
+    x = self.call(self.net, yh, ym)
+  File "/kaggle/working/code/hsifuse/external.py", line 229, in <lambda>
+    return External(net, lambda n, yh, ym: n(yh, ym), scale)
+                                           ~^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/kaggle/working/ext/U2Net/model/u2net.py", line 159, in forward
+    x = self.s2block0(x, y)  # 32 64 64
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/kaggle/working/ext/U2Net/model/s2block.py", line 101, in forward
+    x = attn(x, y, mask=mask)
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/kaggle/working/ext/U2Net/model/s2block.py", line 18, in forward
+    return self.fn(x, y, **kwargs) + x
+           ~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/kaggle/working/ext/U2Net/model/s2block.py", line 31, in forward
+    return self.fn(self.norm(x), self.norm(y), **kwargs)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/kaggle/working/ext/U2Net/model/s2block.py", line 74, in forward
+    sacm = (y1 @ y2.transpose(-2, -1)) * self.scale
+            ~~~^~~~~~~~~~~~~~~~~~~~~~
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 32.00 GiB. GPU 0 has a total capacity of 14.56 GiB of which 12.90 GiB is free. Including non-PyTorch memory, this process has 1.66 GiB memory in use. Of the allocated memory 599.05 MiB is allocated by PyTorch, and 918.95 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

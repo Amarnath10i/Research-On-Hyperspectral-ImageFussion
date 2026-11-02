@@ -1,0 +1,199 @@
+[{"stream_name":"stderr","time":8.457787233,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.457840411,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.457860924,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.457865977,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":9.261726448,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":9.261792583,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":9.261801202000001,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":9.261805187,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":10.644491929,"data":"code sha256 c45fb5f6efbaacd1e610d0a578838109766051b6da8a1bf719d2ad38d1498844 from git fc2f350+local changes\n"}
+,{"stream_name":"stdout","time":10.64695069,"data":"4\n"}
+,{"stream_name":"stdout","time":10.666544954999999,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":10.666575525,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stderr","time":10.83817634,"data":"/tmp/ipykernel_16/1335536265.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":10.838210939,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":10.838215662,"data":"\n"}
+,{"stream_name":"stderr","time":10.838219621,"data":"/tmp/ipykernel_16/1335536265.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":10.83822458,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":10.844517921,"data":"4\n"}
+,{"stream_name":"stdout","time":10.844551352,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":10.844557034,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stdout","time":15.106493763,"data":"RUN bench-chikusei-x4-mimformer : python cond_eval.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model mimformer --only 'px + snr,band-limited' --ckpt /kaggle/input/notebooks/tummapudinavadeep/puf-s06/out/bench-chikusei-x4-mimformer/best_ema.pt --out /kaggle/working/out/bench-chikusei-x4-mimformer \n"}
+,{"stream_name":"stderr","time":212.849682649,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stderr","time":213.054829524,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stderr","time":213.0548776,"data":"\n"}
+,{"stream_name":"stderr","time":213.054882805,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stdout","time":213.680627956,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stdout","time":213.883441411,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stderr","time":226.948830355,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":226.94886725,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":226.978493587,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":226.979962385,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 367, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":226.97999006,"data":"    main()\n"}
+,{"stream_name":"stderr","time":226.979995128,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":226.979998736,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 244, in main\n"}
+,{"stream_name":"stderr","time":226.980003801,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":226.980007478,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":226.980011198,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 82, in build_model\n"}
+,{"stream_name":"stderr","time":226.980015153,"data":"    return build(a.model, deg, sa=bool(getattr(a, \"sa\", 0)))\n"}
+,{"stream_name":"stderr","time":226.980032709,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 501, in build\n"}
+,{"stream_name":"stderr","time":226.980037635,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale, deg=deg, sa=kw.get(\"sa\", False))\n"}
+,{"stream_name":"stderr","time":226.980041883,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 156, in build_external\n"}
+,{"stream_name":"stderr","time":226.980045689,"data":"    ext = _build_external(name, bands, bands if sa else msi, scale)\n"}
+,{"stream_name":"stderr","time":226.980106069,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 198, in _build_external\n"}
+,{"stream_name":"stderr","time":226.980114525,"data":"    net = m.MIMFormer(hsi_chans=bands, msi_chans=msi, scale_factor=scale)\n"}
+,{"stream_name":"stderr","time":226.980118671,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 110, in __init__\n"}
+,{"stream_name":"stderr","time":226.980123457,"data":"    self.MIMFormer = Future(hsi_chans+msi_chans,180)\n"}
+,{"stream_name":"stderr","time":226.980127468,"data":"                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":226.980227278,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 77, in __init__\n"}
+,{"stream_name":"stderr","time":226.980234898,"data":"    self.weight_a = nn.Parameter(torch.ones(1).to('cuda:0'))\n"}
+,{"stream_name":"stderr","time":226.980238795,"data":"                                 ~~~~~~~~~~~~~~~~^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":226.980242843,"data":"  File \"/usr/local/lib/python3.13/dist-packages/torch/cuda/__init__.py\", line 471, in _lazy_init\n"}
+,{"stream_name":"stderr","time":226.980246993,"data":"    raise AssertionError(\"Torch not compiled with CUDA enabled\")\n"}
+,{"stream_name":"stderr","time":226.980280034,"data":"AssertionError: Torch not compiled with CUDA enabled\n"}
+,{"stream_name":"stderr","time":227.151855838,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":227.151893949,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":227.151918888,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":227.1519221,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 367, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":227.151925347,"data":"    main()\n"}
+,{"stream_name":"stderr","time":227.151927741,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":227.151930067,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 244, in main\n"}
+,{"stream_name":"stderr","time":227.151932675,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":227.151935368,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":227.151937813,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 82, in build_model\n"}
+,{"stream_name":"stderr","time":227.151940261,"data":"    return build(a.model, deg, sa=bool(getattr(a, \"sa\", 0)))\n"}
+,{"stream_name":"stderr","time":227.151942907,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 501, in build\n"}
+,{"stream_name":"stderr","time":227.151945386,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale, deg=deg, sa=kw.get(\"sa\", False))\n"}
+,{"stream_name":"stderr","time":227.151947998,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 156, in build_external\n"}
+,{"stream_name":"stderr","time":227.151950449,"data":"    ext = _build_external(name, bands, bands if sa else msi, scale)\n"}
+,{"stream_name":"stderr","time":227.151953812,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 198, in _build_external\n"}
+,{"stream_name":"stderr","time":227.151957967,"data":"    net = m.MIMFormer(hsi_chans=bands, msi_chans=msi, scale_factor=scale)\n"}
+,{"stream_name":"stderr","time":227.151961718,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 110, in __init__\n"}
+,{"stream_name":"stderr","time":227.151965759,"data":"    self.MIMFormer = Future(hsi_chans+msi_chans,180)\n"}
+,{"stream_name":"stderr","time":227.151969749,"data":"                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":227.151973762,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 77, in __init__\n"}
+,{"stream_name":"stderr","time":227.151977654,"data":"    self.weight_a = nn.Parameter(torch.ones(1).to('cuda:0'))\n"}
+,{"stream_name":"stderr","time":227.15198138,"data":"                                 ~~~~~~~~~~~~~~~~^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":227.151985037,"data":"  File \"/usr/local/lib/python3.13/dist-packages/torch/cuda/__init__.py\", line 471, in _lazy_init\n"}
+,{"stream_name":"stderr","time":227.151989135,"data":"    raise AssertionError(\"Torch not compiled with CUDA enabled\")\n"}
+,{"stream_name":"stderr","time":227.151993258,"data":"AssertionError: Torch not compiled with CUDA enabled\n"}
+,{"stream_name":"stderr","time":227.151997017,"data":"\n"}
+,{"stream_name":"stderr","time":227.152000684,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":227.152004917,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":227.152010392,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":227.152014062,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 367, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":227.152018046,"data":"    main()\n"}
+,{"stream_name":"stderr","time":227.152021817,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":227.152030467,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 244, in main\n"}
+,{"stream_name":"stderr","time":227.152033307,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":227.152035655,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":227.152038057,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 82, in build_model\n"}
+,{"stream_name":"stderr","time":227.152040582,"data":"    return build(a.model, deg, sa=bool(getattr(a, \"sa\", 0)))\n"}
+,{"stream_name":"stderr","time":227.152042995,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 501, in build\n"}
+,{"stream_name":"stderr","time":227.152045518,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale, deg=deg, sa=kw.get(\"sa\", False))\n"}
+,{"stream_name":"stderr","time":227.152049322,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 156, in build_external\n"}
+,{"stream_name":"stderr","time":227.152053266,"data":"    ext = _build_external(name, bands, bands if sa else msi, scale)\n"}
+,{"stream_name":"stderr","time":227.152057289,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 198, in _build_external\n"}
+,{"stream_name":"stderr","time":227.152061075,"data":"    net = m.MIMFormer(hsi_chans=bands, msi_chans=msi, scale_factor=scale)\n"}
+,{"stream_name":"stderr","time":227.152076906,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 110, in __init__\n"}
+,{"stream_name":"stderr","time":227.152080875,"data":"    self.MIMFormer = Future(hsi_chans+msi_chans,180)\n"}
+,{"stream_name":"stderr","time":227.152088358,"data":"                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":227.152092158,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 77, in __init__\n"}
+,{"stream_name":"stderr","time":227.152099298,"data":"    self.weight_a = nn.Parameter(torch.ones(1).to('cuda:0'))\n"}
+,{"stream_name":"stderr","time":227.15210789,"data":"                                 ~~~~~~~~~~~~~~~~^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":227.1521117,"data":"  File \"/usr/local/lib/python3.13/dist-packages/torch/cuda/__init__.py\", line 471, in _lazy_init\n"}
+,{"stream_name":"stderr","time":227.152115691,"data":"    raise AssertionError(\"Torch not compiled with CUDA enabled\")\n"}
+,{"stream_name":"stderr","time":227.152119548,"data":"AssertionError: Torch not compiled with CUDA enabled\n"}
+,{"stream_name":"stdout","time":230.133735269,"data":"END bench-chikusei-x4-mimformer rc 1\n"}
+,{"stream_name":"stdout","time":231.030291558,"data":"RUN bench-pavia-x4-mimformer : python cond_eval.py --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat'  --dataset pavia --scale 4 --model mimformer --only 'px + snr,band-limited' --ckpt /kaggle/input/notebooks/tummapudinavadeep/puf-s02/out/bench-pavia-x4-mimformer/best_ema.pt --out /kaggle/working/out/bench-pavia-x4-mimformer \n"}
+,{"stream_name":"stdout","time":235.770991642,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stdout","time":235.973503092,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stderr","time":238.088842058,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":238.088880244,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":238.090635367,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":238.092005934,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 367, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":238.092029504,"data":"    main()\n"}
+,{"stream_name":"stderr","time":238.092034235,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":238.09203777,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 244, in main\n"}
+,{"stream_name":"stderr","time":238.092041858,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":238.092044944,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":238.092047824,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 82, in build_model\n"}
+,{"stream_name":"stderr","time":238.092050473,"data":"    return build(a.model, deg, sa=bool(getattr(a, \"sa\", 0)))\n"}
+,{"stream_name":"stderr","time":238.092234449,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 501, in build\n"}
+,{"stream_name":"stderr","time":238.092244259,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale, deg=deg, sa=kw.get(\"sa\", False))\n"}
+,{"stream_name":"stderr","time":238.092248812,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 156, in build_external\n"}
+,{"stream_name":"stderr","time":238.09225243,"data":"    ext = _build_external(name, bands, bands if sa else msi, scale)\n"}
+,{"stream_name":"stderr","time":238.092256167,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 198, in _build_external\n"}
+,{"stream_name":"stderr","time":238.092259914,"data":"    net = m.MIMFormer(hsi_chans=bands, msi_chans=msi, scale_factor=scale)\n"}
+,{"stream_name":"stderr","time":238.092264212,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 110, in __init__\n"}
+,{"stream_name":"stderr","time":238.09226805,"data":"    self.MIMFormer = Future(hsi_chans+msi_chans,180)\n"}
+,{"stream_name":"stderr","time":238.092271687,"data":"                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":238.092275484,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 77, in __init__\n"}
+,{"stream_name":"stderr","time":238.092280001,"data":"    self.weight_a = nn.Parameter(torch.ones(1).to('cuda:0'))\n"}
+,{"stream_name":"stderr","time":238.092283458,"data":"                                 ~~~~~~~~~~~~~~~~^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":238.092286915,"data":"  File \"/usr/local/lib/python3.13/dist-packages/torch/cuda/__init__.py\", line 471, in _lazy_init\n"}
+,{"stream_name":"stderr","time":238.092291023,"data":"    raise AssertionError(\"Torch not compiled with CUDA enabled\")\n"}
+,{"stream_name":"stderr","time":238.092296505,"data":"AssertionError: Torch not compiled with CUDA enabled\n"}
+,{"stream_name":"stderr","time":238.291593702,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":238.291628708,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":238.291633966,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":238.291637861,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 367, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":238.291642357,"data":"    main()\n"}
+,{"stream_name":"stderr","time":238.291646163,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":238.291658164,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 244, in main\n"}
+,{"stream_name":"stderr","time":238.291685621,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":238.291689843,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":238.291693791,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 82, in build_model\n"}
+,{"stream_name":"stderr","time":238.291697677,"data":"    return build(a.model, deg, sa=bool(getattr(a, \"sa\", 0)))\n"}
+,{"stream_name":"stderr","time":238.291707098,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 501, in build\n"}
+,{"stream_name":"stderr","time":238.291711031,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale, deg=deg, sa=kw.get(\"sa\", False))\n"}
+,{"stream_name":"stderr","time":238.291715126,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 156, in build_external\n"}
+,{"stream_name":"stderr","time":238.291718993,"data":"    ext = _build_external(name, bands, bands if sa else msi, scale)\n"}
+,{"stream_name":"stderr","time":238.291722835,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 198, in _build_external\n"}
+,{"stream_name":"stderr","time":238.291727645,"data":"    net = m.MIMFormer(hsi_chans=bands, msi_chans=msi, scale_factor=scale)\n"}
+,{"stream_name":"stderr","time":238.291731876,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 110, in __init__\n"}
+,{"stream_name":"stderr","time":238.291735845,"data":"    self.MIMFormer = Future(hsi_chans+msi_chans,180)\n"}
+,{"stream_name":"stderr","time":238.291739551,"data":"                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":238.291743579,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 77, in __init__\n"}
+,{"stream_name":"stderr","time":238.291747661,"data":"    self.weight_a = nn.Parameter(torch.ones(1).to('cuda:0'))\n"}
+,{"stream_name":"stderr","time":238.291751938,"data":"                                 ~~~~~~~~~~~~~~~~^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":238.291756067,"data":"  File \"/usr/local/lib/python3.13/dist-packages/torch/cuda/__init__.py\", line 471, in _lazy_init\n"}
+,{"stream_name":"stderr","time":238.29176004,"data":"    raise AssertionError(\"Torch not compiled with CUDA enabled\")\n"}
+,{"stream_name":"stderr","time":238.291784462,"data":"AssertionError: Torch not compiled with CUDA enabled\n"}
+,{"stream_name":"stderr","time":238.291788711,"data":"\n"}
+,{"stream_name":"stderr","time":238.291792691,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":238.291796786,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":238.291802964,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":238.291806717,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 367, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":238.291811029,"data":"    main()\n"}
+,{"stream_name":"stderr","time":238.291814932,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":238.291818804,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 244, in main\n"}
+,{"stream_name":"stderr","time":238.291822643,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":238.291826391,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":238.291830028,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 82, in build_model\n"}
+,{"stream_name":"stderr","time":238.291838342,"data":"    return build(a.model, deg, sa=bool(getattr(a, \"sa\", 0)))\n"}
+,{"stream_name":"stderr","time":238.291842301,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 501, in build\n"}
+,{"stream_name":"stderr","time":238.291846511,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale, deg=deg, sa=kw.get(\"sa\", False))\n"}
+,{"stream_name":"stderr","time":238.291850504,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 156, in build_external\n"}
+,{"stream_name":"stderr","time":238.291854525,"data":"    ext = _build_external(name, bands, bands if sa else msi, scale)\n"}
+,{"stream_name":"stderr","time":238.291858314,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 198, in _build_external\n"}
+,{"stream_name":"stderr","time":238.291862489,"data":"    net = m.MIMFormer(hsi_chans=bands, msi_chans=msi, scale_factor=scale)\n"}
+,{"stream_name":"stderr","time":238.291866299,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 110, in __init__\n"}
+,{"stream_name":"stderr","time":238.291870174,"data":"    self.MIMFormer = Future(hsi_chans+msi_chans,180)\n"}
+,{"stream_name":"stderr","time":238.29187389,"data":"                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":238.291877784,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 77, in __init__\n"}
+,{"stream_name":"stderr","time":238.291881836,"data":"    self.weight_a = nn.Parameter(torch.ones(1).to('cuda:0'))\n"}
+,{"stream_name":"stderr","time":238.291885497,"data":"                                 ~~~~~~~~~~~~~~~~^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":238.291889418,"data":"  File \"/usr/local/lib/python3.13/dist-packages/torch/cuda/__init__.py\", line 471, in _lazy_init\n"}
+,{"stream_name":"stderr","time":238.291893278,"data":"    raise AssertionError(\"Torch not compiled with CUDA enabled\")\n"}
+,{"stream_name":"stderr","time":238.291897157,"data":"AssertionError: Torch not compiled with CUDA enabled\n"}
+,{"stream_name":"stdout","time":239.152905577,"data":"END bench-pavia-x4-mimformer rc 1\n"}
+,{"stream_name":"stderr","time":242.371870283,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":242.371909396,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":242.562382213,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":242.562412506,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":243.4070445,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":243.496733211,"data":"[NbConvertApp] Writing 104062 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":246.55623731,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":247.162510898,"data":"[NbConvertApp] Writing 385233 bytes to __results__.html\n"}
+]

@@ -36,6 +36,8 @@ def main():
     p.add_argument("--scale", type=int, default=4)
     p.add_argument("--preds", default="/kaggle/input")
     p.add_argument("--out", required=True)
+    p.add_argument("--alias", action="append", default=[], help="method=job: score the predictions of another job "
+                   "(e.g. puformer=arch-{dataset}-x4-nogate, the adopted model) under that method name")
     a = p.parse_args()
     a.pad = "reflect"
     os.makedirs(a.out, exist_ok=True)
@@ -51,6 +53,14 @@ def main():
                                 recursive=True))
         if hits:
             preds[m] = torch.from_numpy(np.load(hits[0]).astype(np.float32)).to(dev)
+    for al in a.alias:
+        m, job = al.split("=", 1)
+        hits = sorted(glob.glob(os.path.join(a.preds, "**", job.format(dataset=a.dataset), "test_pred_f16.npy"),
+                                recursive=True))
+        if hits:
+            preds[m] = torch.from_numpy(np.load(hits[0]).astype(np.float32)).to(dev)
+        else:
+            print("no predictions for", job.format(dataset=a.dataset), flush=True)
     n_px = gt[0].numel()
     res = dict(dataset=a.dataset, scale=a.scale, sigma=blur_of(a.scale)[1], methods={})
     for m, x in preds.items():

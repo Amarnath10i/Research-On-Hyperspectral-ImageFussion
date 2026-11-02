@@ -25,7 +25,7 @@ import tarfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PKG = os.path.dirname(HERE)
-FILES = ["train.py", "test.py", "eval_gaps.py", "selfcheck.py", "paper_analysis.py", "sam_analysis.py", "complexity.py", "blind_eval.py", "cond_eval.py", "neon_fullres.py", "kron_check.py", "null_analysis.py", "ext_smoke.py", "reg_check.py"] + \
+FILES = ["train.py", "test.py", "eval_gaps.py", "selfcheck.py", "paper_analysis.py", "sam_analysis.py", "complexity.py", "blind_eval.py", "cond_eval.py", "neon_fullres.py", "kron_check.py", "null_analysis.py", "ext_smoke.py", "reg_check.py", "sa_check.py", "family_eval.py", "arch_check.py", "arch2_check.py", "unc_eval.py", "arch3_check.py", "msi_value.py"] + \
         [f"hsifuse/{f}" for f in sorted(os.listdir(os.path.join(PKG, "hsifuse"))) if f.endswith(".py")]
 
 

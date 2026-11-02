@@ -31,7 +31,7 @@ from hsifuse.baselines import gsa
 from hsifuse.config import DATASETS, MODELS, add_ablation_args, blur_of, build_model, set_metric_scale
 from hsifuse.data import load_dataset, make_pairs
 from hsifuse.metrics import evaluate
-from hsifuse.ops import Degradation, dataset_srf
+from hsifuse.ops import Degradation, corrupt, dataset_srf
 
 KEEP = ("PSNR", "SAM", "ERGAS", "SSIM", "RMSE_DN")
 
@@ -64,6 +64,22 @@ def conditions(neon: bool):
     c += [("HSI grid offset 0.5/0.5 px", 1.0, 0, None, ("gauss", 1.0, 1.0, 0.5, 0.5), 0.0),
           ("HSI grid offset 1/-1 px", 1.0, 0, None, ("gauss", 1.0, 1.0, 1.0, -1.0), 0.0),
           ("aniso 0.75/1.5 sigma0 + offset 0.5/-0.25 px, snr 35 dB", 1.0, 0, 35, ("gauss", 0.75, 1.5, 0.5, -0.25), 0.0)]
+    # corrupted observations with a clean reference: local changes in the HR-MSI (another scene's content, as between
+    # two acquisition dates) and dead or miscalibrated LR-HSI columns (hsifuse.ops.corrupt, fixed seed)
+    c += [("MSI local changes", 1.0, 0, None, ("corrupt", True, False, False, False), 0.0),
+          ("HSI stripes", 1.0, 0, None, ("corrupt", False, True, False, False), 0.0),
+          ("MSI changes + HSI stripes, snr 35 dB", 1.0, 0, 35, ("corrupt", True, True, False, False), 0.0)]
+    # registered and unregistered pixels in one image, and band-dependent, partly signal-dependent HSI noise
+    c += [("MSI locally misregistered", 1.0, 0, None, ("corrupt", False, False, True, False), 0.0),
+          ("HSI band-dependent noise 25-45 dB", 1.0, 0, None, ("corrupt", False, False, False, True), 0.0),
+          ("MSI locally misregistered + HSI band noise", 1.0, 0, None, ("corrupt", False, False, True, True), 0.0)]
+    # misregistration with noise only; and a sub-pixel misregistration of a sharp HR-MSI (band-limited shift, as a
+    # sensor sampling the shifted scene records it, instead of the bilinear shift above, which also blurs it)
+    if not neon:
+        c += [("MSI misregistered 0.5 px + snr 35 dB", 1.0, 0, 35, None, 0.5),
+              ("MSI misregistered 1 px + snr 35 dB", 1.0, 0, 35, None, 1.0),
+              ("MSI misregistered 0.5 px band-limited", 1.0, 0, None, None, 0.5),
+              ("MSI misregistered 0.5 px band-limited + snr 35 dB", 1.0, 0, 35, None, 0.5)]
     return c
 
 
@@ -89,8 +105,28 @@ def translate(x, px):
     return torch.nn.functional.grid_sample(x, grid, mode="bilinear", padding_mode="reflection", align_corners=True)
 
 
-def deg_at(a, sigma, shift=0.0, pad=None, sigma_c=None, off=(0.0, 0.0)):
-    return Degradation(dataset_srf(a.dataset, shift_nm=shift), scale=a.scale, ksize=blur_of(a.scale)[0],
+def translate2(x, pr, pc):
+    """x shifted by pr pixels along rows and pc along columns: out(u) = x(u + p) (bicubic, reflected border)."""
+    n, _, h, w = x.shape
+    theta = torch.tensor([[1.0, 0.0, 2 * pc / (w - 1)], [0.0, 1.0, 2 * pr / (h - 1)]], dtype=x.dtype, device=x.device)
+    grid = torch.nn.functional.affine_grid(theta.expand(n, 2, 3), list(x.shape), align_corners=True)
+    return torch.nn.functional.grid_sample(x, grid, mode="bicubic", padding_mode="reflection", align_corners=True)
+
+
+def fshift(x, pr, pc, pad=16):
+    """x shifted by pr pixels along rows and pc along columns, out(u) = x(u + p), with a band-limited (Fourier)
+    shift of the reflect-padded image: no interpolation blur."""
+    n, b, h, w = x.shape
+    xp = torch.nn.functional.pad(x, (pad, pad, pad, pad), mode="reflect")
+    fr = torch.fft.fftfreq(h + 2 * pad, device=x.device, dtype=x.dtype)[:, None]
+    fc = torch.fft.fftfreq(w + 2 * pad, device=x.device, dtype=x.dtype)[None, :]
+    ramp = torch.exp(2j * torch.pi * (fr * pr + fc * pc))
+    out = torch.fft.ifft2(torch.fft.fft2(xp) * ramp).real
+    return out[..., pad:pad + h, pad:pad + w]
+
+
+def deg_at(a, sigma, shift=0.0, pad=None, sigma_c=None, off=(0.0, 0.0), ksize=None):
+    return Degradation(dataset_srf(a.dataset, shift_nm=shift), scale=a.scale, ksize=ksize or blur_of(a.scale)[0],
                        sigma=sigma, pad=pad or a.pad, shift_nm=shift, sigma_c=sigma_c, off=off)
 
 
@@ -109,11 +145,14 @@ def estimate(lr, ms, a, sig_grid, shift_grid, dev):
     return sig_grid[flat // len(shift_grid)], shift_grid[flat % len(shift_grid)]
 
 
-OFF_GRID = np.arange(-1.5, 1.5 + 1e-9, 0.125)
+OFF_GRID = np.arange(-2.0, 2.0 + 1e-9, 0.125)
+# the estimator's kernel support: wide enough for a Gaussian moved by the largest offset (the protocol's
+# (2s-1)-tap kernel would cut it off and make the search trade offset against blur width)
+EST_PAD = 2 * int(np.ceil(np.abs(OFF_GRID).max()))
 
 
 @torch.no_grad()
-def estimate_ext(lr, ms, a, sig_grid, shift_grid, sig0, sh0, dev, sweeps=3):
+def estimate_ext(lr, ms, a, sig_grid, shift_grid, sig0, sh0, dev, sweeps=3, ksize=None):
     """Per image, coordinate search for (sigma_r, sigma_c, off_r, off_c, d) minimising ||D(Y_M) - R_d(Y_H)||^2 over
     the separable family, started at the isotropic, centered estimate (sig0, sh0)."""
     out = []
@@ -125,7 +164,7 @@ def estimate_ext(lr, ms, a, sig_grid, shift_grid, sig0, sh0, dev, sweeps=3):
         def j(t):
             if t["d"] not in ryh:
                 ryh[t["d"]] = deg_at(a, 1.0, t["d"]).to(dev).R(yh)
-            d = deg_at(a, t["s"], pad="reflect", sigma_c=t["c"], off=(t["r"], t["q"])).to(dev)
+            d = deg_at(a, t["s"], pad="reflect", sigma_c=t["c"], off=(t["r"], t["q"]), ksize=ksize).to(dev)
             return float(((d.D(ym, pad_mode="reflect") - ryh[t["d"]]) ** 2).mean())
 
         for _ in range(sweeps):
@@ -138,6 +177,25 @@ def estimate_ext(lr, ms, a, sig_grid, shift_grid, sig0, sh0, dev, sweeps=3):
 
 def deg_of(a, th, dev):
     return deg_at(a, th["s"], th["d"], sigma_c=th["c"], off=(th["r"], th["q"])).to(dev)
+
+
+@torch.no_grad()
+def change_auroc(model, lr, ms, degs, masks):
+    """How well the confidence-weighted data step finds the corrupted inputs: ROC AUC of 1 - w (last stage)
+    against the corruption masks, for the HR-MSI (local changes) and the LR-HSI (stripes)."""
+    from sklearn.metrics import roc_auc_score
+    sh, sm = [], []
+    for i in range(lr.shape[0]):
+        model.deg = degs[i]
+        model(lr[i:i + 1], ms[i:i + 1])
+        wh, wm = model.last_conf
+        sh.append(1 - wh), sm.append(1 - wm)
+    out = {}
+    for key, sc, m in (("hsi", torch.cat(sh), masks[0]), ("msi", torch.cat(sm), masks[1])):
+        y = m.flatten().cpu().numpy()
+        if 0 < y.mean() < 1:
+            out[key] = float(roc_auc_score(y, sc.flatten().cpu().numpy()))
+    return out
 
 
 @torch.no_grad()
@@ -168,6 +226,9 @@ def main():
     p.add_argument("--pad", default="reflect", choices=["reflect", "zeros"])
     add_ablation_args(p)
     p.add_argument("--out", required=True)
+    p.add_argument("--only", default="", help="comma-separated parts of condition names: evaluate only the matching "
+                   "conditions and skip the sensitivity sweep, which runs alone with --only sensitivity "
+                   "(fetch_results.py merges the result into the full file)")
     a = p.parse_args()
     os.makedirs(a.out, exist_ok=True)
     dev = "cuda" if torch.cuda.is_available() else "cpu"
@@ -191,13 +252,18 @@ def main():
     shift_grid = np.array([0.0]) if neon else np.arange(-16.0, 16.0 + 1e-9, 1.0)
     res = dict(dataset=a.dataset, scale=a.scale, model=a.model, pad=a.pad, op=a.op, physics=a.physics,
                ckpt=a.ckpt, nominal_sigma=s0, swappable=swappable, conditions={})
-    if swappable:
+    only = [t for t in a.only.split(",") if t]
+    if swappable and (not only or "sensitivity" in only):
         try:
             res["sensitivity"] = sensitivity(a, gt, gtb, base, model, s0, dev)
         except Exception as err:
             print("FAILED sensitivity", repr(err), flush=True)
             model.deg = base
+        with open(os.path.join(a.out, "cond_eval.json"), "w") as fh:     # also when no condition follows
+            json.dump(res, fh, indent=1)
     for idx, cond in enumerate(conditions(neon)):
+        if only and not any(t in cond[0] for t in only):
+            continue
         try:
             evaluate_condition(idx, cond, a, gt, gtb, base, model, swappable, s0, sig_grid, shift_grid, dev, res)
         except Exception as err:                         # one failing condition must not lose the others
@@ -231,18 +297,23 @@ def evaluate_condition(idx, cond, a, gt, gtb, base, model, swappable, s0, sig_gr
         true = deg_at(a, fr * s0, shift, sigma_c=fc * s0, off=(orr, oc)).to(dev)
     else:
         true = deg_at(a, f * s0, shift).to(dev)
-    if kernel is not None and kernel[0] != "gauss":
+    if kernel is not None and kernel[0] not in ("gauss", "corrupt"):
         true.k = torch.from_numpy(true_kernel(kernel, true.ksize, s0))[None, None].to(dev)
         true.gaussian = False
     lr, ms, _ = make_pairs(gt, true)
+    masks = None
+    if kernel is not None and kernel[0] == "corrupt":
+        lr, ms, masks = corrupt(lr, ms, np.random.default_rng(2000 + idx), changes=kernel[1], stripes=kernel[2],
+                                misreg=kernel[3], bandnoise=kernel[4], return_masks=True)
+    sharp = "band-limited" in name
     if msi_px:
-        ms = true.R(translate(gtb, msi_px))
+        ms = true.R(fshift(gtb, msi_px, msi_px) if sharp else translate(gtb, msi_px))
     if snr:
         g = torch.Generator().manual_seed(1000 + idx)
         lr, ms = add_noise(lr, snr, g), add_noise(ms, snr, g)
     sig, sh = estimate(lr, ms, a, sig_grid, shift_grid, dev)
-    ext = estimate_ext(lr, ms, a, sig_grid, shift_grid, sig, sh, dev) if swappable else None
-    gauss = kernel is None
+    ext = estimate_ext(lr, ms, a, sig_grid, shift_grid, sig, sh, dev) if swappable or msi_px else None
+    gauss = kernel is None or kernel[0] == "corrupt"
     row = dict(sigma=f * s0 if gauss else None, shift_nm=shift, snr_db=snr, kernel=kernel, msi_px=msi_px,
                sigma_hat=[float(v) for v in sig], shift_hat=[float(v) for v in sh],
                sigma_abs_err=float(np.abs(sig - f * s0).mean()) if gauss else None,
@@ -268,7 +339,24 @@ def evaluate_condition(idx, cond, a, gt, gtb, base, model, swappable, s0, sig_gr
         row["estimated"] = score(gtb, run(model, lr, ms, wide if reg else iso))
         if not reg:
             row["estimated_ext"] = score(gtb, run(model, lr, ms, wide))
+        if masks is not None and getattr(model, "cwd", False):
+            row["change_auroc"] = change_auroc(model, lr, ms, wide if reg else iso, masks)
         model.deg = base
+    if msi_px and ext is not None:
+        # misregistered HR-MSI; the reference lies on the LR-HSI grid. The wide estimate gives the offset of the
+        # LR-HSI grid against the HR-MSI (about -msi_px), which registers either the HR-MSI before fusion (any
+        # method: "register, then fuse") or PUFormer's result, fused with that offset in its operator, afterwards
+        # registration estimate with a kernel support that holds the moved Gaussian (EST_PAD)
+        ext_reg = estimate_ext(lr, ms, a, sig_grid, shift_grid, sig, sh, dev, ksize=blur_of(a.scale)[0] + EST_PAD)
+        row["reg_hat"] = ext_reg
+        shift_by = fshift if sharp else translate2         # the same interpolation as the misregistration
+        register = lambda x, es: torch.cat([shift_by(x[i:i + 1], es[i]["r"], es[i]["q"]) for i in range(len(x))])
+        ms_reg = register(ms, ext_reg)
+        row["gsa_reg"] = score(gtb, gsa(lr, ms_reg, base).clamp(0, 1))
+        row["reg_msi"] = score(gtb, run(model, lr, ms_reg, [base] * len(lr) if swappable else None))
+        if swappable:          # the offsets of the operator it fused with
+            row["reg_out"] = score(gtb, register(run(model, lr, ms, [deg_of(a, t, dev) for t in ext]), ext))
+            model.deg = base
     res["conditions"][name] = row
     err = f"sigma_err {row['sigma_abs_err']:.3f}" if gauss else f"sigma_hat {np.mean(sig):.2f}"
     print(name, err, f"shift_err {row['shift_abs_err']:.2f}",

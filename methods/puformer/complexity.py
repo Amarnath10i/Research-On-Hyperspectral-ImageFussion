@@ -20,7 +20,8 @@ from hsifuse.models import build
 from hsifuse.ops import Degradation, dataset_srf
 
 SETTINGS = [("chikusei", 4), ("pavia", 4), ("cave", 4), ("pavia", 8), ("pavia", 16)]
-MODELS = ["puformer", "ssrnet", "psrt", "dct", "mimformer", "dhif"]
+MODELS = ["exactfuse", "puformer", "ssrnet", "psrt", "dct", "mimformer", "dhif", "smgu", "clsnet", "otpnet", "u2net",
+          "mimosst", "caformer"]          # exactfuse: the adopted model; puformer: the base model
 
 
 @torch.no_grad()
@@ -49,8 +50,9 @@ def main():
         lr, ms = torch.rand(1, b, a.size // s, a.size // s, device=dev), torch.rand(1, m, a.size, a.size, device=dev)
         for name in MODELS:
             try:
-                net = build(name, deg).to(dev).eval()
-                if name == "puformer":
+                net = (build("puformer", deg, dstep="kronlearn", mres=True, sa=True) if name == "exactfuse"
+                       else build(name, deg)).to(dev).eval()
+                if name in ("puformer", "exactfuse"):
                     net.amp = True
                 params = sum(q.numel() for q in net.parameters()) / 1e6
                 with torch.no_grad(), FlopCounterMode(display=False) as fc:

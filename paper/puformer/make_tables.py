@@ -1,4 +1,4 @@
-"""Tables of the PUFormer paper that are generated from the result files (run from this folder).
+"""Tables of the Base model paper that are generated from the result files (run from this folder).
 
     python make_tables.py        # writes tables/*.tex, which main.tex inputs
 
@@ -65,8 +65,8 @@ def rank(ours, tip, d, hi):
 def pavia_compare(res, tip):
     rows = [(f"{LABEL.get(r['method'], r['method'])}~\\cite{{{CITE[r['method']]}}}", [float(r[c]) for c, *_ in COLS])
             for r in tip]
-    rows += [("PUFormer (single pass)", [res["test"][k] for _, k, *_ in COLS]),
-             ("PUFormer (self-ensemble)", [res["test_tta"][k] for _, k, *_ in COLS])]
+    rows += [("Base model (single pass)", [res["test"][k] for _, k, *_ in COLS]),
+             ("Base model (self-ensemble)", [res["test_tta"][k] for _, k, *_ in COLS])]
     best = [(max if hi else min)(round(r[1][j], d) for r in rows) for j, (_, _, d, hi) in enumerate(COLS)]
     body = []
     for i, (name, vals) in enumerate(rows):
@@ -77,9 +77,9 @@ def pavia_compare(res, tip):
     s, e = res["test"]["SSIM"], res["test_tta"]["SSIM"]
     write("pavia_compare.tex", [
         "\\begin{table*}[t]", "\\centering",
-        "\\caption{Pavia Centre $\\times$4 comparison. All rows except PUFormer are reported in~\\cite{chen2026twostage} "
-        "on the benchmark data released with PSRT~\\cite{deng2023psrt}; PUFormer is evaluated on our simulation of the "
-        "same protocol from the original scene (Section~\\ref{sec:setup}). Best value per column in bold. SSIM of PUFormer "
+        "\\caption{Pavia Centre $\\times$4 comparison. All rows except the base model are reported in~\\cite{chen2026twostage} "
+        "on the benchmark data released with PSRT~\\cite{deng2023psrt}; the base model is evaluated on our simulation of the "
+        "same protocol from the original scene (Section~\\ref{sec:setup}). Best value per column in bold. SSIM of the base model "
         "uses the PSRT definition (data range 1); with data range equal to each image's maximum it is "
         f"{s:.4f} (single pass) and {e:.4f} (self-ensemble).}}",
         "\\label{tab:pavia}", "\\begin{tabular}{@{}lcccccccc@{}}", "\\toprule",
@@ -93,7 +93,7 @@ def ours_table(chi, chi_first, chi_gaps, ssrnet, pav):
     row = lambda name, m: f"{name} & " + " & ".join(fmt(m.get(k), d) for k, d in keys) + " \\\\"
     write("ours.tex", [
         "\\begin{table}[t]", "\\centering",
-        "\\caption{The long-trained PUFormer models and the classical baselines under all PSNR and SSIM definitions. "
+        "\\caption{The long-trained base models and the classical baselines under all PSNR and SSIM definitions. "
         "P$_\\mathrm{g}$: peak = dataset "
         "maximum (headline); P$_\\mathrm{i}$: peak = image maximum; P$_\\mathrm{b}$: band-wise mean, peak 1. S$_1$: SSIM, "
         "data range 1; S$_\\mathrm{i}$: data range = image maximum.}",
@@ -102,11 +102,11 @@ def ours_table(chi, chi_first, chi_gaps, ssrnet, pav):
         "Method & P$_\\mathrm{g}$ & P$_\\mathrm{i}$ & P$_\\mathrm{b}$ & S$_1$ & S$_\\mathrm{i}$ & SAM & RMSE \\\\", "\\midrule",
         "\\multicolumn{8}{@{}l}{\\textit{Chikusei}} \\\\",
         row("Bicubic", chi["bicubic_test"]), row("GSA~\\cite{aiazzi2007gsa}", chi_gaps["nominal"]["gsa"]),
-        row("PUFormer, first run", chi_first["test"]),
-        row("PUFormer", chi["test"]), row("PUFormer, self-ensemble", chi["test_tta"]), "\\midrule",
+        row("Base model, first run", chi_first["test"]),
+        row("Base model", chi["test"]), row("Base model, self-ensemble", chi["test_tta"]), "\\midrule",
         "\\multicolumn{8}{@{}l}{\\textit{Pavia Centre}} \\\\",
         row("Bicubic", pav["bicubic_test"]), row("GSA~\\cite{aiazzi2007gsa}", pav["gsa_test"]),
-        row("PUFormer", pav["test"]), row("PUFormer, ensemble", pav["test_tta"]),
+        row("Base model", pav["test"]), row("Base model, ensemble", pav["test_tta"]),
         "\\bottomrule", "\\end{tabular}}", "\\end{table}"])
 
 
@@ -114,7 +114,7 @@ def perimage_table(chi, pav):
     keys = [("PSNR", 2), ("SSIM", 4), ("SSIM_psrt", 4), ("SAM", 3), ("ERGAS", 3), ("Q2n", 4)]
     cells = lambda m: " & ".join(fmt(m.get(k), d) for k, d in keys)
     body = []
-    for title, r in (("Chikusei, PUFormer", chi), ("Pavia Centre, PUFormer", pav)):
+    for title, r in (("Chikusei, Base model", chi), ("Pavia Centre, Base model", pav)):
         body.append(f"\\multicolumn{{7}}{{@{{}}l}}{{\\textit{{{title}}}}} \\\\")
         body += [f"{i + 1} & {cells(m)} \\\\" for i, m in enumerate(r["test_per_image_tta"])]
         body += ["\\cmidrule(l){1-7}", f"Mean & {cells(r['test_tta'])} \\\\", "\\midrule"]
@@ -139,11 +139,11 @@ def robust_table(chi_gaps, pav_gaps):
     write("robust.tex", [
         "\\begin{table*}[t]", "\\centering",
         "\\caption{Robustness of the final models (test PSNR in dB / SAM in degrees). Fixed: training operator; swap: true "
-        "operator supplied at test time; --: not applicable. The better PUFormer entry of each condition is in bold.}",
+        "operator supplied at test time; --: not applicable. The better base-model entry of each condition is in bold.}",
         "\\label{tab:robust}", "\\begin{tabular}{@{}lcccccc@{}}", "\\toprule",
-        " & \\multicolumn{3}{c}{Chikusei (PUFormer)} & \\multicolumn{3}{c}{Pavia Centre (PUFormer)} \\\\",
+        " & \\multicolumn{3}{c}{Chikusei (Base model)} & \\multicolumn{3}{c}{Pavia Centre (Base model)} \\\\",
         "\\cmidrule(lr){2-4}\\cmidrule(l){5-7}",
-        "Condition & GSA & PUFormer fixed & PUFormer swap & GSA & PUFormer fixed & PUFormer swap \\\\", "\\midrule",
+        "Condition & GSA & Base model fixed & Base model swap & GSA & Base model fixed & Base model swap \\\\", "\\midrule",
         *body, "\\bottomrule", "\\end{tabular}", "\\end{table*}"])
 
 

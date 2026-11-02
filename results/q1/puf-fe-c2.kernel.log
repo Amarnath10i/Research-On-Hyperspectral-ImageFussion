@@ -1,0 +1,45 @@
+[{"stream_name":"stderr","time":9.346461578,"data":"0.01s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":9.346527305,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":9.346533598,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":9.346536934,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":10.1252414,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":10.125282625,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":10.125288553,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":10.125292981,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":11.614463211,"data":"code sha256 d9ad6b80059b5a9ff1e7082372ade8445c6dc21a24fbb25d84a7284392bfaf26 from git fc2f350+local changes\n"}
+,{"stream_name":"stdout","time":11.617264528,"data":"4\n"}
+,{"stream_name":"stdout","time":11.636142891,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":11.636174321,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stderr","time":11.807892197,"data":"/tmp/ipykernel_16/1875661992.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":11.807934219,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":11.807940303,"data":"\n"}
+,{"stream_name":"stderr","time":11.807944916,"data":"/tmp/ipykernel_16/1875661992.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":11.807950189,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":11.814669217,"data":"4\n"}
+,{"stream_name":"stdout","time":11.814703185,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":11.814709988,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stdout","time":13.654791008,"data":"RUN scl-chikusei-x4-ng : python family_eval.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model puformer --pad reflect --dstep kronlearn --mres 1 --sa 1 --mode scales --scales 4,8,16 --scale_free 1 --ckpt /kaggle/input/notebooks/captainh210606/puf-s24/out/scl-chikusei-x4-ng/best_ema.pt --out /kaggle/working/out/scl-chikusei-x4-ng \n"}
+,{"stream_name":"stdout","time":714.757990955,"data":"x4 {'gsa': 43.1966, 'model': 57.9567}\n"}
+,{"stream_name":"stdout","time":714.967541534,"data":"x4 {'gsa': 43.1966, 'model': 57.9567}\n"}
+,{"stream_name":"stdout","time":1312.708315915,"data":"x8 {'gsa': 38.6889, 'model': 56.8937}\n"}
+,{"stream_name":"stdout","time":1312.950599185,"data":"x8 {'gsa': 38.6889, 'model': 56.8937}\n"}
+,{"stream_name":"stdout","time":2047.509938217,"data":"x16 {'gsa': 35.2003, 'model': 55.9692}\n"}
+,{"stream_name":"stdout","time":2047.717430543,"data":"x16 {'gsa': 35.2003, 'model': 55.9692}\n"}
+,{"stream_name":"stdout","time":2048.492541674,"data":"END scl-chikusei-x4-ng rc 0\n"}
+,{"stream_name":"stdout","time":2049.084537831,"data":"RUN scl-pavia-x4-ng : python family_eval.py --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat'  --dataset pavia --scale 4 --model puformer --pad reflect --dstep kronlearn --mres 1 --sa 1 --mode scales --scales 4,8,16 --scale_free 1 --ckpt /kaggle/input/notebooks/captainh210606/puf-s24/out/scl-pavia-x4-ng/best_ema.pt --out /kaggle/working/out/scl-pavia-x4-ng \n"}
+,{"stream_name":"stdout","time":2287.67475779,"data":"x4 {'gsa': 34.7757, 'model': 50.4727}\n"}
+,{"stream_name":"stdout","time":2287.886158968,"data":"x4 {'gsa': 34.7757, 'model': 50.4727}\n"}
+,{"stream_name":"stdout","time":2548.165884262,"data":"x8 {'gsa': 30.2353, 'model': 49.9614}\n"}
+,{"stream_name":"stdout","time":2548.379717308,"data":"x8 {'gsa': 30.2353, 'model': 49.9614}\n"}
+,{"stream_name":"stdout","time":2808.580965724,"data":"x16 {'gsa': 27.069, 'model': 49.3757}\n"}
+,{"stream_name":"stdout","time":2808.789082235,"data":"x16 {'gsa': 27.069, 'model': 49.3757}\n"}
+,{"stream_name":"stdout","time":2809.111516219,"data":"END scl-pavia-x4-ng rc 0\n"}
+,{"stream_name":"stderr","time":2813.004019159,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":2813.004056402,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":2813.258309479,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":2813.258345176,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":2814.233616977,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":2814.324856133,"data":"[NbConvertApp] Writing 98960 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":2817.386782511,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":2818.062907914,"data":"[NbConvertApp] Writing 380146 bytes to __results__.html\n"}
+]

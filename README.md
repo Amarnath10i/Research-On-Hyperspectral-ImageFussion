@@ -6,12 +6,16 @@ reconstruct a high-resolution hyperspectral image (HR-HSI).
 
 The repository has two tracks:
 
-1. **Chikusei SOTA track (active).** [PUFormer](methods/puformer/), a physics-unfolded
-   transformer that targets the best published Chikusei ×4 result (56.19 dB, IEEE TIP 2026).
-   Current: 58.20 dB (v3), 1st on 7 of the 8 metrics in TIP'26 Table IV; on Pavia Centre ×4,
-   50.69 dB (+3.53 dB), 1st on 6 of 8.
-   It adds evaluations that published papers skip: consistency with the input observations,
-   robustness to blur/SRF mismatch with a test-time operator swap, and robustness to noise.
+1. **ExactFuse (active).** [ExactFuse](methods/puformer/) (code name PUFormer, run with
+   `--dstep kronlearn --mres 1 --sa 1`) is an unfolded fusion network whose data steps use the exact observation
+   operators: the true blur, decimation and spectral response, with the border rule of the simulation. With a
+   separable blur these operators give a closed-form data step and an explicit fusion null space (the part of the
+   image that neither observation measures, 88% of the unknowns on Chikusei ×4). ExactFuse takes the closed-form
+   step with learned spectral gains, gives its prior inputs in the hyperspectral bands only (so one network can
+   serve any multispectral sensor), is trained over a family of blurs, spectral responses and noise levels and can
+   estimate the operators from the two observations at test time. Against eleven published networks retrained
+   under one protocol it is the most accurate on every dataset and scale factor tested. The earlier version with a
+   gradient data step and the HR-MSI as prior input is called the *base model* below.
 2. **Theory track.** Identifiability and ambiguity of the fusion problem: admissible ambiguity
    (P1), identifiable spectral rank (P2), sensor-shift bound (P3), phase transition (P4), and the
    methods built on them (KrylovNet, NullFusion). Details in
@@ -19,63 +23,132 @@ The repository has two tracks:
 
 ---
 
-## Chikusei ×4: where things stand
+## Equal-budget benchmark (×4)
+
+Every learned method is retrained by us from its authors' code under one pipeline: the same data, patches,
+batch, EMA weights and validation-only model selection, and the same 4 h on one Tesla T4 (SSR-NET 1.5 h).
+Test PSNR (dB) and SAM (degrees), single pass:
+
+| Method | Chikusei PSNR ↑ | SAM ↓ | Pavia Centre PSNR ↑ | SAM ↓ |
+|---|---|---|---|---|
+| **ExactFuse (ours)** | **58.05** | **0.724** | **50.63** | **1.892** |
+| MIMO-SST (TGRS 2024) | 57.27 | 0.780 | 49.69 | 1.961 |
+| OTPNet (AAAI 2025) | 57.06 | 0.786 | 50.08 | 1.951 |
+| MIMFormer (JSTARS 2024) | 56.96 | 0.801 | 49.63 | 1.982 |
+| CLSNet (2026) | 56.65 | 0.811 | 49.50 | 1.993 |
+| SSR-NET (TGRS 2021) | 55.55 | 0.954 | 48.45 | 2.443 |
+| SMGU-Net (PR 2025) | 55.14 | 0.949 | 48.03 | 2.331 |
+| DHIF-Net (TCI 2022) | 54.39 | 1.020 | 47.67 | 2.295 |
+| PSRT (TGRS 2023) | 53.99 | 1.057 | 47.87 | 2.212 |
+| CaFormer (2026) | 53.56 | 1.054 | 48.43 | 2.145 |
+| U2Net (ACM MM 2023) | 53.35 | 1.076 | 47.29 | 2.327 |
+| DCT (Information Fusion 2024) | 53.18 | 1.133 | 46.94 | 2.442 |
+
+ExactFuse is best on PSNR, SSIM, SAM and ERGAS on both datasets, 0.79 / 0.55 dB above the best retrained network.
+Over three seeds its PSNR varies by at most 0.03 dB. Pooled over the 76 test images of the eight settings it is
+more accurate than the strongest network of each setting on 75 of them (one-sided Wilcoxon signed-rank test,
+p = 1.9 × 10⁻¹⁴). Its error in the observed subspace, the part that contradicts the inputs, is 27× (Chikusei) and
+9× (Pavia Centre) smaller than that of the best retrained network on this measure (MIMO-SST), and it reproduces the
+LR-HSI 17 dB more accurately than the strongest baseline. U2Net, whose attention spans all pixels, is tested in
+overlapping 128 × 128 tiles.
+
+Other datasets and scale factors (same protocol and budget; –: not run; Harvard ×8 and Pavia ×16 are queued):
+
+| Method | CAVE ×4 | Harvard ×4 | CAVE ×8 | Chikusei ×8 | Pavia ×8 | Chikusei ×16 |
+|---|---|---|---|---|---|---|
+| **ExactFuse** | **52.46** | **50.03** | **50.39** | **56.95** | **50.05** | **56.11** |
+| MIMFormer | 50.93 | 49.72 | 48.10 | 55.57 | 49.09 | 54.21 |
+| MIMO-SST | 50.39 | 49.82 | – | 55.88 | 48.90 | – |
+| OTPNet | – | – | – | 56.11 | 49.51 | – |
+| DHIF-Net | 49.82 | 49.57 | – | – | – | – |
+| SMGU-Net | 48.54 | 49.34 | – | – | – | – |
+| PSRT | 48.51 | 49.29 | 45.21 | 53.05 | 47.13 | – |
+| U2Net | 48.04 | 48.70 | – | – | – | – |
+| CaFormer | 47.91 | 49.09 | – | – | – | – |
+| SSR-NET | 46.51 | 49.18 | 44.25 | 54.57 | 47.71 | 53.98 |
+| DCT | 46.36 | 48.92 | 43.17 | 51.77 | 45.51 | – |
+
+Where the margin comes from: a single U-Net prior without data steps already reaches 57.67 / 50.39 dB, above
+every retrained network, and the exact data steps add 0.38 / 0.23 dB. The recipe is not the whole story: with the
+same training recipe for both, ExactFuse leads MIMFormer by 0.53 / 0.40 dB (our recipe) and 0.72 / 0.44 dB (the
+baselines'). With twice the budget (8 h) on Chikusei, ExactFuse reaches 58.18 dB and MIMFormer 57.37 dB:
+the gap narrows from 1.10 to 0.81 dB but remains, although ExactFuse completes 63,850 iterations against 186,800
+(the base model on Pavia Centre: 1.00 → 0.69 dB). ExactFuse has 10.45 M
+parameters and takes 221 ms for a 256 × 256 Chikusei image on a T4. All metrics per job are in
+[results/q1/](results/q1/); the jobs are defined in [methods/puformer/kaggle/jobs.py](methods/puformer/kaggle/jobs.py).
+
+## What the HR-MSI adds
+
+Why fuse instead of super-resolving the LR-HSI alone? In the eigenbasis of the exact operators the LR-HSI sees only
+the coarse part of every band, so single-image super-resolution must invent all fine detail. The HR-MSI measures
+that detail in only 3–8 spectral directions, but detail is shared across bands, so these directions carry most of
+its energy ([msi_value.py](methods/puformer/msi_value.py), no network involved):
+
+| ×4 | MSI's share of the fine-detail energy | Minimum-norm image from the LR-HSI alone | From both observations |
+|---|---|---|---|
+| Chikusei | 84% | 33.5 dB | 41.3 dB |
+| Pavia Centre | 77% | 27.2 dB | 33.6 dB |
+| CAVE | 95% | 31.1 dB | 44.1 dB |
+| Harvard | 95% | 34.1 dB | 47.7 dB |
+
+The minimum-norm image keeps exactly what the observations measure and is zero elsewhere; the gain from the HR-MSI
+is the same at ×8 and ×16. Results: [results/q1/msi-value-*](results/q1/).
+
+## One network for a family of observation models
+
+Trained over random blur widths (0.5–2 σ₀), spectral-response shifts (±12 nm) and noise (30–50 dB SNR), with the
+operators given to the data steps or estimated from the two observations, the network keeps its accuracy when the
+observation model changes (mean PSNR in dB):
+
+| Model | Chikusei: training operator | Noise 40–30 dB | Blur + SRF + noise | Pavia: training operator | Noise | Blur + SRF + noise |
+|---|---|---|---|---|---|---|
+| MIMFormer, nominal training | 56.96 | 50.33 | 48.98 | 49.63 | 45.24 | 44.15 |
+| MIMFormer, randomized training | 56.50 | 51.67 | 51.30 | 49.37 | 45.87 | 45.22 |
+| ExactFuse, nominal training, estimated operator | 58.05 | 47.60 | 46.71 | 50.63 | 43.15 | 42.32 |
+| **ExactFuse, randomized + estimated operator** | **57.77** | **52.64** | **52.59** | **50.43** | **46.55** | **46.53** |
+
+Within the family the blur width is recovered to within 0.05 px and the spectral shift exactly on the search grid.
+Outside the family the method fails like the others: a half-pixel misregistration of the HR-MSI costs every
+method more than 15 dB. Registering the HR-MSI with the offset estimated from the pair before fusion recovers part
+of the loss (Pavia Centre, 1 px: 27.0 → 43.9 dB; GSA with the same registration 34.3 dB). With an anisotropic blur and 35 dB noise added, ExactFuse trained over the wider family (noise, anisotropic blur, grid offsets) reaches 45.72 dB on Chikusei against 45.49 dB for MIMFormer.
+
+**One network for any sensor.** ExactFuse trained only on random multispectral responses (3–10 bands of random
+position and width) and tested on seven real sensors it never saw is 9.9–13.5 dB (Chikusei) and 10.5–15.6 dB
+(Pavia Centre) above GSA and 3.2–11.3 dB (Chikusei) and 3.6–7.2 dB (Pavia Centre) above MIMFormer trained on the
+same random responses with the same input; on WorldView-2 it is 1.79 dB below ExactFuse trained for that sensor
+and 0.7 dB below MIMFormer trained for it. Trained for a three-band RGB camera, ExactFuse reaches 47.15 dB on Chikusei against
+46.03 dB for MIMFormer.
+
+**One network for several scale factors.** ExactFuse trained at ×4 and ×8 together is at most 0.15 dB below the
+networks trained for each scale and above the best retrained network of every scale; at ×16, which it never saw,
+it leads that network by 1.76 dB (Chikusei, 55.97 dB) and 1.99 dB (Pavia Centre, 49.38 dB).
+
+## Comparison with published numbers (Chikusei ×4)
 
 | | PSNR ↑ | SSIM ↑ | SAM ↓ | ERGAS ↓ | Q2n ↑ | CC ↑ | SCC ↑ | RMSE (DN) ↓ | Source |
 |---|---|---|---|---|---|---|---|---|---|
-| **PUFormer v3 (ours)** | **58.20** | **0.9989** | **0.713** | **1.330** | 0.9931 | **0.9967** | **0.9992** | **18.94** | [results](results/puformer_chikusei_x4_v3/) |
-| PUFormer first run (ours) | 57.99 | 0.9989 | 0.728 | 1.356 | 0.9929 | 0.9966 | 0.9991 | 19.35 | [results](results/puformer_chikusei_x4/) |
-| Two-Stage Cond. Diffusion (IEEE TIP 2026), previous published SOTA | 56.19 | 0.9982 | 0.720 | 1.516 | **0.9969** | 0.9948 | 0.9891 | 25.73 | [survey](docs/CHIKUSEI_SOTA_SURVEY.md) |
+| **PUFormer, long-trained (ours)** | **58.20** | **0.9989** | **0.713** | **1.330** | 0.9931 | **0.9967** | **0.9992** | **18.94** | [results](results/puformer_chikusei_x4_v3/) |
+| Two-Stage Cond. Diffusion (IEEE TIP 2026) | 56.19 | 0.9982 | 0.720 | 1.516 | **0.9969** | 0.9948 | 0.9891 | 25.73 | [survey](docs/CHIKUSEI_SOTA_SURVEY.md) |
 | CLSNet (2026) | 55.20 | 0.9979 | 0.784 | 1.632 | 0.9943 | 0.9941 | 0.9869 | 29.06 | reported in TIP 2026 |
 | SMGU-Net (Pattern Recognition 2025) | 54.52 | 0.9977 | 0.872 | 1.641 | 0.9952 | 0.9939 | 0.9875 | 31.29 | reported in TIP 2026 |
 
-PUFormer v3 (10.13 M parameters, fine-tuned 94,450 iterations on 2 × T4, 2-fold self-ensemble) is
-1st of 18 against the full TIP'26 Table IV on PSNR, SSIM, SAM, ERGAS, CC, SCC and RMSE, and 10th
-on Q2n. SSIM here is PSRT's definition (data range 1); with data range = each image's max it is
-0.9970. The Q2n deficit comes from the ultraviolet bands 0–7, which the WorldView-2 MSI does not
-cover; see [results/puformer_chikusei_x4_v3](results/puformer_chikusei_x4_v3/) for the analysis,
-the robustness study and the caveats.
+The long-trained model (20.4 h in two runs, 2-fold self-ensemble) is 1st of 18 against the full TIP'26 Table IV on
+seven of the eight metrics and 10th on Q2n; on Pavia Centre ×4 it reaches 50.69 dB against 47.16 dB reported
+([results](results/puformer_pavia_x4/)). These tables give context, not a ranking: the reported numbers come
+from other implementations of the protocol, and our retrained baselines exceed their reported values by up to
+3.6 dB. SSIM here is PSRT's definition (data range 1); the Q2n deficit comes from the ultraviolet bands 0–7, which
+the WorldView-2 MSI does not cover.
 
-Protocol: WorldView-2 8-band MSI, Gaussian 7×7 blur with σ = 2, ×4 downsampling, 8 test tiles of
-256×256. The survey covers only peer-reviewed, subscription IEEE papers:
-[docs/CHIKUSEI_SOTA_SURVEY.md](docs/CHIKUSEI_SOTA_SURVEY.md).
+## Novelty check
 
-## Pavia Centre ×4
-
-| | PSNR ↑ | SSIM ↑ | SAM ↓ | ERGAS ↓ | Q2n ↑ | CC ↑ | SCC ↑ | RMSE (DN) ↓ | Source |
-|---|---|---|---|---|---|---|---|---|---|
-| **PUFormer (ours)** | **50.69** | **0.9974** | 1.883 | **0.617** | 0.9753 | **0.9994** | **0.9995** | **23.52** | [results](results/puformer_pavia_x4/) |
-| Two-Stage Cond. Diffusion (IEEE TIP 2026) | 47.16 | 0.9972 | **1.454** | 0.826 | 0.9980 | 0.9985 | 0.9976 | 35.71 | TIP'26 Table IV |
-| OTPNet (best reported Q2n) | 45.81 | 0.9967 | 1.657 | 0.947 | **0.9987** | 0.9980 | 0.9968 | 41.51 | reported in TIP 2026 |
-
-Trained from scratch in one Kaggle session (9.99 M parameters, 93,850 iterations on 2 × T4, 2-fold
-self-ensemble): 1st of 18 on PSNR (+3.53 dB), SSIM (PSRT definition), ERGAS, CC, SCC and RMSE (−34 %);
-13th on SAM and 16th on Q2n. The Q2n shortfall comes from one of the four test images, which contains
-the river Ticino; on the other three, Q2n is 0.9987–0.9991, at or above the best reported value, but SAM
-is still 1.55–1.68°, above the best reported 1.454°. Protocol: bands 11–102
-(92), IKONOS 4-band MSI, Gaussian 7×7 blur with σ = 2, ×4, rebuilt from the original scene because the
-PSRT benchmark files that TIP'26 uses could not be downloaded. Details and caveats:
-[results/puformer_pavia_x4](results/puformer_pavia_x4/).
-
-## Equal-budget benchmark (×4)
-
-Every learned method is retrained by us from its authors' code under one pipeline: the same data,
-patches, batch, EMA weights and validation-only model selection, and the same 4 h on one Tesla T4.
-Test PSNR (dB), single pass:
-
-| Method | Chikusei ×4 | Pavia Centre ×4 |
-|---|---|---|
-| **PUFormer (ours)** | **57.95** | **50.63** |
-| MIMFormer (JSTARS 2024) | 56.96 | 49.63 |
-| SSR-NET (TGRS 2021) | 55.55 | 48.45 |
-| DHIF-Net (unfolding, TCI 2022) | 54.39 | 47.67 |
-| PSRT (TGRS 2023) | 53.99 | 47.87 |
-| DCT (Information Fusion 2024) | 53.18 | 46.94 |
-
-PUFormer also has the lowest SAM, ERGAS and RMSE on both datasets. With twice the budget (8 h) on Pavia
-Centre, PUFormer reaches 50.67 dB and MIMFormer 49.97 dB: the gap narrows from 1.00 to 0.69 dB but remains.
-The fixed budget favours fast networks, which is why the small SSR-NET ranks third. All metrics per job are in
-[results/q1/](results/q1/); the jobs are defined in [methods/puformer/kaggle/jobs.py](methods/puformer/kaggle/jobs.py).
+[paper/puformer/novelty_check.py](paper/puformer/novelty_check.py) compares the architecture with 19 prior
+methods on 16 architectural facets. For ExactFuse as adopted, 1 facet appears in no prior method (the border rule
+and adjoint of the simulation in the closed-form step) and 4 in no prior fusion method (true border rule, learned
+filters in the operator's eigen domain, training over an operator family, observation-model conditioning); the
+nearest method overlaps 42% (USRNet, single-image super-resolution) and the nearest fusion method 23% (IR&ArF).
+The novelty is the analysis and its use in one network, not a new building block.
+SPECTER-2 similarity of the abstracts places the paper among typical papers of the field, with no near-duplicate.
+The facets are scored by us from the papers; results are in [results/q1/novelty/](results/q1/novelty/).
 
 ## Ablation study (×4)
 
@@ -126,7 +199,7 @@ are slightly better than the full model, so its prior is not optimal there.
 ```
 .
 ├── methods/            Our methods, one self-contained package each
-│   ├── puformer/       ★ Physics-Unfolded Transformer, Chikusei x4 SOTA attempt (active)
+│   ├── puformer/       ★ PUFormer: unfolded fusion with exact observation operators (active)
 │   ├── nullfusion/     Null-space conditional fusion (exact data consistency)
 │   ├── krylovnet/      Unrolled preconditioned GMRES + identifiable-rank theory (P2)
 │   ├── daetf/          Admissible-ambiguity manifold (P1)
@@ -213,10 +286,11 @@ the repository (see `.gitignore`).
 
 ## Paper
 
-The PUFormer manuscript (IEEE journal format), with the Chikusei and Pavia Centre results, is in
-[paper/puformer/main.pdf](paper/puformer/main.pdf), with its supplementary material in
-[paper/puformer/supplementary.pdf](paper/puformer/supplementary.pdf); the sources and build notes are in
-[paper/puformer/](paper/puformer/).
+The PUFormer manuscript is in [paper/puformer/](paper/puformer/): the journal version
+([main.pdf](paper/puformer/main.pdf), [supplementary.pdf](paper/puformer/supplementary.pdf)) and an 8-page
+conference version ([cvpr_main.pdf](paper/puformer/cvpr_main.pdf),
+[cvpr_supp.pdf](paper/puformer/cvpr_supp.pdf)). Both are built on Kaggle from the committed result files; the
+sources and build notes are in [paper/puformer/README.md](paper/puformer/README.md).
 
 ## License
 

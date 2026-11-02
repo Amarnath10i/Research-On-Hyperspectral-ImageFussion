@@ -1,0 +1,83 @@
+[{"stream_name":"stderr","time":7.695691601,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.695751315,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.695755965,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.695758473,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":8.302157641,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.302188231,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.302193318,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.302196856,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":9.439335103,"data":"code sha256 f391c10f73ba1a8c91f6d1c8f2521603406b05d4be0592c815631904fa8bcf48 from git fc2f350+local changes\n"}
+,{"stream_name":"stdout","time":9.441493555,"data":"4\n"}
+,{"stream_name":"stdout","time":9.456845911,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":9.456874483,"data":"Mem:              31           1          25           0           4          30\n"}
+,{"stream_name":"stderr","time":9.634680127,"data":"/tmp/ipykernel_23/916730472.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":9.634700276,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":9.634703415,"data":"\n"}
+,{"stream_name":"stderr","time":9.634705704,"data":"/tmp/ipykernel_23/916730472.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":9.634708377,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":9.638537504,"data":"4\n"}
+,{"stream_name":"stdout","time":9.638559236999999,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":9.638563101,"data":"Mem:              31           1          25           0           4          30\n"}
+,{"stream_name":"stdout","time":11.876138422,"data":"RUN sa-chikusei-x4-mimformer : python family_eval.py --mat /kaggle/input/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model mimformer --sa 1 --mode sensors --ckpt /kaggle/input/puf-s21/out/sa-chikusei-x4-mimformer/best_ema.pt --out /kaggle/working/out/sa-chikusei-x4-mimformer \n"}
+,{"stream_name":"stderr","time":196.49468395,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stderr","time":196.698685674,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stderr","time":196.698709938,"data":"\n"}
+,{"stream_name":"stderr","time":196.698714826,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stdout","time":197.034479877,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stdout","time":197.236689533,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stderr","time":208.667693858,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":208.667721903,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":208.870991778,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":208.871044514,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":208.8710513,"data":"\n"}
+,{"stream_name":"stderr","time":208.871054739,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":208.871058327,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stdout","time":217.064765921,"data":"worldview2 8 bands {'gsa': 43.1966, 'model': 46.1675}\n"}
+,{"stream_name":"stdout","time":217.266933942,"data":"worldview2 8 bands {'gsa': 43.1966, 'model': 46.1675}\n"}
+,{"stream_name":"stdout","time":220.460144627,"data":"ikonos 4 bands {'gsa': 42.6448, 'model': 50.3318}\n"}
+,{"stream_name":"stdout","time":220.662184634,"data":"ikonos 4 bands {'gsa': 42.6448, 'model': 50.3318}\n"}
+,{"stream_name":"stdout","time":223.869089458,"data":"quickbird 4 bands {'gsa': 42.6988, 'model': 50.7426}\n"}
+,{"stream_name":"stdout","time":224.071222557,"data":"quickbird 4 bands {'gsa': 42.6988, 'model': 50.7426}\n"}
+,{"stream_name":"stdout","time":227.274592679,"data":"planetscope 4 bands {'gsa': 40.6372, 'model': 44.3322}\n"}
+,{"stream_name":"stdout","time":227.478316982,"data":"planetscope 4 bands {'gsa': 40.6372, 'model': 44.3322}\n"}
+,{"stream_name":"stdout","time":230.747184308,"data":"landsat8 5 bands {'gsa': 40.6659, 'model': 42.8495}\n"}
+,{"stream_name":"stdout","time":230.949338481,"data":"landsat8 5 bands {'gsa': 40.6659, 'model': 42.8495}\n"}
+,{"stream_name":"stdout","time":234.506574685,"data":"sentinel2 10 bands {'gsa': 43.4277, 'model': 49.4681}\n"}
+,{"stream_name":"stdout","time":234.708594994,"data":"sentinel2 10 bands {'gsa': 43.4277, 'model': 49.4681}\n"}
+,{"stream_name":"stdout","time":237.88998301,"data":"rgb 3 bands {'gsa': 34.4854, 'model': 36.9213}\n"}
+,{"stream_name":"stdout","time":238.092259182,"data":"rgb 3 bands {'gsa': 34.4854, 'model': 36.9213}\n"}
+,{"stream_name":"stdout","time":247.484016944,"data":"END sa-chikusei-x4-mimformer rc 0\n"}
+,{"stream_name":"stdout","time":248.147823149,"data":"RUN sa-pavia-x4-mimformer : python family_eval.py --mat '/kaggle/input/paviadata/pavia centre/Pavia.mat'  --dataset pavia --scale 4 --model mimformer --sa 1 --mode sensors --ckpt /kaggle/input/puf-s21/out/sa-pavia-x4-mimformer/best_ema.pt --out /kaggle/working/out/sa-pavia-x4-mimformer \n"}
+,{"stream_name":"stdout","time":252.924744776,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stdout","time":253.127311006,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stderr","time":255.008438317,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":255.008481319,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":255.21473987,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":255.214777434,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":255.214782555,"data":"\n"}
+,{"stream_name":"stderr","time":255.21478602,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":255.214789987,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stdout","time":259.610173719,"data":"worldview2 6 bands {'gsa': 34.6911, 'model': 46.3675}\n"}
+,{"stream_name":"stdout","time":259.814183446,"data":"worldview2 6 bands {'gsa': 34.6911, 'model': 46.3675}\n"}
+,{"stream_name":"stdout","time":260.925485329,"data":"ikonos 4 bands {'gsa': 34.7757, 'model': 45.5499}\n"}
+,{"stream_name":"stdout","time":261.127847188,"data":"ikonos 4 bands {'gsa': 34.7757, 'model': 45.5499}\n"}
+,{"stream_name":"stdout","time":262.239335589,"data":"quickbird 4 bands {'gsa': 34.6633, 'model': 45.7968}\n"}
+,{"stream_name":"stdout","time":262.441347809,"data":"quickbird 4 bands {'gsa': 34.6633, 'model': 45.7968}\n"}
+,{"stream_name":"stdout","time":263.534489363,"data":"planetscope 3 bands {'gsa': 29.8198, 'model': 33.7574}\n"}
+,{"stream_name":"stdout","time":263.736849966,"data":"planetscope 3 bands {'gsa': 29.8198, 'model': 33.7574}\n"}
+,{"stream_name":"stdout","time":264.83252967,"data":"landsat8 3 bands {'gsa': 29.8187, 'model': 34.0006}\n"}
+,{"stream_name":"stdout","time":265.034734257,"data":"landsat8 3 bands {'gsa': 29.8187, 'model': 34.0006}\n"}
+,{"stream_name":"stdout","time":266.217170787,"data":"sentinel2 7 bands {'gsa': 35.2411, 'model': 43.4479}\n"}
+,{"stream_name":"stdout","time":266.419557314,"data":"sentinel2 7 bands {'gsa': 35.2411, 'model': 43.4479}\n"}
+,{"stream_name":"stdout","time":267.514220945,"data":"rgb 3 bands {'gsa': 29.7721, 'model': 35.1472}\n"}
+,{"stream_name":"stdout","time":267.717011115,"data":"rgb 3 bands {'gsa': 29.7721, 'model': 35.1472}\n"}
+,{"stream_name":"stdout","time":268.628365306,"data":"END sa-pavia-x4-mimformer rc 0\n"}
+,{"stream_name":"stderr","time":270.970430739,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":270.970458359,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":271.13024136,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":271.130266938,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":271.891237074,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":271.96605191,"data":"[NbConvertApp] Writing 100497 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":274.370282744,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":274.871190183,"data":"[NbConvertApp] Writing 382082 bytes to __results__.html\n"}
+]

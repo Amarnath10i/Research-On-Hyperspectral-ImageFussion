@@ -1,0 +1,55 @@
+[{"stream_name":"stderr","time":8.482315968,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.482366782,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.482373483,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.482377948,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":9.204623659,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":9.204657033,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":9.204662457,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":9.204666457,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":10.521052789,"data":"code sha256 4b70f38dd6d1ce2f446e351d60c00676cd24576b98f24ee7fc7f19155d91e40e from git fc2f350+local changes\n"}
+,{"stream_name":"stderr","time":10.714405145,"data":"/tmp/ipykernel_16/1301854236.py:6: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":10.714438348,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":10.714443876,"data":"\n"}
+,{"stream_name":"stderr","time":10.714447701,"data":"/tmp/ipykernel_16/1301854236.py:6: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":10.714452429,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":10.846714886,"data":"RUN python null_analysis.py --dataset chikusei --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --alias smgu=bench-chikusei-x4-smgu --alias clsnet=bench-chikusei-x4-clsnet --alias otpnet=bench-chikusei-x4-otpnet --alias mimosst=bench-chikusei-x4-mimosst --alias u2net=bench-chikusei-x4-u2net --out /kaggle/working/out/null-chikusei-x4-nb\n"}
+,{"stream_name":"stdout","time":206.715344899,"data":"no predictions for bench-chikusei-x4-u2net\n"}
+,{"stream_name":"stdout","time":206.928892974,"data":"no predictions for bench-chikusei-x4-u2net\n"}
+,{"stream_name":"stdout","time":209.94818257,"data":"bicubic    PSNR 33.63  null-space share of the error 8.6%  PSNR with an exact observed part 44.27\n"}
+,{"stream_name":"stdout","time":210.151612789,"data":"bicubic    PSNR 33.63  null-space share of the error 8.6%  PSNR with an exact observed part 44.27\n"}
+,{"stream_name":"stdout","time":213.090514082,"data":"gsa        PSNR 43.20  null-space share of the error 13.7%  PSNR with an exact observed part 51.92\n"}
+,{"stream_name":"stdout","time":213.294073816,"data":"gsa        PSNR 43.20  null-space share of the error 13.7%  PSNR with an exact observed part 51.92\n"}
+,{"stream_name":"stdout","time":216.176016351,"data":"smgu       PSNR 55.14  null-space share of the error 73.1%  PSNR with an exact observed part 56.51\n"}
+,{"stream_name":"stdout","time":216.379469677,"data":"smgu       PSNR 55.14  null-space share of the error 73.1%  PSNR with an exact observed part 56.51\n"}
+,{"stream_name":"stdout","time":219.344731021,"data":"clsnet     PSNR 56.65  null-space share of the error 88.5%  PSNR with an exact observed part 57.19\n"}
+,{"stream_name":"stdout","time":219.548264456,"data":"clsnet     PSNR 56.65  null-space share of the error 88.5%  PSNR with an exact observed part 57.19\n"}
+,{"stream_name":"stdout","time":222.495141392,"data":"otpnet     PSNR 57.06  null-space share of the error 88.4%  PSNR with an exact observed part 57.60\n"}
+,{"stream_name":"stdout","time":222.698637315,"data":"otpnet     PSNR 57.06  null-space share of the error 88.4%  PSNR with an exact observed part 57.60\n"}
+,{"stream_name":"stdout","time":225.615375243,"data":"mimosst    PSNR 57.26  null-space share of the error 96.5%  PSNR with an exact observed part 57.42\n"}
+,{"stream_name":"stdout","time":225.818263621,"data":"mimosst    PSNR 57.26  null-space share of the error 96.5%  PSNR with an exact observed part 57.42\n"}
+,{"stream_name":"stdout","time":226.11917073,"data":"END rc 0\n"}
+,{"stream_name":"stdout","time":226.120151457,"data":"RUN python null_analysis.py --dataset pavia --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat'  --alias smgu=bench-pavia-x4-smgu --alias clsnet=bench-pavia-x4-clsnet --alias otpnet=bench-pavia-x4-otpnet --alias mimosst=bench-pavia-x4-mimosst --alias u2net=bench-pavia-x4-u2net --out /kaggle/working/out/null-pavia-x4-nb\n"}
+,{"stream_name":"stdout","time":242.268676276,"data":"no predictions for bench-pavia-x4-u2net\n"}
+,{"stream_name":"stdout","time":242.474955994,"data":"no predictions for bench-pavia-x4-u2net\n"}
+,{"stream_name":"stdout","time":243.42443649,"data":"bicubic    PSNR 25.52  null-space share of the error 11.5%  PSNR with an exact observed part 34.91\n"}
+,{"stream_name":"stdout","time":243.627592434,"data":"bicubic    PSNR 25.52  null-space share of the error 11.5%  PSNR with an exact observed part 34.91\n"}
+,{"stream_name":"stdout","time":244.509708998,"data":"gsa        PSNR 34.78  null-space share of the error 18.7%  PSNR with an exact observed part 42.39\n"}
+,{"stream_name":"stdout","time":244.712953557,"data":"gsa        PSNR 34.78  null-space share of the error 18.7%  PSNR with an exact observed part 42.39\n"}
+,{"stream_name":"stdout","time":245.605888777,"data":"smgu       PSNR 48.03  null-space share of the error 85.9%  PSNR with an exact observed part 48.68\n"}
+,{"stream_name":"stdout","time":245.809199874,"data":"smgu       PSNR 48.03  null-space share of the error 85.9%  PSNR with an exact observed part 48.68\n"}
+,{"stream_name":"stdout","time":246.708656045,"data":"clsnet     PSNR 49.50  null-space share of the error 94.5%  PSNR with an exact observed part 49.75\n"}
+,{"stream_name":"stdout","time":246.911910848,"data":"clsnet     PSNR 49.50  null-space share of the error 94.5%  PSNR with an exact observed part 49.75\n"}
+,{"stream_name":"stdout","time":247.812962376,"data":"otpnet     PSNR 50.08  null-space share of the error 93.4%  PSNR with an exact observed part 50.37\n"}
+,{"stream_name":"stdout","time":248.015774632,"data":"otpnet     PSNR 50.08  null-space share of the error 93.4%  PSNR with an exact observed part 50.37\n"}
+,{"stream_name":"stdout","time":248.933453544,"data":"mimosst    PSNR 49.69  null-space share of the error 97.7%  PSNR with an exact observed part 49.79\n"}
+,{"stream_name":"stdout","time":249.13649597,"data":"mimosst    PSNR 49.69  null-space share of the error 97.7%  PSNR with an exact observed part 49.79\n"}
+,{"stream_name":"stdout","time":249.356809733,"data":"END rc 0\n"}
+,{"stream_name":"stderr","time":252.301898393,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":252.301933772,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":252.488608451,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":252.488639535,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":253.350210897,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":253.439820339,"data":"[NbConvertApp] Writing 99497 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":256.367257655,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":256.965871281,"data":"[NbConvertApp] Writing 378133 bytes to __results__.html\n"}
+]

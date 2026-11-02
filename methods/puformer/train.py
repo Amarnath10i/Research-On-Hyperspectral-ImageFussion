@@ -37,6 +37,7 @@ import torch.nn.functional as F
 from hsifuse import metrics
 from hsifuse.baselines import gsa
 from hsifuse.config import DATASETS, MODELS, add_ablation_args, blur_of, build_model, make_deg, set_metric_scale
+from hsifuse.ops import corrupt, dataset_wl, null_gate, random_srf
 from hsifuse.data import PatchSampler, load_dataset, make_pairs, split_pavia
 from hsifuse.evaluation import final_test, predict
 from hsifuse.losses import sam_loss, ssim_loss
@@ -109,6 +110,15 @@ def get_args():
                    "the row width (axis-aligned anisotropic Gaussian, same range as --rand_sigma)")
     p.add_argument("--rand_offset", type=float, default=0.0, help="sub-pixel offsets of the LR-HSI grid per batch, "
                    "uniform in [-x, x] HR pixels along each axis (misregistration), on a 1/8-pixel grid")
+    p.add_argument("--rand_srf", type=int, default=0, help="1: a random multispectral sensor per batch (3-10 bands, "
+                   "random positions and widths; hsifuse.ops.random_srf), for --sa models")
+    p.add_argument("--rand_scale", default="", help="resolution ratio per batch from this list, e.g. 4,8 (each with "
+                   "its own blur, blur_of); for scale-independent PUFormer")
+    p.add_argument("--w_unc", type=float, default=0.01, help="weight of the Gaussian negative log-likelihood of the "
+                   "null-space error for --unc models (the head sees detached features and errors)")
+    p.add_argument("--rand_corrupt", type=float, default=0.0, help="probability per batch of corrupted observations: "
+                   "local changes in the HR-MSI (patches from another scene) and dead or miscalibrated LR-HSI columns; "
+                   "the reference stays clean (for --cwd models)")
     p.add_argument("--rand_snr", default="", help="Gaussian noise on both inputs at an SNR uniform in [lo, hi] dB "
                    "(per batch, with probability --noise_prob), e.g. 30,50")
     p.add_argument("--noise_prob", type=float, default=0.5)
@@ -300,16 +310,30 @@ def main():
             log("start: " + evaluate_ema(it, float("nan"), 0.0))
 
     # operator randomization: a small bank of operators on a 0.05 sigma / 1 nm grid, built on first use
-    rand_ops = bool(a.rand_sigma or a.rand_shift or a.rand_offset)
+    rand_ops = bool(a.rand_sigma or a.rand_shift or a.rand_offset or a.rand_srf or a.rand_scale)
+    scales = [int(v) for v in a.rand_scale.split(",")] if a.rand_scale else [a.scale]
+    srf_rng = np.random.default_rng(a.seed + 7)
+    wl = dataset_wl(a.dataset)
     if rand_ops or a.rand_snr:
         assert world == 1, "operator randomization runs on one GPU"
     s0 = blur_of(a.scale)[1]
     sig_lo, sig_hi = (float(v) for v in a.rand_sigma.split(",")) if a.rand_sigma else (1.0, 1.0)
     snr_lo, snr_hi = (float(v) for v in a.rand_snr.split(",")) if a.rand_snr else (0.0, 0.0)
-    conditioned = rand_ops and bool(a.cond) and a.model == "puformer" and a.op == "exact" and bool(a.physics)
+    conditioned = rand_ops and bool(a.cond) and ((a.model == "puformer" and a.op == "exact" and bool(a.physics))
+                                                 or bool(a.sa))
     bank = {}
 
     def batch_op():
+        if a.rand_srf or len(scales) > 1:              # random sensor / scale: a fresh operator for every batch
+            s = int(np.random.choice(scales))
+            base_s = blur_of(s)[1]
+            sig = round(base_s * float(np.random.uniform(sig_lo, sig_hi)) / 0.05) * 0.05
+            sig_c = round(base_s * float(np.random.uniform(sig_lo, sig_hi)) / 0.05) * 0.05 if a.rand_aniso else sig
+            off = tuple(round(float(np.random.uniform(-a.rand_offset, a.rand_offset)) * 8) / 8 if a.rand_offset
+                        else 0.0 for _ in range(2))
+            srf = random_srf(wl, srf_rng) if a.rand_srf else None
+            sh = float(round(np.random.uniform(-a.rand_shift, a.rand_shift))) if a.rand_shift and srf is None else 0.0
+            return make_deg(a, sigma=sig, shift_nm=sh, sigma_c=sig_c, off=off, srf=srf, scale=s).to(dev)
         draw = lambda: round(s0 * float(np.random.uniform(sig_lo, sig_hi)) / 0.05) * 0.05
         sig = draw()
         sig_c = draw() if a.rand_aniso else sig
@@ -345,6 +369,8 @@ def main():
                 model.deg = d_b
         else:
             lr_, ms_, gt_ = sampler(a.bs)
+        if a.rand_corrupt and np.random.rand() < a.rand_corrupt:
+            lr_, ms_ = corrupt(lr_, ms_, np.random)
         if a.rand_snr and np.random.rand() < a.noise_prob:
             snr = float(np.random.uniform(snr_lo, snr_hi))
             lr_, ms_ = add_noise(lr_, snr), add_noise(ms_, snr)
@@ -354,6 +380,12 @@ def main():
             loss = loss + a.w_sam * sam_loss(outs[-1], gt_)
         if a.w_ssim:
             loss = loss + a.w_ssim * ssim_loss(outs[-1], gt_)
+        if getattr(model, "unc", False) and model.last_logvar is not None and a.w_unc:
+            err = (outs[-1] - gt_).detach()
+            dg = model.deg
+            en = null_gate(dg, err, 0.0) if getattr(dg, "gaussian", False) else err   # the unobservable part
+            s = model.last_logvar
+            loss = loss + a.w_unc * (en.pow(2) * torch.exp(-s) + s).mean()
         opt.zero_grad(set_to_none=True)
         scaler.scale(loss).backward()
         scaler.unscale_(opt)

@@ -37,6 +37,8 @@ def main():
     add_ablation_args(p)
     p.add_argument("--q2n", type=int, default=1)
     p.add_argument("--out", required=True)
+    p.add_argument("--train_dir", default="", help="folder of the training run (history.json): its iterations, hours "
+                   "and best validation PSNR are added, so results.json matches the one train.py writes")
     a = p.parse_args()
     os.makedirs(a.out, exist_ok=True)
     dev = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -57,6 +59,11 @@ def main():
     res = final_test(model, test, deg, a.out, full=bool(a.q2n))
     bic = evaluate(test[2], F.interpolate(test[0], scale_factor=a.scale, mode="bicubic", align_corners=False))
     out = dict(ckpt=a.ckpt, pad=a.pad, val=v, **res, bicubic_test=bic, seconds=round(time.time() - t0, 1))
+    if a.train_dir:
+        hist = json.load(open(os.path.join(a.train_dir, "history.json")))
+        out.update(model=a.model, params_M=sum(t.numel() for t in model.parameters()) / 1e6, iters=hist[-1]["it"],
+                   epochs=hist[-1]["epoch"], best_val_PSNR=max(h["val_PSNR"] for h in hist), dataset=a.dataset,
+                   scale=a.scale, dn_scale=float(peak), train_hours=hist[-1]["hours"])
     with open(os.path.join(a.out, "results.json"), "w") as f:
         json.dump(out, f, indent=1)
     print("VAL:", {k: round(x, 4) for k, x in v.items()}, flush=True)

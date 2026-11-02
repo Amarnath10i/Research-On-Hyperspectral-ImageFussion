@@ -1,0 +1,244 @@
+[{"stream_name":"stderr","time":13.577203563,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":13.577363982,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":13.577372094,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":13.577375178,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":14.581987965,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":14.582044304,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":14.582050138,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":14.582054717,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":16.359150196,"data":"code sha256 15c114f7395140457cfe72f874b4ab55ca41fcbfba10bc1d1f847afbc5528dd3 from git 30d6a05+local changes\n"}
+,{"stream_name":"stdout","time":16.363542853,"data":"4\n"}
+,{"stream_name":"stdout","time":16.395566239,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":16.395603501,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stderr","time":16.550967216,"data":"/tmp/ipykernel_15/3324918532.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":16.551001155,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":16.551005036,"data":"\n"}
+,{"stream_name":"stderr","time":16.551007911,"data":"/tmp/ipykernel_15/3324918532.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":16.55101114,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":16.558314085,"data":"4\n"}
+,{"stream_name":"stdout","time":16.558353278,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":16.558359357,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stdout","time":23.69356923,"data":"RUN cond-chikusei-x4-mimformer : python cond_eval.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model mimformer --ckpt /kaggle/input/notebooks/hruthwikch/puf-r03/out/cond-chikusei-x4-mimformer/best_ema.pt --out /kaggle/working/out/cond-chikusei-x4-mimformer\n"}
+,{"stream_name":"stderr","time":359.285062897,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stderr","time":359.490089216,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stderr","time":359.490121898,"data":"\n"}
+,{"stream_name":"stderr","time":359.490128973,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stdout","time":361.515701195,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stdout","time":361.718474411,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stderr","time":380.528994244,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":380.529028506,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":380.590489839,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":380.592019821,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 279, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":380.592052677,"data":"    main()\n"}
+,{"stream_name":"stderr","time":380.592057768,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":380.592061791,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 183, in main\n"}
+,{"stream_name":"stderr","time":380.592066129,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":380.592088772,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":380.592092767,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 54, in build_model\n"}
+,{"stream_name":"stderr","time":380.592097086,"data":"    return build(a.model, deg)\n"}
+,{"stream_name":"stderr","time":380.592101758,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 327, in build\n"}
+,{"stream_name":"stderr","time":380.592105861,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale)\n"}
+,{"stream_name":"stderr","time":380.59210986,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 183, in build_external\n"}
+,{"stream_name":"stderr","time":380.592114049,"data":"    net = m.MIMFormer(hsi_chans=bands, msi_chans=msi, scale_factor=scale)\n"}
+,{"stream_name":"stderr","time":380.5921184,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 110, in __init__\n"}
+,{"stream_name":"stderr","time":380.592122716,"data":"    self.MIMFormer = Future(hsi_chans+msi_chans,180)\n"}
+,{"stream_name":"stderr","time":380.592126832,"data":"                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":380.592130935,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 77, in __init__\n"}
+,{"stream_name":"stderr","time":380.592135079,"data":"    self.weight_a = nn.Parameter(torch.ones(1).to('cuda:0'))\n"}
+,{"stream_name":"stderr","time":380.592139041,"data":"                                 ~~~~~~~~~~~~~~~~^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":380.592143106,"data":"  File \"/usr/local/lib/python3.13/dist-packages/torch/cuda/__init__.py\", line 471, in _lazy_init\n"}
+,{"stream_name":"stderr","time":380.592147333,"data":"    raise AssertionError(\"Torch not compiled with CUDA enabled\")\n"}
+,{"stream_name":"stderr","time":380.5921535,"data":"AssertionError: Torch not compiled with CUDA enabled\n"}
+,{"stream_name":"stderr","time":380.732306772,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":380.732345233,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":380.732351101,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":380.732354982,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 279, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":380.73236016,"data":"    main()\n"}
+,{"stream_name":"stderr","time":380.732399303,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":380.732403156,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 183, in main\n"}
+,{"stream_name":"stderr","time":380.732407237,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":380.732411508,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":380.73241518,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 54, in build_model\n"}
+,{"stream_name":"stderr","time":380.732419104,"data":"    return build(a.model, deg)\n"}
+,{"stream_name":"stderr","time":380.732423059,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 327, in build\n"}
+,{"stream_name":"stderr","time":380.732427088,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale)\n"}
+,{"stream_name":"stderr","time":380.732431268,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 183, in build_external\n"}
+,{"stream_name":"stderr","time":380.732435184,"data":"    net = m.MIMFormer(hsi_chans=bands, msi_chans=msi, scale_factor=scale)\n"}
+,{"stream_name":"stderr","time":380.7324391,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 110, in __init__\n"}
+,{"stream_name":"stderr","time":380.732443167,"data":"    self.MIMFormer = Future(hsi_chans+msi_chans,180)\n"}
+,{"stream_name":"stderr","time":380.732447449,"data":"                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":380.732451094,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 77, in __init__\n"}
+,{"stream_name":"stderr","time":380.732454884,"data":"    self.weight_a = nn.Parameter(torch.ones(1).to('cuda:0'))\n"}
+,{"stream_name":"stderr","time":380.732458886,"data":"                                 ~~~~~~~~~~~~~~~~^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":380.73246265,"data":"  File \"/usr/local/lib/python3.13/dist-packages/torch/cuda/__init__.py\", line 471, in _lazy_init\n"}
+,{"stream_name":"stderr","time":380.732466964,"data":"    raise AssertionError(\"Torch not compiled with CUDA enabled\")\n"}
+,{"stream_name":"stderr","time":380.732471748,"data":"AssertionError: Torch not compiled with CUDA enabled\n"}
+,{"stream_name":"stderr","time":380.732476389,"data":"\n"}
+,{"stream_name":"stderr","time":380.732481232,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":380.732485321,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":380.73249011,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":380.732493604,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 279, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":380.732497651,"data":"    main()\n"}
+,{"stream_name":"stderr","time":380.732506349,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":380.732510111,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 183, in main\n"}
+,{"stream_name":"stderr","time":380.732514184,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":380.732520999,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":380.732524817,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 54, in build_model\n"}
+,{"stream_name":"stderr","time":380.732529012,"data":"    return build(a.model, deg)\n"}
+,{"stream_name":"stderr","time":380.732533141,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 327, in build\n"}
+,{"stream_name":"stderr","time":380.732543116,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale)\n"}
+,{"stream_name":"stderr","time":380.732547235,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 183, in build_external\n"}
+,{"stream_name":"stderr","time":380.732551304,"data":"    net = m.MIMFormer(hsi_chans=bands, msi_chans=msi, scale_factor=scale)\n"}
+,{"stream_name":"stderr","time":380.732555285,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 110, in __init__\n"}
+,{"stream_name":"stderr","time":380.73255907,"data":"    self.MIMFormer = Future(hsi_chans+msi_chans,180)\n"}
+,{"stream_name":"stderr","time":380.732563044,"data":"                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":380.732566987,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 77, in __init__\n"}
+,{"stream_name":"stderr","time":380.732570719,"data":"    self.weight_a = nn.Parameter(torch.ones(1).to('cuda:0'))\n"}
+,{"stream_name":"stderr","time":380.732574639,"data":"                                 ~~~~~~~~~~~~~~~~^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":380.732578215,"data":"  File \"/usr/local/lib/python3.13/dist-packages/torch/cuda/__init__.py\", line 471, in _lazy_init\n"}
+,{"stream_name":"stderr","time":380.732582158,"data":"    raise AssertionError(\"Torch not compiled with CUDA enabled\")\n"}
+,{"stream_name":"stderr","time":380.732586229,"data":"AssertionError: Torch not compiled with CUDA enabled\n"}
+,{"stream_name":"stdout","time":382.057640528,"data":"END cond-chikusei-x4-mimformer rc 1\n"}
+,{"stream_name":"stdout","time":383.60894711,"data":"RUN cond-pavia-x4-mimformer : python cond_eval.py --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat'  --dataset pavia --scale 4 --model mimformer --ckpt /kaggle/input/notebooks/hruthwikch/puf-r04/out/cond-pavia-x4-mimformer/best_ema.pt --out /kaggle/working/out/cond-pavia-x4-mimformer\n"}
+,{"stream_name":"stdout","time":390.024597054,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stdout","time":390.229467252,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stderr","time":392.822120751,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":392.82215305,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":392.823938511,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":392.825573939,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 279, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":392.825602193,"data":"    main()\n"}
+,{"stream_name":"stderr","time":392.825608415,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":392.825613537,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 183, in main\n"}
+,{"stream_name":"stderr","time":392.825618686,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":392.825624016,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":392.825629869,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 54, in build_model\n"}
+,{"stream_name":"stderr","time":392.825635421,"data":"    return build(a.model, deg)\n"}
+,{"stream_name":"stderr","time":392.825640972,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 327, in build\n"}
+,{"stream_name":"stderr","time":392.825664823,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale)\n"}
+,{"stream_name":"stderr","time":392.825673872,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 183, in build_external\n"}
+,{"stream_name":"stderr","time":392.825678724,"data":"    net = m.MIMFormer(hsi_chans=bands, msi_chans=msi, scale_factor=scale)\n"}
+,{"stream_name":"stderr","time":392.82572912,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 110, in __init__\n"}
+,{"stream_name":"stderr","time":392.825776923,"data":"    self.MIMFormer = Future(hsi_chans+msi_chans,180)\n"}
+,{"stream_name":"stderr","time":392.825783295,"data":"                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":392.825787873,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 77, in __init__\n"}
+,{"stream_name":"stderr","time":392.825792317,"data":"    self.weight_a = nn.Parameter(torch.ones(1).to('cuda:0'))\n"}
+,{"stream_name":"stderr","time":392.825796443,"data":"                                 ~~~~~~~~~~~~~~~~^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":392.825800465,"data":"  File \"/usr/local/lib/python3.13/dist-packages/torch/cuda/__init__.py\", line 471, in _lazy_init\n"}
+,{"stream_name":"stderr","time":392.825804663,"data":"    raise AssertionError(\"Torch not compiled with CUDA enabled\")\n"}
+,{"stream_name":"stderr","time":392.825809063,"data":"AssertionError: Torch not compiled with CUDA enabled\n"}
+,{"stream_name":"stderr","time":393.026110321,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":393.026150399,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":393.026156026,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":393.026159838,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 279, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":393.026164351,"data":"    main()\n"}
+,{"stream_name":"stderr","time":393.026168632,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":393.026172732,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 183, in main\n"}
+,{"stream_name":"stderr","time":393.026176728,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":393.026180945,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":393.026184911,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 54, in build_model\n"}
+,{"stream_name":"stderr","time":393.026189278,"data":"    return build(a.model, deg)\n"}
+,{"stream_name":"stderr","time":393.026193233,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 327, in build\n"}
+,{"stream_name":"stderr","time":393.026197436,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale)\n"}
+,{"stream_name":"stderr","time":393.026201328,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 183, in build_external\n"}
+,{"stream_name":"stderr","time":393.026206059,"data":"    net = m.MIMFormer(hsi_chans=bands, msi_chans=msi, scale_factor=scale)\n"}
+,{"stream_name":"stderr","time":393.026210119,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 110, in __init__\n"}
+,{"stream_name":"stderr","time":393.026214313,"data":"    self.MIMFormer = Future(hsi_chans+msi_chans,180)\n"}
+,{"stream_name":"stderr","time":393.026218251,"data":"                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":393.02624188,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 77, in __init__\n"}
+,{"stream_name":"stderr","time":393.026246498,"data":"    self.weight_a = nn.Parameter(torch.ones(1).to('cuda:0'))\n"}
+,{"stream_name":"stderr","time":393.026250831,"data":"                                 ~~~~~~~~~~~~~~~~^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":393.026254634,"data":"  File \"/usr/local/lib/python3.13/dist-packages/torch/cuda/__init__.py\", line 471, in _lazy_init\n"}
+,{"stream_name":"stderr","time":393.026286,"data":"    raise AssertionError(\"Torch not compiled with CUDA enabled\")\n"}
+,{"stream_name":"stderr","time":393.026290192,"data":"AssertionError: Torch not compiled with CUDA enabled\n"}
+,{"stream_name":"stderr","time":393.02629398,"data":"\n"}
+,{"stream_name":"stderr","time":393.026297862,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":393.026301879,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":393.026306107,"data":"Traceback (most recent call last):\n"}
+,{"stream_name":"stderr","time":393.026310182,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 279, in \u003cmodule\u003e\n"}
+,{"stream_name":"stderr","time":393.026314384,"data":"    main()\n"}
+,{"stream_name":"stderr","time":393.02631838,"data":"    ~~~~^^\n"}
+,{"stream_name":"stderr","time":393.026322159,"data":"  File \"/kaggle/working/code/cond_eval.py\", line 183, in main\n"}
+,{"stream_name":"stderr","time":393.026326185,"data":"    model = build_model(a, base).to(dev)\n"}
+,{"stream_name":"stderr","time":393.026332139,"data":"            ~~~~~~~~~~~^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":393.026336111,"data":"  File \"/kaggle/working/code/hsifuse/config.py\", line 54, in build_model\n"}
+,{"stream_name":"stderr","time":393.026340099,"data":"    return build(a.model, deg)\n"}
+,{"stream_name":"stderr","time":393.026343863,"data":"  File \"/kaggle/working/code/hsifuse/models.py\", line 327, in build\n"}
+,{"stream_name":"stderr","time":393.026348505,"data":"    return build_external(name, bands=bands, msi=msi, scale=deg.scale)\n"}
+,{"stream_name":"stderr","time":393.026352839,"data":"  File \"/kaggle/working/code/hsifuse/external.py\", line 183, in build_external\n"}
+,{"stream_name":"stderr","time":393.026357117,"data":"    net = m.MIMFormer(hsi_chans=bands, msi_chans=msi, scale_factor=scale)\n"}
+,{"stream_name":"stderr","time":393.026361053,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 110, in __init__\n"}
+,{"stream_name":"stderr","time":393.026364996,"data":"    self.MIMFormer = Future(hsi_chans+msi_chans,180)\n"}
+,{"stream_name":"stderr","time":393.026368983,"data":"                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":393.026372858,"data":"  File \"/kaggle/working/ext/MIMFormer/models/MIMFormer_CPW.py\", line 77, in __init__\n"}
+,{"stream_name":"stderr","time":393.026377158,"data":"    self.weight_a = nn.Parameter(torch.ones(1).to('cuda:0'))\n"}
+,{"stream_name":"stderr","time":393.026381436,"data":"                                 ~~~~~~~~~~~~~~~~^^^^^^^^^^\n"}
+,{"stream_name":"stderr","time":393.026385376,"data":"  File \"/usr/local/lib/python3.13/dist-packages/torch/cuda/__init__.py\", line 471, in _lazy_init\n"}
+,{"stream_name":"stderr","time":393.02638948,"data":"    raise AssertionError(\"Torch not compiled with CUDA enabled\")\n"}
+,{"stream_name":"stderr","time":393.026393349,"data":"AssertionError: Torch not compiled with CUDA enabled\n"}
+,{"stream_name":"stdout","time":394.118617539,"data":"END cond-pavia-x4-mimformer rc 1\n"}
+,{"stream_name":"stdout","time":395.565468344,"data":"RUN cond-chikusei-x4-zeros : python cond_eval.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model puformer --pad reflect --pad zeros --ckpt /kaggle/input/notebooks/hruthwikch/puf-r03/out/cond-chikusei-x4-zeros/best_ema.pt --out /kaggle/working/out/cond-chikusei-x4-zeros\n"}
+,{"stream_name":"stdout","time":690.137118386,"data":"sensitivity sigma x0.5: residual 0.0820 PSNR 51.02\n"}
+,{"stream_name":"stdout","time":690.35101561,"data":"sensitivity sigma x0.5: residual 0.0820 PSNR 51.02\n"}
+,{"stream_name":"stdout","time":959.823116736,"data":"sensitivity sigma x0.75: residual 0.0690 PSNR 56.27\n"}
+,{"stream_name":"stdout","time":960.033998096,"data":"sensitivity sigma x0.75: residual 0.0690 PSNR 56.27\n"}
+,{"stream_name":"stdout","time":1172.740319295,"data":"sensitivity sigma x0.9: residual 0.0688 PSNR 57.34\n"}
+,{"stream_name":"stdout","time":1172.971546701,"data":"sensitivity sigma x0.9: residual 0.0688 PSNR 57.34\n"}
+,{"stream_name":"stdout","time":1335.961970785,"data":"sensitivity sigma x1: residual 0.0699 PSNR 57.46\n"}
+,{"stream_name":"stdout","time":1336.17901966,"data":"sensitivity sigma x1: residual 0.0699 PSNR 57.46\n"}
+,{"stream_name":"stdout","time":1539.316509013,"data":"sensitivity sigma x1.1: residual 0.0714 PSNR 57.39\n"}
+,{"stream_name":"stdout","time":1539.528782294,"data":"sensitivity sigma x1.1: residual 0.0714 PSNR 57.39\n"}
+,{"stream_name":"stdout","time":1803.333981827,"data":"sensitivity sigma x1.25: residual 0.0735 PSNR 57.19\n"}
+,{"stream_name":"stdout","time":1803.547598012,"data":"sensitivity sigma x1.25: residual 0.0735 PSNR 57.19\n"}
+,{"stream_name":"stdout","time":1968.142597632,"data":"sensitivity sigma x1.5: residual 0.0764 PSNR 56.88\n"}
+,{"stream_name":"stdout","time":1968.358142576,"data":"sensitivity sigma x1.5: residual 0.0764 PSNR 56.88\n"}
+,{"stream_name":"stdout","time":2410.752030032,"data":"sensitivity sigma x2: residual 0.0799 PSNR 56.52\n"}
+,{"stream_name":"stdout","time":2410.968623157,"data":"sensitivity sigma x2: residual 0.0799 PSNR 56.52\n"}
+,{"stream_name":"stdout","time":4267.59400031,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.1966, 'fixed': 57.4613, 'oracle': 57.4613, 'estimated': 57.4613}\n"}
+,{"stream_name":"stdout","time":4267.80310282,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.1966, 'fixed': 57.4613, 'oracle': 57.4613, 'estimated': 57.4613}\n"}
+,{"stream_name":"stdout","time":6146.94003037,"data":"sigma x0.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 45.6771, 'fixed': 53.1584, 'oracle': 57.1906, 'estimated': 57.1906}\n"}
+,{"stream_name":"stdout","time":6147.161043695,"data":"sigma x0.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 45.6771, 'fixed': 53.1584, 'oracle': 57.1906, 'estimated': 57.1906}\n"}
+,{"stream_name":"stdout","time":7898.628189128,"data":"sigma x0.75 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 44.0502, 'fixed': 56.4673, 'oracle': 57.4117, 'estimated': 57.4117}\n"}
+,{"stream_name":"stdout","time":7898.864653359,"data":"sigma x0.75 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 44.0502, 'fixed': 56.4673, 'oracle': 57.4117, 'estimated': 57.4117}\n"}
+,{"stream_name":"stdout","time":9687.242678863,"data":"sigma x1.25 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7742, 'fixed': 57.1541, 'oracle': 57.4421, 'estimated': 57.4421}\n"}
+,{"stream_name":"stdout","time":9687.539679636,"data":"sigma x1.25 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7742, 'fixed': 57.1541, 'oracle': 57.4421, 'estimated': 57.4421}\n"}
+,{"stream_name":"stdout","time":11198.745725285,"data":"sigma x1.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.5448, 'fixed': 56.7142, 'oracle': 57.4069, 'estimated': 57.4069}\n"}
+,{"stream_name":"stdout","time":11198.977015436,"data":"sigma x1.5 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.5448, 'fixed': 56.7142, 'oracle': 57.4069, 'estimated': 57.4069}\n"}
+,{"stream_name":"stdout","time":12677.045744643,"data":"sigma x2 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.3203, 'fixed': 56.1269, 'oracle': 57.348, 'estimated': 57.348}\n"}
+,{"stream_name":"stdout","time":12677.308295651,"data":"sigma x2 sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.3203, 'fixed': 56.1269, 'oracle': 57.348, 'estimated': 57.348}\n"}
+,{"stream_name":"stdout","time":14107.26067373,"data":"shift -12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8887, 'fixed': 47.9314, 'oracle': 57.3507, 'estimated': 57.3507}\n"}
+,{"stream_name":"stdout","time":14107.522847906,"data":"shift -12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8887, 'fixed': 47.9314, 'oracle': 57.3507, 'estimated': 57.3507}\n"}
+,{"stream_name":"stdout","time":15867.235866508,"data":"shift -8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8636, 'fixed': 50.9767, 'oracle': 57.4399, 'estimated': 57.4399}\n"}
+,{"stream_name":"stdout","time":15867.496843727,"data":"shift -8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.8636, 'fixed': 50.9767, 'oracle': 57.4399, 'estimated': 57.4399}\n"}
+,{"stream_name":"stdout","time":17321.674101361,"data":"shift -4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.9788, 'fixed': 54.7758, 'oracle': 57.4688, 'estimated': 57.4688}\n"}
+,{"stream_name":"stdout","time":17321.927789785,"data":"shift -4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.9788, 'fixed': 54.7758, 'oracle': 57.4688, 'estimated': 57.4688}\n"}
+,{"stream_name":"stdout","time":19143.802037646,"data":"shift +4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2823, 'fixed': 54.9367, 'oracle': 57.4288, 'estimated': 57.4288}\n"}
+,{"stream_name":"stdout","time":19144.108323444,"data":"shift +4 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2823, 'fixed': 54.9367, 'oracle': 57.4288, 'estimated': 57.4288}\n"}
+,{"stream_name":"stdout","time":21093.851589362,"data":"shift +8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2888, 'fixed': 51.4035, 'oracle': 57.3699, 'estimated': 57.3699}\n"}
+,{"stream_name":"stdout","time":21094.080037705,"data":"shift +8 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.2888, 'fixed': 51.4035, 'oracle': 57.3699, 'estimated': 57.3699}\n"}
+,{"stream_name":"stdout","time":22521.117318557,"data":"shift +12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.3551, 'fixed': 48.7015, 'oracle': 57.2673, 'estimated': 57.2673}\n"}
+,{"stream_name":"stdout","time":22521.422022441,"data":"shift +12 nm sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.3551, 'fixed': 48.7015, 'oracle': 57.2673, 'estimated': 57.2673}\n"}
+,{"stream_name":"stdout","time":24011.062167871,"data":"snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.0343, 'fixed': 55.1232, 'oracle': 55.1232, 'estimated': 55.1232}\n"}
+,{"stream_name":"stdout","time":24011.312458619,"data":"snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.0343, 'fixed': 55.1232, 'oracle': 55.1232, 'estimated': 55.1232}\n"}
+,{"stream_name":"stdout","time":25624.696512997,"data":"snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7074, 'fixed': 52.8661, 'oracle': 52.8661, 'estimated': 52.8661}\n"}
+,{"stream_name":"stdout","time":25624.976246175,"data":"snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.7074, 'fixed': 52.8661, 'oracle': 52.8661, 'estimated': 52.8661}\n"}
+,{"stream_name":"stdout","time":27262.324045983,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 41.8375, 'fixed': 49.5816, 'oracle': 49.5816, 'estimated': 49.5816}\n"}
+,{"stream_name":"stdout","time":27262.566124224,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 41.8375, 'fixed': 49.5816, 'oracle': 49.5816, 'estimated': 49.5816}\n"}
+,{"stream_name":"stdout","time":29290.069588882,"data":"sigma x1.5, shift +8 nm, snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.1874, 'fixed': 49.6338, 'oracle': 52.8112, 'estimated': 52.8112}\n"}
+,{"stream_name":"stdout","time":29290.365368212,"data":"sigma x1.5, shift +8 nm, snr 35 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 42.1874, 'fixed': 49.6338, 'oracle': 52.8112, 'estimated': 52.8112}\n"}
+,{"stream_name":"stdout","time":31364.67003474,"data":"sigma x0.75, shift -8 nm, snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.4661, 'fixed': 50.1832, 'oracle': 55.0542, 'estimated': 55.0542}\n"}
+,{"stream_name":"stdout","time":31364.911401717,"data":"sigma x0.75, shift -8 nm, snr 40 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.4661, 'fixed': 50.1832, 'oracle': 55.0542, 'estimated': 55.0542}\n"}
+,{"stream_name":"stdout","time":32793.445687827,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.006 shift_err 0.00 {'gsa_oracle': 41.2617, 'fixed': 46.2623, 'oracle': 49.4907, 'estimated': 49.4907}\n"}
+,{"stream_name":"stdout","time":32793.717858047,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.006 shift_err 0.00 {'gsa_oracle': 41.2617, 'fixed': 46.2623, 'oracle': 49.4907, 'estimated': 49.4907}\n"}
+,{"stream_name":"stdout","time":33873.783301627,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.14 shift_err 0.00 {'gsa_oracle': 43.0863, 'fixed': 56.7931, 'oracle': 57.361, 'estimated': 56.8438}\n"}
+,{"stream_name":"stdout","time":33874.014528266,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.14 shift_err 0.00 {'gsa_oracle': 43.0863, 'fixed': 56.7931, 'oracle': 57.361, 'estimated': 56.8438}\n"}
+,{"stream_name":"stdout","time":35634.407039842,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 0.00 {'gsa_oracle': 44.0015, 'fixed': 55.0999, 'oracle': 57.0329, 'estimated': 55.3315}\n"}
+,{"stream_name":"stdout","time":35634.697579481,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 0.00 {'gsa_oracle': 44.0015, 'fixed': 55.0999, 'oracle': 57.0329, 'estimated': 55.3315}\n"}
+,{"stream_name":"stdout","time":37303.38498965,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 0.00 {'gsa_oracle': 44.449, 'fixed': 55.9268, 'oracle': 56.7985, 'estimated': 57.005}\n"}
+,{"stream_name":"stdout","time":37303.63205564,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 0.00 {'gsa_oracle': 44.449, 'fixed': 55.9268, 'oracle': 56.7985, 'estimated': 57.005}\n"}
+,{"stream_name":"stdout","time":38726.680334773,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 0.00 {'gsa_oracle': 38.4753, 'fixed': 39.8076, 'estimated': 39.8088}\n"}
+,{"stream_name":"stdout","time":38726.913250818,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 0.00 {'gsa_oracle': 38.4753, 'fixed': 39.8076, 'estimated': 39.8088}\n"}
+,{"stream_name":"stdout","time":40180.210892534,"data":"MSI misregistered 1 px sigma_err 0.719 shift_err 0.12 {'gsa_oracle': 34.0338, 'fixed': 34.0852, 'estimated': 34.0275}\n"}
+,{"stream_name":"stdout","time":40180.497064723,"data":"MSI misregistered 1 px sigma_err 0.719 shift_err 0.12 {'gsa_oracle': 34.0338, 'fixed': 34.0852, 'estimated': 34.0275}\n"}
+,{"stream_name":"stdout","time":41502.206761374,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.11 shift_err 0.00 {'gsa_oracle': 38.2635, 'fixed': 39.6377, 'estimated': 39.6292}\n"}
+,{"stream_name":"stdout","time":41502.45154811,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.11 shift_err 0.00 {'gsa_oracle': 38.2635, 'fixed': 39.6377, 'estimated': 39.6292}\n"}
+]

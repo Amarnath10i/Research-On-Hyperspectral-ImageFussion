@@ -1058,6 +1058,153 @@
     "SSIM": 0.9239,
     "RMSE_DN": 168.2712
    }
+  },
+  "HSI grid offset 0.5/0.5 px": {
+   "sigma": null,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": [
+    "gauss",
+    1.0,
+    1.0,
+    0.5,
+    0.5
+   ],
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.05,
+    2.1,
+    2.05,
+    2.05,
+    2.05,
+    2.1,
+    2.05,
+    2.05
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sigma_abs_err": null,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 43.3725,
+    "SAM": 2.652,
+    "ERGAS": 3.2093,
+    "SSIM": 0.9787,
+    "RMSE_DN": 105.5635
+   },
+   "fixed": {
+    "PSNR": 56.5178,
+    "SAM": 0.8353,
+    "ERGAS": 1.5223,
+    "SSIM": 0.9962,
+    "RMSE_DN": 22.7204
+   }
+  },
+  "HSI grid offset 1/-1 px": {
+   "sigma": null,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": [
+    "gauss",
+    1.0,
+    1.0,
+    1.0,
+    -1.0
+   ],
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.25,
+    2.25,
+    2.2,
+    2.2,
+    2.2,
+    2.3,
+    2.2,
+    2.3
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sigma_abs_err": null,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 43.3482,
+    "SAM": 2.7114,
+    "ERGAS": 3.2114,
+    "SSIM": 0.9783,
+    "RMSE_DN": 105.8392
+   },
+   "fixed": {
+    "PSNR": 56.1434,
+    "SAM": 0.8712,
+    "ERGAS": 1.5573,
+    "SSIM": 0.9961,
+    "RMSE_DN": 23.6875
+   }
+  },
+  "aniso 0.75/1.5 sigma0 + offset 0.5/-0.25 px, snr 35 dB": {
+   "sigma": null,
+   "shift_nm": 0,
+   "snr_db": 35,
+   "kernel": [
+    "gauss",
+    0.75,
+    1.5,
+    0.5,
+    -0.25
+   ],
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.05,
+    2.05,
+    2.0,
+    2.2,
+    2.1,
+    2.05,
+    2.05,
+    2.1
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sigma_abs_err": null,
+   "shift_abs_err": 0.0,
+   "gsa_oracle": {
+    "PSNR": 42.8024,
+    "SAM": 3.0425,
+    "ERGAS": 3.7049,
+    "SSIM": 0.969,
+    "RMSE_DN": 111.9651
+   },
+   "fixed": {
+    "PSNR": 52.0532,
+    "SAM": 1.5037,
+    "ERGAS": 2.1427,
+    "SSIM": 0.9891,
+    "RMSE_DN": 37.866
+   }
   }
  }
 }

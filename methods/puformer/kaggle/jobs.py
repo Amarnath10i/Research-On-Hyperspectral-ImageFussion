@@ -64,7 +64,7 @@ def job(name, dataset, scale, model, extra="", hours=HOURS, robust=False, seed=0
         args += f" --pad reflect {FULL_LOSS}"
     # eval_gaps.py takes the protocol and the model-structure flags, not the training ones
     struct = ("--pad", "--physics", "--res_input", "--memory", "--mixer", "--op", "--stages", "--omc", "--dstep", "--cg_iters", "--mres",
-              "--reg")
+              "--reg", "--sa", "--sensor", "--nsp", "--ntp", "--cwd", "--unc", "--prior", "--nomsi", "--nohsi")
     toks = f"{args} {extra}".split()
     rargs = [f"--dataset {dataset} --scale {scale} --model {model}"]
     rargs += [f"{t} {v}" for t, v in zip(toks[::1], toks[1::1]) if t in struct]
@@ -151,8 +151,9 @@ def all_jobs():
         jobs[f"abl-{d}-x4-unet"] = job(f"abl-{d}-x4-unet", d, 4, "puformer", "--stages 1 --physics 0")
     # a longer budget for PUFormer and the strongest baseline: does the gap survive 8 h of training?
     for m in ("puformer", "mimformer"):
-        n = f"long-pavia-x4-{m}"
-        jobs[n] = job(n, "pavia", 4, m, hours=8.0)
+        for d in ("pavia", "chikusei"):
+            n = f"long-{d}-x4-{m}"
+            jobs[n] = job(n, d, 4, m, hours=8.0)
     # further published networks of the comparison in Chen et al. (TIP 2026), x4 on all four datasets, and x8 on
     # Chikusei and Pavia Centre for those whose code supports it (SMGU-Net is written for x4 only)
     for d in ("chikusei", "pavia", "cave", "harvard"):
@@ -172,7 +173,111 @@ def all_jobs():
         jobs[n] = job(n, d, 4, "puformer", f"{RAND} {WIDE} --omc 1 --reg 1", robust=True, eval_extra="--wide 1")
         n = f"cond-{d}-x4-mimreg"
         jobs[n] = job(n, d, 4, "mimformer", f"{RAND} {WIDE}", robust=True, eval_extra="--wide 1")
+    # one network for any multispectral sensor: a random response per batch (3-10 bands); the network sees the HR-MSI
+    # only through R^+ Y_M (and PUFormer through its data steps). MIMFormer gets the same input and data (control).
+    # References: networks trained for one sensor only (Sentinel-2, 10 bands; RGB camera, 3 bands).
+    for d in ("chikusei", "pavia"):
+        jobs[f"sa-{d}-x4-puformer"] = job(f"sa-{d}-x4-puformer", d, 4, "puformer", f"{RAND} --rand_srf 1 --sa 1 --omc 1")
+        jobs[f"sa-{d}-x4-mimformer"] = job(f"sa-{d}-x4-mimformer", d, 4, "mimformer", f"{RAND} --rand_srf 1 --sa 1")
+        # one network for every scale factor: x4 and x8 in training, x16 unseen
+        jobs[f"scl-{d}-x4-puformer"] = job(f"scl-{d}-x4-puformer", d, 4, "puformer", "--rand_scale 4,8")
+    for sensor in ("sentinel2", "rgb"):
+        for m in ("puformer", "mimformer"):
+            n = f"spec-chikusei-x4-{m}-{sensor}"
+            jobs[n] = job(n, "chikusei", 4, m, f"--sensor {sensor}")
+    # the redesigned stage: closed-form data step with learned spectral gains, null-space-gated prior, and an
+    # interface in the hyperspectral band space only (R^+ Y_M and both back-projected residuals)
+    for d in ("chikusei", "pavia"):
+        jobs[f"arch-{d}-x4-new"] = job(f"arch-{d}-x4-new", d, 4, "puformer", NEWARCH, robust=True)
+        jobs[f"arch-{d}-x4-nogate"] = job(f"arch-{d}-x4-nogate", d, 4, "puformer", NEWARCH.replace(" --nsp 1", ""),
+                                          robust=True)
+        jobs[f"cond-{d}-x4-new"] = job(f"cond-{d}-x4-new", d, 4, "puformer", f"{RAND} --omc 1 {NEWARCH}", robust=True,
+                                       eval_extra="--wide 1")
+        jobs[f"cond-{d}-x4-regnew"] = job(f"cond-{d}-x4-regnew", d, 4, "puformer",
+                                          f"{RAND} {WIDE} --omc 1 --reg 1 {NEWARCH}", robust=True, eval_extra="--wide 1")
+        jobs[f"sa-{d}-x4-new"] = job(f"sa-{d}-x4-new", d, 4, "puformer", f"{RAND} --rand_srf 1 --omc 1 {NEWARCH}")
+        # the null-space transfer prior on top of the redesigned stage
+        jobs[f"arch-{d}-x4-ntp"] = job(f"arch-{d}-x4-ntp", d, 4, "puformer", f"{NEWARCH} --ntp 1", robust=True)
+        # corrupted observations (local changes in the HR-MSI, LR-HSI stripes): with and without the confidence-
+        # weighted data step, and MIMFormer on the same data
+        cor = f"{RAND} --rand_corrupt 0.5"
+        jobs[f"cond-{d}-x4-cwd"] = job(f"cond-{d}-x4-cwd", d, 4, "puformer", f"{cor} --omc 1 {NEWARCH} --cwd 1",
+                                       robust=True, eval_extra="--wide 1")
+        jobs[f"cond-{d}-x4-cor"] = job(f"cond-{d}-x4-cor", d, 4, "puformer", f"{cor} --omc 1 {NEWARCH}", robust=True,
+                                       eval_extra="--wide 1")
+        jobs[f"cond-{d}-x4-mimcor"] = job(f"cond-{d}-x4-mimcor", d, 4, "mimformer", cor, robust=True,
+                                          eval_extra="--wide 1")
+        # observability-aware uncertainty (the head is trained on the detached null-space error)
+        jobs[f"arch-{d}-x4-unc"] = job(f"arch-{d}-x4-unc", d, 4, "puformer", f"{NEWARCH} --unc 1", robust=True)
+    # the eigen-operator prior (no U-Net) in the redesigned stage, nominal and over the operator family
+    for d in ("chikusei", "pavia"):
+        jobs[f"arch-{d}-x4-eon"] = job(f"arch-{d}-x4-eon", d, 4, "puformer", f"{NEWARCH} --prior eon", robust=True)
+        jobs[f"cond-{d}-x4-eon"] = job(f"cond-{d}-x4-eon", d, 4, "puformer", f"{RAND} --omc 1 {NEWARCH} --prior eon",
+                                       robust=True, eval_extra="--wide 1")
+    # why the HR-MSI: the same network with the LR-HSI only (single-image super-resolution) or the HR-MSI only
+    # (spectral super-resolution), same budget
+    for d in ("chikusei", "pavia"):
+        jobs[f"abl-{d}-x4-nomsi"] = job(f"abl-{d}-x4-nomsi", d, 4, "puformer", "--nomsi 1")
+        jobs[f"abl-{d}-x4-nohsi"] = job(f"abl-{d}-x4-nohsi", d, 4, "puformer", "--nohsi 1")
+    # the adopted model (the redesign without the gate, 2026-10-31) in the robustness, recipe and uncertainty runs
+    ng = VARIANTS["nogate"]
+    for d in ("chikusei", "pavia"):
+        cor = f"{RAND} --rand_corrupt 0.5"
+        for n, flags, kw in ((f"cond-{d}-x4-ng", f"{RAND} --omc 1 {ng}", dict(robust=True, eval_extra="--wide 1")),
+                             (f"cond-{d}-x4-regng", f"{RAND} {WIDE} --omc 1 --reg 1 {ng}",
+                              dict(robust=True, eval_extra="--wide 1")),
+                             (f"sa-{d}-x4-ng", f"{RAND} --rand_srf 1 --omc 1 {ng}", {}),
+                             (f"cond-{d}-x4-cwdng", f"{cor} --omc 1 {ng} --cwd 1", dict(robust=True, eval_extra="--wide 1")),
+                             (f"cond-{d}-x4-corng", f"{cor} --omc 1 {ng}", dict(robust=True, eval_extra="--wide 1")),
+                             (f"rec-{d}-x4-ng", f"{BASE_RECIPE} {ng}", {}),
+                             (f"arch-{d}-x4-uncng", f"{ng} --unc 1", dict(robust=True))):
+            jobs[n] = job(n, d, 4, "puformer", flags, **kw)
+        jobs[f"long-{d}-x4-ng"] = job(f"long-{d}-x4-ng", d, 4, "puformer", ng, hours=8.0)
+        jobs[f"scl-{d}-x4-ng"] = job(f"scl-{d}-x4-ng", d, 4, "puformer", f"--rand_scale 4,8 {ng}")
+    for sensor in ("sentinel2", "rgb"):
+        jobs[f"spec-chikusei-x4-ng-{sensor}"] = job(f"spec-chikusei-x4-ng-{sensor}", "chikusei", 4, "puformer",
+                                                   f"--sensor {sensor} {ng}")
+    jobs["nb-nogate-neon-x4"] = job("nb-nogate-neon-x4", "neon", 4, "puformer", ng, robust=True)
+    jobs["cond-neon-x4-ng"] = job("cond-neon-x4-ng", "neon", 4, "puformer",
+                                  f"--rand_sigma 0.5,2.0 --rand_snr 30,50 --noise_prob 0.5 {ng}", robust=True,
+                                  eval_extra="--wide 1")
+    # ExactFuse ablation: each run changes one part of the adopted model (robust runs give the operator swap)
+    for d in ("chikusei", "pavia"):
+        for v, (flags, robust) in NG_ABLATIONS.items():
+            jobs[f"abl-{d}-x4-ng-{v}"] = job(f"abl-{d}-x4-ng-{v}", d, 4, "puformer", flags, robust=robust)
+    # the redesigned model on every other benchmark setting and with two more x4 seeds; only the variant that the
+    # architecture runs (arch-*) select is queued, so it can replace PUFormer in every table
+    for v, flags in VARIANTS.items():
+        for d, s in (("cave", 4), ("harvard", 4), ("cave", 8), ("harvard", 8), ("chikusei", 8), ("pavia", 8),
+                     ("chikusei", 16), ("pavia", 16)):
+            jobs[f"nb-{v}-{d}-x{s}"] = job(f"nb-{v}-{d}-x{s}", d, s, "puformer", flags, robust=True)
+        for d in ("chikusei", "pavia"):
+            for seed in (1, 2):
+                jobs[f"nb-{v}-{d}-x4-s{seed}"] = job(f"nb-{v}-{d}-x4-s{seed}", d, 4, "puformer", flags, seed=seed)
+    # CaFormer (PR 2026), an unfolding transformer with learned operators, x4 on all four datasets
+    for d in ("chikusei", "pavia", "cave", "harvard"):
+        jobs[f"bench-{d}-x4-caformer"] = job(f"bench-{d}-x4-caformer", d, 4, "caformer")
     return jobs
+
+
+NEWARCH = "--dstep kronlearn --nsp 1 --mres 1 --sa 1"
+NG = "--dstep kronlearn --mres 1 --sa 1"                                      # ExactFuse (the adopted model)
+NG_ABLATIONS = {                       # variant -> (flags, robustness run); every row changes one part of ExactFuse
+    "grad": ("--dstep grad --mres 1 --sa 1", True),          # gradient data step instead of the closed form
+    "kron": ("--dstep kron --mres 1 --sa 1", True),          # closed form without the learned spectral gains
+    "nomres": ("--dstep kronlearn --sa 1", True),            # no HR-MSI residual input
+    "nosa": ("--dstep kronlearn --mres 1", True),            # the HR-MSI itself instead of R^+ Y_M
+    "nophys": ("--physics 0 --sa 1", False),                 # no data steps (and no residual inputs)
+    "zeros": (f"{NG} --pad zeros", True),                    # zero border instead of the simulation's
+    "learned": (f"{NG} --op learned", False),                # learned blur and response (gradient step)
+    "nomsi": (f"{NG} --nomsi 1", False),                     # LR-HSI only
+    "nohsi": (f"{NG} --nohsi 1", False),                     # HR-MSI only
+    "conv": (f"{NG} --mixer conv", True),                    # convolutional mixer instead of attention
+    "k1": (f"{NG} --stages 1", True),                        # one stage
+    "nomem": (f"{NG} --memory 0", True),                     # no cross-stage memory
+}
+VARIANTS = {"new": NEWARCH, "nogate": NEWARCH.replace(" --nsp 1", ""), "ntp": f"{NEWARCH} --ntp 1",
+            "eon": f"{NEWARCH} --prior eon"}                              # candidates of the redesign
 
 
 WIDE = "--rand_aniso 1 --rand_offset 1.0"
@@ -236,9 +341,9 @@ SESSIONS = {
     "puf-t08": (["bench-cave-x8-psrt"], ["bench-cave-x8-dct"]),
     "puf-t09": (["bench-harvard-x4-puformer"], ["bench-harvard-x4-mimformer"]),
     "puf-t10": (["bench-harvard-x4-psrt"], ["bench-harvard-x4-dct"]),
-    "puf-t11": (["bench-harvard-x8-puformer"], ["bench-harvard-x8-mimformer"]),
+    "puf-t11": (["nb-nogate-harvard-x8"], ["bench-harvard-x8-mimformer"]),
     "puf-t12": (["bench-harvard-x8-psrt"], ["bench-harvard-x8-dct"]),
-    "puf-t13": (["bench-pavia-x16-puformer"], ["bench-pavia-x16-mimformer"]),
+    "puf-t13": (["nb-nogate-pavia-x16"], ["bench-pavia-x16-mimformer"]),
     "puf-t14": (["bench-pavia-x16-psrt"], ["bench-pavia-x16-dct"]),
     "puf-t15": (["bench-chikusei-x16-puformer"], ["bench-chikusei-x16-mimformer"]),
     "puf-t16": (["bench-chikusei-x16-psrt"], ["bench-chikusei-x16-dct"]),
@@ -301,4 +406,46 @@ SESSIONS = {
     # the wider operator family (anisotropic blur + misregistration): PUFormer, and MIMFormer on the same data
     "puf-r06": (["cond-chikusei-x4-reg"], ["cond-pavia-x4-reg"]),
     "puf-r07": (["cond-chikusei-x4-mimreg"], ["cond-pavia-x4-mimreg"]),
+    # one network for any MSI sensor / any scale, and the sensor-specific references
+    "puf-s20": (["sa-chikusei-x4-puformer"], ["sa-pavia-x4-puformer"]),
+    "puf-s21": (["sa-chikusei-x4-mimformer"], ["sa-pavia-x4-mimformer"]),
+    "puf-s22": (["spec-chikusei-x4-puformer-sentinel2"], ["spec-chikusei-x4-mimformer-sentinel2"]),
+    "puf-s23": (["spec-chikusei-x4-ng-rgb"], ["spec-chikusei-x4-mimformer-rgb"]),
+    "puf-s24": (["scl-chikusei-x4-ng"], ["scl-pavia-x4-ng"]),
+    # the redesigned stage (null-space-gated prior + band-space interface + learned spectral data step)
+    "puf-a10": (["arch-chikusei-x4-new"], ["arch-pavia-x4-new"]),
+    "puf-a11": (["arch-chikusei-x4-nogate"], ["arch-pavia-x4-nogate"]),
+    "puf-a12": (["cond-chikusei-x4-new"], ["cond-pavia-x4-new"]),
+    "puf-a13": (["cond-chikusei-x4-regnew"], ["cond-pavia-x4-regnew"]),
+    "puf-a14": (["sa-chikusei-x4-new"], ["sa-pavia-x4-new"]),
+    # null-space transfer prior; confidence-weighted data step on corrupted observations, and its controls
+    "puf-a15": (["arch-chikusei-x4-ntp"], ["arch-pavia-x4-ntp"]),
+    "puf-a16": (["cond-chikusei-x4-cwd"], ["cond-pavia-x4-cwd"]),
+    "puf-a17": (["cond-chikusei-x4-cor"], ["cond-pavia-x4-cor"]),
+    "puf-a18": (["cond-chikusei-x4-mimcor"], ["cond-pavia-x4-mimcor"]),
+    # does the gap survive 8 h of training on Chikusei as well? (one 8 h job per GPU)
+    "puf-L02": (["long-chikusei-x4-ng"], ["long-chikusei-x4-mimformer"]),
+    "puf-L03": (["long-pavia-x4-ng"], ["spec-chikusei-x4-ng-sentinel2"]),
+    "puf-n27": (["nb-nogate-neon-x4"], ["cond-neon-x4-ng"]),          # needs the NEON data of amarnath10chinu
+    "puf-a19": (["arch-chikusei-x4-unc"], ["arch-pavia-x4-unc"]),
+    "puf-a20": (["arch-chikusei-x4-eon"], ["arch-pavia-x4-eon"]),
+    "puf-a21": (["cond-chikusei-x4-eon"], ["cond-pavia-x4-eon"]),
+    "puf-a22": (["abl-chikusei-x4-nomsi"], ["abl-pavia-x4-nomsi"]),
+    "puf-a23": (["abl-chikusei-x4-nohsi"], ["abl-pavia-x4-nohsi"]),
+    "puf-b15": (["bench-chikusei-x4-caformer"], ["bench-pavia-x4-caformer"]),
+    "puf-b16": (["bench-cave-x4-caformer"], ["bench-harvard-x4-caformer"]),
 }
+# the adopted model in the robustness, recipe and uncertainty experiments
+for _i, _j in enumerate(("cond-{d}-x4-ng", "cond-{d}-x4-regng", "sa-{d}-x4-ng", "cond-{d}-x4-cwdng", "cond-{d}-x4-corng",
+                         "rec-{d}-x4-ng", "arch-{d}-x4-uncng")):
+    SESSIONS[f"puf-n{20 + _i}"] = ([_j.format(d="chikusei")], [_j.format(d="pavia")])
+# ExactFuse ablation, one session per variant (both datasets): puf-na-<variant>
+for _v in NG_ABLATIONS:
+    SESSIONS[f"puf-na-{_v}"] = ([f"abl-chikusei-x4-ng-{_v}"], [f"abl-pavia-x4-ng-{_v}"])
+# the selected variant of the redesign everywhere else: puf-nb-<variant>-1..5
+for _v in VARIANTS:
+    SESSIONS[f"puf-nb-{_v}-1"] = ([f"nb-{_v}-cave-x4"], [f"nb-{_v}-harvard-x4"])
+    SESSIONS[f"puf-nb-{_v}-2"] = ([f"nb-{_v}-cave-x8"], [f"nb-{_v}-chikusei-x8"])
+    SESSIONS[f"puf-nb-{_v}-3"] = ([f"nb-{_v}-pavia-x8"], [f"nb-{_v}-chikusei-x16"])
+    SESSIONS[f"puf-nb-{_v}-4"] = ([f"nb-{_v}-chikusei-x4-s1"], [f"nb-{_v}-chikusei-x4-s2"])
+    SESSIONS[f"puf-nb-{_v}-5"] = ([f"nb-{_v}-pavia-x4-s1"], [f"nb-{_v}-pavia-x4-s2"])

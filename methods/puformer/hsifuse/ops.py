@@ -51,6 +51,44 @@ def band_srf(wl: np.ndarray, bands, rolloff_nm: float = 4.0, shift_nm: float = 0
     return (srf / srf.sum(0, keepdims=True)).astype(np.float32)
 
 
+# Multispectral sensors for the sensor-independence tests: published nominal band ranges (nm), used as 50 %-response
+# edges. Sentinel-2 MSI (ESA, centre +- half the bandwidth, the VNIR bands B1-B9), Landsat-8 OLI (B1-B5), QuickBird,
+# PlanetScope (PS2.SD) and IKONOS; WorldView-2 uses its tabulated 5 % edges (WV2_BANDS).
+SENSOR_BANDS = {
+    "sentinel2": [("B1", 433, 453), ("B2", 457.5, 522.5), ("B3", 542.5, 577.5), ("B4", 650, 680), ("B5", 697.5, 712.5),
+                  ("B6", 732.5, 747.5), ("B7", 773, 793), ("B8", 784.5, 899.5), ("B8A", 855, 875), ("B9", 935, 955)],
+    "landsat8": [("B1", 435, 451), ("B2", 452, 512), ("B3", 533, 590), ("B4", 636, 673), ("B5", 851, 879)],
+    "quickbird": [("blue", 450, 520), ("green", 520, 600), ("red", 630, 690), ("nir", 760, 900)],
+    "planetscope": [("blue", 464, 517), ("green", 547, 585), ("red", 650, 682), ("nir", 846, 888)],
+}
+SENSORS = ("worldview2", "ikonos", "quickbird", "planetscope", "landsat8", "sentinel2", "rgb")
+
+
+def sensor_srf(name: str, wl: np.ndarray, rolloff_nm: float = 4.0) -> np.ndarray:
+    """(B, M) response of a named multispectral sensor on the wavelengths wl; bands that lie (mostly) outside wl are
+    dropped, so the same sensor has fewer bands on a narrower hyperspectral range."""
+    if name == "rgb":                            # Nikon D700 curves (400-700 nm), interpolated onto wl
+        counts = np.stack([np.interp(wl, CAVE_WL, NIKON_D700_COUNTS[:, j], left=0.0, right=0.0) for j in range(3)], 1)
+        return (counts / counts.sum(0, keepdims=True)).astype(np.float32)
+    bands, level = (WV2_BANDS, 0.05) if name == "worldview2" else (IKONOS_BANDS, 0.5) if name == "ikonos" else \
+        (SENSOR_BANDS[name], 0.5)
+    keep = [b for b in bands if min(b[2], wl[-1]) - max(b[1], wl[0]) >= 0.5 * (b[2] - b[1])]
+    return band_srf(wl, keep, rolloff_nm, level=level)
+
+
+def random_srf(wl: np.ndarray, rng: np.random.Generator, m_range=(3, 10), width_range=(15.0, 120.0)) -> np.ndarray:
+    """(B, M) random multispectral response for sensor-independent training: M bands (uniform in m_range) with
+    centres uniform over the hyperspectral range, log-uniform widths and 2-8 nm flanks, each wider than two
+    hyperspectral bands; columns sum to 1."""
+    m = int(rng.integers(m_range[0], m_range[1] + 1))
+    step = float(np.median(np.diff(wl)))
+    lo_w, hi_w = max(width_range[0], 2.5 * step), width_range[1]
+    widths = np.exp(rng.uniform(np.log(lo_w), np.log(hi_w), m))
+    centres = np.sort(rng.uniform(wl[0] + widths / 2, wl[-1] - widths / 2))
+    bands = [("b%d" % i, c - w / 2, c + w / 2) for i, (c, w) in enumerate(zip(centres, widths))]
+    return band_srf(wl, bands, float(rng.uniform(2.0, 8.0)), level=0.5)
+
+
 def wv2_srf(wl: np.ndarray = CHIKUSEI_WL, rolloff_nm: float = 4.0, shift_nm: float = 0.0) -> np.ndarray:
     """(B, 8) WorldView-2 response. DigitalGlobe publishes the curves only as plots, so the
     flanks reach 5 % exactly at the tabulated 5 %-response edges."""
@@ -188,7 +226,8 @@ class KronFactors:
         nu, v = np.linalg.eigh(srf @ srf.T)
         t = lambda a: torch.from_numpy(np.ascontiguousarray(a)).float().to(device)
         self.dr, self.dc, self.ur, self.uc, self.v = t(dr), t(dc), t(ur), t(uc), t(v)
-        self.lam = t(np.clip(lr, 0, None))[:, None] * t(np.clip(lc, 0, None))[None, :]   # (H, W)
+        self.lam_r, self.lam_c = t(np.clip(lr, 0, None)), t(np.clip(lc, 0, None))          # per axis
+        self.lam = self.lam_r[:, None] * self.lam_c[None, :]                             # (H, W)
         self.nu = t(np.clip(nu, 0, None))                                                # (B,)
         tol = 1e-8
         self.obs_spatial = (self.lam > tol * self.lam.max()).float()                     # row space of D
@@ -224,6 +263,84 @@ def kron_prox(deg, x, yh, ym, a, b):
     rhs = x + a * kf.Dt(yh) + b * torch.einsum("nmhw,bm->nbhw", ym, deg.srf.to(ym.dtype))
     denom = 1 + a * kf.lam[None, None] + b * kf.nu[None, :, None, None]
     return kf.from_eig(kf.to_eig(rhs) / denom)
+
+
+def local_misreg(ms: torch.Tensor, rng, max_px: float = 1.5):
+    """HR-MSI with 1-2 locally misregistered regions (parallax, moving objects): a smooth random displacement field of
+    up to max_px pixels inside random rectangles, the rest registered. Returns the warped image and the mask of the
+    pixels displaced by more than 0.25 pixel."""
+    n, _, h, w = ms.shape
+    disp = torch.zeros(n, 2, h, w, dtype=ms.dtype, device=ms.device)
+    for _ in range(int(rng.uniform(1, 3))):
+        ph, pw = int(rng.uniform(h // 4, h // 2)), int(rng.uniform(w // 4, w // 2))
+        r, c = int(rng.uniform(0, h - ph)), int(rng.uniform(0, w - pw))
+        yy = torch.linspace(-1, 1, ph, device=ms.device, dtype=ms.dtype)[:, None]
+        xx = torch.linspace(-1, 1, pw, device=ms.device, dtype=ms.dtype)[None, :]
+        bump = torch.clamp(1 - yy ** 2, 0) * torch.clamp(1 - xx ** 2, 0)                    # smooth, zero at the edges
+        amp = [float(rng.uniform(-max_px, max_px)) for _ in range(2)]
+        disp[:, 0, r:r + ph, c:c + pw] += amp[0] * bump
+        disp[:, 1, r:r + ph, c:c + pw] += amp[1] * bump
+    gy, gx = torch.meshgrid(torch.arange(h, device=ms.device, dtype=ms.dtype),
+                            torch.arange(w, device=ms.device, dtype=ms.dtype), indexing="ij")
+    grid = torch.stack([(gx + disp[:, 1]) / (w - 1) * 2 - 1, (gy + disp[:, 0]) / (h - 1) * 2 - 1], -1)
+    warped = F.grid_sample(ms, grid, mode="bilinear", padding_mode="reflection", align_corners=True)
+    return warped, (disp.norm(dim=1, keepdim=True) > 0.25).to(ms.dtype)
+
+
+def band_noise(lr: torch.Tensor, rng, snr_lo: float = 25.0, snr_hi: float = 45.0):
+    """Band-dependent, partly signal-dependent noise on the LR-HSI: the SNR follows a random smooth profile over the
+    bands between snr_lo and snr_hi dB (low at one or both ends, as at the sensor's band edges), and half of the noise
+    variance scales with the signal (Poisson-like)."""
+    n, b = lr.shape[:2]
+    t = torch.linspace(0, 1, b, device=lr.device, dtype=lr.dtype)
+    c, wdt = float(rng.uniform(0.2, 0.8)), float(rng.uniform(0.3, 1.0))
+    snr = snr_lo + (snr_hi - snr_lo) * torch.exp(-((t - c) / wdt) ** 2)                      # dB per band
+    p = lr.pow(2).mean(dim=(2, 3), keepdim=True)                                              # (N, B, 1, 1)
+    var = p / 10 ** (snr[None, :, None, None] / 10)
+    sig = torch.sqrt(0.5 * var + 0.5 * var * lr.clamp_min(0) / lr.mean(dim=(2, 3), keepdim=True).clamp_min(1e-8))
+    return lr + torch.randn_like(lr) * sig
+
+
+def corrupt(lr: torch.Tensor, ms: torch.Tensor, rng, changes: bool | None = None, stripes: bool | None = None,
+            return_masks: bool = False, misreg: bool | None = None, bandnoise: bool | None = None):
+    """Corrupted observations (the reference stays clean): local changes in the HR-MSI - 1-3 rectangles of 1/8 to
+    1/3 of the side taken from another image of the batch (or a shifted copy for a single image), as land-cover change
+    or clouds between two acquisition dates - 1-3 dead or miscalibrated LR-HSI columns, locally misregistered HR-MSI
+    regions (local_misreg) and band-dependent LR-HSI noise (band_noise). rng: numpy random state or generator; each
+    kind: force (True/False) or draw (None: 70 % / 50 % / 40 % / 30 %). Masks: corrupted LR pixels, corrupted (changed
+    or unregistered) HR-MSI pixels."""
+    lr, ms = lr.clone(), ms.clone()
+    n, _, h, w = ms.shape
+    mm, ml = torch.zeros_like(ms[:, :1]), torch.zeros_like(lr[:, :1])           # where the inputs were corrupted
+    if misreg if misreg is not None else rng.uniform() < 0.4:
+        ms, m2 = local_misreg(ms, rng)
+        mm = torch.maximum(mm, m2)
+    if bandnoise if bandnoise is not None else rng.uniform() < 0.3:
+        lr = band_noise(lr, rng)
+    if changes if changes is not None else rng.uniform() < 0.7:
+        src = ms.roll(1, 0) if n > 1 else ms.roll((h // 2, w // 2), (2, 3))
+        for _ in range(int(rng.uniform(1, 4))):
+            ph, pw = int(rng.uniform(h // 8, h // 3)), int(rng.uniform(w // 8, w // 3))
+            r, c = int(rng.uniform(0, h - ph)), int(rng.uniform(0, w - pw))
+            ms[:, :, r:r + ph, c:c + pw] = src[:, :, r:r + ph, c:c + pw]
+            mm[:, :, r:r + ph, c:c + pw] = 1.0
+    if stripes if stripes is not None else rng.uniform() < 0.5:
+        for _ in range(int(rng.uniform(1, 4))):
+            c = int(rng.uniform(0, lr.shape[-1]))
+            lr[:, :, :, c] *= 0.0 if rng.uniform() < 0.5 else float(rng.uniform(0.5, 1.5))
+            ml[:, :, :, c] = 1.0
+    return (lr, ms, (ml, mm)) if return_masks else (lr, ms)
+
+
+def null_gate(deg, d, gamma):
+    """Null-space-gated correction: the part of d in the joint null space of D and R (components that neither
+    observation sees, Theorem 1c) passes unchanged, the observed part is scaled by gamma in [0, 1] (scalar or (N,1,1,1)).
+    gamma = 0: the correction cannot change D x or R x, so the observed part of the estimate is left to the data step."""
+    kf = kron_factors(deg, d.shape[-2], d.shape[-1], d.device)
+    e = kf.to_eig(d.float())
+    null = (1 - kf.obs_spectral)[None, :, None, None] * (1 - kf.obs_spatial)[None, None]
+    en = e * null
+    return kf.from_eig(en + gamma * (e - en))
 
 
 LN2 = 0.6931471805599453

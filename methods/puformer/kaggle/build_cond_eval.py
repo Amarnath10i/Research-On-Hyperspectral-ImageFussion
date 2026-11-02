@@ -43,7 +43,8 @@ for name, rargs, ds in JOBS:
         print('no checkpoint for', name, flush=True); continue
     cache = f'--cache {{CACHE[ds]}}' if ds in CACHE else ''
     out = f'{{OUT}}/{{name}}'
-    cmd = f"python {script} --mat {{shlex.quote(DATA[ds])}} {{cache}} {{rargs}} --ckpt {{ck}} --out {{out}}"
+    extra = f'--train_dir {{os.path.dirname(ck)}}' if '{script}' == 'test.py' else ''
+    cmd = f"python {script} --mat {{shlex.quote(DATA[ds])}} {{cache}} {{rargs}} --ckpt {{ck}} --out {{out}} {{extra}}"
     print('RUN', name, ':', cmd, flush=True)
     r = subprocess.run(cmd, shell=True, cwd=CODE)
     print('END', name, 'rc', r.returncode, flush=True)
@@ -56,14 +57,18 @@ def main():
     ap.add_argument("--sources", required=True, help="comma-separated session slugs of the same account")
     ap.add_argument("--jobs", required=True, help="comma-separated job names (jobs.py)")
     ap.add_argument("--slug", default="puf-cond-eval")
-    ap.add_argument("--script", default="cond_eval.py", choices=["cond_eval.py", "neon_fullres.py"])
+    ap.add_argument("--script", default="cond_eval.py", choices=["cond_eval.py", "neon_fullres.py", "test.py", "family_eval.py", "unc_eval.py"],
+                    help="test.py: score a checkpoint again (e.g. with new inference settings), with the training "
+                    "summary from its history.json")
     ap.add_argument("--gpu", action="store_true")
+    ap.add_argument("--eval_args", default="", help="extra arguments of the evaluation script for every job, e.g. "
+                    "'--only offset' (only the conditions whose names contain 'offset')")
     a = ap.parse_args()
     J = all_jobs()
     jobs = []
     for n in a.jobs.split(","):
         j = J[n]
-        rargs = j["rargs"].replace("--wide 1", "").strip()
+        rargs = (j["rargs"].replace("--wide 1", "").strip() + " " + a.eval_args).strip()
         jobs.append((n, rargs, j["dataset"]))
     b64, sha = code_blob()
     out = os.path.join(HERE, "condeval", a.slug)

@@ -1,10 +1,12 @@
-# DAETF-Net runtime. All of these are preinstalled on a Kaggle GPU image;
-# the pinned lower bounds are what the code was developed and tested against.
+# PUFormer (methods/puformer) runtime. All of these are preinstalled on a Kaggle GPU image, where every run of the
+# paper was made; the lower bounds are what the code was developed and tested against.
 torch>=2.0
 numpy>=1.24
 scipy>=1.10
 h5py>=3.8        # Chikusei .mat is MATLAB v7.3 (HDF5)
 matplotlib>=3.6
+einops>=0.6      # some published baselines (cloned at run time by hsifuse/external.py)
+timm>=0.9        # idem
 
 # docs/literature/build_lit_excel.py only
 openpyxl>=3.1

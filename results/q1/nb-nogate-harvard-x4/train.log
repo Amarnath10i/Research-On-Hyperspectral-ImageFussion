@@ -1,0 +1,62 @@
+harvard x4: train 60 regions, e.g. [(31, 896, 1392), (31, 896, 1392)] test (20, 31, 512, 512) val (60, 31, 64, 64), 1.0 = 255 DN  (0s)
+/kaggle/working/code/train.py:212: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /pytorch/torch/csrc/utils/tensor_numpy.cpp:213.)
+  test = make_pairs(torch.from_numpy(te).to(dev), deg) if main_proc else None
+puformer (reflect borders): 9.83M params on 1 x cuda; batch 8 x 1; epoch = 1306 iters; eval every 1000 iters; deadline in 4.00 h; schedule by time
+bicubic test: {'PSNR': 35.5324, 'PSNR_psrt': 32.3748, 'MPSNR_peak1': 37.8585, 'SSIM': 0.8588, 'SSIM_psrt': 0.9059, 'SAM': 2.6904, 'ERGAS': 4.5434, 'RMSE_DN': 4.6871, 'CC': 0.9415, 'SCC': 0.7894, 'Q2n': 0.6642}
+GSA test: {'PSNR': 46.2991, 'PSNR_psrt': 43.1415, 'MPSNR_peak1': 47.5987, 'SSIM': 0.9766, 'SSIM_psrt': 0.9872, 'SAM': 2.3791, 'ERGAS': 1.6691, 'RMSE_DN': 1.343, 'CC': 0.9917, 'SCC': 0.9879, 'Q2n': 0.8695}
+ep     0.8 it   1000 loss 0.01347 lr 3.00e-04 val PSNR 48.826 SSIM 0.9444 SAM 2.057 | best val 48.826 (0.11 h)
+ep     1.5 it   2000 loss 0.01076 lr 2.98e-04 val PSNR 48.948 SSIM 0.9449 SAM 2.038 | best val 48.948 (0.21 h)
+ep     2.3 it   3000 loss 0.01055 lr 2.96e-04 val PSNR 49.025 SSIM 0.9452 SAM 2.020 | best val 49.025 (0.31 h)
+ep     3.1 it   4000 loss 0.01056 lr 2.92e-04 val PSNR 49.070 SSIM 0.9455 SAM 2.008 | best val 49.070 (0.41 h)
+ep     3.8 it   5000 loss 0.01046 lr 2.88e-04 val PSNR 49.121 SSIM 0.9458 SAM 1.996 | best val 49.121 (0.51 h)
+ep     4.6 it   6000 loss 0.01034 lr 2.84e-04 val PSNR 49.172 SSIM 0.9461 SAM 1.984 | best val 49.172 (0.61 h)
+ep     5.4 it   7000 loss 0.01026 lr 2.78e-04 val PSNR 49.211 SSIM 0.9463 SAM 1.976 | best val 49.211 (0.71 h)
+ep     6.1 it   8000 loss 0.01032 lr 2.71e-04 val PSNR 49.249 SSIM 0.9465 SAM 1.969 | best val 49.249 (0.81 h)
+ep     6.9 it   9000 loss 0.01028 lr 2.64e-04 val PSNR 49.276 SSIM 0.9466 SAM 1.964 | best val 49.276 (0.90 h)
+ep     7.7 it  10000 loss 0.01023 lr 2.56e-04 val PSNR 49.296 SSIM 0.9467 SAM 1.960 | best val 49.296 (1.00 h)
+ep     8.4 it  11000 loss 0.01017 lr 2.48e-04 val PSNR 49.314 SSIM 0.9468 SAM 1.956 | best val 49.314 (1.10 h)
+ep     9.2 it  12000 loss 0.01007 lr 2.38e-04 val PSNR 49.329 SSIM 0.9469 SAM 1.954 | best val 49.329 (1.20 h)
+ep    10.0 it  13000 loss 0.01018 lr 2.29e-04 val PSNR 49.345 SSIM 0.9469 SAM 1.950 | best val 49.345 (1.30 h)
+ep    10.7 it  14000 loss 0.01011 lr 2.18e-04 val PSNR 49.358 SSIM 0.9470 SAM 1.948 | best val 49.358 (1.40 h)
+ep    11.5 it  15000 loss 0.01007 lr 2.08e-04 val PSNR 49.373 SSIM 0.9471 SAM 1.945 | best val 49.373 (1.50 h)
+ep    12.3 it  16000 loss 0.01009 lr 1.97e-04 val PSNR 49.380 SSIM 0.9471 SAM 1.943 | best val 49.380 (1.60 h)
+ep    13.0 it  17000 loss 0.01002 lr 1.86e-04 val PSNR 49.389 SSIM 0.9471 SAM 1.942 | best val 49.389 (1.70 h)
+ep    13.8 it  18000 loss 0.01005 lr 1.74e-04 val PSNR 49.398 SSIM 0.9472 SAM 1.940 | best val 49.398 (1.80 h)
+ep    14.5 it  19000 loss 0.01007 lr 1.63e-04 val PSNR 49.412 SSIM 0.9473 SAM 1.937 | best val 49.412 (1.90 h)
+ep    15.3 it  20000 loss 0.01006 lr 1.51e-04 val PSNR 49.419 SSIM 0.9473 SAM 1.936 | best val 49.419 (2.00 h)
+ep    16.1 it  21000 loss 0.00997 lr 1.39e-04 val PSNR 49.426 SSIM 0.9474 SAM 1.934 | best val 49.426 (2.10 h)
+ep    16.8 it  22000 loss 0.00999 lr 1.27e-04 val PSNR 49.432 SSIM 0.9473 SAM 1.934 | best val 49.432 (2.20 h)
+ep    17.6 it  23000 loss 0.00993 lr 1.16e-04 val PSNR 49.436 SSIM 0.9474 SAM 1.933 | best val 49.436 (2.30 h)
+ep    18.4 it  24000 loss 0.00991 lr 1.04e-04 val PSNR 49.441 SSIM 0.9474 SAM 1.932 | best val 49.441 (2.40 h)
+ep    19.1 it  25000 loss 0.01001 lr 9.34e-05 val PSNR 49.446 SSIM 0.9474 SAM 1.931 | best val 49.446 (2.49 h)
+ep    19.9 it  26000 loss 0.00999 lr 8.28e-05 val PSNR 49.451 SSIM 0.9475 SAM 1.930 | best val 49.451 (2.59 h)
+ep    20.7 it  27000 loss 0.00992 lr 7.26e-05 val PSNR 49.457 SSIM 0.9475 SAM 1.929 | best val 49.457 (2.69 h)
+ep    21.4 it  28000 loss 0.00991 lr 6.28e-05 val PSNR 49.462 SSIM 0.9475 SAM 1.928 | best val 49.462 (2.79 h)
+ep    22.2 it  29000 loss 0.00993 lr 5.36e-05 val PSNR 49.467 SSIM 0.9475 SAM 1.928 | best val 49.467 (2.89 h)
+ep    23.0 it  30000 loss 0.00998 lr 4.49e-05 val PSNR 49.468 SSIM 0.9475 SAM 1.927 | best val 49.468 (2.99 h)
+ep    23.7 it  31000 loss 0.01000 lr 3.69e-05 val PSNR 49.469 SSIM 0.9475 SAM 1.927 | best val 49.469 (3.09 h)
+ep    24.5 it  32000 loss 0.00997 lr 2.95e-05 val PSNR 49.471 SSIM 0.9475 SAM 1.927 | best val 49.471 (3.19 h)
+ep    25.3 it  33000 loss 0.00990 lr 2.29e-05 val PSNR 49.472 SSIM 0.9475 SAM 1.927 | best val 49.472 (3.29 h)
+ep    26.0 it  34000 loss 0.00993 lr 1.71e-05 val PSNR 49.473 SSIM 0.9476 SAM 1.926 | best val 49.473 (3.39 h)
+ep    26.8 it  35000 loss 0.00988 lr 1.21e-05 val PSNR 49.473 SSIM 0.9476 SAM 1.926 | best val 49.473 (3.49 h)
+ep    27.6 it  36000 loss 0.00986 lr 7.87e-06 val PSNR 49.475 SSIM 0.9476 SAM 1.926 | best val 49.475 (3.59 h)
+ep    28.3 it  37000 loss 0.00989 lr 4.54e-06 val PSNR 49.476 SSIM 0.9476 SAM 1.926 | best val 49.476 (3.69 h)
+ep    29.1 it  38000 loss 0.00996 lr 2.12e-06 val PSNR 49.476 SSIM 0.9476 SAM 1.926 | best val 49.476 (3.79 h)
+ep    29.9 it  39000 loss 0.00996 lr 6.14e-07 val PSNR 49.476 SSIM 0.9476 SAM 1.926 | best val 49.476 (3.88 h)
+ep    30.6 it  40000 loss 0.00980 lr 3.00e-07 val PSNR 49.477 SSIM 0.9476 SAM 1.926 | best val 49.477 (3.98 h)
+ep    30.8 it  40200 loss 0.00990 lr 3.00e-07 val PSNR 49.477 SSIM 0.9476 SAM 1.926 | best val 49.477 (4.00 h)
+time budget reached at it 40200 (epoch 30.8); continue with --resume <out>/last.pt
+TEST: {'PSNR': 50.0319, 'PSNR_psrt': 46.8744, 'MPSNR_peak1': 50.8917, 'SSIM': 0.983, 'SSIM_psrt': 0.9918, 'SAM': 2.0091, 'ERGAS': 1.2318, 'RMSE_DN': 0.8436, 'CC': 0.9937, 'SCC': 0.9933, 'Q2n': 0.9025}
+TEST (self-ensemble): {'PSNR': 50.0412, 'PSNR_psrt': 46.8836, 'MPSNR_peak1': 50.8995, 'SSIM': 0.983, 'SSIM_psrt': 0.9918, 'SAM': 2.0076, 'ERGAS': 1.2309, 'RMSE_DN': 0.8426, 'CC': 0.9937, 'SCC': 0.9933, 'Q2n': 0.9025}
+consistency: {'cons_H_dB': 82.73273343626359, 'cons_M_dB': 78.23943159413497} | self-ensemble: {'cons_H_dB': 83.04733261022447, 'cons_M_dB': 78.54781208899607}
+/kaggle/working/code/eval_gaps.py:66: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /pytorch/torch/csrc/utils/tensor_numpy.cpp:213.)
+  gt = torch.from_numpy(te).to(dev)                                # real data: B bands + the measured MSI
+nominal {'gsa': (46.2991, 2.3791, 51.8729), 'fixed': (50.0319, 2.0091, 82.7367)}
+sigma=1.5 {'gsa': (46.6364, 2.3673, 52.5739), 'fixed': (48.4575, 2.1589, 58.4493), 'swap': (49.9785, 2.016, 81.8751)}
+sigma=2.5 {'gsa': (46.1025, 2.3892, 51.4817), 'fixed': (49.558, 2.0439, 66.1878), 'swap': (50.0315, 2.0103, 82.8589)}
+sigma=3.0 {'gsa': (45.9868, 2.3961, 51.2574), 'fixed': (48.8448, 2.0954, 62.4416), 'swap': (50.011, 2.0141, 82.7325)}
+srf_shift=-8nm {'gsa': (46.2365, 2.3895, 51.8131), 'fixed': (48.9177, 2.1043, 58.0851), 'swap': (49.6946, 2.0589, 82.5285)}
+srf_shift=+8nm {'gsa': (46.2712, 2.3822, 51.8461), 'fixed': (48.9424, 2.1005, 59.735), 'swap': (50.0077, 2.0134, 82.3404)}
+noise 40dB {'gsa': 45.7369, 'fixed': 47.3919}
+noise 35dB {'gsa': 44.7796, 'fixed': 44.4619}
+noise 30dB {'gsa': 42.8026, 'fixed': 40.474}

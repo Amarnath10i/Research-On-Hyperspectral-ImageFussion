@@ -1,0 +1,57 @@
+[{"stream_name":"stderr","time":9.572153961,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":9.572217993,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":9.572224903,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":9.572229617,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":10.483679679,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":10.4837267,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":10.483733019,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":10.483738018,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":11.95247441,"data":"code sha256 650de9b9d8f33f49b54940c7df985f0685430a809d1b46565b7871f433804e42 from git fc2f350+local changes\n"}
+,{"stream_name":"stdout","time":11.954803628,"data":"4\n"}
+,{"stream_name":"stdout","time":11.972495828,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":11.972531392,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stderr","time":12.143529461,"data":"/tmp/ipykernel_16/1577477473.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":12.143567856,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":12.143573721,"data":"\n"}
+,{"stream_name":"stderr","time":12.14357851,"data":"/tmp/ipykernel_16/1577477473.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":12.14358402,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":12.15116283,"data":"4\n"}
+,{"stream_name":"stdout","time":12.151198365,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":12.151203195,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stdout","time":12.236192647,"data":"RUN bench-chikusei-x4-u2net : python test.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model u2net --ckpt /kaggle/input/notebooks/lalithsreevastav/puf-b04/out/bench-chikusei-x4-u2net/best_ema.pt --out /kaggle/working/out/bench-chikusei-x4-u2net --train_dir /kaggle/input/notebooks/lalithsreevastav/puf-b04/out/bench-chikusei-x4-u2net\n"}
+,{"stream_name":"stderr","time":223.013569929,"data":"Cloning into '/kaggle/working/ext/U2Net'...\n"}
+,{"stream_name":"stderr","time":223.218109426,"data":"Cloning into '/kaggle/working/ext/U2Net'...\n"}
+,{"stream_name":"stderr","time":223.218150172,"data":"\n"}
+,{"stream_name":"stderr","time":223.218156885,"data":"Cloning into '/kaggle/working/ext/U2Net'...\n"}
+,{"stream_name":"stdout","time":225.015881689,"data":"[external] u2net: https://github.com/PSRben/U2Net @ 32e214c19b4b1dea72258b4da3157258f67612b9\n"}
+,{"stream_name":"stdout","time":225.218574845,"data":"[external] u2net: https://github.com/PSRben/U2Net @ 32e214c19b4b1dea72258b4da3157258f67612b9\n"}
+,{"stream_name":"stdout","time":4139.094266233,"data":"VAL: {'PSNR': 54.9, 'PSNR_psrt': 45.4299, 'MPSNR_peak1': 57.9664, 'SSIM': 0.9915, 'SSIM_psrt': 0.9982, 'SAM': 1.0373, 'ERGAS': 1.8765, 'RMSE_DN': 29.1183, 'CC': 0.9884, 'SCC': 0.9987}\n"}
+,{"stream_name":"stdout","time":4139.09475723,"data":"TEST: {'PSNR': 53.3478, 'PSNR_psrt': 47.9134, 'MPSNR_peak1': 55.3715, 'SSIM': 0.9943, 'SSIM_psrt': 0.9977, 'SAM': 1.0765, 'ERGAS': 1.9478, 'RMSE_DN': 32.9161, 'CC': 0.9937, 'SCC': 0.9977, 'Q2n': 0.9863}\n"}
+,{"stream_name":"stdout","time":4139.094784873,"data":"TEST (self-ensemble): {'PSNR': 53.5973, 'PSNR_psrt': 48.1629, 'MPSNR_peak1': 55.9391, 'SSIM': 0.9947, 'SSIM_psrt': 0.9979, 'SAM': 1.0352, 'ERGAS': 1.9076, 'RMSE_DN': 31.9918, 'CC': 0.9939, 'SCC': 0.9978, 'Q2n': 0.9877}\n"}
+,{"stream_name":"stdout","time":4139.094792572,"data":"consistency: {'cons_H_dB': 62.51018440812815, 'cons_M_dB': 59.29862072905035}\n"}
+,{"stream_name":"stdout","time":4139.315672279,"data":"VAL: {'PSNR': 54.9, 'PSNR_psrt': 45.4299, 'MPSNR_peak1': 57.9664, 'SSIM': 0.9915, 'SSIM_psrt': 0.9982, 'SAM': 1.0373, 'ERGAS': 1.8765, 'RMSE_DN': 29.1183, 'CC': 0.9884, 'SCC': 0.9987}\n"}
+,{"stream_name":"stdout","time":4139.315707173,"data":"TEST: {'PSNR': 53.3478, 'PSNR_psrt': 47.9134, 'MPSNR_peak1': 55.3715, 'SSIM': 0.9943, 'SSIM_psrt': 0.9977, 'SAM': 1.0765, 'ERGAS': 1.9478, 'RMSE_DN': 32.9161, 'CC': 0.9937, 'SCC': 0.9977, 'Q2n': 0.9863}\n"}
+,{"stream_name":"stdout","time":4139.315714292,"data":"TEST (self-ensemble): {'PSNR': 53.5973, 'PSNR_psrt': 48.1629, 'MPSNR_peak1': 55.9391, 'SSIM': 0.9947, 'SSIM_psrt': 0.9979, 'SAM': 1.0352, 'ERGAS': 1.9076, 'RMSE_DN': 31.9918, 'CC': 0.9939, 'SCC': 0.9978, 'Q2n': 0.9877}\n"}
+,{"stream_name":"stdout","time":4139.315720925,"data":"consistency: {'cons_H_dB': 62.51018440812815, 'cons_M_dB': 59.29862072905035}\n"}
+,{"stream_name":"stdout","time":4140.178184463,"data":"END bench-chikusei-x4-u2net rc 0\n"}
+,{"stream_name":"stdout","time":4140.253484861,"data":"RUN bench-pavia-x4-u2net : python test.py --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat'  --dataset pavia --scale 4 --model u2net --ckpt /kaggle/input/notebooks/lalithsreevastav/puf-b04/out/bench-pavia-x4-u2net/best_ema.pt --out /kaggle/working/out/bench-pavia-x4-u2net --train_dir /kaggle/input/notebooks/lalithsreevastav/puf-b04/out/bench-pavia-x4-u2net\n"}
+,{"stream_name":"stdout","time":4150.993376402,"data":"[external] u2net: https://github.com/PSRben/U2Net @ 32e214c19b4b1dea72258b4da3157258f67612b9\n"}
+,{"stream_name":"stdout","time":4151.197345453,"data":"[external] u2net: https://github.com/PSRben/U2Net @ 32e214c19b4b1dea72258b4da3157258f67612b9\n"}
+,{"stream_name":"stdout","time":5919.995116101,"data":"VAL: {'PSNR': 45.9731, 'PSNR_psrt': 44.0705, 'MPSNR_peak1': 46.8258, 'SSIM': 0.9946, 'SSIM_psrt': 0.996, 'SAM': 1.8217, 'ERGAS': 1.0949, 'RMSE_DN': 49.1043, 'CC': 0.9974, 'SCC': 0.9984}\n"}
+,{"stream_name":"stdout","time":5919.99521973,"data":"TEST: {'PSNR': 47.2924, 'PSNR_psrt': 46.8835, 'MPSNR_peak1': 47.7208, 'SSIM': 0.9955, 'SSIM_psrt': 0.996, 'SAM': 2.3274, 'ERGAS': 0.8577, 'RMSE_DN': 34.9587, 'CC': 0.9989, 'SCC': 0.9987, 'Q2n': 0.9708}\n"}
+,{"stream_name":"stdout","time":5919.995230574,"data":"TEST (self-ensemble): {'PSNR': 47.4264, 'PSNR_psrt': 47.0175, 'MPSNR_peak1': 47.8725, 'SSIM': 0.9956, 'SSIM_psrt': 0.9961, 'SAM': 2.2757, 'ERGAS': 0.8446, 'RMSE_DN': 34.428, 'CC': 0.9989, 'SCC': 0.9987, 'Q2n': 0.9714}\n"}
+,{"stream_name":"stdout","time":5919.995237443,"data":"consistency: {'cons_H_dB': 57.98167486238539, 'cons_M_dB': 55.06453867688866}\n"}
+,{"stream_name":"stdout","time":5920.222239417,"data":"VAL: {'PSNR': 45.9731, 'PSNR_psrt': 44.0705, 'MPSNR_peak1': 46.8258, 'SSIM': 0.9946, 'SSIM_psrt': 0.996, 'SAM': 1.8217, 'ERGAS': 1.0949, 'RMSE_DN': 49.1043, 'CC': 0.9974, 'SCC': 0.9984}\n"}
+,{"stream_name":"stdout","time":5920.22229998,"data":"TEST: {'PSNR': 47.2924, 'PSNR_psrt': 46.8835, 'MPSNR_peak1': 47.7208, 'SSIM': 0.9955, 'SSIM_psrt': 0.996, 'SAM': 2.3274, 'ERGAS': 0.8577, 'RMSE_DN': 34.9587, 'CC': 0.9989, 'SCC': 0.9987, 'Q2n': 0.9708}\n"}
+,{"stream_name":"stdout","time":5920.22230902,"data":"TEST (self-ensemble): {'PSNR': 47.4264, 'PSNR_psrt': 47.0175, 'MPSNR_peak1': 47.8725, 'SSIM': 0.9956, 'SSIM_psrt': 0.9961, 'SAM': 2.2757, 'ERGAS': 0.8446, 'RMSE_DN': 34.428, 'CC': 0.9989, 'SCC': 0.9987, 'Q2n': 0.9714}\n"}
+,{"stream_name":"stdout","time":5920.222315202,"data":"consistency: {'cons_H_dB': 57.98167486238539, 'cons_M_dB': 55.06453867688866}\n"}
+,{"stream_name":"stdout","time":5920.818328193,"data":"END bench-pavia-x4-u2net rc 0\n"}
+,{"stream_name":"stderr","time":5925.686516535,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":5925.686569845,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":5925.968514959,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":5925.968572756,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":5926.997323583,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":5927.113096819,"data":"[NbConvertApp] Writing 99253 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":5930.81485266,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":5931.669285671,"data":"[NbConvertApp] Writing 380978 bytes to __results__.html\n"}
+]

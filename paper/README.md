@@ -1,5 +1,7 @@
 # Research Paper — Unrolled Krylov Fusion with Spectral-Rank Control
 
+The PUFormer paper (journal and conference versions) is in [puformer/](puformer/), with its own README.
+
 This folder contains the manuscript and supporting artifacts for the
 cross-sensor HSI-MSI fusion study.
 

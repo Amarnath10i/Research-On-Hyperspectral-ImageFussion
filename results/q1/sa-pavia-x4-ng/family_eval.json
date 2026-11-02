@@ -1,0 +1,129 @@
+{
+ "dataset": "pavia",
+ "model": "puformer",
+ "sa": 1,
+ "sensor": "ikonos",
+ "mode": "sensors",
+ "ckpt": "/kaggle/input/notebooks/ironmanh/puf-n22/out/sa-pavia-x4-ng/best_ema.pt",
+ "results": {
+  "worldview2": {
+   "bands": 6,
+   "gsa": {
+    "PSNR": 34.6911,
+    "SAM": 5.0509,
+    "ERGAS": 3.4699,
+    "SSIM": 0.9451,
+    "RMSE_DN": 157.5392
+   },
+   "model": {
+    "PSNR": 50.2835,
+    "SAM": 1.9085,
+    "ERGAS": 0.6391,
+    "SSIM": 0.997,
+    "RMSE_DN": 24.7062
+   }
+  },
+  "ikonos": {
+   "bands": 4,
+   "gsa": {
+    "PSNR": 34.7757,
+    "SAM": 5.2291,
+    "ERGAS": 3.4939,
+    "SSIM": 0.9438,
+    "RMSE_DN": 157.9259
+   },
+   "model": {
+    "PSNR": 49.3929,
+    "SAM": 2.0063,
+    "ERGAS": 0.6931,
+    "SSIM": 0.9966,
+    "RMSE_DN": 27.4234
+   }
+  },
+  "quickbird": {
+   "bands": 4,
+   "gsa": {
+    "PSNR": 34.6633,
+    "SAM": 5.2556,
+    "ERGAS": 3.5296,
+    "SSIM": 0.943,
+    "RMSE_DN": 159.6965
+   },
+   "model": {
+    "PSNR": 49.3507,
+    "SAM": 2.0099,
+    "ERGAS": 0.6958,
+    "SSIM": 0.9966,
+    "RMSE_DN": 27.5614
+   }
+  },
+  "planetscope": {
+   "bands": 3,
+   "gsa": {
+    "PSNR": 29.8198,
+    "SAM": 6.0597,
+    "ERGAS": 5.0635,
+    "SSIM": 0.8876,
+    "RMSE_DN": 260.1237
+   },
+   "model": {
+    "PSNR": 40.9524,
+    "SAM": 2.5247,
+    "ERGAS": 1.3613,
+    "SSIM": 0.9893,
+    "RMSE_DN": 72.0931
+   }
+  },
+  "landsat8": {
+   "bands": 3,
+   "gsa": {
+    "PSNR": 29.8187,
+    "SAM": 6.0728,
+    "ERGAS": 5.0614,
+    "SSIM": 0.8874,
+    "RMSE_DN": 260.185
+   },
+   "model": {
+    "PSNR": 40.7683,
+    "SAM": 2.5311,
+    "ERGAS": 1.3861,
+    "SSIM": 0.9891,
+    "RMSE_DN": 73.6009
+   }
+  },
+  "sentinel2": {
+   "bands": 7,
+   "gsa": {
+    "PSNR": 35.2411,
+    "SAM": 4.8902,
+    "ERGAS": 3.3662,
+    "SSIM": 0.9473,
+    "RMSE_DN": 151.6063
+   },
+   "model": {
+    "PSNR": 50.5182,
+    "SAM": 1.8858,
+    "ERGAS": 0.6439,
+    "SSIM": 0.997,
+    "RMSE_DN": 24.0577
+   }
+  },
+  "rgb": {
+   "bands": 3,
+   "gsa": {
+    "PSNR": 29.7721,
+    "SAM": 6.1617,
+    "ERGAS": 5.094,
+    "SSIM": 0.8855,
+    "RMSE_DN": 261.6913
+   },
+   "model": {
+    "PSNR": 40.296,
+    "SAM": 2.5641,
+    "ERGAS": 1.4535,
+    "SSIM": 0.9881,
+    "RMSE_DN": 77.7421
+   }
+  }
+ }
+}

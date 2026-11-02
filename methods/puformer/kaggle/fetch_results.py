@@ -8,6 +8,7 @@ test_pred_f16.npy are large; they stay in --keep (default: a folder next to the 
 """
 import argparse
 import glob
+import json
 import os
 import shutil
 import subprocess
@@ -16,8 +17,19 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEST = os.path.normpath(os.path.join(HERE, "..", "..", "..", "results", "q1"))
 SMALL = ("results.json", "history.json", "gaps.json", "train.log", "cond_eval.json", "neon_fullres.json",
-         "neon_fullres_crop.npz", "null_analysis.json")
-MARKERS = ("results.json", "cond_eval.json", "neon_fullres.json", "null_analysis.json")      # a folder holding one of these is a job
+         "neon_fullres_crop.npz", "null_analysis.json", "family_eval.json", "unc_eval.json")
+MARKERS = ("results.json", "cond_eval.json", "neon_fullres.json", "null_analysis.json", "family_eval.json",
+           "unc_eval.json")                                    # a folder holding one of these is a job
+
+
+def merge_cond(src, dst):
+    """A new evaluation (possibly cancelled, or with other conditions) updates the conditions it ran and keeps
+    the rest of the existing cond_eval.json."""
+    new, old = json.load(open(src)), json.load(open(dst))
+    for c, v in new.get("conditions", {}).items():
+        old.setdefault("conditions", {}).setdefault(c, {}).update(v)
+    old.update({k: v for k, v in new.items() if k != "conditions"})
+    json.dump(old, open(dst, "w"), indent=1)
 
 
 def main():
@@ -40,7 +52,9 @@ def main():
         out = os.path.join(DEST, name)
         os.makedirs(out, exist_ok=True)
         for f in SMALL:
-            if os.path.exists(os.path.join(d, f)):
+            if f == "cond_eval.json" and os.path.exists(os.path.join(d, f)) and os.path.exists(os.path.join(out, f)):
+                merge_cond(os.path.join(d, f), os.path.join(out, f))
+            elif os.path.exists(os.path.join(d, f)):
                 shutil.copy2(os.path.join(d, f), os.path.join(out, f))
         print("kept", name)
     logs = glob.glob(os.path.join(tmp, "*.log"))

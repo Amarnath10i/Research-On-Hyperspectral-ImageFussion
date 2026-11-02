@@ -6,13 +6,14 @@ Every number comes from the job outputs of methods/puformer/kaggle/jobs.py, copi
 methods/puformer/kaggle/fetch_results.py. Missing jobs are printed as "--", so the paper builds at any time.
     tables/q1_bench_<dataset>.tex   methods x scales, PSNR / SSIM / SAM / ERGAS (self-ensemble off: single pass)
     tables/q1_full.tex              every metric of every benchmark job (supplementary)
-    tables/q1_ablation.tex          PUFormer variants on Pavia Centre x4 (+ operator variants on CAVE x4)
+    tables/q1_ablation.tex          ExactFuse variants on Pavia Centre x4 (+ operator variants on CAVE x4)
     tables/q1_complexity.tex        parameters, FLOPs and T4 time of every method
     tables/q1_numbers.tex           values quoted in the text, as \\qone{key}
 """
 import json
 import math
 import os
+import re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.environ.get("Q1_RESULTS", os.path.join(HERE, "..", "..", "results", "q1"))
@@ -25,17 +26,18 @@ ABL_DATASETS = ("pavia", "chikusei")
 METHODS = [("bicubic", "Bicubic", None), ("gsa", "GSA", "aiazzi2007gsa"), ("ssrnet", "SSR-NET", "zhang2021ssrnet"),
            ("psrt", "PSRT", "deng2023psrt"), ("dct", "DCT", "ma2024reciprocal"),
            ("mimformer", "MIMFormer", "li2024mimformer"), ("dhif", "DHIF-Net", "huang2022dhif"),
-           ("puformer", "PUFormer", None)]
+           ("puformer", "ExactFuse", None)]
 CORE = ("ssrnet", "psrt", "dct", "mimformer", "dhif")           # retrained on every dataset and scale factor
 # further published networks, retrained at x4 only (CVPR version; table rows appear once their runs exist)
 NEW = [("u2net", "U2Net", "peng2023u2net"), ("mimosst", "MIMO-SST", "fang2024mimosst"),
-       ("otpnet", "OTPNet", "yu2025otpnet"), ("smgu", "SMGU-Net", "yan2025smgu"), ("clsnet", "CLSNet", "yang2026clsnet")]
+       ("otpnet", "OTPNet", "yu2025otpnet"), ("smgu", "SMGU-Net", "yan2025smgu"), ("clsnet", "CLSNet", "yang2026clsnet"),
+       ("caformer", "CaFormer", "cao2026caformer")]
 BASELINES = CORE + tuple(m for m, _, _ in NEW)                    # the retrained published networks
-ALL = METHODS[:-1] + NEW + METHODS[-1:]                          # PUFormer last
+ALL = METHODS[:-1] + NEW + METHODS[-1:]                          # ExactFuse last
 # (key, label, decimals, higher is better)
 SHORT = [("PSNR", "PSNR", 2, True), ("SSIM", "SSIM", 4, True), ("SAM", "SAM", 3, False), ("ERGAS", "ERGAS", 3, False)]
 FULL = SHORT + [("CC", "CC", 4, True), ("SCC", "SCC", 4, True), ("Q2n", "Q2n", 4, True), ("RMSE_DN", "RMSE", 2, False)]
-ABL = [("full", "PUFormer (full model)"), ("nophys", "no data step, no residual input"),
+ABL = [("full", "base model (full)"), ("nophys", "no data step, no residual input"),
        ("nores", "no residual input"), ("zeros", "exact kernel, zero border"),
        ("learned", "learned blur kernel and SRF"), ("cg", "exact proximal step, conjugate gradients"),
        ("kron", "exact proximal step, closed form"), ("kl", "learned spectral data step"),
@@ -62,12 +64,48 @@ def modules(v):
 NUM = {}
 
 
-def load(job, name="results.json"):
+# The paper's ExactFuse is the redesign adopted on 2026-10-31 (kaggle/jobs.py VARIANTS["nogate"]): the learned spectral
+# data step, the HR-MSI residual input and an interface in the hyperspectral bands, without the null-space gate. Every
+# job of the earlier model below is read from the matching run of the adopted one; "base:<job>" reads the earlier
+# (base) model, which stays the reference of its own ablations, the operator ablation, the 8 h check and NEON.
+ADOPT = [(r"bench-(chikusei|pavia)-x4-puformer", r"arch-\1-x4-nogate"),
+         (r"bench-(cave|harvard)-x4-puformer", r"nb-nogate-\1-x4"),
+         (r"bench-(chikusei|pavia|cave|harvard)-x(8|16)-puformer", r"nb-nogate-\1-x\2"),
+         (r"seed([12])-(chikusei|pavia)-x4-full", r"nb-nogate-\2-x4-s\1"),
+         (r"rec-(chikusei|pavia)-x4-puformer", r"rec-\1-x4-ng"),
+         (r"bench-neon-x4-puformer", r"nb-nogate-neon-x4"),
+         (r"cond-neon-x4-puformer", r"cond-neon-x4-ng")]
+NOT_ADOPTED = ("neon_fullres.json",)          # run for the base model only
+
+
+def _read(job, name):
     p = os.path.join(RES, job, name)
     if not os.path.exists(p):
         return None
     with open(p) as f:
         return json.load(f)
+
+
+def load(job, name="results.json"):
+    if job.startswith("base:"):
+        return _read(job[5:], name)
+    for pat, rep in ADOPT:
+        if re.fullmatch(pat, job) and name not in NOT_ADOPTED:
+            return _read(re.sub(pat, rep, job), name)
+    if name == "null_analysis.json" and re.fullmatch(r"null-\w+-x4", job):
+        # the base model's split of every method, with ExactFuse's entry from the adopted model (null-*-x4-ng)
+        r, new = _read(job, name), _read(job + "-ng", name)
+        if r is not None:
+            r["methods"].pop("puformer", None)
+            if new and "puformer" in new.get("methods", {}):
+                r["methods"]["puformer"] = new["methods"]["puformer"]
+            for extra in ("-nb", "-nb2"):          # the networks added later (null-*-x4-nb*, run from their sessions)
+                more = _read(job + extra, name)
+                for m, v in (more or {}).get("methods", {}).items():
+                    if m not in ("bicubic", "gsa", "puformer"):
+                        r["methods"].setdefault(m, v)
+        return r
+    return _read(job, name)
 
 
 def fmt(v, d):
@@ -81,7 +119,7 @@ def write(name, lines):
 
 
 def method_metrics(ds, s, m):
-    """Single-pass test metrics of method m on (ds, x s); bicubic and GSA come from the PUFormer job."""
+    """Single-pass test metrics of method m on (ds, x s); bicubic and GSA come from the ExactFuse job."""
     src = load(f"bench-{ds}-x{s}-puformer") if m in ("bicubic", "gsa") else load(f"bench-{ds}-x{s}-{m}")
     if src is None:
         return None
@@ -148,6 +186,11 @@ def bench_table(ds):
             NUM[f"{ds}{s}-psnr"] = f"{p['PSNR']:.2f}"
             NUM[f"{ds}{s}-sam"] = f"{p['SAM']:.3f}"
             NUM[f"{ds}{s}-rmse-red"] = f"{100 * (1 - p['RMSE_DN'] / bo['RMSE_DN']):.0f}"
+            # agreement with the LR-HSI, PSNR(D X^, Y_H), against the strongest retrained network
+            cons = lambda m: ((load(f"bench-{ds}-x{s}-{m}") or {}).get("consistency") or {}).get("cons_H_dB")
+            bm = max((m for m in BASELINES if per[s][m]), key=lambda m: per[s][m]["PSNR"])
+            if cons("puformer") and cons(bm):
+                NUM[f"{ds}{s}-cons-gain"] = f"{cons('puformer') - cons(bm):.0f}"
 
 
 BENCH = [("PSNR", "PSNR", 2, True), ("SSIM", "SSIM", 4, True), ("SAM", "SAM", 3, False), ("ERGAS", "ERGAS", 3, False),
@@ -224,8 +267,9 @@ def _mean_std(vals):
 
 
 def abl_job(ds, v, seed=0):
-    if v == "full" and seed == 0:
-        return f"bench-{ds}-x4-puformer"
+    """Runs of the module-by-module ablation, whose reference ("full") is the base model."""
+    if v == "full":
+        return f"base:bench-{ds}-x4-puformer" if seed == 0 else f"base:seed{seed}-{ds}-x4-full"
     return f"seed{seed}-{ds}-x4-{v}" if seed else f"abl-{ds}-x4-{v}"
 
 
@@ -363,7 +407,13 @@ def complexity_table():
         return
     rows = json.load(open(p))
     sel = [r for r in rows if r.get("dataset") == "chikusei" and r.get("scale") == 4 and "error" not in r]
-    name = {m: lab for m, lab, _ in METHODS}
+    # complexity.json: "exactfuse" is the adopted model, "puformer" the base model
+    name = {m: lab for m, lab, _ in ALL} | {"puformer": "Base model", "exactfuse": "ExactFuse"}
+    sel = [r for r in sel if r["model"] in name]
+    for r in sel:
+        NUM[f"cx-{r['model']}-params"] = f"{r['params_M']:.2f}"
+        NUM[f"cx-{r['model']}-gflops"] = f"{r['gflops']:.0f}"
+        NUM[f"cx-{r['model']}-ms"] = f"{1000 * r['seconds']:.0f}"
     body = [f"{name[r['model']]} & {r['params_M']:.2f} & {r['gflops']:.0f} & {1000 * r['seconds']:.0f} & "
             f"{r['gpu_GB']:.2f} \\\\" for r in sel]
     write("q1_complexity.tex", [
@@ -431,7 +481,7 @@ def blind_table():
 
 
 def swap_numbers():
-    """Largest PSNR loss of PUFormer with the true blur swapped in, over every benchmark setting, and the range of
+    """Largest PSNR loss of ExactFuse with the true blur swapped in, over every benchmark setting, and the range of
     losses of the zero-border (swapped) and learned (fixed) operators in the ablations."""
     losses = []
     for ds, (_, scales) in DATASETS.items():
@@ -463,10 +513,24 @@ def long_numbers():
     a, b = load("long-pavia-x4-puformer"), load("long-pavia-x4-mimformer")
     if a and b:
         NUM["long-gap"] = f"{a['test']['PSNR'] - b['test']['PSNR']:.2f}"
+    a, b = load("base:bench-pavia-x4-puformer"), load("bench-pavia-x4-mimformer")    # the 8 h runs are the base model
+    if a and b:
+        NUM["long-gap-4h"] = f"{a['test']['PSNR'] - b['test']['PSNR']:.2f}"
+    # ExactFuse for 8 h (long-*-x4-ng) against MIMFormer for 8 h, and the same gap at 4 h
+    for d in ("chikusei", "pavia"):
+        a, b = load(f"long-{d}-x4-ng"), load(f"long-{d}-x4-mimformer")
+        for m, r in (("exactfuse", a), ("mimformer", b)):
+            if r:
+                NUM[f"long-{d}-{m}-psnr"] = f"{r['test']['PSNR']:.2f}"
+                NUM[f"long-{d}-{m}-iters"] = f"{r['iters']:,}".replace(",", "{,}")
+        a4, b4 = load(f"bench-{d}-x4-puformer"), load(f"bench-{d}-x4-mimformer")
+        if a and b and a4 and b4:
+            NUM[f"long-{d}-gap"] = f"{a['test']['PSNR'] - b['test']['PSNR']:.2f}"
+            NUM[f"long-{d}-gap-4h"] = f"{a4['test']['PSNR'] - b4['test']['PSNR']:.2f}"
 
 
 def significance():
-    """Paired Wilcoxon signed-rank test of per-image PSNR, PUFormer vs the best other method, per setting."""
+    """Paired Wilcoxon signed-rank test of per-image PSNR, ExactFuse vs the best other method, per setting."""
     try:
         from scipy.stats import wilcoxon
     except ImportError:
@@ -493,8 +557,53 @@ def significance():
     NUM["settings-allwin"], NUM["settings-total"] = str(wins), str(total)
 
 
+def msi_numbers():
+    """Information budget of the true images (msi_value.py): the HR-MSI's share of the fine-detail energy and the
+    PSNR that the measurements alone determine (LR-HSI only, HR-MSI only, both)."""
+    for d in ("chikusei", "pavia", "cave", "harvard"):
+        r = load(f"msi-value-{d}", "msi_value.json")
+        if not r:
+            continue
+        for sc, v in r["scales"].items():
+            m, sc = v["mean"], sc.lstrip("x")
+            NUM[f"msi-{d}{sc}-detail"] = f"{100 * m['msi_share_of_detail']:.0f}"
+            NUM[f"msi-{d}{sc}-null"] = f"{100 * m['null_share']:.1f}"
+            for k in ("psnr_lr_only", "psnr_msi_only", "psnr_both"):
+                NUM[f"msi-{d}{sc}-{k.replace('_', '-')}"] = f"{m[k]:.1f}"
+
+
+def pooled_significance():
+    """One-sided Wilcoxon signed-rank test of per-image PSNR, ExactFuse against the strongest retrained network of each
+    setting, pooled over every setting where both ran (the per-setting tests have too few images: 4 on Pavia Centre
+    cannot reach p < 0.0625)."""
+    try:
+        from scipy.stats import wilcoxon
+    except ImportError:
+        return
+    diffs, settings = [], 0
+    for d, s in [("chikusei", 4), ("pavia", 4), ("cave", 4), ("harvard", 4)] + GENERAL[2:]:
+        p = load(f"bench-{d}-x{s}-puformer")
+        others = [load(f"bench-{d}-x{s}-{m}") for m in BASELINES]
+        others = [o for o in others if o and o.get("test_per_image")]
+        if not p or not p.get("test_per_image") or not others:
+            continue
+        b = max(others, key=lambda r: r["test"]["PSNR"])
+        a, c = [x["PSNR"] for x in p["test_per_image"]], [x["PSNR"] for x in b["test_per_image"]]
+        if len(a) != len(c):
+            continue
+        settings += 1
+        diffs += [x - y for x, y in zip(a, c)]
+    if len(diffs) < 6:
+        return
+    pv = wilcoxon(diffs, alternative="greater").pvalue
+    NUM["pooled-n"], NUM["pooled-settings"] = str(len(diffs)), str(settings)
+    NUM["pooled-wins"] = str(sum(x > 0 for x in diffs))
+    e = int(math.floor(math.log10(pv))) if pv > 0 else -300
+    NUM["pooled-p"] = f"{pv:.3f}" if pv >= 1e-3 else f"{pv / 10 ** e:.1f}\\times10^{{{e}}}"
+
+
 def win_counts():
-    """In how many finished settings PUFormer has the best PSNR / SAM / ERGAS among the retrained methods."""
+    """In how many finished settings ExactFuse has the best PSNR / SAM / ERGAS among the retrained methods."""
     done = {"PSNR": 0, "SAM": 0, "ERGAS": 0}
     n = 0
     for ds, (_, scales) in DATASETS.items():
@@ -515,13 +624,13 @@ def win_counts():
 
 # Other datasets and scale factors (main text: PSNR and SAM; supplement: every metric)
 TITLE = {"chikusei": "Chikusei", "pavia": "Pavia Centre", "cave": "CAVE", "harvard": "Harvard"}
-GENERAL = [("cave", 4), ("harvard", 4), ("chikusei", 8), ("pavia", 8), ("chikusei", 16), ("pavia", 16)]
+GENERAL = [("cave", 4), ("harvard", 4), ("cave", 8), ("harvard", 8), ("chikusei", 8), ("pavia", 8), ("chikusei", 16), ("pavia", 16)]
 GEN_COLS = [("PSNR", "PSNR", 2, True), ("SAM", "SAM", 3, False)]
 OP_SETTINGS = [("chikusei", 4), ("pavia", 4), ("cave", 4), ("harvard", 4), ("chikusei", 8), ("pavia", 8)]
 
 
 def general_table():
-    """PSNR and SAM of every method on the other datasets and scale factors, and how often PUFormer wins."""
+    """PSNR and SAM of every method on the other datasets and scale factors, and how often ExactFuse wins."""
     arrow = {True: "$\\uparrow$", False: "$\\downarrow$"}
     head = " & ".join(f"\\multicolumn{{2}}{{c}}{{{TITLE[d]} $\\times${s}}}" for d, s in GENERAL)
     rule = "".join(f"\\cmidrule(lr){{{2 + 2 * i}-{3 + 2 * i}}}" for i in range(len(GENERAL)))
@@ -555,11 +664,10 @@ def general_table():
         NUM[f"{d}{s}-psnr"], NUM[f"{d}{s}-gain"] = f"{p['PSNR']:.2f}", f"{p['PSNR'] - bo['PSNR']:.2f}"
         NUM[f"{d}{s}-best-other"] = dict((k, v) for k, v, _ in ALL)[
             [m for m in BASELINES if rows[m] is bo][0]]
-        if all(rows[m] for m in CORE):                   # only settings in which every network has run
-            complete += 1
-            psnr_wins += p["PSNR"] > bo["PSNR"]
-            sam_wins += p["SAM"] < min(o["SAM"] for o in others)
-            gains.append(p["PSNR"] - bo["PSNR"])
+        complete += 1                                     # against the strongest network run in the setting
+        psnr_wins += p["PSNR"] > bo["PSNR"]
+        sam_wins += p["SAM"] < min(o["SAM"] for o in others)
+        gains.append(p["PSNR"] - bo["PSNR"])
     NUM["gen-complete"], NUM["gen-psnr-wins"], NUM["gen-sam-wins"] = str(complete), str(psnr_wins), str(sam_wins)
     if gains:
         NUM["gen-gain-min"], NUM["gen-gain-max"] = f"{min(gains):.2f}", f"{max(gains):.2f}"
@@ -585,7 +693,7 @@ def operator_general_table():
     beats = dict(zeros=0, learned=0, nophys=0)
     n = 0
     for d, s in OP_SETTINGS:
-        full, gf = load(f"bench-{d}-x{s}-puformer"), load(f"bench-{d}-x{s}-puformer", "gaps.json")
+        full, gf = load(f"base:bench-{d}-x{s}-puformer"), load(f"base:bench-{d}-x{s}-puformer", "gaps.json")
         runs = {v: (load(f"abl-{d}-x{s}-{v}"), load(f"abl-{d}-x{s}-{v}", "gaps.json"))
                 for v in ("zeros", "learned", "nophys")}
         if full is None or all(r is None for r, _ in runs.values()):
@@ -632,11 +740,12 @@ def operator_general_table():
 # Operator-randomized training (train.py --rand_*; evaluated by cond_eval.py): (job, label, modes)
 COND_MODELS = [("bench-{d}-x4-mimformer", "MIMFormer, nominal training", ("fixed",)),
                ("cond-{d}-x4-mimformer", "MIMFormer, randomized", ("fixed",)),
-               ("bench-{d}-x4-puformer", "PUFormer, nominal training", ("fixed", "estimated")),
-               ("cond-{d}-x4-nocond", "PUFormer, randomized data only", ("fixed", "estimated")),
-               ("cond-{d}-x4-zeros", "PUFormer, randomized, zero border", ("estimated",)),
-               ("cond-{d}-x4-puformer", "PUFormer, randomized + operator", ("fixed", "estimated", "oracle")),
-               ("cond-{d}-x4-omc", "+ observation-model conditioning", ("fixed", "estimated", "oracle"))]
+               ("bench-{d}-x4-puformer", "ExactFuse, nominal training", ("fixed", "estimated")),
+               ("cond-{d}-x4-nocond", "base model, randomized data only", ("fixed", "estimated")),
+               ("cond-{d}-x4-zeros", "base model, randomized, zero border", ("estimated",)),
+               ("cond-{d}-x4-puformer", "base model, randomized + operator", ("fixed", "estimated", "oracle")),
+               ("cond-{d}-x4-omc", "+ observation-model conditioning", ("fixed", "estimated", "oracle")),
+               ("cond-{d}-x4-ng", "ExactFuse, randomized + conditioning", ("fixed", "estimated", "oracle"))]
 MISMATCH = ("aniso", "disk", "MSI", "HSI")   # conditions outside the (isotropic, co-registered) operator family
 COND_GROUPS = [("nominal", "Training operator", lambda k: k == "nominal"),
                ("blur", "Blur $\\times$0.5--2", lambda k: k.startswith("sigma x") and "snr" not in k),
@@ -647,7 +756,12 @@ COND_GROUPS = [("nominal", "Training operator", lambda k: k == "nominal"),
                ("kernel", "Blur outside the family$^\\dagger$",
                 lambda k: k.startswith(("aniso", "disk")) and "MSI" not in k and "offset" not in k),
                ("offset", "LR-HSI grid offset", lambda k: "offset" in k),
-               ("misreg", "HR-MSI misregistered$^\\ddagger$", lambda k: "MSI" in k)]
+               ("misreg", "HR-MSI misregistered$^\\ddagger$",
+                lambda k: "MSI" in k and not any(t in k for t in ("changes", "locally"))
+                and not (k.startswith("MSI misregistered") and ("+" in k or "band-limited" in k))),     # later variants: own keys
+               ("corrupt", "Corrupted observations", lambda k: "changes" in k or "stripes" in k),
+               ("locreg", "Locally misregistered", lambda k: "locally" in k and "band" not in k),
+               ("bandnoise", "Band-dependent noise", lambda k: "band" in k)]
 MODE_LAB = {"fixed": "fixed", "estimated": "est.", "oracle": "true"}
 
 
@@ -706,10 +820,12 @@ def cond_table():
                 tag = f"{j.split('-')[0]}-{j.split('-')[-1]}"
                 NUM[f"sens-{d}-{tag}-{row['sigma_factor']:g}"] = f"{row['PSNR']:.2f}"
                 NUM[f"sens-{d}-res-{row['sigma_factor']:g}"] = f"{100 * row['rel_op_residual']:.1f}"
-        se = [r["sigma_abs_err"] for r in e["conditions"].values() if r["sigma_abs_err"] is not None]
-        sh = [r["shift_abs_err"] for r in e["conditions"].values()]
+        # largest per-image estimation error over the conditions inside the family (the claim of the text)
+        fam = [r for k, r in e["conditions"].items() if not k.startswith(MISMATCH)]
+        se = [abs(v - r["sigma"]) for r in fam for v in r["sigma_hat"]]
+        sh = [abs(v - r["shift_nm"]) for r in fam for v in r["shift_hat"]]
         clean = [r["shift_abs_err"] for k, r in e["conditions"].items() if "snr" not in k and not k.startswith(MISMATCH)]
-        NUM[f"cond-{d}-sigerr-max"], NUM[f"cond-{d}-shifterr-max"] = f"{max(se):.3f}", f"{max(sh):.1f}"
+        NUM[f"cond-{d}-sigerr-max"], NUM[f"cond-{d}-shifterr-max"] = f"{max(se):.2f}", f"{max(sh):.1f}"
         NUM[f"cond-{d}-shifterr-clean-max"] = f"{max(clean):.1f}"
     if not body:
         write("q1_cond.tex", ["% cond_eval.json not available yet"])
@@ -741,7 +857,7 @@ def cond_table():
 NEON_ROWS = [("bicubic", "Bicubic", None), ("gsa", "GSA", None), ("bench-neon-x4-ssrnet", "SSR-NET", "zhang2021ssrnet"),
              ("bench-neon-x4-psrt", "PSRT", "deng2023psrt"), ("bench-neon-x4-dct", "DCT", "ma2024reciprocal"),
              ("bench-neon-x4-mimformer", "MIMFormer", "li2024mimformer"), ("bench-neon-x4-dhif", "DHIF-Net", "huang2022dhif"),
-             ("bench-neon-x4-puformer", "PUFormer", None), ("abl-neon-x4-zeros", "\\quad zero border", None),
+             ("bench-neon-x4-puformer", "base model", None), ("abl-neon-x4-zeros", "\\quad zero border", None),
              ("abl-neon-x4-learned", "\\quad learned operator", None), ("abl-neon-x4-nophys", "\\quad no data step", None),
              ("cond-neon-x4-puformer", "\\quad blur + noise randomized", None)]
 NEON_RR = [("PSNR", "PSNR", 2, True), ("SAM", "SAM", 3, False), ("ERGAS", "ERGAS", 3, False), ("SSIM", "SSIM", 4, True)]
@@ -816,11 +932,11 @@ def neon_table():
 GAIN_ROWS = [("MIMFormer", None),
              ("bench-{d}-x4-mimformer", "pipeline recipe (batch 8, AdamW, no decay, cosine)"),
              ("off-{d}-x4-mimformer", "authors' recipe (batch 16, Adam, step decay)"),
-             ("rec-{d}-x4-mimformer", "PUFormer's recipe (lr $3\\times10^{-4}$, decay, clipping, SAM+SSIM)"),
+             ("rec-{d}-x4-mimformer", "ExactFuse's recipe (lr $3\\times10^{-4}$, decay, clipping, SAM+SSIM)"),
              ("PSRT", None),
              ("bench-{d}-x4-psrt", "pipeline recipe (batch 8)"),
              ("off-{d}-x4-psrt", "authors' recipe (batch 32, AdamW decay, clipping, constant lr)"),
-             ("PUFormer", None),
+             ("ExactFuse", None),
              ("abl-{d}-x4-unet", "prior alone: one U-Net, no data step"),
              ("abl-{d}-x4-k1", "one stage with data step"),
              ("abl-{d}-x4-nophys", "three stages, no data step"),
@@ -829,7 +945,7 @@ GAIN_ROWS = [("MIMFormer", None),
 
 
 def gain_table():
-    """Retrained baselines under their authors' and PUFormer's recipes, and PUFormer reduced step by step."""
+    """Retrained baselines under their authors' and ExactFuse's recipes, and ExactFuse reduced step by step."""
     sets = (("chikusei", "Chikusei"), ("pavia", "Pavia Centre"))
     full = {d: load(f"bench-{d}-x4-puformer") for d, _ in sets}
     body, any_new = [], False
@@ -854,6 +970,13 @@ def gain_table():
                 NUM[f"gain-{d}-{tag}-delta"] = f"{p - full[d]['test']['PSNR']:+.2f}"
                 NUM[f"gain-{d}-{tag}-gap"] = f"{full[d]['test']['PSNR'] - p:.2f}"
         body.append(f"\\quad {lab} & " + " & ".join(cells) + " \\\\")
+    for d, _ in sets:          # the same recipe for both networks: ours, and the baselines' (the common one)
+        a, b = load(f"bench-{d}-x4-puformer"), load(f"rec-{d}-x4-mimformer")
+        c, e = load(f"rec-{d}-x4-puformer"), load(f"bench-{d}-x4-mimformer")
+        if a and b:
+            NUM[f"recipe-{d}-ours-gap"] = f"{a['test']['PSNR'] - b['test']['PSNR']:.2f}"
+        if c and e:
+            NUM[f"recipe-{d}-base-gap"] = f"{c['test']['PSNR'] - e['test']['PSNR']:.2f}"
     if not any_new:
         write("q1_gain.tex", ["% recipe / backbone runs not available yet"])
         return
@@ -861,9 +984,9 @@ def gain_table():
     write("q1_gain.tex", [
         "\\begin{table*}[t]", "\\centering",
         "\\caption{Where the margin over the retrained networks comes from (4~h on one T4, single pass). The two "
-        "strongest baselines are retrained with their authors' own recipe and with PUFormer's; PUFormer is reduced to "
+        "strongest baselines are retrained with their authors' own recipe and with ExactFuse's; ExactFuse is reduced to "
         "its prior alone, to one stage, to three stages without the data step, and trained with the baselines' recipe. "
-        "$\\Delta$: PSNR against the full PUFormer of the same dataset; it.: training iterations completed.}",
+        "$\\Delta$: PSNR against the full ExactFuse of the same dataset; it.: training iterations completed.}",
         "\\label{tab:gain}", "\\setlength{\\tabcolsep}{3pt}", "\\resizebox{\\textwidth}{!}{%",
         "\\begin{tabular}{@{}lcccccccc@{}}", "\\toprule", f" & {head} \\\\",
         "\\cmidrule(lr){2-5}\\cmidrule(l){6-9}",
@@ -872,7 +995,7 @@ def gain_table():
 
 
 NULL_ROWS = [("bicubic", "Bicubic"), ("gsa", "GSA"), ("ssrnet", "SSR-NET"), ("psrt", "PSRT"), ("dct", "DCT"),
-             ("mimformer", "MIMFormer"), ("dhif", "DHIF-Net"), ("puformer", "PUFormer")]
+             ("mimformer", "MIMFormer"), ("dhif", "DHIF-Net"), ("puformer", "ExactFuse")]
 
 
 def null_table():
@@ -901,6 +1024,11 @@ def null_table():
         body.append(f"{lab} & " + " & ".join(cells) + " \\\\")
     for d, _, r in sets:
         p, q = r["methods"].get("puformer"), r["methods"].get("mimformer")
+        base = {m: v for m, v in r["methods"].items() if m in BASELINES}
+        if p and base:                    # against the retrained network with the smallest observed error
+            bm = min(base, key=lambda m: base[m]["mse_observed"])
+            NUM[f"null-{d}-obs-ratio-best"] = f"{base[bm]['mse_observed'] / p['mse_observed']:.0f}"
+            NUM[f"null-{d}-obs-best"] = dict((k, v) for k, v, _ in ALL)[bm]
         if p and q:
             NUM[f"null-{d}-obs-ratio"] = f"{q['mse_observed'] / p['mse_observed']:.1f}"
             NUM[f"null-{d}-consistency-gain"] = f"{q['psnr_null_only'] - q['psnr']:.2f}"
@@ -921,7 +1049,7 @@ def null_table():
 
 
 def seed_numbers():
-    """PUFormer and MIMFormer over three seeds at x4: mean, standard deviation and the gap."""
+    """ExactFuse and MIMFormer over three seeds at x4: mean, standard deviation and the gap."""
     for ds in ("chikusei", "pavia"):
         runs = {"puformer": [load(f"bench-{ds}-x4-puformer"), load(f"seed1-{ds}-x4-full"), load(f"seed2-{ds}-x4-full")],
                 "mimformer": [load(f"bench-{ds}-x4-mimformer"), load(f"seed1-{ds}-x4-mimformer"),
@@ -962,6 +1090,8 @@ def _obs(v):
 def cvpr_bench():
     """Chikusei and Pavia Centre x4: every retrained network, four metrics and the observed-subspace error."""
     sets = (("chikusei", "Chikusei"), ("pavia", "Pavia Centre"))
+    if _params("puformer"):
+        NUM["puformer-params"] = f"{_params('puformer'):.1f}"
     nulls = {d: (load(f"null-{d}-x4", "null_analysis.json") or {}).get("methods", {}) for d, _ in sets}
     per = {d: {m: method_metrics(d, 4, m) for m, *_ in ALL} for d, _ in sets}
     rows = [x for x in ALL if x[0] in ("bicubic", "gsa", "puformer") or any(per[d][x[0]] for d, _ in sets)]
@@ -993,6 +1123,9 @@ def cvpr_bench():
     NUM["n-retrained"] = str(sum(1 for m in BASELINES if all(per[d][m] for d, _ in sets)))
     NUM["n-retrained-word"] = ("zero one two three four five six seven eight nine ten eleven twelve".split()
                               [int(NUM["n-retrained"])])
+    NUM["n-retrained-word-cap"] = NUM["n-retrained-word"].capitalize()
+    names = [f"{lab}~\\cite{{{cite}}}" for m, lab, cite in ALL if m in BASELINES and all(per[d][m] for d, _ in sets)]
+    NUM["retrained-list"] = ", ".join(names[:-1]) + " and " + names[-1]
     n = len(CV_BENCH) + 1
     head = " & ".join(f"\\multicolumn{{{n}}}{{c}}{{{t} $\\times$4}}" for _, t in sets)
     sub = " & ".join(" & ".join(lab + ARROW[hi] for _, lab, _, hi in CV_BENCH) + " & Obs.$\\downarrow$" for _ in sets)
@@ -1000,8 +1133,9 @@ def cvpr_bench():
         "\\begin{table*}[t]", "\\centering",
         "\\caption{Equal-budget comparison at $\\times$4. Every network is retrained by us from its authors' code with the "
         "same data, patches, batch size, EMA weights, validation-only model selection and 4~h on one T4 GPU (single pass). "
-        "Obs.: mean squared error in the observed subspace ($\\times10^{-6}$), the part of the error that contradicts the "
-        "observations (Sec.~\\ref{sec:nullsplit}). Parameters for 128 bands. Best learned method in bold.}",
+        "SSIM with the data range set to each image's own maximum. Obs.: mean squared error in the observed subspace "
+        "($\\times10^{-6}$), the part of the error that contradicts the observations (Sec.~\\ref{sec:nullsplit}). "
+        "Parameters for 128 bands. Best learned method in bold.}",
         "\\label{tab:bench}", "\\setlength{\\tabcolsep}{3pt}", "\\resizebox{\\textwidth}{!}{%",
         f"\\begin{{tabular}}{{@{{}}lc{'c' * 2 * n}@{{}}}}", "\\toprule",
         f" & & {head} \\\\", f"\\cmidrule(lr){{3-{2 + n}}}\\cmidrule(l){{{3 + n}-{2 + 2 * n}}}",
@@ -1012,7 +1146,7 @@ SHORT_TITLE = {"chikusei": "Chik.", "pavia": "Pavia", "cave": "CAVE", "harvard":
 
 
 def cvpr_general():
-    """PSNR on the other datasets and scale factors where PUFormer has run (every metric is in the supplement)."""
+    """PSNR on the other datasets and scale factors where ExactFuse has run (every metric is in the supplement)."""
     per = {(d, s): {m: method_metrics(d, s, m) for m, *_ in ALL} for d, s in GENERAL}
     sets = [k for k in GENERAL if per[k]["puformer"]]
     rows = [x for x in ALL if x[0] != "bicubic" and any(per[k][x[0]] for k in sets)]
@@ -1036,9 +1170,9 @@ def cvpr_general():
         "\\begin{table}[t]", "\\centering",
         "\\caption{PSNR (dB) on CAVE and Harvard (unseen test scenes) and at larger scale factors, same protocol and "
         "budget as Tab.~\\ref{tab:bench}. --: not run (SMGU-Net's code supports $\\times$4 only).}",
-        "\\label{tab:general}", "\\footnotesize", "\\setlength{\\tabcolsep}{2.6pt}",
+        "\\label{tab:general}", "\\setlength{\\tabcolsep}{2.6pt}", "\\resizebox{\\columnwidth}{!}{%",
         f"\\begin{{tabular}}{{@{{}}l{'c' * len(sets)}@{{}}}}", "\\toprule", f"Method & {head} \\\\", "\\midrule",
-        *body, "\\bottomrule", "\\end{tabular}", "\\end{table}"])
+        *body, "\\bottomrule", "\\end{tabular}}", "\\end{table}"])
 
 
 CV_MARGIN = [("bench-{d}-x4-mimformer", "MIMFormer, common recipe"),
@@ -1047,13 +1181,13 @@ CV_MARGIN = [("bench-{d}-x4-mimformer", "MIMFormer, common recipe"),
              ("bench-{d}-x4-psrt", "PSRT, common recipe"),
              ("off-{d}-x4-psrt", "PSRT, authors' recipe"),
              ("abl-{d}-x4-unet", "our prior alone (one U-Net)"),
-             ("abl-{d}-x4-nophys", "three priors, no data step"),
-             ("rec-{d}-x4-puformer", "PUFormer, baselines' recipe"),
-             ("bench-{d}-x4-puformer", "PUFormer")]
+             ("abl-{d}-x4-ng-nophys", "ExactFuse without data steps"),
+             ("rec-{d}-x4-puformer", "ExactFuse, baselines' recipe"),
+             ("bench-{d}-x4-puformer", "ExactFuse")]
 
 
 def cvpr_margin():
-    """Where the margin comes from: recipes of the two strongest baselines, and PUFormer without its data steps."""
+    """Where the margin comes from: recipes of two baselines (MIMFormer, PSRT), and ExactFuse without its data steps."""
     sets = ("chikusei", "pavia")
     body = []
     for job, lab in CV_MARGIN:
@@ -1068,8 +1202,8 @@ def cvpr_margin():
         body.append(f"{lab} & " + " & ".join(cells) + " \\\\")
     write("cvpr_margin.tex", [
         "\\begin{table}[t]", "\\centering",
-        "\\caption{Where the margin comes from (4~h on one T4). The two strongest baselines with their authors' training "
-        "recipe and with ours; PUFormer without its data steps.}",
+        "\\caption{Where the margin comes from (4~h on one T4). MIMFormer and PSRT with their authors' training "
+        "recipe and with ours; ExactFuse without its data steps.}",
         "\\label{tab:margin}", "\\setlength{\\tabcolsep}{3pt}", "\\resizebox{\\columnwidth}{!}{%",
         "\\begin{tabular}{@{}lcccc@{}}", "\\toprule",
         " & \\multicolumn{2}{c}{Chikusei} & \\multicolumn{2}{c}{Pavia Centre} \\\\",
@@ -1078,51 +1212,105 @@ def cvpr_margin():
         "\\end{table}"])
 
 
-CV_ABL = [("full", "PUFormer"), ("nophys", "no data step"), ("zeros", "zero border"), ("learned", "learned operator"),
-          ("cg", "exact step, 5 CG iterations"), ("kron", "exact step, closed form"), ("kl", "learned spectral gains"),
-          ("mres", "+ HR-MSI residual input"), ("conv", "convolutional mixer"), ("k1", "one stage")]
+# (key, job, label, operator replaceable): from the base model to ExactFuse, the base model's operator ablation, and the
+# inputs; None separates the blocks. Rows of runs that do not exist yet are left out.
+# (key, job, label, operator replaceable, in the main paper); None separates blocks. Every row changes one part of
+# ExactFuse, then the inputs, then the base model for reference (its own steps and operator ablation: supplement).
+CV_ABL = [("pf", "arch-{d}-x4-nogate", "ExactFuse", True, True),
+          ("ng-kron", "abl-{d}-x4-ng-kron", "\\quad closed form without learned gains", True, True),
+          ("ng-grad", "abl-{d}-x4-ng-grad", "\\quad gradient step instead of closed form", True, True),
+          ("ng-nomres", "abl-{d}-x4-ng-nomres", "\\quad no HR-MSI residual input", True, True),
+          ("ng-nosa", "abl-{d}-x4-ng-nosa", "\\quad $\\YM$ instead of $\\R^{+}\\YM$ as input", True, True),
+          ("ng-nophys", "abl-{d}-x4-ng-nophys", "\\quad no data steps", False, True),
+          ("ng-zeros", "abl-{d}-x4-ng-zeros", "\\quad zero border", True, True),
+          ("ng-learned", "abl-{d}-x4-ng-learned", "\\quad learned blur and response", False, True),
+          ("gate", "arch-{d}-x4-new", "\\quad + null-space gate", True, True),
+          ("eon", "arch-{d}-x4-eon", "\\quad + gate, EON prior instead of U-Net", True, True),
+          ("ntp", "arch-{d}-x4-ntp", "\\quad + gate, transfer branch", True, False),
+          ("ng-conv", "abl-{d}-x4-ng-conv", "\\quad convolutional mixer", True, False),
+          ("ng-k1", "abl-{d}-x4-ng-k1", "\\quad one stage", True, False),
+          ("ng-nomem", "abl-{d}-x4-ng-nomem", "\\quad no cross-stage memory", True, False),
+          None,
+          ("ng-nomsi", "abl-{d}-x4-ng-nomsi", "LR-HSI only (no HR-MSI)", False, True),
+          ("ng-nohsi", "abl-{d}-x4-ng-nohsi", "HR-MSI only (no LR-HSI)", False, True),
+          None,
+          ("base", "base:bench-{d}-x4-puformer", "base model (gradient step, $\\YM$ input)", True, True),
+          ("kl", "abl-{d}-x4-kl", "\\quad + closed-form step, learned gains", True, False),
+          ("mres", "abl-{d}-x4-mres", "\\quad + HR-MSI residual input", True, False),
+          ("nophys", "abl-{d}-x4-nophys", "\\quad without data steps", False, False),
+          ("zeros", "abl-{d}-x4-zeros", "\\quad zero border", True, False),
+          ("learned", "abl-{d}-x4-learned", "\\quad learned operator", False, False),
+          ("conv", "abl-{d}-x4-conv", "\\quad convolutional mixer", True, False),
+          ("nomsi", "abl-{d}-x4-nomsi", "\\quad LR-HSI only", False, False),
+          ("nohsi", "abl-{d}-x4-nohsi", "\\quad HR-MSI only", False, False)]
 
 
 def cvpr_ablation():
     sets = ("chikusei", "pavia")
-    body = []
-    for v, lab in CV_ABL:
+    ref = {d: load(f"base:bench-{d}-x4-puformer") for d in sets}
+    pf = {d: load(f"arch-{d}-x4-nogate") for d in sets}
+    bodies = {"main": [], "full": []}
+    seps = {"main": False, "full": False}
+    for row in CV_ABL:
+        if row is None:
+            seps = {k: True for k in seps}
+            continue
+        key, job, lab, swappable, main = row
         cells = []
         for d in sets:
-            r, g = load(abl_job(d, v)), load(abl_job(d, v), "gaps.json")
+            r, g = load(job.format(d=d)), load(job.format(d=d), "gaps.json")
             if r is None:
                 cells += ["--"] * 3
                 continue
-            sw = "n/a" if v in ("learned", "nophys") else fmt(swap_psnr(g), 2)
-            cells += [fmt(r["test"]["PSNR"], 2), fmt(r["consistency"]["cons_H_dB"], 1), sw]
-        if v in ("nophys", "cg", "mres"):
-            body.append("\\midrule")
-        body.append(f"{lab} & " + " & ".join(cells) + " \\\\")
-    write("cvpr_ablation.tex", [
-        "\\begin{table}[t]", "\\centering",
-        "\\caption{Ablation, each variant trained from scratch for 4~h. Cons.: $\\mathrm{PSNR}(\\D\\hat{\\X},\\YH)$. "
-        "Swap: worst PSNR over test blurs $\\sigma\\in\\{0.75,1.25,1.5\\}\\sigma_0$ when the true blur is given to "
-        "the data steps (n/a: no operator to replace; --: not evaluated).}",
-        "\\label{tab:ablation}", "\\setlength{\\tabcolsep}{2.5pt}", "\\resizebox{\\columnwidth}{!}{%",
-        "\\begin{tabular}{@{}lcccccc@{}}", "\\toprule",
-        " & \\multicolumn{3}{c}{Chikusei} & \\multicolumn{3}{c}{Pavia Centre} \\\\",
-        "\\cmidrule(lr){2-4}\\cmidrule(l){5-7}",
-        "Variant & PSNR & Cons. & Swap & PSNR & Cons. & Swap \\\\", "\\midrule", *body, "\\bottomrule",
-        "\\end{tabular}}", "\\end{table}"])
+            t = r["test"]
+            sw = fmt(swap_psnr(g), 2) if swappable else "n/a"
+            cells += [fmt(t["PSNR"], 2), fmt(r["consistency"]["cons_H_dB"], 1), sw]
+            k = "kcab" if d == "chikusei" else "cab"           # values quoted in the text
+            NUM[f"{k}-{key}-psnr"], NUM[f"{k}-{key}-consH"] = f"{t['PSNR']:.2f}", f"{r['consistency']['cons_H_dB']:.1f}"
+            NUM[f"{k}-{key}-sam"] = f"{t['SAM']:.3f}"
+            if ref[d]:
+                NUM[f"{k}-{key}-delta"] = f"{t['PSNR'] - ref[d]['test']['PSNR']:+.2f}".replace("-0.00", "0.00").replace("+0.00", "0.00")
+                NUM[f"{k}-{key}-absdelta"] = f"{abs(t['PSNR'] - ref[d]['test']['PSNR']):.2f}"
+            if pf[d]:                                          # change against ExactFuse
+                NUM[f"{k}-{key}-vspf"] = f"{t['PSNR'] - pf[d]['test']['PSNR']:+.2f}"
+                NUM[f"{k}-{key}-absvspf"] = f"{abs(t['PSNR'] - pf[d]['test']['PSNR']):.2f}"
+            if "iters" in r:
+                NUM[f"{k}-{key}-iters"] = f"{r['iters']:,}".replace(",", "{,}")
+            if "params_M" in r:
+                NUM[f"{k}-{key}-params"] = f"{r['params_M']:.2f}"
+        if all(c == "--" for c in cells):
+            continue
+        for which in ("main", "full") if main else ("full",):
+            if seps[which] and bodies[which]:
+                bodies[which].append("\\midrule")
+            seps[which] = False
+            bodies[which].append(f"{lab} & " + " & ".join(cells) + " \\\\")
+    head = ["\\setlength{\\tabcolsep}{2.5pt}", "\\resizebox{\\columnwidth}{!}{%", "\\begin{tabular}{@{}lcccccc@{}}",
+            "\\toprule", " & \\multicolumn{3}{c}{Chikusei} & \\multicolumn{3}{c}{Pavia Centre} \\\\",
+            "\\cmidrule(lr){2-4}\\cmidrule(l){5-7}", "Variant & PSNR & Cons. & Swap & PSNR & Cons. & Swap \\\\", "\\midrule"]
+    note = ("Cons.: $\\mathrm{PSNR}(\\D\\hat{\\X},\\YH)$. Swap: worst PSNR over test blurs "
+            "$\\sigma\\in\\{0.75,1.25,1.5\\}\\sigma_0$ when the true blur is given to the data steps (n/a: no operator to "
+            "replace; --: not evaluated).")
+    write("cvpr_ablation.tex", ["\\begin{table}[t]", "\\centering",
+          "\\caption{Ablation of ExactFuse, each variant trained from scratch for 4~h: one change per row, then one "
+          "input removed, and the base model for reference (all variants in the supplementary material). " + note + "}",
+          "\\label{tab:ablation}", *head, *bodies["main"], "\\bottomrule", "\\end{tabular}}", "\\end{table}"])
+    write("cvpr_ablation_full.tex", ["\\begin{table}[t]", "\\centering",
+          "\\caption{Every ablation run (4~h each): ExactFuse with one change per row, one input removed, and the base "
+          "model with its own steps towards ExactFuse and its operator ablation. " + note + "}",
+          "\\label{tab:ablation-full}", *head, *bodies["full"], "\\bottomrule", "\\end{tabular}}", "\\end{table}"])
 
 
 CV_COND = [("bench-{d}-x4-mimformer", "fixed", "MIMFormer"),
            ("cond-{d}-x4-mimformer", "fixed", "MIMFormer, randomized"),
-           ("bench-{d}-x4-puformer", "estimated", "PUFormer"),
-           ("cond-{d}-x4-nocond", "fixed", "PUFormer, randomized data"),
-           ("cond-{d}-x4-puformer", "estimated", "\\quad + estimated operator"),
-           ("cond-{d}-x4-omc", "estimated", "\\quad + conditioning"),
-           ("cond-{d}-x4-kron", "estimated", "\\quad + closed-form step"),
-           ("cond-{d}-x4-kl", "estimated", "\\quad + learned gains"),
-           ("cond-{d}-x4-omc", "estimated_ext", "\\quad conditioning, wide estimate"),
+           ("bench-{d}-x4-puformer", "estimated", "ExactFuse"),
+           ("cond-{d}-x4-nocond", "fixed", "base model, randomized data"),
+           ("cond-{d}-x4-omc", "estimated", "\\quad + estimated operator, conditioning"),
+           ("cond-{d}-x4-ng", "estimated", "ExactFuse, randomized + conditioning"),
+           ("cond-{d}-x4-ng", "estimated_ext", "\\quad wide estimate"),
            ("cond-{d}-x4-mimreg", "fixed", "MIMFormer, wider family data"),
-           ("cond-{d}-x4-reg", "estimated", "PUFormer, wider family (+ aniso, offsets)"),
-           ("cond-{d}-x4-omc", "oracle", "\\quad conditioning, true operator")]
+           ("cond-{d}-x4-regng", "estimated", "ExactFuse, wider family (+ aniso, offsets)"),
+           ("cond-{d}-x4-ng", "oracle", "\\quad conditioning, true operator")]
 CV_GROUPS = ("nominal", "blur", "shift", "noise", "combined", "kernel", "offset", "misreg")
 CV_GLAB = ("Nom.", "Blur", "SRF", "Noise", "All", "Kernel$^\\dagger$", "Offset$^\\S$", "Misreg.$^\\ddagger$")
 
@@ -1144,6 +1332,31 @@ def cvpr_cond():
                     NUM[f"cond-{d}-{g}-{j.split('-')[0]}-{j.split('-')[-1]}-{mode}"] = f"{v:.2f}"
         if any_v:
             rows.append((job, mode, lab))
+    # registration under a misregistered HR-MSI (mean over the misregistration conditions): without it, with the
+    # HR-MSI registered by the estimated offset before fusion (reg_msi; GSA: gsa_reg), and ExactFuse's result
+    # registered after fusing with that offset in its operator (reg_out)
+    for d in sets:
+        for m in ("puformer", "mimformer", "regng"):        # regng: ExactFuse trained over the wider family
+            e = load(f"cond-{d}-x4-regng" if m == "regng" else f"bench-{d}-x4-{m}", "cond_eval.json")
+            for mode in ("fixed", "estimated", "reg_msi", "reg_out", "gsa_reg", "gsa_oracle"):
+                v = _cond_value(e, mode, pick["misreg"])
+                if v is not None:
+                    NUM[f"reg-{d}-{m}-{mode}"] = f"{v:.2f}"
+                # misregistration alone (0.5 and 1 px), and with an anisotropic blur and 35 dB noise added
+                v = _cond_value(e, mode, lambda k: k.startswith("MSI misregistered") and "+" not in k and "band-limited" not in k)
+                if v is not None:
+                    NUM[f"reg-{d}-{m}-{mode}-pure"] = f"{v:.2f}"
+                v = _cond_value(e, mode, lambda k: "MSI" in k and "snr" in k and "aniso" in k)
+                if v is not None:
+                    NUM[f"reg-{d}-{m}-{mode}-noisy"] = f"{v:.2f}"
+                # misregistration with 35 dB noise only, and the band-limited (sharp) half-pixel shift
+                for tag, cname in (("noise05", "MSI misregistered 0.5 px + snr 35 dB"),
+                                   ("noise1", "MSI misregistered 1 px + snr 35 dB"),
+                                   ("sharp05", "MSI misregistered 0.5 px band-limited"),
+                                   ("sharpnoise05", "MSI misregistered 0.5 px band-limited + snr 35 dB")):
+                    v = _cond_value(e, mode, lambda k, c=cname: k == c)
+                    if v is not None:
+                        NUM[f"reg-{d}-{m}-{mode}-{tag}"] = f"{v:.2f}"
     if not rows:
         write("cvpr_cond.tex", ["% cond_eval.json not available yet"])
         return
@@ -1165,7 +1378,7 @@ def cvpr_cond():
         body.append(f"{lab} & " + " & ".join(cells) + " \\\\")
     k = len(CV_GROUPS)
     write("cvpr_cond.tex", [
-        "\\begin{table*}[t]", "\\centering",
+        "\\begin{table*}[!t]", "\\centering",
         "\\caption{One network for a family of observation models: mean PSNR (dB) over groups of test conditions. "
         "Randomized: blur width ($0.5$--$2\\sigma_0$), SRF shift ($\\pm12$~nm) and noise (30--50~dB) drawn anew for every "
         "training batch. The operator is the training one (MIMFormer, randomized data), or estimated from the test pair "
@@ -1179,6 +1392,129 @@ def cvpr_cond():
         f"\\cmidrule(lr){{2-{1 + k}}}\\cmidrule(l){{{2 + k}-{1 + 2 * k}}}",
         "Model & " + " & ".join(CV_GLAB * 2) + " \\\\", "\\midrule", *body, "\\bottomrule", "\\end{tabular}}",
         "\\end{table*}"])
+
+
+SENSOR_LAB = {"worldview2": "WorldView-2", "ikonos": "IKONOS", "quickbird": "QuickBird", "planetscope": "PlanetScope",
+              "landsat8": "Landsat~8", "sentinel2": "Sentinel-2", "rgb": "RGB camera"}
+OWN_SENSOR = {"chikusei": "worldview2", "pavia": "ikonos"}
+
+
+def _retrained(d, sensor, m):
+    """PSNR of model m trained for one sensor: the benchmark run for the dataset's own sensor, else spec-*."""
+    if sensor == OWN_SENSOR[d]:
+        r = load(f"bench-{d}-x4-{m}")
+    else:
+        r = load(f"spec-{d}-x4-{'ng' if m == 'puformer' else m}-{sensor}")
+    return None if r is None else r["test"]["PSNR"]
+
+
+def cvpr_family():
+    """One network for any multispectral sensor (trained on random responses, tested on real ones) and for several
+    scale factors (trained at x4 and x8), against GSA and networks trained for one sensor or scale."""
+    sets = ("chikusei", "pavia")
+    one = {(d, m): load(f"sa-{d}-x4-{'ng' if m == 'puformer' else m}", "family_eval.json")
+           for d in sets for m in ("puformer", "mimformer")}
+    if not any(one.values()):
+        write("cvpr_family.tex", ["% family_eval.json not available yet"])
+        return
+    body = []
+    for sn, lab in SENSOR_LAB.items():
+        cells = []
+        for d in sets:
+            res = {m: ((one[(d, m)] or {}).get("results") or {}).get(sn) for m in ("puformer", "mimformer")}
+            any_r = next((r for r in res.values() if r), None)
+            gsa = any_r["gsa"]["PSNR"] if any_r else None
+            vals = [gsa] + [(r or {}).get("model", {}).get("PSNR") for r in (res["mimformer"], res["puformer"])]
+            vals += [_retrained(d, sn, "mimformer"), _retrained(d, sn, "puformer")]
+            for key, v in zip(("gsa", "mimformer-one", "puformer-one", "mimformer-ret", "puformer-ret"), vals):
+                if v is not None:
+                    NUM[f"fam-{d}-{sn}-{key}"] = f"{v:.2f}"
+            learned = [round(v, 2) for v in vals[1:3] if v is not None]
+            cells += [str(any_r["bands"]) if any_r else "--"]
+            cells += [f"\\best{{{fmt(v, 2)}}}" if i in (1, 2) and v is not None and round(v, 2) == max(learned)
+                      else fmt(v, 2) for i, v in enumerate(vals)]
+        body.append(f"{lab} & " + " & ".join(cells) + " \\\\")
+    # the sensor-independent network against the specialists, on the sensor each specialist was trained for
+    for d in sets:
+        e = (one[(d, "puformer")] or {}).get("results") or {}
+        own = e.get(OWN_SENSOR[d], {}).get("model", {}).get("PSNR")
+        spec = _retrained(d, OWN_SENSOR[d], "puformer")
+        if own is not None and spec is not None:
+            NUM[f"fam-{d}-own-cost"] = f"{spec - own:.2f}"
+        gains = [r["model"]["PSNR"] - r["gsa"]["PSNR"] for r in e.values() if "model" in r]
+        if gains:
+            NUM[f"fam-{d}-gsa-gain-min"] = f"{min(gains):.1f}"
+            NUM[f"fam-{d}-gsa-gain-max"] = f"{max(gains):.1f}"
+        # lead over MIMFormer trained on the same random responses with the same input R^+ Y_M
+        mo = ((one[(d, "mimformer")] or {}).get("results") or {})
+        leads = [r["model"]["PSNR"] - mo[sn]["model"]["PSNR"] for sn, r in e.items()
+                 if "model" in r and "model" in mo.get(sn, {})]
+        if leads:
+            NUM[f"fam-{d}-vsmim-min"] = f"{min(leads):.1f}"
+            NUM[f"fam-{d}-vsmim-max"] = f"{max(leads):.1f}"
+        # gap to MIMFormer trained for the sensor, where both exist (WorldView-2 and Sentinel-2 on Chikusei)
+        gaps = [_retrained(d, sn, "mimformer") - r["model"]["PSNR"] for sn, r in e.items()
+                if "model" in r and sn != "rgb" and _retrained(d, sn, "mimformer") is not None]
+        if gaps:
+            NUM[f"fam-{d}-mimret-gap-min"] = f"{min(gaps):.2f}"
+            NUM[f"fam-{d}-mimret-gap-max"] = f"{max(gaps):.2f}"
+    # scale factors: one network trained over x4 and x8 (scl-*-ng), the specialist of each scale, the best other one
+    srows, cost = [], {d: [] for d in sets}
+    for s in (4, 8, 16):
+        cells = []
+        for d in sets:
+            e = ((load(f"scl-{d}-x4-ng", "family_eval.json") or {}).get("results") or {}).get(f"x{s}") or {}
+            spec = method_metrics(d, s, "puformer")
+            base = {m: method_metrics(d, s, m) for m in BASELINES}
+            base = {m: v["PSNR"] for m, v in base.items() if v}
+            bm = max(base, key=base.get) if base else None
+            g = e.get("gsa") or method_metrics(d, s, "gsa") or {}
+            vals = [g.get("PSNR"), e.get("model", {}).get("PSNR"), spec and spec["PSNR"],
+                    base[bm] if bm else None]
+            for key, v in zip(("gsa", "one", "spec", "best"), vals):
+                if v is not None:
+                    NUM[f"scl-{d}-x{s}-{key}"] = f"{v:.2f}"
+            cells += [fmt(v, 2) for v in vals]
+            if vals[1] is not None and vals[2] is not None:
+                cost[d].append(vals[2] - vals[1])
+            if vals[1] is not None and vals[3] is not None:
+                NUM[f"scl-{d}-x{s}-gain"] = f"{vals[1] - vals[3]:.2f}"
+        srows.append(f"$\\times${s} & " + " & ".join(cells) + " \\\\")
+    for d in sets:                        # largest loss of the one network against the network of each scale
+        if cost[d]:
+            NUM[f"scl-{d}-cost-max"] = f"{max(cost[d]):.2f}"
+    write("cvpr_family.tex", [
+        "\\begin{table*}[t]", "\\centering",
+        "\\caption{One network for any multispectral sensor and for several scale factors (test PSNR, dB; Chikusei and "
+        "Pavia Centre). Top: networks with the sensor-independent input $\\R^{+}\\YM$ trained on random responses "
+        "(3--10 bands of random position and width, drawn anew for every batch) and tested on the responses of seven "
+        "real sensors, none of which was seen in training ($M$: bands inside the hyperspectral range), against GSA and "
+        "against networks trained for that one sensor (Retr.). Bottom: ExactFuse trained over $\\times$4 and $\\times$8 "
+        "and tested at $\\times$4, $\\times$8 and $\\times$16, against ExactFuse trained at each scale and the best "
+        "retrained network of that scale. --: not run. Best of the two sensor-independent networks in bold.}",
+        "\\label{tab:family}", "\\setlength{\\tabcolsep}{3pt}", "\\resizebox{\\textwidth}{!}{%",
+        "\\begin{tabular}{@{}l" + "c" * 12 + "@{}}", "\\toprule",
+        " & \\multicolumn{6}{c}{Chikusei $\\times$4} & \\multicolumn{6}{c}{Pavia Centre $\\times$4} \\\\",
+        "\\cmidrule(lr){2-7}\\cmidrule(l){8-13}",
+        " & & & \\multicolumn{2}{c}{One network} & \\multicolumn{2}{c}{Retr.\\ for sensor} & & & "
+        "\\multicolumn{2}{c}{One network} & \\multicolumn{2}{c}{Retr.\\ for sensor} \\\\",
+        "\\cmidrule(lr){4-5}\\cmidrule(lr){6-7}\\cmidrule(lr){10-11}\\cmidrule(l){12-13}",
+        "Sensor & $M$ & GSA & MIMFormer & ExactFuse & MIMFormer & ExactFuse & $M$ & GSA & MIMFormer & ExactFuse & "
+        "MIMFormer & ExactFuse \\\\", "\\midrule", *body, "\\midrule",
+        "Scale & \\multicolumn{2}{c}{GSA} & \\multicolumn{2}{c}{ExactFuse, $\\times$4+$\\times$8} & "
+        "\\multicolumn{1}{c}{ExactFuse} & \\multicolumn{1}{c}{best retr.} & \\multicolumn{2}{c}{GSA} & "
+        "\\multicolumn{2}{c}{ExactFuse, $\\times$4+$\\times$8} & \\multicolumn{1}{c}{ExactFuse} & "
+        "\\multicolumn{1}{c}{best retr.} \\\\", "\\midrule",
+        *[_scale_row(r) for r in srows], "\\bottomrule", "\\end{tabular}}", "\\end{table*}"])
+
+
+def _scale_row(row):
+    """Spread the four scale cells per dataset over the six columns of the sensor block (GSA and the one network
+    span two columns each)."""
+    lab, rest = row.split(" & ", 1)
+    c = rest.rstrip(" \\").split(" & ")
+    per = lambda v: f"\\multicolumn{{2}}{{c}}{{{v[0]}}} & \\multicolumn{{2}}{{c}}{{{v[1]}}} & {v[2]} & {v[3]}"
+    return f"{lab} & {per(c[:4])} & {per(c[4:])} \\\\"
 
 
 def main():
@@ -1200,11 +1536,14 @@ def main():
     gain_table()
     null_table()
     seed_numbers()
+    pooled_significance()
+    msi_numbers()
     cvpr_bench()
     cvpr_general()
     cvpr_margin()
     cvpr_ablation()
     cvpr_cond()
+    cvpr_family()
     write("q1_numbers.tex", [f"\\expandafter\\def\\csname qone@{k}\\endcsname{{{v}}}" for k, v in sorted(NUM.items())])
     print(f"{len(NUM)} numbers;", ", ".join(f"{k}={v}" for k, v in sorted(NUM.items())[:40]))
 

@@ -1,0 +1,58 @@
+{
+ "dataset": "chikusei",
+ "model": "puformer",
+ "sa": 1,
+ "sensor": "worldview2",
+ "mode": "scales",
+ "ckpt": "/kaggle/input/notebooks/captainh210606/puf-s24/out/scl-chikusei-x4-ng/best_ema.pt",
+ "results": {
+  "x4": {
+   "gsa": {
+    "PSNR": 43.1966,
+    "SAM": 2.73,
+    "ERGAS": 3.2791,
+    "SSIM": 0.9778,
+    "RMSE_DN": 107.6883
+   },
+   "model": {
+    "PSNR": 57.9567,
+    "SAM": 0.7299,
+    "ERGAS": 1.3477,
+    "SSIM": 0.9969,
+    "RMSE_DN": 19.4076
+   }
+  },
+  "x8": {
+   "gsa": {
+    "PSNR": 38.6889,
+    "SAM": 3.9719,
+    "ERGAS": 5.143,
+    "SSIM": 0.9524,
+    "RMSE_DN": 180.2865
+   },
+   "model": {
+    "PSNR": 56.8937,
+    "SAM": 0.8206,
+    "ERGAS": 1.5107,
+    "SSIM": 0.9963,
+    "RMSE_DN": 21.9049
+   }
+  },
+  "x16": {
+   "gsa": {
+    "PSNR": 35.2003,
+    "SAM": 5.3027,
+    "ERGAS": 7.4385,
+    "SSIM": 0.9072,
+    "RMSE_DN": 268.9103
+   },
+   "model": {
+    "PSNR": 55.9692,
+    "SAM": 0.8822,
+    "ERGAS": 1.677,
+    "SSIM": 0.996,
+    "RMSE_DN": 24.2048
+   }
+  }
+ }
+}

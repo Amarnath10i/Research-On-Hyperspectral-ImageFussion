@@ -1,0 +1,128 @@
+chikusei x4: train (128, 1632, 2048) test (8, 128, 256, 256) val (64, 128, 64, 64), 1.0 = 15133 DN  (1s)
+[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19
+/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+mimformer (reflect borders): 16.46M params on 1 x cuda; batch 8 x 1; epoch = 102 iters; eval every 1000 iters; deadline in 4.00 h; schedule by time
+bicubic test: {'PSNR': 33.6333, 'PSNR_psrt': 28.199, 'MPSNR_peak1': 35.251, 'SSIM': 0.7404, 'SSIM_psrt': 0.85, 'SAM': 4.4061, 'ERGAS': 9.0115, 'RMSE_DN': 321.8118, 'CC': 0.8408, 'SCC': 0.7648, 'Q2n': 0.6914}
+GSA test: {'PSNR': 43.1966, 'PSNR_psrt': 37.7622, 'MPSNR_peak1': 44.8193, 'SSIM': 0.9778, 'SSIM_psrt': 0.9859, 'SAM': 2.73, 'ERGAS': 3.2791, 'RMSE_DN': 107.6883, 'CC': 0.9905, 'SCC': 0.9922, 'Q2n': 0.9596}
+randomized degradation: sigma in [1.00, 4.00], SRF shift within +-12 nm, offsets within +-0 px, noise 30,50 (p=0.5); nominal operator in the network
+ep     9.8 it   1000 loss 0.01482 lr 1.00e-04 val PSNR 39.889 SSIM 0.8639 SAM 4.177 | best val 39.889 (0.06 h)
+ep    19.6 it   2000 loss 0.00536 lr 9.99e-05 val PSNR 45.037 SSIM 0.9598 SAM 2.456 | best val 45.037 (0.10 h)
+ep    29.4 it   3000 loss 0.00400 lr 9.98e-05 val PSNR 47.090 SSIM 0.9722 SAM 2.138 | best val 47.090 (0.14 h)
+ep    39.2 it   4000 loss 0.00334 lr 9.96e-05 val PSNR 49.048 SSIM 0.9807 SAM 1.857 | best val 49.048 (0.18 h)
+ep    49.0 it   5000 loss 0.00312 lr 9.93e-05 val PSNR 49.646 SSIM 0.9825 SAM 1.772 | best val 49.646 (0.22 h)
+ep    58.8 it   6000 loss 0.00295 lr 9.90e-05 val PSNR 50.423 SSIM 0.9847 SAM 1.636 | best val 50.423 (0.26 h)
+ep    68.6 it   7000 loss 0.00272 lr 9.87e-05 val PSNR 49.918 SSIM 0.9839 SAM 1.610 | best val 50.423 (0.30 h)
+ep    78.4 it   8000 loss 0.00256 lr 9.83e-05 val PSNR 51.012 SSIM 0.9870 SAM 1.496 | best val 51.012 (0.34 h)
+ep    88.2 it   9000 loss 0.00248 lr 9.79e-05 val PSNR 51.897 SSIM 0.9878 SAM 1.415 | best val 51.897 (0.38 h)
+ep    98.0 it  10000 loss 0.00235 lr 9.74e-05 val PSNR 52.165 SSIM 0.9884 SAM 1.358 | best val 52.165 (0.42 h)
+ep   107.8 it  11000 loss 0.00228 lr 9.69e-05 val PSNR 52.680 SSIM 0.9893 SAM 1.296 | best val 52.680 (0.46 h)
+ep   117.6 it  12000 loss 0.00232 lr 9.63e-05 val PSNR 52.471 SSIM 0.9887 SAM 1.334 | best val 52.680 (0.50 h)
+ep   127.5 it  13000 loss 0.00218 lr 9.57e-05 val PSNR 53.293 SSIM 0.9902 SAM 1.220 | best val 53.293 (0.54 h)
+ep   137.3 it  14000 loss 0.00215 lr 9.50e-05 val PSNR 52.990 SSIM 0.9902 SAM 1.207 | best val 53.293 (0.58 h)
+ep   147.1 it  15000 loss 0.00212 lr 9.43e-05 val PSNR 53.707 SSIM 0.9908 SAM 1.168 | best val 53.707 (0.62 h)
+ep   156.9 it  16000 loss 0.00211 lr 9.35e-05 val PSNR 53.830 SSIM 0.9909 SAM 1.152 | best val 53.830 (0.66 h)
+ep   166.7 it  17000 loss 0.00209 lr 9.27e-05 val PSNR 53.491 SSIM 0.9904 SAM 1.137 | best val 53.830 (0.70 h)
+ep   176.5 it  18000 loss 0.00204 lr 9.19e-05 val PSNR 54.229 SSIM 0.9915 SAM 1.106 | best val 54.229 (0.74 h)
+ep   186.3 it  19000 loss 0.00201 lr 9.10e-05 val PSNR 53.818 SSIM 0.9912 SAM 1.126 | best val 54.229 (0.79 h)
+ep   196.1 it  20000 loss 0.00199 lr 9.00e-05 val PSNR 54.551 SSIM 0.9918 SAM 1.067 | best val 54.551 (0.83 h)
+ep   205.9 it  21000 loss 0.00200 lr 8.91e-05 val PSNR 54.654 SSIM 0.9919 SAM 1.056 | best val 54.654 (0.87 h)
+ep   215.7 it  22000 loss 0.00195 lr 8.80e-05 val PSNR 54.682 SSIM 0.9919 SAM 1.057 | best val 54.682 (0.91 h)
+ep   225.5 it  23000 loss 0.00194 lr 8.70e-05 val PSNR 54.864 SSIM 0.9922 SAM 1.031 | best val 54.864 (0.95 h)
+ep   235.3 it  24000 loss 0.00190 lr 8.59e-05 val PSNR 54.788 SSIM 0.9922 SAM 1.039 | best val 54.864 (0.99 h)
+ep   245.1 it  25000 loss 0.00194 lr 8.48e-05 val PSNR 54.927 SSIM 0.9922 SAM 1.027 | best val 54.927 (1.03 h)
+ep   254.9 it  26000 loss 0.00184 lr 8.36e-05 val PSNR 54.895 SSIM 0.9923 SAM 1.013 | best val 54.927 (1.07 h)
+ep   264.7 it  27000 loss 0.00191 lr 8.24e-05 val PSNR 55.121 SSIM 0.9925 SAM 1.002 | best val 55.121 (1.11 h)
+ep   274.5 it  28000 loss 0.00181 lr 8.12e-05 val PSNR 55.180 SSIM 0.9925 SAM 0.998 | best val 55.180 (1.15 h)
+ep   284.3 it  29000 loss 0.00184 lr 7.99e-05 val PSNR 55.172 SSIM 0.9926 SAM 0.990 | best val 55.180 (1.19 h)
+ep   294.1 it  30000 loss 0.00184 lr 7.86e-05 val PSNR 55.138 SSIM 0.9925 SAM 0.997 | best val 55.180 (1.23 h)
+ep   303.9 it  31000 loss 0.00182 lr 7.73e-05 val PSNR 55.178 SSIM 0.9926 SAM 0.983 | best val 55.180 (1.27 h)
+ep   313.7 it  32000 loss 0.00177 lr 7.59e-05 val PSNR 55.164 SSIM 0.9927 SAM 0.994 | best val 55.180 (1.31 h)
+ep   323.5 it  33000 loss 0.00176 lr 7.45e-05 val PSNR 55.405 SSIM 0.9927 SAM 0.974 | best val 55.405 (1.35 h)
+ep   333.3 it  34000 loss 0.00176 lr 7.31e-05 val PSNR 55.465 SSIM 0.9928 SAM 0.969 | best val 55.465 (1.39 h)
+ep   343.1 it  35000 loss 0.00178 lr 7.17e-05 val PSNR 55.491 SSIM 0.9928 SAM 0.968 | best val 55.491 (1.43 h)
+ep   352.9 it  36000 loss 0.00180 lr 7.03e-05 val PSNR 55.433 SSIM 0.9928 SAM 0.970 | best val 55.491 (1.48 h)
+ep   362.7 it  37000 loss 0.00175 lr 6.88e-05 val PSNR 55.518 SSIM 0.9928 SAM 0.963 | best val 55.518 (1.52 h)
+ep   372.5 it  38000 loss 0.00179 lr 6.73e-05 val PSNR 55.442 SSIM 0.9929 SAM 0.963 | best val 55.518 (1.56 h)
+ep   382.4 it  39000 loss 0.00172 lr 6.58e-05 val PSNR 55.250 SSIM 0.9929 SAM 0.960 | best val 55.518 (1.60 h)
+ep   392.2 it  40000 loss 0.00167 lr 6.43e-05 val PSNR 55.281 SSIM 0.9929 SAM 0.961 | best val 55.518 (1.64 h)
+ep   402.0 it  41000 loss 0.00174 lr 6.27e-05 val PSNR 55.573 SSIM 0.9930 SAM 0.951 | best val 55.573 (1.68 h)
+ep   411.8 it  42000 loss 0.00173 lr 6.12e-05 val PSNR 55.579 SSIM 0.9930 SAM 0.952 | best val 55.579 (1.72 h)
+ep   421.6 it  43000 loss 0.00169 lr 5.96e-05 val PSNR 55.588 SSIM 0.9929 SAM 0.961 | best val 55.588 (1.76 h)
+ep   431.4 it  44000 loss 0.00166 lr 5.80e-05 val PSNR 55.546 SSIM 0.9930 SAM 0.956 | best val 55.588 (1.80 h)
+ep   441.2 it  45000 loss 0.00169 lr 5.65e-05 val PSNR 55.308 SSIM 0.9930 SAM 0.947 | best val 55.588 (1.84 h)
+ep   451.0 it  46000 loss 0.00165 lr 5.49e-05 val PSNR 55.330 SSIM 0.9927 SAM 0.960 | best val 55.588 (1.88 h)
+ep   460.8 it  47000 loss 0.00164 lr 5.33e-05 val PSNR 55.693 SSIM 0.9930 SAM 0.939 | best val 55.693 (1.92 h)
+ep   470.6 it  48000 loss 0.00165 lr 5.17e-05 val PSNR 55.701 SSIM 0.9930 SAM 0.940 | best val 55.701 (1.96 h)
+ep   480.4 it  49000 loss 0.00165 lr 5.01e-05 val PSNR 55.856 SSIM 0.9931 SAM 0.933 | best val 55.856 (2.00 h)
+ep   490.2 it  50000 loss 0.00164 lr 4.85e-05 val PSNR 55.399 SSIM 0.9931 SAM 0.955 | best val 55.856 (2.04 h)
+ep   500.0 it  51000 loss 0.00161 lr 4.69e-05 val PSNR 55.864 SSIM 0.9931 SAM 0.932 | best val 55.864 (2.08 h)
+ep   509.8 it  52000 loss 0.00165 lr 4.53e-05 val PSNR 55.874 SSIM 0.9931 SAM 0.931 | best val 55.874 (2.12 h)
+ep   519.6 it  53000 loss 0.00162 lr 4.37e-05 val PSNR 55.622 SSIM 0.9929 SAM 0.965 | best val 55.874 (2.16 h)
+ep   529.4 it  54000 loss 0.00159 lr 4.21e-05 val PSNR 55.944 SSIM 0.9932 SAM 0.922 | best val 55.944 (2.21 h)
+ep   539.2 it  55000 loss 0.00162 lr 4.06e-05 val PSNR 55.781 SSIM 0.9930 SAM 0.944 | best val 55.944 (2.25 h)
+ep   549.0 it  56000 loss 0.00164 lr 3.90e-05 val PSNR 55.981 SSIM 0.9932 SAM 0.921 | best val 55.981 (2.29 h)
+ep   558.8 it  57000 loss 0.00159 lr 3.75e-05 val PSNR 55.963 SSIM 0.9932 SAM 0.923 | best val 55.981 (2.33 h)
+ep   568.6 it  58000 loss 0.00158 lr 3.59e-05 val PSNR 55.874 SSIM 0.9931 SAM 0.922 | best val 55.981 (2.37 h)
+ep   578.4 it  59000 loss 0.00160 lr 3.44e-05 val PSNR 55.950 SSIM 0.9933 SAM 0.920 | best val 55.981 (2.41 h)
+ep   588.2 it  60000 loss 0.00158 lr 3.29e-05 val PSNR 55.947 SSIM 0.9932 SAM 0.928 | best val 55.981 (2.45 h)
+ep   598.0 it  61000 loss 0.00160 lr 3.14e-05 val PSNR 56.043 SSIM 0.9933 SAM 0.910 | best val 56.043 (2.49 h)
+ep   607.8 it  62000 loss 0.00156 lr 2.99e-05 val PSNR 56.124 SSIM 0.9933 SAM 0.906 | best val 56.124 (2.53 h)
+ep   617.6 it  63000 loss 0.00158 lr 2.85e-05 val PSNR 55.663 SSIM 0.9930 SAM 0.950 | best val 56.124 (2.57 h)
+ep   627.5 it  64000 loss 0.00160 lr 2.70e-05 val PSNR 56.142 SSIM 0.9933 SAM 0.906 | best val 56.142 (2.61 h)
+ep   637.3 it  65000 loss 0.00155 lr 2.56e-05 val PSNR 56.120 SSIM 0.9933 SAM 0.902 | best val 56.142 (2.65 h)
+ep   647.1 it  66000 loss 0.00154 lr 2.43e-05 val PSNR 56.172 SSIM 0.9933 SAM 0.900 | best val 56.172 (2.69 h)
+ep   656.9 it  67000 loss 0.00156 lr 2.29e-05 val PSNR 56.169 SSIM 0.9934 SAM 0.902 | best val 56.172 (2.73 h)
+ep   666.7 it  68000 loss 0.00154 lr 2.16e-05 val PSNR 56.234 SSIM 0.9934 SAM 0.897 | best val 56.234 (2.77 h)
+ep   676.5 it  69000 loss 0.00153 lr 2.03e-05 val PSNR 56.160 SSIM 0.9934 SAM 0.904 | best val 56.234 (2.81 h)
+ep   686.3 it  70000 loss 0.00152 lr 1.90e-05 val PSNR 56.190 SSIM 0.9933 SAM 0.902 | best val 56.234 (2.85 h)
+ep   696.1 it  71000 loss 0.00158 lr 1.78e-05 val PSNR 56.187 SSIM 0.9933 SAM 0.903 | best val 56.234 (2.89 h)
+ep   705.9 it  72000 loss 0.00156 lr 1.66e-05 val PSNR 56.229 SSIM 0.9934 SAM 0.896 | best val 56.234 (2.94 h)
+ep   715.7 it  73000 loss 0.00151 lr 1.54e-05 val PSNR 56.131 SSIM 0.9933 SAM 0.899 | best val 56.234 (2.98 h)
+ep   725.5 it  74000 loss 0.00154 lr 1.43e-05 val PSNR 56.267 SSIM 0.9934 SAM 0.892 | best val 56.267 (3.02 h)
+ep   735.3 it  75000 loss 0.00154 lr 1.32e-05 val PSNR 55.656 SSIM 0.9929 SAM 0.934 | best val 56.267 (3.06 h)
+ep   745.1 it  76000 loss 0.00153 lr 1.21e-05 val PSNR 56.273 SSIM 0.9934 SAM 0.891 | best val 56.273 (3.10 h)
+ep   754.9 it  77000 loss 0.00152 lr 1.11e-05 val PSNR 56.262 SSIM 0.9934 SAM 0.892 | best val 56.273 (3.14 h)
+ep   764.7 it  78000 loss 0.00154 lr 1.01e-05 val PSNR 56.248 SSIM 0.9934 SAM 0.896 | best val 56.273 (3.18 h)
+ep   774.5 it  79000 loss 0.00152 lr 9.16e-06 val PSNR 56.328 SSIM 0.9934 SAM 0.888 | best val 56.328 (3.22 h)
+ep   784.3 it  80000 loss 0.00150 lr 8.26e-06 val PSNR 56.281 SSIM 0.9934 SAM 0.894 | best val 56.328 (3.26 h)
+ep   794.1 it  81000 loss 0.00155 lr 7.40e-06 val PSNR 56.330 SSIM 0.9934 SAM 0.887 | best val 56.330 (3.30 h)
+ep   803.9 it  82000 loss 0.00152 lr 6.59e-06 val PSNR 56.315 SSIM 0.9934 SAM 0.890 | best val 56.330 (3.34 h)
+ep   813.7 it  83000 loss 0.00152 lr 5.82e-06 val PSNR 56.349 SSIM 0.9934 SAM 0.887 | best val 56.349 (3.38 h)
+ep   823.5 it  84000 loss 0.00155 lr 5.10e-06 val PSNR 56.311 SSIM 0.9934 SAM 0.890 | best val 56.349 (3.42 h)
+ep   833.3 it  85000 loss 0.00150 lr 4.42e-06 val PSNR 56.246 SSIM 0.9934 SAM 0.892 | best val 56.349 (3.46 h)
+ep   843.1 it  86000 loss 0.00147 lr 3.78e-06 val PSNR 56.319 SSIM 0.9934 SAM 0.890 | best val 56.349 (3.50 h)
+ep   852.9 it  87000 loss 0.00152 lr 3.20e-06 val PSNR 56.345 SSIM 0.9934 SAM 0.886 | best val 56.349 (3.54 h)
+ep   862.7 it  88000 loss 0.00152 lr 2.66e-06 val PSNR 56.320 SSIM 0.9934 SAM 0.890 | best val 56.349 (3.58 h)
+ep   872.5 it  89000 loss 0.00150 lr 2.17e-06 val PSNR 56.325 SSIM 0.9934 SAM 0.885 | best val 56.349 (3.62 h)
+ep   882.4 it  90000 loss 0.00149 lr 1.73e-06 val PSNR 56.284 SSIM 0.9934 SAM 0.895 | best val 56.349 (3.66 h)
+ep   892.2 it  91000 loss 0.00149 lr 1.34e-06 val PSNR 56.372 SSIM 0.9935 SAM 0.885 | best val 56.372 (3.71 h)
+ep   902.0 it  92000 loss 0.00154 lr 9.98e-07 val PSNR 56.373 SSIM 0.9935 SAM 0.884 | best val 56.373 (3.75 h)
+ep   911.8 it  93000 loss 0.00144 lr 7.06e-07 val PSNR 56.376 SSIM 0.9935 SAM 0.884 | best val 56.376 (3.79 h)
+ep   921.6 it  94000 loss 0.00151 lr 4.64e-07 val PSNR 56.338 SSIM 0.9934 SAM 0.888 | best val 56.376 (3.83 h)
+ep   931.4 it  95000 loss 0.00152 lr 2.72e-07 val PSNR 56.182 SSIM 0.9933 SAM 0.902 | best val 56.376 (3.87 h)
+ep   941.2 it  96000 loss 0.00149 lr 1.32e-07 val PSNR 56.382 SSIM 0.9935 SAM 0.884 | best val 56.382 (3.91 h)
+ep   951.0 it  97000 loss 0.00148 lr 1.00e-07 val PSNR 56.140 SSIM 0.9933 SAM 0.906 | best val 56.382 (3.95 h)
+ep   960.8 it  98000 loss 0.00154 lr 1.00e-07 val PSNR 56.278 SSIM 0.9934 SAM 0.893 | best val 56.382 (3.99 h)
+ep   963.7 it  98300 loss 0.00152 lr 1.00e-07 val PSNR 56.355 SSIM 0.9934 SAM 0.887 | best val 56.382 (4.00 h)
+time budget reached at it 98300 (epoch 963.7); continue with --resume <out>/last.pt
+TEST: {'PSNR': 55.849, 'PSNR_psrt': 50.4146, 'MPSNR_peak1': 60.2016, 'SSIM': 0.9959, 'SSIM_psrt': 0.9985, 'SAM': 0.8904, 'ERGAS': 1.6169, 'RMSE_DN': 24.5243, 'CC': 0.9953, 'SCC': 0.9987, 'Q2n': 0.9907}
+TEST (self-ensemble): {'PSNR': 55.8909, 'PSNR_psrt': 50.4565, 'MPSNR_peak1': 60.3324, 'SSIM': 0.9959, 'SSIM_psrt': 0.9985, 'SAM': 0.8857, 'ERGAS': 1.6139, 'RMSE_DN': 24.4111, 'CC': 0.9953, 'SCC': 0.9987, 'Q2n': 0.9908}
+consistency: {'cons_H_dB': 67.80466514950226, 'cons_M_dB': 65.81212054498076} | self-ensemble: {'cons_H_dB': 67.92057651817942, 'cons_M_dB': 66.02121886293287}
+[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19
+/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+nominal {'gsa': (43.1966, 2.73, 45.4103), 'fixed': (55.849, 0.8904, 67.8047)}
+sigma=1.5 {'gsa': (44.0502, 2.5694, 46.1352), 'fixed': (55.7978, 0.8955, 66.5683)}
+sigma=2.5 {'gsa': (42.7742, 2.8166, 45.0671), 'fixed': (55.8117, 0.8935, 68.2526)}
+sigma=3.0 {'gsa': (42.5448, 2.8659, 44.8843), 'fixed': (55.7706, 0.8972, 68.4212)}
+srf_shift=-8nm {'gsa': (42.8636, 2.9095, 45.2776), 'fixed': (55.3399, 0.9446, 63.4576)}
+srf_shift=+8nm {'gsa': (43.2888, 2.6778, 45.4512), 'fixed': (55.2955, 0.9507, 63.4713)}
+sigma=1.0 {'gsa': (45.6771, 2.3089, 47.6742), 'fixed': (52.3389, 1.025, 57.3011)}
+sigma=4.0 {'gsa': (42.3203, 2.9157, 44.7075), 'fixed': (55.7007, 0.9029, 68.4807)}
+srf_shift=-12nm {'gsa': (42.8887, 2.9147, 45.3252), 'fixed': (54.5943, 1.0299, 60.527)}
+srf_shift=+12nm {'gsa': (43.3551, 2.6523, 45.4886), 'fixed': (54.5199, 1.0435, 60.2783)}
+combined:sigma=3.0,srf_shift=+8nm {'gsa': (42.6251, 2.8154, 44.9118), 'fixed': (55.2248, 0.9562, 63.6971)}
+noise 40dB {'gsa': 43.0353, 'fixed': 54.1139}
+noise 35dB {'gsa': 42.7067, 'fixed': 51.794}
+noise 30dB {'gsa': 41.8358, 'fixed': 48.2224}

@@ -2,12 +2,22 @@
  {
   "dataset": "chikusei",
   "scale": 4,
+  "model": "exactfuse",
+  "bands": 128,
+  "params_M": 10.454,
+  "gflops": 412.0,
+  "seconds": 0.2209,
+  "gpu_GB": 0.54
+ },
+ {
+  "dataset": "chikusei",
+  "scale": 4,
   "model": "puformer",
   "bands": 128,
   "params_M": 10.132,
   "gflops": 296.5,
-  "seconds": 0.1776,
-  "gpu_GB": 0.44
+  "seconds": 0.1814,
+  "gpu_GB": 0.46
  },
  {
   "dataset": "chikusei",
@@ -16,7 +26,7 @@
   "bands": 128,
   "params_M": 0.443,
   "gflops": 58.0,
-  "seconds": 0.0108,
+  "seconds": 0.0114,
   "gpu_GB": 0.11
  },
  {
@@ -26,7 +36,7 @@
   "bands": 128,
   "params_M": 0.305,
   "gflops": 43.2,
-  "seconds": 0.1175,
+  "seconds": 0.1224,
   "gpu_GB": 0.42
  },
  {
@@ -36,7 +46,7 @@
   "bands": 128,
   "params_M": 8.463,
   "gflops": 2639.5,
-  "seconds": 2.1026,
+  "seconds": 2.255,
   "gpu_GB": 1.1
  },
  {
@@ -46,8 +56,8 @@
   "bands": 128,
   "params_M": 16.464,
   "gflops": 223.6,
-  "seconds": 0.0619,
-  "gpu_GB": 0.45
+  "seconds": 0.0656,
+  "gpu_GB": 0.46
  },
  {
   "dataset": "chikusei",
@@ -56,8 +66,74 @@
   "bands": 128,
   "params_M": 48.673,
   "gflops": 14929.6,
-  "seconds": 2.9375,
-  "gpu_GB": 2.08
+  "seconds": 2.8068,
+  "gpu_GB": 2.09
+ },
+ {
+  "dataset": "chikusei",
+  "scale": 4,
+  "model": "smgu",
+  "bands": 128,
+  "params_M": 9.498,
+  "gflops": 2286.4,
+  "seconds": 0.5114,
+  "gpu_GB": 0.98
+ },
+ {
+  "dataset": "chikusei",
+  "scale": 4,
+  "model": "clsnet",
+  "bands": 128,
+  "params_M": 4.173,
+  "gflops": 141.9,
+  "seconds": 0.1703,
+  "gpu_GB": 0.36
+ },
+ {
+  "dataset": "chikusei",
+  "scale": 4,
+  "model": "otpnet",
+  "bands": 128,
+  "params_M": 2.511,
+  "gflops": 328.1,
+  "seconds": 0.1548,
+  "gpu_GB": 0.34
+ },
+ {
+  "dataset": "chikusei",
+  "scale": 4,
+  "model": "u2net",
+  "error": "ModuleNotFoundError(\"No module named 'model.s2block'; 'model' is not a package\")"
+ },
+ {
+  "dataset": "chikusei",
+  "scale": 4,
+  "model": "mimosst",
+  "bands": 128,
+  "params_M": 5.323,
+  "gflops": 80.9,
+  "seconds": 0.0287,
+  "gpu_GB": 0.33
+ },
+ {
+  "dataset": "chikusei",
+  "scale": 4,
+  "model": "caformer",
+  "bands": 128,
+  "params_M": 7.834,
+  "gflops": 222.2,
+  "seconds": 0.1707,
+  "gpu_GB": 0.57
+ },
+ {
+  "dataset": "pavia",
+  "scale": 4,
+  "model": "exactfuse",
+  "bands": 92,
+  "params_M": 10.221,
+  "gflops": 357.1,
+  "seconds": 0.2047,
+  "gpu_GB": 0.46
  },
  {
   "dataset": "pavia",
@@ -66,8 +142,8 @@
   "bands": 92,
   "params_M": 9.987,
   "gflops": 276.8,
-  "seconds": 0.1753,
-  "gpu_GB": 0.37
+  "seconds": 0.1772,
+  "gpu_GB": 0.41
  },
  {
   "dataset": "pavia",
@@ -77,7 +153,7 @@
   "params_M": 0.229,
   "gflops": 30.0,
   "seconds": 0.0072,
-  "gpu_GB": 0.08
+  "gpu_GB": 0.11
  },
  {
   "dataset": "pavia",
@@ -86,8 +162,8 @@
   "bands": 92,
   "params_M": 0.283,
   "gflops": 40.3,
-  "seconds": 0.1273,
-  "gpu_GB": 0.4
+  "seconds": 0.1289,
+  "gpu_GB": 0.43
  },
  {
   "dataset": "pavia",
@@ -96,8 +172,8 @@
   "bands": 92,
   "params_M": 8.344,
   "gflops": 2623.9,
-  "seconds": 1.7166,
-  "gpu_GB": 1.09
+  "seconds": 1.6498,
+  "gpu_GB": 1.12
  },
  {
   "dataset": "pavia",
@@ -106,8 +182,8 @@
   "bands": 92,
   "params_M": 16.378,
   "gflops": 212.4,
-  "seconds": 0.0685,
-  "gpu_GB": 0.44
+  "seconds": 0.0655,
+  "gpu_GB": 0.47
  },
  {
   "dataset": "pavia",
@@ -116,8 +192,74 @@
   "bands": 92,
   "params_M": 35.552,
   "gflops": 8332.0,
-  "seconds": 1.9641,
-  "gpu_GB": 1.54
+  "seconds": 1.6472,
+  "gpu_GB": 1.57
+ },
+ {
+  "dataset": "pavia",
+  "scale": 4,
+  "model": "smgu",
+  "bands": 92,
+  "params_M": 5.024,
+  "gflops": 1211.9,
+  "seconds": 0.3114,
+  "gpu_GB": 0.75
+ },
+ {
+  "dataset": "pavia",
+  "scale": 4,
+  "model": "clsnet",
+  "bands": 92,
+  "params_M": 4.131,
+  "gflops": 136.3,
+  "seconds": 0.1685,
+  "gpu_GB": 0.39
+ },
+ {
+  "dataset": "pavia",
+  "scale": 4,
+  "model": "otpnet",
+  "bands": 92,
+  "params_M": 2.467,
+  "gflops": 322.4,
+  "seconds": 0.1518,
+  "gpu_GB": 0.36
+ },
+ {
+  "dataset": "pavia",
+  "scale": 4,
+  "model": "u2net",
+  "error": "ModuleNotFoundError(\"No module named 'model.s2block'; 'model' is not a package\")"
+ },
+ {
+  "dataset": "pavia",
+  "scale": 4,
+  "model": "mimosst",
+  "bands": 92,
+  "params_M": 5.195,
+  "gflops": 69.3,
+  "seconds": 0.0259,
+  "gpu_GB": 0.32
+ },
+ {
+  "dataset": "pavia",
+  "scale": 4,
+  "model": "caformer",
+  "bands": 92,
+  "params_M": 7.735,
+  "gflops": 204.5,
+  "seconds": 0.1672,
+  "gpu_GB": 0.57
+ },
+ {
+  "dataset": "cave",
+  "scale": 4,
+  "model": "exactfuse",
+  "bands": 31,
+  "params_M": 9.825,
+  "gflops": 270.3,
+  "seconds": 0.1677,
+  "gpu_GB": 0.32
  },
  {
   "dataset": "cave",
@@ -126,8 +268,8 @@
   "bands": 31,
   "params_M": 9.748,
   "gflops": 245.0,
-  "seconds": 0.1642,
-  "gpu_GB": 0.24
+  "seconds": 0.1578,
+  "gpu_GB": 0.3
  },
  {
   "dataset": "cave",
@@ -137,7 +279,7 @@
   "params_M": 0.026,
   "gflops": 3.4,
   "seconds": 0.0014,
-  "gpu_GB": 0.05
+  "gpu_GB": 0.11
  },
  {
   "dataset": "cave",
@@ -146,8 +288,8 @@
   "bands": 31,
   "params_M": 0.247,
   "gflops": 35.7,
-  "seconds": 0.1318,
-  "gpu_GB": 0.35
+  "seconds": 0.1261,
+  "gpu_GB": 0.41
  },
  {
   "dataset": "cave",
@@ -156,8 +298,8 @@
   "bands": 31,
   "params_M": 8.145,
   "gflops": 2598.0,
-  "seconds": 1.7465,
-  "gpu_GB": 1.09
+  "seconds": 2.2712,
+  "gpu_GB": 1.15
  },
  {
   "dataset": "cave",
@@ -166,8 +308,8 @@
   "bands": 31,
   "params_M": 16.243,
   "gflops": 194.7,
-  "seconds": 0.063,
-  "gpu_GB": 0.4
+  "seconds": 0.0622,
+  "gpu_GB": 0.46
  },
  {
   "dataset": "cave",
@@ -176,8 +318,74 @@
   "bands": 31,
   "params_M": 22.462,
   "gflops": 1736.7,
-  "seconds": 0.4052,
-  "gpu_GB": 0.66
+  "seconds": 0.384,
+  "gpu_GB": 0.72
+ },
+ {
+  "dataset": "cave",
+  "scale": 4,
+  "model": "smgu",
+  "bands": 31,
+  "params_M": 0.759,
+  "gflops": 186.8,
+  "seconds": 0.0737,
+  "gpu_GB": 0.34
+ },
+ {
+  "dataset": "cave",
+  "scale": 4,
+  "model": "clsnet",
+  "bands": 31,
+  "params_M": 4.062,
+  "gflops": 127.3,
+  "seconds": 0.1664,
+  "gpu_GB": 0.35
+ },
+ {
+  "dataset": "cave",
+  "scale": 4,
+  "model": "otpnet",
+  "bands": 31,
+  "params_M": 2.396,
+  "gflops": 313.1,
+  "seconds": 0.1491,
+  "gpu_GB": 0.31
+ },
+ {
+  "dataset": "cave",
+  "scale": 4,
+  "model": "u2net",
+  "error": "ModuleNotFoundError(\"No module named 'model.s2block'; 'model' is not a package\")"
+ },
+ {
+  "dataset": "cave",
+  "scale": 4,
+  "model": "mimosst",
+  "bands": 31,
+  "params_M": 4.983,
+  "gflops": 50.6,
+  "seconds": 0.0216,
+  "gpu_GB": 0.24
+ },
+ {
+  "dataset": "cave",
+  "scale": 4,
+  "model": "caformer",
+  "bands": 31,
+  "params_M": 7.581,
+  "gflops": 182.5,
+  "seconds": 0.1524,
+  "gpu_GB": 0.49
+ },
+ {
+  "dataset": "pavia",
+  "scale": 8,
+  "model": "exactfuse",
+  "bands": 92,
+  "params_M": 10.221,
+  "gflops": 354.0,
+  "seconds": 0.2172,
+  "gpu_GB": 0.46
  },
  {
   "dataset": "pavia",
@@ -186,8 +394,8 @@
   "bands": 92,
   "params_M": 9.987,
   "gflops": 276.9,
-  "seconds": 0.2083,
-  "gpu_GB": 0.37
+  "seconds": 0.2059,
+  "gpu_GB": 0.41
  },
  {
   "dataset": "pavia",
@@ -196,8 +404,8 @@
   "bands": 92,
   "params_M": 0.229,
   "gflops": 30.0,
-  "seconds": 0.0075,
-  "gpu_GB": 0.08
+  "seconds": 0.0072,
+  "gpu_GB": 0.11
  },
  {
   "dataset": "pavia",
@@ -206,8 +414,8 @@
   "bands": 92,
   "params_M": 0.283,
   "gflops": 40.3,
-  "seconds": 0.1309,
-  "gpu_GB": 0.39
+  "seconds": 0.1286,
+  "gpu_GB": 0.42
  },
  {
   "dataset": "pavia",
@@ -216,8 +424,8 @@
   "bands": 92,
   "params_M": 8.344,
   "gflops": 2623.9,
-  "seconds": 1.8043,
-  "gpu_GB": 1.09
+  "seconds": 2.2875,
+  "gpu_GB": 1.12
  },
  {
   "dataset": "pavia",
@@ -226,8 +434,8 @@
   "bands": 92,
   "params_M": 16.378,
   "gflops": 212.4,
-  "seconds": 0.0699,
-  "gpu_GB": 0.43
+  "seconds": 0.0657,
+  "gpu_GB": 0.46
  },
  {
   "dataset": "pavia",
@@ -236,8 +444,70 @@
   "bands": 92,
   "params_M": 37.38,
   "gflops": 8332.0,
-  "seconds": 1.9142,
-  "gpu_GB": 1.54
+  "seconds": 1.671,
+  "gpu_GB": 1.57
+ },
+ {
+  "dataset": "pavia",
+  "scale": 8,
+  "model": "smgu",
+  "error": "ValueError(\"SMGU-Net's code is written for x4 only\")"
+ },
+ {
+  "dataset": "pavia",
+  "scale": 8,
+  "model": "clsnet",
+  "bands": 92,
+  "params_M": 4.131,
+  "gflops": 136.3,
+  "seconds": 0.1687,
+  "gpu_GB": 0.38
+ },
+ {
+  "dataset": "pavia",
+  "scale": 8,
+  "model": "otpnet",
+  "bands": 92,
+  "params_M": 2.467,
+  "gflops": 322.4,
+  "seconds": 0.1517,
+  "gpu_GB": 0.35
+ },
+ {
+  "dataset": "pavia",
+  "scale": 8,
+  "model": "u2net",
+  "error": "ModuleNotFoundError(\"No module named 'model.s2block'; 'model' is not a package\")"
+ },
+ {
+  "dataset": "pavia",
+  "scale": 8,
+  "model": "mimosst",
+  "bands": 92,
+  "params_M": 5.195,
+  "gflops": 69.3,
+  "seconds": 0.0259,
+  "gpu_GB": 0.31
+ },
+ {
+  "dataset": "pavia",
+  "scale": 8,
+  "model": "caformer",
+  "bands": 92,
+  "params_M": 7.735,
+  "gflops": 204.5,
+  "seconds": 0.1679,
+  "gpu_GB": 0.57
+ },
+ {
+  "dataset": "pavia",
+  "scale": 16,
+  "model": "exactfuse",
+  "bands": 92,
+  "params_M": 10.221,
+  "gflops": 352.6,
+  "seconds": 0.2795,
+  "gpu_GB": 0.48
  },
  {
   "dataset": "pavia",
@@ -246,8 +516,8 @@
   "bands": 92,
   "params_M": 9.987,
   "gflops": 276.9,
-  "seconds": 0.3323,
-  "gpu_GB": 0.36
+  "seconds": 0.3256,
+  "gpu_GB": 0.44
  },
  {
   "dataset": "pavia",
@@ -256,8 +526,8 @@
   "bands": 92,
   "params_M": 0.229,
   "gflops": 30.0,
-  "seconds": 0.0075,
-  "gpu_GB": 0.08
+  "seconds": 0.0071,
+  "gpu_GB": 0.14
  },
  {
   "dataset": "pavia",
@@ -266,8 +536,8 @@
   "bands": 92,
   "params_M": 0.283,
   "gflops": 40.3,
-  "seconds": 0.1316,
-  "gpu_GB": 0.39
+  "seconds": 0.1283,
+  "gpu_GB": 0.45
  },
  {
   "dataset": "pavia",
@@ -276,8 +546,8 @@
   "bands": 92,
   "params_M": 8.344,
   "gflops": 2623.9,
-  "seconds": 1.7594,
-  "gpu_GB": 1.09
+  "seconds": 1.6424,
+  "gpu_GB": 1.15
  },
  {
   "dataset": "pavia",
@@ -286,8 +556,8 @@
   "bands": 92,
   "params_M": 16.378,
   "gflops": 212.4,
-  "seconds": 0.0684,
-  "gpu_GB": 0.43
+  "seconds": 0.0655,
+  "gpu_GB": 0.49
  },
  {
   "dataset": "pavia",
@@ -296,7 +566,59 @@
   "bands": 92,
   "params_M": 36.162,
   "gflops": 8333.3,
-  "seconds": 1.8975,
-  "gpu_GB": 1.54
+  "seconds": 1.6513,
+  "gpu_GB": 1.6
+ },
+ {
+  "dataset": "pavia",
+  "scale": 16,
+  "model": "smgu",
+  "error": "ValueError(\"SMGU-Net's code is written for x4 only\")"
+ },
+ {
+  "dataset": "pavia",
+  "scale": 16,
+  "model": "clsnet",
+  "bands": 92,
+  "params_M": 4.131,
+  "gflops": 136.3,
+  "seconds": 0.1682,
+  "gpu_GB": 0.38
+ },
+ {
+  "dataset": "pavia",
+  "scale": 16,
+  "model": "otpnet",
+  "bands": 92,
+  "params_M": 2.467,
+  "gflops": 322.4,
+  "seconds": 0.1522,
+  "gpu_GB": 0.32
+ },
+ {
+  "dataset": "pavia",
+  "scale": 16,
+  "model": "u2net",
+  "error": "ModuleNotFoundError(\"No module named 'model.s2block'; 'model' is not a package\")"
+ },
+ {
+  "dataset": "pavia",
+  "scale": 16,
+  "model": "mimosst",
+  "bands": 92,
+  "params_M": 5.195,
+  "gflops": 69.3,
+  "seconds": 0.0257,
+  "gpu_GB": 0.29
+ },
+ {
+  "dataset": "pavia",
+  "scale": 16,
+  "model": "caformer",
+  "bands": 92,
+  "params_M": 7.735,
+  "gflops": 204.5,
+  "seconds": 0.1663,
+  "gpu_GB": 0.54
  }
 ]

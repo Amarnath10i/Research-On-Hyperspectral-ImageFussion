@@ -1,0 +1,31 @@
+pavia x4: train [(92, 424, 715), (92, 512, 187)] test (4, 92, 256, 256) val (63, 92, 64, 64), 1.0 = 8000 DN  (3s)
+[external] smgu: https://github.com/yansql/SMGU-Net @ 115ce7790f8b1ef45c2f9497e31ec5360455774d
+smgu (reflect borders): 5.02M params on 1 x cuda; batch 8 x 1; epoch = 12 iters; eval every 1000 iters; deadline in 4.00 h; schedule by time
+bicubic test: {'PSNR': 25.5166, 'PSNR_psrt': 25.1078, 'MPSNR_peak1': 25.8716, 'SSIM': 0.6282, 'SSIM_psrt': 0.6427, 'SAM': 6.5539, 'ERGAS': 9.8525, 'RMSE_DN': 436.3207, 'CC': 0.8174, 'SCC': 0.7526, 'Q2n': 0.6806}
+GSA test: {'PSNR': 34.7757, 'PSNR_psrt': 34.3668, 'MPSNR_peak1': 35.1931, 'SSIM': 0.9438, 'SSIM_psrt': 0.945, 'SAM': 5.2291, 'ERGAS': 3.4939, 'RMSE_DN': 157.9259, 'CC': 0.9958, 'SCC': 0.9922, 'Q2n': 0.9276}
+ep    83.3 it   1000 loss 0.04698 lr 1.00e-04 val PSNR 33.638 SSIM 0.9381 SAM 6.181 | best val 33.638 (0.19 h)
+ep   166.7 it   2000 loss 0.00993 lr 9.79e-05 val PSNR 37.133 SSIM 0.9759 SAM 4.677 | best val 37.133 (0.38 h)
+ep   250.0 it   3000 loss 0.00657 lr 9.53e-05 val PSNR 39.824 SSIM 0.9872 SAM 3.389 | best val 39.824 (0.56 h)
+ep   333.3 it   4000 loss 0.00501 lr 9.17e-05 val PSNR 40.920 SSIM 0.9898 SAM 3.148 | best val 40.920 (0.75 h)
+ep   416.7 it   5000 loss 0.00426 lr 8.73e-05 val PSNR 42.119 SSIM 0.9917 SAM 2.741 | best val 42.119 (0.93 h)
+ep   500.0 it   6000 loss 0.00375 lr 8.20e-05 val PSNR 43.109 SSIM 0.9930 SAM 2.433 | best val 43.109 (1.12 h)
+ep   583.3 it   7000 loss 0.00347 lr 7.61e-05 val PSNR 43.757 SSIM 0.9936 SAM 2.272 | best val 43.757 (1.30 h)
+ep   666.7 it   8000 loss 0.00325 lr 6.96e-05 val PSNR 44.252 SSIM 0.9940 SAM 2.164 | best val 44.252 (1.49 h)
+ep   750.0 it   9000 loss 0.00306 lr 6.27e-05 val PSNR 44.611 SSIM 0.9942 SAM 2.089 | best val 44.611 (1.68 h)
+ep   833.3 it  10000 loss 0.00297 lr 5.56e-05 val PSNR 44.885 SSIM 0.9944 SAM 2.034 | best val 44.885 (1.86 h)
+ep   916.7 it  11000 loss 0.00287 lr 4.83e-05 val PSNR 45.140 SSIM 0.9946 SAM 1.982 | best val 45.140 (2.05 h)
+ep  1000.0 it  12000 loss 0.00280 lr 4.11e-05 val PSNR 45.352 SSIM 0.9947 SAM 1.939 | best val 45.352 (2.23 h)
+ep  1083.3 it  13000 loss 0.00274 lr 3.40e-05 val PSNR 45.529 SSIM 0.9949 SAM 1.903 | best val 45.529 (2.42 h)
+ep  1166.7 it  14000 loss 0.00269 lr 2.73e-05 val PSNR 45.635 SSIM 0.9949 SAM 1.880 | best val 45.635 (2.60 h)
+ep  1250.0 it  15000 loss 0.00266 lr 2.11e-05 val PSNR 45.736 SSIM 0.9950 SAM 1.860 | best val 45.736 (2.79 h)
+ep  1333.3 it  16000 loss 0.00262 lr 1.55e-05 val PSNR 45.820 SSIM 0.9950 SAM 1.842 | best val 45.820 (2.97 h)
+ep  1416.7 it  17000 loss 0.00261 lr 1.06e-05 val PSNR 45.879 SSIM 0.9951 SAM 1.830 | best val 45.879 (3.16 h)
+ep  1500.0 it  18000 loss 0.00258 lr 6.55e-06 val PSNR 45.929 SSIM 0.9951 SAM 1.820 | best val 45.929 (3.34 h)
+ep  1583.3 it  19000 loss 0.00257 lr 3.41e-06 val PSNR 45.968 SSIM 0.9951 SAM 1.811 | best val 45.968 (3.53 h)
+ep  1666.7 it  20000 loss 0.00256 lr 1.27e-06 val PSNR 45.993 SSIM 0.9952 SAM 1.806 | best val 45.993 (3.71 h)
+ep  1750.0 it  21000 loss 0.00255 lr 1.61e-07 val PSNR 46.010 SSIM 0.9952 SAM 1.802 | best val 46.010 (3.90 h)
+ep  1795.8 it  21550 loss 0.00256 lr 1.00e-07 val PSNR 46.013 SSIM 0.9952 SAM 1.802 | best val 46.013 (4.00 h)
+time budget reached at it 21550 (epoch 1795.8); continue with --resume <out>/last.pt
+TEST: {'PSNR': 48.0268, 'PSNR_psrt': 47.6179, 'MPSNR_peak1': 48.6641, 'SSIM': 0.9958, 'SSIM_psrt': 0.9962, 'SAM': 2.3307, 'ERGAS': 0.7825, 'RMSE_DN': 32.047, 'CC': 0.999, 'SCC': 0.999, 'Q2n': 0.9723}
+TEST (self-ensemble): {'PSNR': 48.1678, 'PSNR_psrt': 47.7589, 'MPSNR_peak1': 48.834, 'SSIM': 0.9958, 'SSIM_psrt': 0.9963, 'SAM': 2.2959, 'ERGAS': 0.77, 'RMSE_DN': 31.5229, 'CC': 0.9991, 'SCC': 0.999, 'Q2n': 0.9725}
+consistency: {'cons_H_dB': 59.61241818064671, 'cons_M_dB': 63.347977974017454} | self-ensemble: {'cons_H_dB': 59.7274261932736, 'cons_M_dB': 64.37722876705215}

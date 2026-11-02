@@ -24,15 +24,16 @@ RES = os.environ.get("Q1_RESULTS", os.path.join(HERE, "..", "..", "results", "q1
 PREDS = os.environ.get("Q1_PREDS", "")
 DATASETS = {"chikusei": ("Chikusei", (4,)), "pavia": ("Pavia Centre", (4,))}   # scope of the paper
 METHODS = [("ssrnet", "SSR-NET"), ("psrt", "PSRT"), ("dct", "DCT"), ("mimformer", "MIMFormer"),
-           ("dhif", "DHIF-Net"), ("puformer", "PUFormer")]
+           ("dhif", "DHIF-Net"), ("puformer", "ExactFuse")]
 COLOR = {"ssrnet": "#8c8b86", "psrt": AQUA, "dct": ORANGE, "mimformer": "#7d52c7", "dhif": "#c2410c",
          "puformer": BLUE, "gsa": INK2}
 FALSE_RGB = {"chikusei": (60, 40, 20), "pavia": (57, 34, 3), "cave": (25, 15, 5), "harvard": (25, 15, 5)}
 
 
 def load(job, name="results.json"):
-    p = os.path.join(RES, job, name)
-    return json.load(open(p)) if os.path.exists(p) else None
+    """The tables' loader: ExactFuse's runs for the PUFormer job names, "base:<job>" for the base model."""
+    from make_q1_tables import load as table_load
+    return table_load(job, name)
 
 
 def scales_figure():
@@ -66,7 +67,7 @@ def operator_figure():
                 ("full", "exact operator, not swapped", BLUE, "fixedfull")]
     for ax, ds, title in ((axes[0], "pavia", "Pavia Centre $\\times$4"), (axes[1], "chikusei", "Chikusei $\\times$4")):
         for v, lab, col, mode in variants:
-            job = f"bench-{ds}-x4-puformer" if v == "full" else f"abl-{ds}-x4-{v}"
+            job = f"base:bench-{ds}-x4-puformer" if v == "full" else f"abl-{ds}-x4-{v}"
             g = load(job, "gaps.json")
             if not g:
                 continue
@@ -115,7 +116,7 @@ def visual_figure():
     for i, ds in enumerate(rows):
         _, te, _, peak = load_dataset(ds, sorted(data[ds], key=len)[0], "/tmp/harvard" if ds == "harvard" else None)
         p = load(f"bench-{ds}-x4-puformer")
-        k = int(np.argmin([x["PSNR"] for x in p["test_per_image"]])) if p else 0   # hardest image for PUFormer
+        k = int(np.argmin([x["PSNR"] for x in p["test_per_image"]])) if p else 0   # hardest image for ExactFuse
         gt = np.asarray(te[k], np.float32)
         errs = {}
         import torch  # noqa: E402
@@ -128,6 +129,9 @@ def visual_figure():
             if m == "gsa":
                 continue
             f = os.path.join(PREDS, f"bench-{ds}-x4-{m}", "test_pred_f16.npy")
+            if m == "puformer":       # ExactFuse's predictions (a separate dataset under /kaggle/input)
+                hits = sorted(glob.glob(f"/kaggle/input/**/arch-{ds}-x4-nogate/test_pred_f16.npy", recursive=True))
+                f = hits[0] if hits else ""
             if os.path.exists(f):
                 errs[m] = np.abs(np.load(f, mmap_mode="r")[k].astype(np.float32) - gt).mean(0) * peak
         # color scale from the learned methods only (GSA's much larger error saturates)
@@ -156,9 +160,9 @@ def visual_figure():
 
 COND_LINES = [("bench-{d}-x4-mimformer", "fixed", "MIMFormer, nominal", "#7d52c7", ":"),
               ("cond-{d}-x4-mimformer", "fixed", "MIMFormer, randomized", "#7d52c7", "-"),
-              ("bench-{d}-x4-puformer", "estimated", "PUFormer, nominal, est. operator", BLUE, ":"),
-              ("cond-{d}-x4-nocond", "estimated", "PUFormer, randomized data, est.", AQUA, "-"),
-              ("cond-{d}-x4-puformer", "estimated", "PUFormer, randomized + operator, est.", BLUE, "-")]
+              ("bench-{d}-x4-puformer", "estimated", "ExactFuse, nominal, est. operator", BLUE, ":"),
+              ("cond-{d}-x4-nocond", "estimated", "base model, randomized data, est.", AQUA, "-"),
+              ("cond-{d}-x4-puformer", "estimated", "base model, randomized + operator, est.", BLUE, "-")]
 
 
 def cond_figure():
@@ -196,7 +200,7 @@ def cond_figure():
 
 
 NEON_FIG = [("bench-neon-x4-mimformer", "MIMFormer"), ("bench-neon-x4-dhif", "DHIF-Net"),
-            ("bench-neon-x4-puformer", "PUFormer")]
+            ("bench-neon-x4-puformer", "Base model")]          # full resolution: base model only
 
 
 def neon_figure():

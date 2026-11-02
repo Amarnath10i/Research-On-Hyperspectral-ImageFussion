@@ -19,7 +19,7 @@
 \renewcommand{\thefigure}{S\arabic{figure}}
 \renewcommand{\theequation}{S\arabic{equation}}
 
-\title{Unfolded Hyperspectral and Multispectral Image Fusion with Exact Observation Operators\\[2pt]
+\title{ExactFuse: Closed-Form Unfolding with Exact Operators for Sensor-Independent Hyperspectral and Multispectral Image Fusion\\[2pt]
 \large Supplementary Material}
 \author{Anonymous CVPR submission}
 
@@ -79,29 +79,121 @@ and unrolling from $e_0=0$ gives the bound. The gradient step is not nonexpansiv
 
 \section{Baselines}
 \label{sec:baselines}
-All published networks are built from their authors' repositories, cloned at run time; only the numbers of input and output bands and the scale factor are changed. PSRT: github.com/Deng-shangqi/PSRT (9c2be90); DCT: github.com/qingma2016/DCTransformer (bd75b15); MIMFormer: github.com/meiruni/MIMFormer (0904158); DHIF-Net: github.com/TaoHuang95/DHIF-Net (6434366), whose code covers $\times8$ and $\times16$, so at $\times4$ we use one of the two stride-4 layers of its $\times16$ operator; SMGU-Net: github.com/yansql/SMGU-Net (115ce77), written for $\times4$ only; CLSNet: github.com/HengYang01/CLSNet (6b13371), whose upsampling layer is set to the scale factor; OTPNet: github.com/tsharry2201/OTPNet (7c17964), written for pansharpening, with the HR-MSI in place of the panchromatic image; U2Net: github.com/PSRben/U2Net (32e214c), also written for pansharpening, with its input, upsampling and output layers resized; MIMO-SST: github.com/Freelancefangjian/MIMO-SST (06aacc1), whose final full-resolution output is used. DCT and MIMFormer use gradient checkpointing to fit a 16~GB T4, which does not change what they compute. SSR-NET is our re-implementation of~\cite{zhang2021ssrnet}.
+All published networks are built from their authors' repositories, cloned at run time; only the numbers of input and output bands and the scale factor are changed. PSRT: github.com/Deng-shangqi/PSRT (9c2be90); DCT: github.com/qingma2016/DCTransformer (bd75b15); MIMFormer: github.com/meiruni/MIMFormer (0904158); DHIF-Net: github.com/TaoHuang95/DHIF-Net (6434366), whose code covers $\times8$ and $\times16$, so at $\times4$ we use one of the two stride-4 layers of its $\times16$ operator; SMGU-Net: github.com/yansql/SMGU-Net (115ce77), written for $\times4$ only; CLSNet: github.com/HengYang01/CLSNet (6b13371), whose upsampling layer is set to the scale factor; OTPNet: github.com/tsharry2201/OTPNet (7c17964), written for pansharpening, with the HR-MSI in place of the panchromatic image; U2Net: github.com/PSRben/U2Net (32e214c), also written for pansharpening, with its input, upsampling and output layers resized; its attention spans all pixels, so a $256\times256$ test image does not fit a 16~GB T4, and it is tested in overlapping $128\times128$ tiles (32-pixel overlap, averaged); MIMO-SST: github.com/Freelancefangjian/MIMO-SST (06aacc1), whose final full-resolution output is used. DCT and MIMFormer use gradient checkpointing to fit a 16~GB T4, which does not change what they compute. SSR-NET is our re-implementation of~\cite{zhang2021ssrnet}.
 
-Under the common recipe every baseline uses its published learning rate with Adam(W) and an L1 loss, batch 8, warm-up and cosine decay over the budget, no weight decay and no gradient clipping. The authors' own recipes (Tab.~\mref{tab:margin}) are read from their code: PSRT uses AdamW (learning rate $10^{-4}$, decay $10^{-4}$), clipping at 10, batch 32 and a constant learning rate; MIMFormer uses Adam ($10^{-4}$), batch 16 and step decay at 30, 60 and 90 of 101 epochs, mapped onto the time budget.
+Under the common recipe every baseline uses its published learning rate and an L1 loss with AdamW ($\beta=(0.9,0.99)$, no weight decay, i.e., Adam), batch 8, a 1000-iteration warm-up and cosine decay over the budget, and no gradient clipping; ExactFuse uses the same pipeline with its own learning rate, weight decay and clipping. The authors' own recipes (\cref{tab:margin}) are read from their code: PSRT uses AdamW (learning rate $10^{-4}$, decay $10^{-4}$), clipping at 10, batch 32 and a constant learning rate; MIMFormer uses Adam ($10^{-4}$), batch 16 and step decay at 30, 60 and 90 of 101 epochs, mapped onto the time budget.
 
-\section{PUFormer details}
+\section{ExactFuse details}
 \label{sec:details}
 \input{fig_style}
 \input{fig_prior}
 \input{fig_block}
 \input{fig_mdta}
 
-Each prior (\cref{fig:prior}) is a three-level U-Net with widths 48, 96 and 192, two, three and four transformer blocks on the encoder levels and the bottleneck, mirrored decoder levels and two refinement blocks. A block (\cref{fig:block}) follows Restormer~\cite{zamir2022restormer}: transposed attention (\cref{fig:mdta}) with 1, 2 and 4 heads on the three levels, followed by a gated depth-wise feed-forward network with expansion 2.66. The three priors hold 3.37--3.38~M parameters each; the network has 10.13~M parameters for Chikusei. Training uses AdamW ($\beta=(0.9,0.99)$, weight decay $10^{-4}$, peak learning rate $3\times10^{-4}$), a 1000-iteration warm-up, cosine decay to $10^{-3}$ of the peak at the end of the budget, gradient-norm clipping at 0.1, and an exponential moving average of the weights (decay 0.999). The image path, including all operator applications, runs in 32-bit precision and the priors in 16-bit mixed precision. The weights with the best validation PSNR are tested once, without self-ensemble.
+\begin{table*}[t]
+\centering
+\caption{Blocks and sub-blocks of ExactFuse, in the order they run (shapes for Chikusei: $B=128$ hyperspectral bands, $M=8$ multispectral bands, scale $s=4$, an $H\times W$ image; $h=H/s$, $w=W/s$).}
+\label{tab:blocks}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}p{0.13\textwidth}p{0.33\textwidth}p{0.17\textwidth}p{0.32\textwidth}@{}}
+\toprule
+Block & Sub-blocks & Input $\rightarrow$ output & Function \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Observation model, set up once per image (no learned parameters)}} \\
+Operator estimate & grid search of Eq.~(\mref{eq:J}) over the row and column blur widths, the sub-pixel grid offsets and the spectral-response shift & $(\YH,\YM)\rightarrow(\hat\theta,\hat\phi)$ & finds the operators under which $\D_\theta\YM$ and $\R_\phi\YH$ agree (Thm.~\mref{thm:ident}); given operators skip this step \\
+Exact operators & separable Gaussian blur with the simulation's reflect border, $\times s$ decimation, the spectral-response matrix, and their exact adjoints & $(\hat\theta,\hat\phi)\rightarrow\D_\theta,\R_\phi$ & reproduce the simulation exactly, so the ground truth is a fixed point of every data step (Thm.~\mref{thm:mismatch}) \\
+Eigenbasis & eigendecompositions of $\mathbf{D}_{\mathrm{r}}^{\top}\mathbf{D}_{\mathrm{r}}$ ($H\times H$), $\mathbf{D}_{\mathrm{c}}^{\top}\mathbf{D}_{\mathrm{c}}$ ($W\times W$) and $\mathbf{r}_\phi^{\top}\mathbf{r}_\phi$ ($B\times B$), cached per size & $\rightarrow\mathcal{Q},\ \lambda^{\mathrm{r}},\lambda^{\mathrm{c}},\nu$ & closed-form data step and explicit null space (Thm.~\mref{thm:kron}) \\
+Observation code & noise level of each observation (median absolute deviation of second differences), blur and shift & $\rightarrow\mathbf{c}\in\mathbb{R}^4$ ($\mathbb{R}^7$ with offsets) & conditions step sizes, gains and prior (FiLM) on the observation model \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Unfolded network: $\X_0=$ bicubic upsampling of $\YH$, then $K=3$ stages}} \\
+Data step & residuals of both observations, $\mathbf{G}_k=\alpha_k\D^{\top}(\YH-\D\X_{k-1})+\beta_k\R^{\top}(\YM-\R\X_{k-1})$; three mode products into the eigenbasis; each component scaled by the gain $\Gamma_{k,bij}$ of Eq.~(\mref{eq:klstep}); three mode products back & $\X_{k-1}\rightarrow\Z_k$, $B\times H\times W$ & makes the estimate agree with both observations; keeps $\X^*$ fixed and is nonexpansive for any learned gains (Prop.~\mref{prop:kl}); learns $\alpha_k,\beta_k$ and two two-layer perceptrons of the log-eigenvalues \\
+Prior input & $[\Z_k,\ \R_\phi^{+}\YM,\ s^2\D^{\top}(\D\Z_k-\YH),\ \tfrac{B}{M}\R^{\top}(\R\Z_k-\YM)]$ & $\rightarrow4B\times H\times W$ & every input in the hyperspectral bands: the prior does not depend on the multispectral sensor \\
+Prior: stem & $3\times3$ convolution to 48 channels; previous stage's decoder features merged by a $1\times1$ convolution; FiLM by $\mathbf{c}$ & $\rightarrow48\times H\times W$ & entry of the U-Net; cross-stage memory \\
+Prior: encoder & 2 transformer blocks (1 head); $4\times4$ convolution, stride 2; 3 blocks (2 heads); $4\times4$ convolution, stride 2 & $\rightarrow192\times\frac H4\times\frac W4$ & features at three scales \\
+Prior: bottleneck & 4 transformer blocks (4 heads); FiLM by $\mathbf{c}$ & $192\times\frac H4\times\frac W4$ & context over the coarsest scale \\
+Prior: decoder & $2\times2$ transposed convolution, skip concatenation and $1\times1$ convolution, 3 blocks; again to full size, 2 blocks and 2 refinement blocks; FiLM & $\rightarrow48\times H\times W$, memory $\mathbf{F}_k$ & restores the resolution with the encoder's detail \\
+Prior: head & $3\times3$ convolution, initialized to zero & $\rightarrow\Delta_k$, $B\times H\times W$ & training starts from the data steps alone \\
+Transformer block & layer norm; transposed attention (queries, keys and values by $1\times1$ and depth-wise $3\times3$ convolutions, a $C\times C$ attention map per head, learned temperature); layer norm; gated depth-wise feed-forward network (expansion 2.66); both in residual branches & $C\times H'\times W'\rightarrow$ same & mixes channels globally at a cost linear in the number of pixels (\cref{fig:block,fig:mdta}) \\
+Update & $\X_k=\Z_k+\Delta_k$ & $\rightarrow\X_k$ & the prior adds what the data step cannot recover \\
+\midrule
+Output & $\hat\X=\X_3$ & $B\times H\times W$ & the fused image, consistent with both observations \\
+\bottomrule
+\end{tabular}
+\end{table*}
 
-\section{Additional results}
-\label{sec:more}
-\qtab{q1_full}
-\qtab{q1_full_general}
+Each prior (\cref{fig:prior}) is a three-level U-Net with widths 48, 96 and 192, two, three and four transformer blocks on the encoder levels and the bottleneck, mirrored decoder levels and two refinement blocks. A block (\cref{fig:block}) follows Restormer~\cite{zamir2022restormer}: transposed attention (\cref{fig:mdta}) with 1, 2 and 4 heads on the three levels, followed by a gated depth-wise feed-forward network with expansion 2.66. ExactFuse has \qone{puformer-params}~M parameters for Chikusei; compared with the base model, the wider input convolution of each prior ($4B$ instead of $2B+M$ channels) adds about 0.3~M, and the gain networks of the data steps are negligible. Training uses AdamW ($\beta=(0.9,0.99)$, weight decay $10^{-4}$, peak learning rate $3\times10^{-4}$), a 1000-iteration warm-up, cosine decay to $10^{-3}$ of the peak at the end of the budget, gradient-norm clipping at 0.1, and an exponential moving average of the weights (decay 0.999). The image path, including all operator applications, runs in 32-bit precision and the priors in 16-bit mixed precision. The weights with the best validation PSNR are tested once, without self-ensemble.
 
-\paragraph{Comparison with reported numbers.} \Cref{tab:main} places our longest-trained Chikusei model (two runs, 20.4~h in total) next to the 17 methods tabulated in~\cite{chen2026twostage}; \cref{tab:pavia} does the same for Pavia Centre. These tables give context, not a ranking: the other rows are copied, our test images follow the published protocol but are not necessarily the same pixels, and our retrained baselines exceed their reported values by up to 3.6~dB (\eg MIMFormer \qone{chikusei4-mimformer-psnr}~dB against 53.36~dB reported). The PSNR values of~\cite{chen2026twostage} use a fixed peak: for every row of their Chikusei table, $\mathrm{RMSE}\cdot10^{\mathrm{PSNR}/20}$ lies between 16.6k and 17.1k~DN, above our peak of 15{,}133~DN, so our PSNR is conservative by about 0.86~dB on this dataset. RMSE in DN does not depend on the peak and is the most direct comparison.
+\section{Gaps, evidence and metrics}
+\label{sec:gaps}
+\Cref{tab:gaps} lists the gaps in current fusion networks that this work addresses, what ExactFuse does about each, and where the evidence is; \cref{tab:metrics} defines every metric.
 
 \begin{table*}[t]
 \centering
-\caption{Chikusei $\times$4: PUFormer next to the methods reported in~\cite{chen2026twostage} (all other rows copied from there). SSIM of PUFormer as in the PSRT code (data range 1).}
+\caption{Gaps in deep hyperspectral and multispectral fusion, what ExactFuse does about them, and the evidence.}
+\label{tab:gaps}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}p{0.27\textwidth}p{0.36\textwidth}p{0.31\textwidth}@{}}
+\toprule
+Gap & ExactFuse & Evidence \\
+\midrule
+Blur, decimation and spectral response are learned or use zero padding, so they differ from the operators that made the data & exact operators with the simulation's border rule, a closed-form data step in their eigenbasis & Thm.~\mref{thm:mismatch}; ablation rows ``zero border'' and ``learned operator'' (Tab.~\mref{tab:ablation}); test-time operator swap (\cref{fig:operator}) \\
+Fused images do not reproduce their own inputs & every stage solves the data step exactly; the error is split into an observed and a null-space part & Obs.\ column of Tab.~\mref{tab:bench}; agreement with the LR-HSI in Tab.~\mref{tab:ablation} \\
+One network per sensor pair & every input of the prior lies in the hyperspectral bands; training over random spectral responses & sensor results (\cref{sec:more}) \\
+A fixed blur, response and noise level & training over a family of observation models, operators estimated from the pair, observation-model conditioning & Tab.~\mref{tab:cond} \\
+Inputs assumed co-registered & sub-pixel grid offsets in the operator family, estimated from the pair & offset and misregistration columns of Tab.~\mref{tab:cond} \\
+Why fuse at all, rather than super-resolve the LR-HSI & information budget of the HR-MSI; the same network with one input removed & remark after Thm.~\mref{thm:kron}; bottom rows of Tab.~\mref{tab:ablation} \\
+Comparisons copied across protocols and implementations & \qone{n-retrained-word} networks retrained from their authors' code under one protocol and budget; recipe swap; three seeds; pooled signed-rank test; four datasets, three scale factors & Tabs.~\mref{tab:bench}, \mref{tab:general} and \cref{tab:margin} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\caption{Metrics. $\X$: reference, $\hat\X$: fused image, both scaled to $[0,1]$ by the dataset's maximum; means over the test images.}
+\label{tab:metrics}
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}p{0.14\textwidth}p{0.62\textwidth}p{0.17\textwidth}@{}}
+\toprule
+Metric & Definition & Better \\
+\midrule
+PSNR & $10\log_{10}(1/\mathrm{MSE})$ over the whole cube, \ie peak equal to the dataset's maximum & higher \\
+SSIM & structural similarity per band, Gaussian window $11\times11$, $\sigma=1.5$, data range equal to the image's own maximum (\cref{sec:more} also gives the PSRT definition with data range 1) & higher \\
+SAM & mean angle between the reference and fused spectra of every pixel, in degrees & lower \\
+ERGAS & $\frac{100}{s}\sqrt{\frac1B\sum_b(\mathrm{RMSE}_b/\mu_b)^2}$ with the band means $\mu_b$ & lower \\
+Q2n & hypercomplex quality index~\cite{vivone2025deep} on $32\times32$ blocks with shift 32, computed on the digital numbers & higher \\
+CC, SCC & correlation coefficient of the images, and of their Sobel gradient magnitudes & higher \\
+RMSE & root-mean-square error in digital numbers, independent of the PSNR peak & lower \\
+Cons. & $\mathrm{PSNR}(\D\hat\X,\YH)$: how well the fused image reproduces the LR-HSI & higher \\
+Obs. & mean squared error of the part of $\hat\X-\X$ in $\mathrm{row}(\D)+\mathrm{row}(\R)$, which contradicts the observations (Thm.~\mref{thm:kron}(c)) & lower \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\section{Additional results}
+\label{sec:more}
+\qtab{cvpr_props}
+\qtab{cvpr_ablation_full}
+\qtab{cvpr_margin}
+\begin{figure}[t]
+\centering
+\IfFileExists{figures/q1_operator.pdf}{\includegraphics[width=\columnwidth]{figures/q1_operator.pdf}}{}
+\caption{Test PSNR when the test blur differs from the training blur ($\sigma_0=2$, dotted): exact operator with and without the true blur, zero border with the true blur, and a learned operator, which cannot be replaced.}
+\label{fig:operator}
+\end{figure}
+\qtab{q1_full}
+\qtab{q1_full_general}
+\qtab{cvpr_family}
+
+\paragraph{One network for any sensor and scale factor.} Every input of the prior lies in the hyperspectral bands, so one ExactFuse network can be trained on random multispectral responses, a new one for every batch, and applied to any sensor (\cref{tab:family}). Tested on seven real sensors, none of them seen in training, it exceeds GSA by \qone{fam-chikusei-gsa-gain-min}--\qone{fam-chikusei-gsa-gain-max}~dB on Chikusei and \qone{fam-pavia-gsa-gain-min}--\qone{fam-pavia-gsa-gain-max}~dB on Pavia Centre. MIMFormer trained on the same random responses with the same input $\R^{+}\YM$ stays \qone{fam-chikusei-vsmim-min}--\qone{fam-chikusei-vsmim-max}~dB (Chikusei) and \qone{fam-pavia-vsmim-min}--\qone{fam-pavia-vsmim-max}~dB (Pavia Centre) below it; unlike MIMFormer, ExactFuse uses the response of the sensor at hand in its data steps. Not retraining has a price: on WorldView-2 the sensor-independent network is \qone{fam-chikusei-own-cost}~dB below ExactFuse trained for that sensor (\qone{fam-pavia-own-cost}~dB on IKONOS for Pavia Centre) and \qone{fam-chikusei-mimret-gap-min}--\qone{fam-chikusei-mimret-gap-max}~dB below MIMFormer trained for WorldView-2 or Sentinel-2. Trained for one sensor, ExactFuse stays ahead of MIMFormer trained for the same sensor, also with a three-band RGB camera (\qone{fam-chikusei-rgb-puformer-ret} against \qone{fam-chikusei-rgb-mimformer-ret}~dB on Chikusei), where the MSI measures the least. The data steps also carry the scale factor, so ExactFuse can be trained over several of them, each batch with its own decimation and blur. One network trained at $\times$4 and $\times$8 is at most \qone{scl-chikusei-cost-max} and \qone{scl-pavia-cost-max}~dB below the networks trained for each scale (Chikusei, Pavia Centre) and still above the best retrained network of every scale; at $\times$16, which it never saw, it leads that network by \qone{scl-chikusei-x16-gain} and \qone{scl-pavia-x16-gain}~dB.
+
+\paragraph{Comparison with reported numbers.} \Cref{tab:main} places our longest-trained base model on Chikusei (two runs, 20.4~h in total) next to the 17 methods tabulated in~\cite{chen2026twostage}; \cref{tab:pavia} does the same for Pavia Centre. These tables give context, not a ranking: the other rows are copied, our test images follow the published protocol but are not necessarily the same pixels, and our retrained baselines exceed their reported values by up to 3.6~dB (\eg MIMFormer \qone{chikusei4-mimformer-psnr}~dB against 53.36~dB reported). The PSNR values of~\cite{chen2026twostage} use a fixed peak: for every row of their Chikusei table, $\mathrm{RMSE}\cdot10^{\mathrm{PSNR}/20}$ lies between 16.6k and 17.1k~DN, above our peak of 15{,}133~DN, so our PSNR is conservative by about 0.86~dB on this dataset. RMSE in DN does not depend on the peak and is the most direct comparison.
+
+\begin{table*}[t]
+\centering
+\caption{Chikusei $\times$4: the long-trained base model (20.4~h) next to the methods reported in~\cite{chen2026twostage} (all other rows copied from there). SSIM as in the PSRT code (data range 1).}
 \label{tab:main}
 \begin{tabular}{@{}lcccccccc@{}}
 \toprule
@@ -125,8 +217,8 @@ DPFormer~\cite{liu2026dpformer} & 53.1632 & 0.9970 & 0.9483 & 1.8795 & 0.9949 & 
 CLSNet~\cite{yang2026clsnet} & 55.2007 & 0.9979 & 0.7836 & 1.6318 & 0.9943 & 0.9941 & 0.9869 & 29.06 \\
 Two-stage diffusion~\cite{chen2026twostage} & 56.1871 & 0.9982 & 0.7203 & 1.5158 & \best{0.9969} & 0.9948 & 0.9891 & 25.73 \\
 \midrule
-PUFormer (single pass) & 58.1467 & \best{0.9989} & 0.7171 & 1.3367 & 0.9930 & \best{0.9967} & \best{0.9992} & 19.06 \\
-PUFormer (self-ensemble) & \best{58.2016} & \best{0.9989} & \best{0.7126} & \best{1.3304} & 0.9931 & \best{0.9967} & \best{0.9992} & \best{18.94} \\
+Base model, 20.4~h (single pass) & 58.1467 & \best{0.9989} & 0.7171 & 1.3367 & 0.9930 & \best{0.9967} & \best{0.9992} & 19.06 \\
+Base model, 20.4~h (self-ensemble) & \best{58.2016} & \best{0.9989} & \best{0.7126} & \best{1.3304} & 0.9931 & \best{0.9967} & \best{0.9992} & \best{18.94} \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -139,6 +231,22 @@ PUFormer (self-ensemble) & \best{58.2016} & \best{0.9989} & \best{0.7126} & \bes
 \qtab{q1_cond_full}
 \qtab{q1_gain}
 \qtab{q1_complexity}
+
+\section{Open problems and future directions}
+\label{sec:future}
+Most fusion methods, ours included in its benchmark setting, assume co-registered inputs, white noise of one level, a known spatially invariant blur and simultaneous acquisitions. We list the gaps that remain and how the exact-operator view gives each a concrete entry point.
+
+\paragraph{Registered and unregistered pixels.} Real pairs are misregistered locally (terrain and building parallax, moving objects, different view angles), so one image contains registered and unregistered pixels. A global sub-pixel offset fits into the separable operator and is estimated from the pair with the criterion of Theorem~\mref{thm:ident}; a local displacement does not. The confidence-weighted data step treats unregistered pixels as unreliable measurements and its map $1-w$ marks them, which turns a nuisance into an output; a spatially varying operator (a displacement field estimated jointly with the image) is the principled next step.
+
+\paragraph{Realistic noise.} Hyperspectral noise depends on the band (low SNR at the band edges and in absorption bands) and on the signal (photon noise), and pushbroom sensors add stripes. Per-band noise levels enter the MAP derivation as per-band weights of the data term; with the imputation form of the confidence step they keep the closed form. Training and evaluation with band- and signal-dependent noise, and with stripes, should replace the white-noise protocol.
+
+\paragraph{Spatially varying and unknown blur.} Real point-spread functions vary over the field of view and are rarely Gaussian. Non-separable kernels keep the gradient and conjugate-gradient steps but lose the closed form; estimating a nonparametric kernel from $\D\YM=\R\YH$ (Theorem~\mref{thm:ident}) and learning operator families from calibration data are open.
+
+\paragraph{Changes between acquisition dates.} Hyperspectral and multispectral images of the same scene are often taken days apart (e.g., EnMAP or PRISMA with Sentinel-2). Classical robust fusion models the change as a sparse outlier~\cite{ferraris2017robust}; the confidence step is a learned counterpart whose map is a change detector, and joint fusion and change detection on real multi-date pairs is a natural application.
+
+\paragraph{Real references and trustworthy outputs.} Wald's protocol simulates both inputs, so it cannot measure robustness to the real operator. Real paired benchmarks (e.g., airborne spectrometer and camera flights, or lens-based capture), no-reference metrics that respect the null space, and calibrated uncertainty for the part of the image that only a prior supplies are needed before fused products are used for quantitative analysis.
+
+\paragraph{Other inverse problems with Kronecker structure.} The same operators describe hyperspectral pansharpening ($M=1$), spectral super-resolution from RGB (no $\D$), multispectral pansharpening and multi-temporal or multi-sensor fusion; the closed-form data step, the null-space split and the band-space interface carry over to each.
 
 {
     \small

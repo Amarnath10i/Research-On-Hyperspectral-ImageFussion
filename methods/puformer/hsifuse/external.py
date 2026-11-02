@@ -13,6 +13,7 @@ adapters import the network classes from there. Only the band counts and the sca
     otpnet     OTPNet (AAAI 2025)                       tsharry2201/OTPNet       otpnet/model.py OTPNet
     u2net      U2Net (Peng et al., ACM MM 2023)         PSRben/U2Net             model/u2net.py U2Net
     mimosst    MIMO-SST (Fang et al., TGRS 2024)        Freelancefangjian/MIMO-SST  Model.py Net
+    caformer   CaFormer (Cao et al., PR 2026)           Caoxuheng/HIFtool        Networks/CaFormer/net.py
 
 Every adapter maps (Y_H, Y_M) -> X like PUFormer, and `forward(..., return_all=True)` returns [X] so the
 training loop is shared. Fusformer attends over all pixels (quadratic memory), so it is evaluated on
@@ -42,6 +43,7 @@ REPOS = {
     "otpnet": ("https://github.com/tsharry2201/OTPNet", "OTPNet"),
     "u2net": ("https://github.com/PSRben/U2Net", "U2Net"),
     "mimosst": ("https://github.com/Freelancefangjian/MIMO-SST", "MIMO-SST"),
+    "caformer": ("https://github.com/Caoxuheng/HIFtool", "HIFtool"),
 }
 # pipeline settings of the published networks (all with an L1 loss): their published learning rate, no weight
 # decay, no clipping. PSRT's own code adds AdamW decay 1e-4 and clipping at 10, and MIMFormer's uses batch 16 and
@@ -57,6 +59,7 @@ RECIPES = {
     "otpnet": dict(lr=1e-4, wd=0.0, clip=0.0),        # train.py: AdamW 1e-4 (decay 1e-4), step
     "u2net": dict(lr=1e-3, wd=0.0, clip=0.0),         # train.py: Adam 1e-3, step
     "mimosst": dict(lr=1e-4, wd=0.0, clip=0.0),       # train.py: Adam 1e-4; three outputs + FFT loss there
+    "caformer": dict(lr=1e-4, wd=0.0, clip=0.0),      # Network_training_RS.py: Adam 1e-4
 }
 
 
@@ -114,6 +117,9 @@ class External(nn.Module):
         self.net, self.call, self.scale, self.tile, self.overlap = net, call, scale, tile, overlap
 
     def forward(self, yh, ym, return_all=False):
+        if getattr(self, "sa", False):           # sensor-independent control: the network gets R^+ Y_M (B bands)
+            from .models import msi_backproject
+            ym = msi_backproject(self.deg, ym)
         if self.tile and not self.training:
             x = tiled(lambda a, b: self.call(self.net, a, b), yh, ym, self.scale, self.tile, self.overlap)
         else:
@@ -144,7 +150,16 @@ class Checkpointed(nn.Module):
         return self.m(*args)
 
 
-def build_external(name: str, bands: int, msi: int, scale: int) -> nn.Module:
+def build_external(name: str, bands: int, msi: int, scale: int, deg=None, sa: bool = False) -> nn.Module:
+    """sa=True: the network is built for B MSI channels and fed R^+ Y_M through the operator `deg` (set per batch by
+    train.py), the sensor-independent input of PUFormer --sa, without PUFormer's data steps."""
+    ext = _build_external(name, bands, bands if sa else msi, scale)
+    if sa:
+        ext.sa, ext.deg = True, deg
+    return ext
+
+
+def _build_external(name: str, bands: int, msi: int, scale: int) -> nn.Module:
     if name not in REPOS:
         raise ValueError(f"unknown model {name}")
     root = fetch(name)
@@ -211,6 +226,13 @@ def build_external(name: str, bands: int, msi: int, scale: int) -> nn.Module:
         net.raise_pan_dim = nn.Sequential(nn.Conv2d(msi, dim, 3, 1, 1), nn.LeakyReLU())
         net.to_hrms = nn.Sequential(nn.Conv2d(dim, dim, 3, 1, 1), nn.LeakyReLU(), nn.Conv2d(dim, bands, 3, 1, 1))
         m.init_weights(net.upsample, net.raise_ms_dim, net.raise_pan_dim, net.to_hrms)
+        # its attention spans all pixels: a 256 x 256 test image needs 32 GiB, so inference runs in overlapping tiles
+        return External(net, lambda n, yh, ym: n(yh, ym), scale, tile=128, overlap=32)
+    if name == "caformer":
+        # cross-domain-aware unfolding transformer (CaFormer, PR 2026) from the HIFTool collection: learned spectral
+        # operators (3x3 convolutions) and interpolation for the spatial ones; 3 stages as HIFTool's CaFormer_3
+        m = _load(os.path.join(root, "Networks", "CaFormer", "net.py"), "caformer_net")
+        net = m.CaFormer(sf=scale, in_c=bands, out_c=msi, n_feat=64, nums_stages=2, n_depth=3)
         return External(net, lambda n, yh, ym: n(yh, ym), scale)
     if name == "mimosst":
         # Model.py imports a PixelUnshuffle module that is not in the repository; torch has the same function
