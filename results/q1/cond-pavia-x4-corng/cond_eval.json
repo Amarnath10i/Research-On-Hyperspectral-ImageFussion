@@ -1,0 +1,651 @@
+{
+ "dataset": "pavia",
+ "scale": 4,
+ "model": "puformer",
+ "pad": "reflect",
+ "op": "exact",
+ "physics": 1,
+ "ckpt": "/kaggle/input/notebooks/sandeepchowdary2005/puf-n24/out/cond-pavia-x4-corng/best_ema.pt",
+ "nominal_sigma": 2.0,
+ "swappable": true,
+ "conditions": {
+  "nominal": {
+   "sigma": 2.0,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": null,
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.0,
+    2.0,
+    2.0,
+    2.0
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "ext_hat": [
+    {
+     "s": 2.0,
+     "c": 2.0,
+     "r": 0.0,
+     "q": 0.0,
+     "d": 0.0
+    },
+    {
+     "s": 2.0,
+     "c": 2.0,
+     "r": 0.0,
+     "q": 0.0,
+     "d": 0.0
+    },
+    {
+     "s": 2.0,
+     "c": 2.0,
+     "r": 0.0,
+     "q": 0.0,
+     "d": 0.0
+    },
+    {
+     "s": 2.0,
+     "c": 2.0,
+     "r": 0.0,
+     "q": 0.0,
+     "d": 0.0
+    }
+   ],
+   "gsa_oracle": {
+    "PSNR": 34.7757,
+    "SAM": 5.2291,
+    "ERGAS": 3.4939,
+    "SSIM": 0.9438,
+    "RMSE_DN": 157.9259
+   },
+   "fixed": {
+    "PSNR": 49.5515,
+    "SAM": 1.9844,
+    "ERGAS": 0.6785,
+    "SSIM": 0.9967,
+    "RMSE_DN": 26.9406
+   },
+   "oracle": {
+    "PSNR": 49.5515,
+    "SAM": 1.9844,
+    "ERGAS": 0.6785,
+    "SSIM": 0.9967,
+    "RMSE_DN": 26.9406
+   },
+   "estimated": {
+    "PSNR": 49.5515,
+    "SAM": 1.9844,
+    "ERGAS": 0.6785,
+    "SSIM": 0.9967,
+    "RMSE_DN": 26.9406
+   },
+   "estimated_ext": {
+    "PSNR": 49.5515,
+    "SAM": 1.9844,
+    "ERGAS": 0.6785,
+    "SSIM": 0.9967,
+    "RMSE_DN": 26.9406
+   }
+  },
+  "MSI local changes": {
+   "sigma": 2.0,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": [
+    "corrupt",
+    true,
+    false,
+    false,
+    false
+   ],
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.25,
+    3.3,
+    2.1,
+    2.15
+   ],
+   "shift_hat": [
+    -8.0,
+    -3.0,
+    -9.0,
+    0.0
+   ],
+   "sigma_abs_err": 0.44999999999999996,
+   "shift_abs_err": 5.0,
+   "ext_hat": [
+    {
+     "s": 2.2,
+     "c": 2.3,
+     "r": 0.0,
+     "q": 0.0,
+     "d": -8.0
+    },
+    {
+     "s": 2.55,
+     "c": 5.0,
+     "r": 0.0,
+     "q": 0.0,
+     "d": -2.0
+    },
+    {
+     "s": 1.95,
+     "c": 2.2,
+     "r": 0.0,
+     "q": 0.0,
+     "d": -9.0
+    },
+    {
+     "s": 2.1,
+     "c": 2.15,
+     "r": 0.0,
+     "q": 0.0,
+     "d": 0.0
+    }
+   ],
+   "gsa_oracle": {
+    "PSNR": 29.8172,
+    "SAM": 6.3998,
+    "ERGAS": 6.1432,
+    "SSIM": 0.9049,
+    "RMSE_DN": 258.9126
+   },
+   "fixed": {
+    "PSNR": 45.6899,
+    "SAM": 2.0515,
+    "ERGAS": 1.0291,
+    "SSIM": 0.9933,
+    "RMSE_DN": 44.6943
+   },
+   "oracle": {
+    "PSNR": 45.6899,
+    "SAM": 2.0515,
+    "ERGAS": 1.0291,
+    "SSIM": 0.9933,
+    "RMSE_DN": 44.6943
+   },
+   "estimated": {
+    "PSNR": 42.372,
+    "SAM": 2.2439,
+    "ERGAS": 1.5648,
+    "SSIM": 0.9906,
+    "RMSE_DN": 61.346
+   },
+   "estimated_ext": {
+    "PSNR": 42.6231,
+    "SAM": 2.2301,
+    "ERGAS": 1.4926,
+    "SSIM": 0.991,
+    "RMSE_DN": 59.3217
+   }
+  },
+  "HSI stripes": {
+   "sigma": 2.0,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": [
+    "corrupt",
+    false,
+    true,
+    false,
+    false
+   ],
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.0,
+    2.1,
+    2.05,
+    2.0
+   ],
+   "shift_hat": [
+    -4.0,
+    -5.0,
+    -4.0,
+    -4.0
+   ],
+   "sigma_abs_err": 0.03749999999999998,
+   "shift_abs_err": 4.25,
+   "ext_hat": [
+    {
+     "s": 2.0,
+     "c": 1.95,
+     "r": 0.0,
+     "q": 0.0,
+     "d": -3.0
+    },
+    {
+     "s": 2.05,
+     "c": 2.2,
+     "r": 0.0,
+     "q": 0.0,
+     "d": -5.0
+    },
+    {
+     "s": 2.05,
+     "c": 2.0,
+     "r": 0.0,
+     "q": 0.0,
+     "d": -4.0
+    },
+    {
+     "s": 2.0,
+     "c": 2.0,
+     "r": 0.0,
+     "q": 0.0,
+     "d": -4.0
+    }
+   ],
+   "gsa_oracle": {
+    "PSNR": 32.9355,
+    "SAM": 5.5341,
+    "ERGAS": 4.1993,
+    "SSIM": 0.9287,
+    "RMSE_DN": 193.7836
+   },
+   "fixed": {
+    "PSNR": 49.4882,
+    "SAM": 1.9909,
+    "ERGAS": 0.6823,
+    "SSIM": 0.9967,
+    "RMSE_DN": 27.1204
+   },
+   "oracle": {
+    "PSNR": 49.4882,
+    "SAM": 1.9909,
+    "ERGAS": 0.6823,
+    "SSIM": 0.9967,
+    "RMSE_DN": 27.1204
+   },
+   "estimated": {
+    "PSNR": 48.8935,
+    "SAM": 2.0451,
+    "ERGAS": 0.7306,
+    "SSIM": 0.9964,
+    "RMSE_DN": 28.9303
+   },
+   "estimated_ext": {
+    "PSNR": 48.8482,
+    "SAM": 2.0414,
+    "ERGAS": 0.7358,
+    "SSIM": 0.9964,
+    "RMSE_DN": 29.026
+   }
+  },
+  "MSI changes + HSI stripes, snr 35 dB": {
+   "sigma": 2.0,
+   "shift_nm": 0,
+   "snr_db": 35,
+   "kernel": [
+    "corrupt",
+    true,
+    true,
+    false,
+    false
+   ],
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.6,
+    5.0,
+    2.35,
+    2.6
+   ],
+   "shift_hat": [
+    -10.0,
+    -14.0,
+    -16.0,
+    -12.0
+   ],
+   "sigma_abs_err": 1.1375000000000002,
+   "shift_abs_err": 13.0,
+   "ext_hat": [
+    {
+     "s": 2.55,
+     "c": 2.7,
+     "r": 0.0,
+     "q": 0.0,
+     "d": -10.0
+    },
+    {
+     "s": 5.0,
+     "c": 5.0,
+     "r": 0.0,
+     "q": 0.375,
+     "d": -14.0
+    },
+    {
+     "s": 2.4,
+     "c": 2.25,
+     "r": 0.0,
+     "q": -0.125,
+     "d": -16.0
+    },
+    {
+     "s": 2.55,
+     "c": 2.65,
+     "r": 0.0,
+     "q": -0.125,
+     "d": -12.0
+    }
+   ],
+   "gsa_oracle": {
+    "PSNR": 26.9846,
+    "SAM": 7.8488,
+    "ERGAS": 8.5887,
+    "SSIM": 0.8472,
+    "RMSE_DN": 358.1748
+   },
+   "fixed": {
+    "PSNR": 39.1409,
+    "SAM": 3.2821,
+    "ERGAS": 2.0838,
+    "SSIM": 0.9764,
+    "RMSE_DN": 90.2601
+   },
+   "oracle": {
+    "PSNR": 39.1409,
+    "SAM": 3.2821,
+    "ERGAS": 2.0838,
+    "SSIM": 0.9764,
+    "RMSE_DN": 90.2601
+   },
+   "estimated": {
+    "PSNR": 36.4813,
+    "SAM": 3.5997,
+    "ERGAS": 2.9217,
+    "SSIM": 0.9679,
+    "RMSE_DN": 120.0278
+   },
+   "estimated_ext": {
+    "PSNR": 36.4992,
+    "SAM": 3.5903,
+    "ERGAS": 2.9209,
+    "SSIM": 0.9681,
+    "RMSE_DN": 119.7629
+   }
+  },
+  "MSI locally misregistered": {
+   "sigma": 2.0,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": [
+    "corrupt",
+    false,
+    false,
+    true,
+    false
+   ],
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.0,
+    2.0,
+    2.0,
+    2.0
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    0.0,
+    -2.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.5,
+   "ext_hat": [
+    {
+     "s": 2.0,
+     "c": 2.0,
+     "r": 0.0,
+     "q": 0.125,
+     "d": 0.0
+    },
+    {
+     "s": 2.0,
+     "c": 2.0,
+     "r": 0.0,
+     "q": 0.0,
+     "d": 0.0
+    },
+    {
+     "s": 2.0,
+     "c": 2.0,
+     "r": 0.0,
+     "q": 0.0,
+     "d": 0.0
+    },
+    {
+     "s": 2.0,
+     "c": 2.05,
+     "r": 0.125,
+     "q": 0.25,
+     "d": 0.0
+    }
+   ],
+   "gsa_oracle": {
+    "PSNR": 34.3638,
+    "SAM": 5.267,
+    "ERGAS": 3.6767,
+    "SSIM": 0.9374,
+    "RMSE_DN": 166.3212
+   },
+   "fixed": {
+    "PSNR": 46.2478,
+    "SAM": 2.1288,
+    "ERGAS": 0.9725,
+    "SSIM": 0.9944,
+    "RMSE_DN": 40.8225
+   },
+   "oracle": {
+    "PSNR": 46.2478,
+    "SAM": 2.1288,
+    "ERGAS": 0.9725,
+    "SSIM": 0.9944,
+    "RMSE_DN": 40.8225
+   },
+   "estimated": {
+    "PSNR": 46.2516,
+    "SAM": 2.1297,
+    "ERGAS": 0.9718,
+    "SSIM": 0.9944,
+    "RMSE_DN": 40.8007
+   },
+   "estimated_ext": {
+    "PSNR": 45.0058,
+    "SAM": 2.1978,
+    "ERGAS": 1.1589,
+    "SSIM": 0.9928,
+    "RMSE_DN": 49.8228
+   }
+  },
+  "HSI band-dependent noise 25-45 dB": {
+   "sigma": 2.0,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": [
+    "corrupt",
+    false,
+    false,
+    false,
+    true
+   ],
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.0,
+    2.0,
+    2.0,
+    2.0
+   ],
+   "shift_hat": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "sigma_abs_err": 0.0,
+   "shift_abs_err": 0.0,
+   "ext_hat": [
+    {
+     "s": 2.0,
+     "c": 2.0,
+     "r": 0.0,
+     "q": 0.0,
+     "d": 0.0
+    },
+    {
+     "s": 2.0,
+     "c": 2.0,
+     "r": 0.0,
+     "q": 0.0,
+     "d": 0.0
+    },
+    {
+     "s": 2.0,
+     "c": 2.0,
+     "r": 0.0,
+     "q": 0.0,
+     "d": 0.0
+    },
+    {
+     "s": 2.0,
+     "c": 2.0,
+     "r": 0.0,
+     "q": 0.0,
+     "d": 0.0
+    }
+   ],
+   "gsa_oracle": {
+    "PSNR": 34.7382,
+    "SAM": 5.3052,
+    "ERGAS": 3.5026,
+    "SSIM": 0.9434,
+    "RMSE_DN": 158.4172
+   },
+   "fixed": {
+    "PSNR": 48.6501,
+    "SAM": 2.265,
+    "ERGAS": 0.7257,
+    "SSIM": 0.9957,
+    "RMSE_DN": 29.8146
+   },
+   "oracle": {
+    "PSNR": 48.6501,
+    "SAM": 2.265,
+    "ERGAS": 0.7257,
+    "SSIM": 0.9957,
+    "RMSE_DN": 29.8146
+   },
+   "estimated": {
+    "PSNR": 48.6501,
+    "SAM": 2.265,
+    "ERGAS": 0.7257,
+    "SSIM": 0.9957,
+    "RMSE_DN": 29.8146
+   },
+   "estimated_ext": {
+    "PSNR": 48.6501,
+    "SAM": 2.265,
+    "ERGAS": 0.7257,
+    "SSIM": 0.9957,
+    "RMSE_DN": 29.8146
+   }
+  },
+  "MSI locally misregistered + HSI band noise": {
+   "sigma": 2.0,
+   "shift_nm": 0,
+   "snr_db": null,
+   "kernel": [
+    "corrupt",
+    false,
+    false,
+    true,
+    true
+   ],
+   "msi_px": 0.0,
+   "sigma_hat": [
+    2.0,
+    2.05,
+    2.0,
+    2.0
+   ],
+   "shift_hat": [
+    -1.0,
+    -1.0,
+    -1.0,
+    -1.0
+   ],
+   "sigma_abs_err": 0.012499999999999956,
+   "shift_abs_err": 1.0,
+   "ext_hat": [
+    {
+     "s": 2.0,
+     "c": 2.05,
+     "r": 0.0,
+     "q": 0.125,
+     "d": 0.0
+    },
+    {
+     "s": 2.0,
+     "c": 2.1,
+     "r": 0.125,
+     "q": 0.375,
+     "d": 0.0
+    },
+    {
+     "s": 2.0,
+     "c": 2.0,
+     "r": 0.0,
+     "q": 0.125,
+     "d": 0.0
+    },
+    {
+     "s": 2.0,
+     "c": 2.0,
+     "r": 0.0,
+     "q": 0.125,
+     "d": 0.0
+    }
+   ],
+   "gsa_oracle": {
+    "PSNR": 32.8204,
+    "SAM": 5.4589,
+    "ERGAS": 4.2734,
+    "SSIM": 0.921,
+    "RMSE_DN": 190.2183
+   },
+   "fixed": {
+    "PSNR": 42.8759,
+    "SAM": 2.5027,
+    "ERGAS": 1.4175,
+    "SSIM": 0.9899,
+    "RMSE_DN": 57.8513
+   },
+   "oracle": {
+    "PSNR": 42.8759,
+    "SAM": 2.5027,
+    "ERGAS": 1.4175,
+    "SSIM": 0.9899,
+    "RMSE_DN": 57.8513
+   },
+   "estimated": {
+    "PSNR": 42.8764,
+    "SAM": 2.5047,
+    "ERGAS": 1.4176,
+    "SSIM": 0.9899,
+    "RMSE_DN": 57.8405
+   },
+   "estimated_ext": {
+    "PSNR": 41.5837,
+    "SAM": 2.5593,
+    "ERGAS": 1.6753,
+    "SSIM": 0.9881,
+    "RMSE_DN": 66.752
+   }
+  }
+ }
+}

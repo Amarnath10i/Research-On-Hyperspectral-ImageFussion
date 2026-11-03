@@ -1,0 +1,57 @@
+[{"stream_name":"stderr","time":10.707352402,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":10.707484497,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":10.707492687,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":10.707497272,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":11.619948272,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":11.619986477,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":11.619992544,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":11.619997289,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":13.191899338,"data":"code sha256 a0bfdb606670924f05d0b6676a82a1691f9591652eb10ab7ef968ea6a7ed3941 from git 6eb6c35+local changes\n"}
+,{"stream_name":"stdout","time":13.194324101,"data":"4\n"}
+,{"stream_name":"stdout","time":13.214073128,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":13.214111765,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stderr","time":13.384359271,"data":"/tmp/ipykernel_16/705170942.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":13.384398974,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":13.384403784,"data":"\n"}
+,{"stream_name":"stderr","time":13.384406536,"data":"/tmp/ipykernel_16/705170942.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":13.384409615,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":13.391837927,"data":"4\n"}
+,{"stream_name":"stdout","time":13.391872416,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":13.391876492,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stdout","time":14.706626855,"data":"RUN sa-chikusei-x4-ng : python family_eval.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model puformer --pad reflect --omc 1 --dstep kronlearn --mres 1 --sa 1 --mode sensors --measured 1 --ckpt /kaggle/input/notebooks/ironmanh/puf-n22/out/sa-chikusei-x4-ng/best_ema.pt --out /kaggle/working/out/sa-chikusei-x4-ng \n"}
+,{"stream_name":"stdout","time":895.926954989,"data":"landsat8_measured 5 bands {'gsa': 35.5523, 'model': 54.072}\n"}
+,{"stream_name":"stdout","time":896.195800998,"data":"landsat8_measured 5 bands {'gsa': 35.5523, 'model': 54.072}\n"}
+,{"stream_name":"stdout","time":1544.969817515,"data":"sentinel2a_measured 10 bands {'gsa': 38.8241, 'model': 55.8886}\n"}
+,{"stream_name":"stdout","time":1545.185848015,"data":"sentinel2a_measured 10 bands {'gsa': 38.8241, 'model': 55.8886}\n"}
+,{"stream_name":"stdout","time":2174.388025306,"data":"sentinel2b_measured 10 bands {'gsa': 38.7949, 'model': 55.87}\n"}
+,{"stream_name":"stdout","time":2174.606405499,"data":"sentinel2b_measured 10 bands {'gsa': 38.7949, 'model': 55.87}\n"}
+,{"stream_name":"stdout","time":2684.596021669,"data":"olci_measured 21 bands {'gsa': 37.0685, 'model': 56.3877}\n"}
+,{"stream_name":"stdout","time":2684.80694575,"data":"olci_measured 21 bands {'gsa': 37.0685, 'model': 56.3877}\n"}
+,{"stream_name":"stdout","time":3274.314514469,"data":"probav_measured 3 bands {'gsa': 38.2133, 'model': 53.6896}\n"}
+,{"stream_name":"stdout","time":3274.526218803,"data":"probav_measured 3 bands {'gsa': 38.2133, 'model': 53.6896}\n"}
+,{"stream_name":"stdout","time":3798.262636946,"data":"modis_measured 11 bands {'gsa': 36.1494, 'model': 54.344}\n"}
+,{"stream_name":"stdout","time":3798.471426995,"data":"modis_measured 11 bands {'gsa': 36.1494, 'model': 54.344}\n"}
+,{"stream_name":"stdout","time":3799.537604877,"data":"END sa-chikusei-x4-ng rc 0\n"}
+,{"stream_name":"stdout","time":3799.721329969,"data":"RUN sa-pavia-x4-ng : python family_eval.py --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat'  --dataset pavia --scale 4 --model puformer --pad reflect --omc 1 --dstep kronlearn --mres 1 --sa 1 --mode sensors --measured 1 --ckpt /kaggle/input/notebooks/ironmanh/puf-n22/out/sa-pavia-x4-ng/best_ema.pt --out /kaggle/working/out/sa-pavia-x4-ng \n"}
+,{"stream_name":"stdout","time":4052.023471508,"data":"landsat8_measured 3 bands {'gsa': 28.3095, 'model': 40.7274}\n"}
+,{"stream_name":"stdout","time":4052.236241744,"data":"landsat8_measured 3 bands {'gsa': 28.3095, 'model': 40.7274}\n"}
+,{"stream_name":"stdout","time":4303.612801139,"data":"sentinel2a_measured 7 bands {'gsa': 32.7768, 'model': 50.1904}\n"}
+,{"stream_name":"stdout","time":4303.826304447,"data":"sentinel2a_measured 7 bands {'gsa': 32.7768, 'model': 50.1904}\n"}
+,{"stream_name":"stdout","time":4554.27451201,"data":"sentinel2b_measured 7 bands {'gsa': 32.8233, 'model': 50.2305}\n"}
+,{"stream_name":"stdout","time":4554.48505836,"data":"sentinel2b_measured 7 bands {'gsa': 32.8233, 'model': 50.2305}\n"}
+,{"stream_name":"stdout","time":4790.195654568,"data":"olci_measured 13 bands {'gsa': 29.4964, 'model': 47.9076}\n"}
+,{"stream_name":"stdout","time":4790.408104148,"data":"olci_measured 13 bands {'gsa': 29.4964, 'model': 47.9076}\n"}
+,{"stream_name":"stdout","time":5042.388645772,"data":"probav_measured 2 bands {'gsa': 33.2214, 'model': 44.7378}\n"}
+,{"stream_name":"stdout","time":5042.606677188,"data":"probav_measured 2 bands {'gsa': 33.2214, 'model': 44.7378}\n"}
+,{"stream_name":"stdout","time":5297.72956982,"data":"modis_measured 9 bands {'gsa': 29.84, 'model': 48.8754}\n"}
+,{"stream_name":"stdout","time":5297.935294185,"data":"modis_measured 9 bands {'gsa': 29.84, 'model': 48.8754}\n"}
+,{"stream_name":"stdout","time":5298.375759111,"data":"END sa-pavia-x4-ng rc 0\n"}
+,{"stream_name":"stderr","time":5302.904596664,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":5302.904633128,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":5303.17159179,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":5303.171628938,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":5304.156774757,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":5304.256422169,"data":"[NbConvertApp] Writing 112183 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":5307.548668221,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":5308.311859582,"data":"[NbConvertApp] Writing 393399 bytes to __results__.html\n"}
+]

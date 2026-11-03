@@ -1,0 +1,112 @@
+{
+ "dataset": "chikusei",
+ "model": "puformer",
+ "sa": 1,
+ "sensor": "worldview2",
+ "mode": "sensors",
+ "ckpt": "/kaggle/input/notebooks/ironmanh/puf-n22/out/sa-chikusei-x4-ng/best_ema.pt",
+ "results": {
+  "landsat8_measured": {
+   "bands": 5,
+   "gsa": {
+    "PSNR": 35.5523,
+    "SAM": 4.8566,
+    "ERGAS": 4.4819,
+    "SSIM": 0.8565,
+    "RMSE_DN": 257.6162
+   },
+   "model": {
+    "PSNR": 54.072,
+    "SAM": 1.0595,
+    "ERGAS": 1.6035,
+    "SSIM": 0.9946,
+    "RMSE_DN": 30.1221
+   }
+  },
+  "sentinel2a_measured": {
+   "bands": 10,
+   "gsa": {
+    "PSNR": 38.8241,
+    "SAM": 4.4659,
+    "ERGAS": 3.9694,
+    "SSIM": 0.9259,
+    "RMSE_DN": 177.3045
+   },
+   "model": {
+    "PSNR": 55.8886,
+    "SAM": 0.8714,
+    "ERGAS": 1.5854,
+    "SSIM": 0.9959,
+    "RMSE_DN": 24.4359
+   }
+  },
+  "sentinel2b_measured": {
+   "bands": 10,
+   "gsa": {
+    "PSNR": 38.7949,
+    "SAM": 4.4816,
+    "ERGAS": 3.9726,
+    "SSIM": 0.9257,
+    "RMSE_DN": 177.8565
+   },
+   "model": {
+    "PSNR": 55.87,
+    "SAM": 0.8734,
+    "ERGAS": 1.5854,
+    "SSIM": 0.9959,
+    "RMSE_DN": 24.4869
+   }
+  },
+  "olci_measured": {
+   "bands": 21,
+   "gsa": {
+    "PSNR": 37.0685,
+    "SAM": 4.8641,
+    "ERGAS": 4.2873,
+    "SSIM": 0.9008,
+    "RMSE_DN": 216.6539
+   },
+   "model": {
+    "PSNR": 56.3877,
+    "SAM": 0.8345,
+    "ERGAS": 1.5083,
+    "SSIM": 0.9964,
+    "RMSE_DN": 23.0109
+   }
+  },
+  "probav_measured": {
+   "bands": 3,
+   "gsa": {
+    "PSNR": 38.2133,
+    "SAM": 4.6037,
+    "ERGAS": 4.1075,
+    "SSIM": 0.9111,
+    "RMSE_DN": 190.465
+   },
+   "model": {
+    "PSNR": 53.6896,
+    "SAM": 1.113,
+    "ERGAS": 1.6716,
+    "SSIM": 0.9942,
+    "RMSE_DN": 31.5064
+   }
+  },
+  "modis_measured": {
+   "bands": 11,
+   "gsa": {
+    "PSNR": 36.1494,
+    "SAM": 4.9289,
+    "ERGAS": 4.4094,
+    "SSIM": 0.873,
+    "RMSE_DN": 240.7287
+   },
+   "model": {
+    "PSNR": 54.344,
+    "SAM": 1.0222,
+    "ERGAS": 1.6535,
+    "SSIM": 0.9948,
+    "RMSE_DN": 29.2037
+   }
+  }
+ }
+}

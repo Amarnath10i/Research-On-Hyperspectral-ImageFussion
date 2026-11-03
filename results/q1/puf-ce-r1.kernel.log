@@ -1,0 +1,49 @@
+[{"stream_name":"stderr","time":10.323414176,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":10.323471931,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":10.323478732,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":10.32348326,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":11.256584264,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":11.256647795,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":11.256655765,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":11.256659995,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":12.862010815,"data":"code sha256 c45fb5f6efbaacd1e610d0a578838109766051b6da8a1bf719d2ad38d1498844 from git fc2f350+local changes\n"}
+,{"stream_name":"stdout","time":12.864745799,"data":"4\n"}
+,{"stream_name":"stdout","time":12.887863444,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":12.887898386,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stderr","time":13.055479626,"data":"/tmp/ipykernel_17/2680780147.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":13.055516032,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":13.055520303,"data":"\n"}
+,{"stream_name":"stderr","time":13.055523037,"data":"/tmp/ipykernel_17/2680780147.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":13.05552603,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":13.061029494,"data":"4\n"}
+,{"stream_name":"stdout","time":13.061066209,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":13.061071767,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stdout","time":15.474629228,"data":"RUN arch-chikusei-x4-nogate : python cond_eval.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model puformer --pad reflect --dstep kronlearn --mres 1 --sa 1 --only 'px + snr,band-limited' --ckpt /kaggle/input/notebooks/tummapudinavadeep/puf-a11/out/arch-chikusei-x4-nogate/best_ema.pt --out /kaggle/working/out/arch-chikusei-x4-nogate \n"}
+,{"stream_name":"stdout","time":2170.213528279,"data":"MSI misregistered 0.5 px + snr 35 dB sigma_err 0.025 shift_err 0.00 {'gsa_oracle': 38.2883, 'fixed': 39.9146, 'estimated': 39.9194}\n"}
+,{"stream_name":"stdout","time":2170.457103743,"data":"MSI misregistered 0.5 px + snr 35 dB sigma_err 0.025 shift_err 0.00 {'gsa_oracle': 38.2883, 'fixed': 39.9146, 'estimated': 39.9194}\n"}
+,{"stream_name":"stdout","time":4028.094715615,"data":"MSI misregistered 1 px + snr 35 dB sigma_err 0.719 shift_err 0.12 {'gsa_oracle': 33.9343, 'fixed': 34.8286, 'estimated': 34.662}\n"}
+,{"stream_name":"stdout","time":4028.31282979,"data":"MSI misregistered 1 px + snr 35 dB sigma_err 0.719 shift_err 0.12 {'gsa_oracle': 33.9343, 'fixed': 34.8286, 'estimated': 34.662}\n"}
+,{"stream_name":"stdout","time":5900.791266215,"data":"MSI misregistered 0.5 px band-limited sigma_err 0.138 shift_err 0.00 {'gsa_oracle': 38.0435, 'fixed': 39.8714, 'estimated': 39.8502}\n"}
+,{"stream_name":"stdout","time":5900.997896424,"data":"MSI misregistered 0.5 px band-limited sigma_err 0.138 shift_err 0.00 {'gsa_oracle': 38.0435, 'fixed': 39.8714, 'estimated': 39.8502}\n"}
+,{"stream_name":"stdout","time":7746.651067734,"data":"MSI misregistered 0.5 px band-limited + snr 35 dB sigma_err 0.138 shift_err 0.00 {'gsa_oracle': 37.8877, 'fixed': 39.204, 'estimated': 39.1482}\n"}
+,{"stream_name":"stdout","time":7746.878504344,"data":"MSI misregistered 0.5 px band-limited + snr 35 dB sigma_err 0.138 shift_err 0.00 {'gsa_oracle': 37.8877, 'fixed': 39.204, 'estimated': 39.1482}\n"}
+,{"stream_name":"stdout","time":7747.924537268,"data":"END arch-chikusei-x4-nogate rc 0\n"}
+,{"stream_name":"stdout","time":7748.566493097,"data":"RUN arch-pavia-x4-nogate : python cond_eval.py --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat'  --dataset pavia --scale 4 --model puformer --pad reflect --dstep kronlearn --mres 1 --sa 1 --only 'px + snr,band-limited' --ckpt /kaggle/input/notebooks/tummapudinavadeep/puf-a11/out/arch-pavia-x4-nogate/best_ema.pt --out /kaggle/working/out/arch-pavia-x4-nogate \n"}
+,{"stream_name":"stdout","time":8630.704245376,"data":"MSI misregistered 0.5 px + snr 35 dB sigma_err 0.025 shift_err 2.25 {'gsa_oracle': 30.0977, 'fixed': 32.1432, 'estimated': 32.177}\n"}
+,{"stream_name":"stdout","time":8630.941822875,"data":"MSI misregistered 0.5 px + snr 35 dB sigma_err 0.025 shift_err 2.25 {'gsa_oracle': 30.0977, 'fixed': 32.1432, 'estimated': 32.177}\n"}
+,{"stream_name":"stdout","time":9485.741789004,"data":"MSI misregistered 1 px + snr 35 dB sigma_err 0.863 shift_err 4.75 {'gsa_oracle': 25.9912, 'fixed': 27.0144, 'estimated': 26.8754}\n"}
+,{"stream_name":"stdout","time":9485.959159494,"data":"MSI misregistered 1 px + snr 35 dB sigma_err 0.863 shift_err 4.75 {'gsa_oracle': 25.9912, 'fixed': 27.0144, 'estimated': 26.8754}\n"}
+,{"stream_name":"stdout","time":10321.477500641,"data":"MSI misregistered 0.5 px band-limited sigma_err 0.125 shift_err 2.25 {'gsa_oracle': 29.6843, 'fixed': 31.4261, 'estimated': 31.4624}\n"}
+,{"stream_name":"stdout","time":10321.745891073,"data":"MSI misregistered 0.5 px band-limited sigma_err 0.125 shift_err 2.25 {'gsa_oracle': 29.6843, 'fixed': 31.4261, 'estimated': 31.4624}\n"}
+,{"stream_name":"stdout","time":11246.325230194,"data":"MSI misregistered 0.5 px band-limited + snr 35 dB sigma_err 0.137 shift_err 2.25 {'gsa_oracle': 29.6602, 'fixed': 31.2463, 'estimated': 31.2669}\n"}
+,{"stream_name":"stdout","time":11246.540470084,"data":"MSI misregistered 0.5 px band-limited + snr 35 dB sigma_err 0.137 shift_err 2.25 {'gsa_oracle': 29.6602, 'fixed': 31.2463, 'estimated': 31.2669}\n"}
+,{"stream_name":"stdout","time":11247.731870599,"data":"END arch-pavia-x4-nogate rc 0\n"}
+,{"stream_name":"stderr","time":11252.750760733,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":11252.750799837,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":11253.07782772,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":11253.077864947,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":11254.151337743,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":11254.263025451,"data":"[NbConvertApp] Writing 100440 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":11257.548759593,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":11258.333890169,"data":"[NbConvertApp] Writing 381710 bytes to __results__.html\n"}
+]

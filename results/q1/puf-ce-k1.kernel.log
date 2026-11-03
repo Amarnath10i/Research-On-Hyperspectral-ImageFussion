@@ -1,0 +1,57 @@
+[{"stream_name":"stderr","time":10.801873025,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":10.801930199,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":10.801935743,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":10.801938773,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":11.693722269,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":11.693757244,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":11.693762668,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":11.693766928,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":13.197643564,"data":"code sha256 df24b25bf0e599603f428285e45618ac18a4a780a58bab8b7ab7bf17df57a728 from git ef40812+local changes\n"}
+,{"stream_name":"stdout","time":13.200568847,"data":"4\n"}
+,{"stream_name":"stdout","time":13.221024288,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":13.221054033,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stderr","time":13.390544365,"data":"/tmp/ipykernel_16/1561190639.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":13.390584835,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":13.390589072,"data":"\n"}
+,{"stream_name":"stderr","time":13.390591937,"data":"/tmp/ipykernel_16/1561190639.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":13.390595392,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":13.397401389,"data":"4\n"}
+,{"stream_name":"stdout","time":13.397431085000001,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":13.397434797,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stdout","time":15.404382629,"data":"RUN cond-chikusei-x4-ng : python cond_eval.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model puformer --pad reflect --omc 1 --dstep kronlearn --mres 1 --sa 1 --np_kernel 1 --only 'nominal,aniso blur 1,disk,snr 30' --ckpt /kaggle/input/notebooks/hruthwikch/puf-n20/out/cond-chikusei-x4-ng/best_ema.pt --out /kaggle/working/out/cond-chikusei-x4-ng \n"}
+,{"stream_name":"stdout","time":2578.980648281,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.1966, 'fixed': 57.7745, 'oracle': 57.7745, 'estimated': 57.7745}\n"}
+,{"stream_name":"stdout","time":2579.214489302,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 43.1966, 'fixed': 57.7745, 'oracle': 57.7745, 'estimated': 57.7745}\n"}
+,{"stream_name":"stdout","time":4732.63395918,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 41.8375, 'fixed': 49.6611, 'oracle': 49.6611, 'estimated': 49.6611}\n"}
+,{"stream_name":"stdout","time":4732.876397135,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 41.8375, 'fixed': 49.6611, 'oracle': 49.6611, 'estimated': 49.6611}\n"}
+,{"stream_name":"stdout","time":6827.229860058,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.006 shift_err 0.00 {'gsa_oracle': 41.2617, 'fixed': 44.9416, 'oracle': 49.5746, 'estimated': 49.5746}\n"}
+,{"stream_name":"stdout","time":6827.442820743,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.006 shift_err 0.00 {'gsa_oracle': 41.2617, 'fixed': 44.9416, 'oracle': 49.5746, 'estimated': 49.5746}\n"}
+,{"stream_name":"stdout","time":8666.575833696,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.14 shift_err 0.00 {'gsa_oracle': 43.0863, 'fixed': 55.8194, 'oracle': 57.677, 'estimated': 55.9697}\n"}
+,{"stream_name":"stdout","time":8666.791777097,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.14 shift_err 0.00 {'gsa_oracle': 43.0863, 'fixed': 55.8194, 'oracle': 57.677, 'estimated': 55.9697}\n"}
+,{"stream_name":"stdout","time":10706.126600148,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 0.00 {'gsa_oracle': 44.0015, 'fixed': 52.8176, 'oracle': 57.4665, 'estimated': 53.3536}\n"}
+,{"stream_name":"stdout","time":10706.355027043,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 0.00 {'gsa_oracle': 44.0015, 'fixed': 52.8176, 'oracle': 57.4665, 'estimated': 53.3536}\n"}
+,{"stream_name":"stdout","time":12707.350925056,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 0.00 {'gsa_oracle': 44.449, 'fixed': 54.0927, 'oracle': 57.6378, 'estimated': 56.7078}\n"}
+,{"stream_name":"stdout","time":12707.586700224,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 0.00 {'gsa_oracle': 44.449, 'fixed': 54.0927, 'oracle': 57.6378, 'estimated': 56.7078}\n"}
+,{"stream_name":"stdout","time":12708.938371533,"data":"END cond-chikusei-x4-ng rc 0\n"}
+,{"stream_name":"stdout","time":12709.316417957,"data":"RUN cond-pavia-x4-ng : python cond_eval.py --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat'  --dataset pavia --scale 4 --model puformer --pad reflect --omc 1 --dstep kronlearn --mres 1 --sa 1 --np_kernel 1 --only 'nominal,aniso blur 1,disk,snr 30' --ckpt /kaggle/input/notebooks/hruthwikch/puf-n20/out/cond-pavia-x4-ng/best_ema.pt --out /kaggle/working/out/cond-pavia-x4-ng \n"}
+,{"stream_name":"stdout","time":13277.941577675,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7757, 'fixed': 50.4328, 'oracle': 50.4328, 'estimated': 50.4328}\n"}
+,{"stream_name":"stdout","time":13278.156469246,"data":"nominal sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.7757, 'fixed': 50.4328, 'oracle': 50.4328, 'estimated': 50.4328}\n"}
+,{"stream_name":"stdout","time":13756.294327705,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.1636, 'fixed': 43.9895, 'oracle': 43.9895, 'estimated': 43.9895}\n"}
+,{"stream_name":"stdout","time":13756.503887603,"data":"snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 34.1636, 'fixed': 43.9895, 'oracle': 43.9895, 'estimated': 43.9895}\n"}
+,{"stream_name":"stdout","time":14196.452676848,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.3999, 'fixed': 42.3294, 'oracle': 43.9666, 'estimated': 43.9666}\n"}
+,{"stream_name":"stdout","time":14196.663058578,"data":"sigma x2, shift +12 nm, snr 30 dB sigma_err 0.000 shift_err 0.00 {'gsa_oracle': 33.3999, 'fixed': 42.3294, 'oracle': 43.9666, 'estimated': 43.9666}\n"}
+,{"stream_name":"stdout","time":14664.191573833,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.09 shift_err 0.50 {'gsa_oracle': 34.722, 'fixed': 46.7331, 'oracle': 50.3596, 'estimated': 46.8726}\n"}
+,{"stream_name":"stdout","time":14664.426663114,"data":"aniso blur 1.5/0.75 sigma0, 30 deg sigma_hat 2.09 shift_err 0.50 {'gsa_oracle': 34.722, 'fixed': 46.7331, 'oracle': 50.3596, 'estimated': 46.8726}\n"}
+,{"stream_name":"stdout","time":15113.256368368,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 1.00 {'gsa_oracle': 35.5877, 'fixed': 44.5373, 'oracle': 50.324, 'estimated': 45.1433}\n"}
+,{"stream_name":"stdout","time":15113.464931537,"data":"aniso blur 1.25/0.5 sigma0, 0 deg sigma_hat 1.56 shift_err 1.00 {'gsa_oracle': 35.5877, 'fixed': 44.5373, 'oracle': 50.324, 'estimated': 45.1433}\n"}
+,{"stream_name":"stdout","time":15590.344379848,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 1.00 {'gsa_oracle': 35.9999, 'fixed': 45.4563, 'oracle': 50.3206, 'estimated': 48.2667}\n"}
+,{"stream_name":"stdout","time":15590.550245527,"data":"disk blur r = 1.25 sigma0 sigma_hat 1.45 shift_err 1.00 {'gsa_oracle': 35.9999, 'fixed': 45.4563, 'oracle': 50.3206, 'estimated': 48.2667}\n"}
+,{"stream_name":"stdout","time":15591.319125053,"data":"END cond-pavia-x4-ng rc 0\n"}
+,{"stream_name":"stderr","time":15595.810012828,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":15595.810053314,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":15596.057350222,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":15596.057379458,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":15596.990281834,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":15597.090579847,"data":"[NbConvertApp] Writing 102097 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":15600.196523633,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":15600.92173607,"data":"[NbConvertApp] Writing 383515 bytes to __results__.html\n"}
+]

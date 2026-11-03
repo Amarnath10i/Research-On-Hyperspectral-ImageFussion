@@ -1,0 +1,40 @@
+{
+ "dataset": "chikusei",
+ "scale": 4,
+ "shape": [
+  128,
+  256,
+  256
+ ],
+ "null_fraction": 0.87890625,
+ "predicted_fraction": 0.87890625,
+ "sets": {
+  "test images": {
+   "basis_roundtrip": 4.313055796956178e-07,
+   "null_leak_D": 5.944586600747925e-09,
+   "null_leak_R": 5.416818549264235e-09,
+   "idempotence": 4.1606145373407344e-07,
+   "symmetry": 5.8639891165057634e-08,
+   "pythagoras": 3.5408234122513704e-09,
+   "null_share": 0.006037494633346796
+  },
+  "random images": {
+   "basis_roundtrip": 5.084382337372517e-07,
+   "null_leak_D": 3.318971764088019e-08,
+   "null_leak_R": 6.937302998721862e-08,
+   "idempotence": 3.7754429627057107e-07,
+   "symmetry": 0.0,
+   "pythagoras": 4.470018666324904e-08,
+   "null_share": 0.22243085503578186
+  },
+  "bicubic error": {
+   "basis_roundtrip": 5.339770154932921e-07,
+   "null_leak_D": 4.231816674860056e-08,
+   "null_leak_R": 2.0607782147408216e-08,
+   "idempotence": 5.13222289555415e-07,
+   "symmetry": 5.869920660650507e-10,
+   "pythagoras": 1.5426126154238773e-08,
+   "null_share": 0.08618121594190598
+  }
+ }
+}

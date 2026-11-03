@@ -1311,6 +1311,7 @@ CV_COND = [("bench-{d}-x4-mimformer", "fixed", "MIMFormer"),
            ("cond-{d}-x4-omc", "estimated", "\\quad + estimated operator, conditioning"),
            ("cond-{d}-x4-ng", "estimated", "ExactFuse, randomized + conditioning"),
            ("cond-{d}-x4-ng", "estimated_ext", "\\quad wide estimate"),
+           ("cond-{d}-x4-ng", "estimated_np", "\\quad any-shape kernel (least squares)"),
            ("cond-{d}-x4-mimreg", "fixed", "MIMFormer, wider family data"),
            ("cond-{d}-x4-regng", "estimated", "ExactFuse, wider family (+ aniso, offsets)"),
            ("cond-{d}-x4-ng", "oracle", "\\quad conditioning, true operator")]
@@ -1327,7 +1328,8 @@ def cvpr_cond():
         for d in sets:
             e = load(job.format(d=d), "cond_eval.json")
             for g in CV_GROUPS:
-                v = _cond_value(e, mode, pick[g])
+                v = _cond_value(e, mode, pick[g]) if mode != "estimated_np" or g in ("nominal", "kernel") \
+                    else None                              # evaluated on these conditions only
                 any_v |= v is not None
                 vals[(job, mode, d, g)] = v
                 if v is not None:
@@ -1654,7 +1656,14 @@ def np_kernel_numbers():
             errs = [r["np_kernel_relerr"] for k, r in (e or {}).get("conditions", {}).items()
                     if pick["kernel"](k) and "np_kernel_relerr" in r]
             if errs:
-                NUM[f"np-{d}-{j.split('-')[-1]}-kerr"] = f"{100 * np.mean(errs):.1f}"
+                NUM[f"np-{d}-{j.split('-')[-1]}-kerr"] = f"{100 * np.mean(errs):.2f}"
+            c30 = (e or {}).get("conditions", {}).get("snr 30 dB", {})
+            if "estimated_np" in c30:
+                tag = j.split('-')[-1]
+                NUM[f"np-{d}-{tag}-snr30"] = f"{c30['estimated_np']['PSNR']:.2f}"
+                NUM[f"np-{d}-{tag}-snr30-iso"] = f"{c30['estimated']['PSNR']:.2f}"
+                NUM[f"np-{d}-{tag}-snr30-cost"] = f"{c30['estimated']['PSNR'] - c30['estimated_np']['PSNR']:.2f}"
+                NUM[f"np-{d}-{tag}-kerr30"] = f"{100 * c30.get('np_kernel_relerr', float('nan')):.1f}"
 
 
 def cvpr_measured_table():
@@ -1825,6 +1834,65 @@ def curve_numbers():
             NUM[f"late-{d}-strong-max"] = f"{max(strong):.2f}"
 
 
+MISREG_ROWS = [("pure", "0.5--1~px (bilinear)"), ("noise05", "0.5~px + 35~dB"), ("noise1", "1~px + 35~dB"),
+               ("sharp05", "0.5~px, sharp"), ("sharpnoise05", "0.5~px, sharp + 35~dB"),
+               ("noisy", "0.5~px + aniso.\\ blur + 35~dB")]
+
+
+def misreg_table():
+    """HR-MSI misregistration: unregistered, registered before fusion (offset estimated from the pair) for ExactFuse
+    trained without and with noise and offsets, MIMFormer and GSA."""
+    cols = [("puformer", "fixed", "ExactFuse, unreg."), ("puformer", "reg_msi", "ExactFuse"),
+            ("regng", "reg_msi", "ExactFuse, wider family"), ("mimformer", "reg_msi", "MIMFormer"),
+            ("puformer", "gsa_reg", "GSA")]
+    body = []
+    for tag, lab in MISREG_ROWS:
+        cells, have = [], False
+        for d in ("chikusei", "pavia"):
+            vals = [NUM.get(f"reg-{d}-{m}-{mode}-{tag}") for m, mode, _ in cols]
+            fv = [float(v) for v in vals if v is not None]
+            best = max(fv[1:], default=None) if len(fv) > 1 else None
+            for i, v in enumerate(vals):
+                have |= v is not None
+                cells.append("--" if v is None else (f"\\best{{{v}}}" if i > 0 and best is not None and float(v) == best else v))
+        if have:
+            body.append(f"{lab} & " + " & ".join(cells) + " \\\\")
+    if not body:
+        return
+    head = " & ".join(lab for _, _, lab in cols)
+    write("cvpr_misreg.tex", [
+        "\\begin{table*}[t]", "\\centering",
+        "\\caption{HR-MSI misregistered against the LR-HSI and the reference (test PSNR, dB). Registered: the HR-MSI is "
+        "shifted back by the offset estimated from the pair before fusion (any method). Bilinear: the shift of the "
+        "simulation also blurs the HR-MSI; sharp: band-limited shift, as a sensor sampling a shifted scene records it, "
+        "registered with the same interpolation. ExactFuse is trained on noise-free data, the wider family adds noise, "
+        "anisotropic blurs and grid offsets; MIMFormer is trained on noise-free data. Best registered result in bold.}",
+        "\\label{tab:misreg}", "\\setlength{\\tabcolsep}{3pt}", "\\resizebox{\\textwidth}{!}{%",
+        "\\begin{tabular}{@{}l" + "c" * 10 + "@{}}", "\\toprule",
+        " & \\multicolumn{5}{c}{Chikusei $\\times$4} & \\multicolumn{5}{c}{Pavia Centre $\\times$4} \\\\",
+        "\\cmidrule(lr){2-6}\\cmidrule(l){7-11}", f"Misregistration & {head} & {head} \\\\", "\\midrule", *body,
+        "\\bottomrule", "\\end{tabular}}", "\\end{table*}"])
+
+
+def null_check_numbers():
+    """Largest deviations of the null-space check (results/q1/cond-*-x4-ng/null_check.json)."""
+    worst = {}
+    for d in ("chikusei", "pavia"):
+        r = load(f"cond-{d}-x4-ng", "null_check.json")
+        if not r:
+            continue
+        NUM[f"nc-{d}-frac"] = f"{100 * r['null_fraction']:.2f}"
+        NUM[f"nc-{d}-pred"] = f"{100 * r['predicted_fraction']:.2f}"
+        for st in r["sets"].values():
+            for k in ("basis_roundtrip", "null_leak_D", "null_leak_R", "idempotence", "symmetry", "pythagoras"):
+                worst[k] = max(worst.get(k, 0.0), st[k])
+    for k, v in worst.items():
+        NUM[f"nc-{k.replace('_', '')}"] = f"{v:.0e}".replace("e-0", "e-")
+    if worst:
+        NUM["nc-leak"] = f"{max(worst['null_leak_D'], worst['null_leak_R']):.0e}".replace("e-0", "e-")
+        NUM["nc-all"] = f"{max(worst.values()):.0e}".replace("e-0", "e-")
+
+
 def main():
     for ds in DATASETS:
         bench_table(ds)             # numbers quoted in the text (the per-dataset tables are not used)
@@ -1860,6 +1928,8 @@ def main():
     gain_ci()
     perimage_table()
     curve_numbers()
+    misreg_table()
+    null_check_numbers()
     write("q1_numbers.tex", [f"\\expandafter\\def\\csname qone@{k}\\endcsname{{{v}}}" for k, v in sorted(NUM.items())])
     print(f"{len(NUM)} numbers;", ", ".join(f"{k}={v}" for k, v in sorted(NUM.items())[:40]))
 

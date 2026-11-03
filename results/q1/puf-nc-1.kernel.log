@@ -1,0 +1,45 @@
+[{"stream_name":"stderr","time":9.869114089,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":9.869328112,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":9.869334862,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":9.869337685,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":10.717732749,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":10.71777066,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":10.71777555,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":10.71778051,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":12.248615996,"data":"code sha256 5b9d76309feccc207c669739dacc3c779d3c9b17e8ab294db9df6db85fb51484 from git cb83bf0+local changes\n"}
+,{"stream_name":"stdout","time":12.250896478,"data":"4\n"}
+,{"stream_name":"stdout","time":12.267173613,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":12.2672075,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stderr","time":12.441628628,"data":"/tmp/ipykernel_16/22291554.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":12.441665199,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":12.441670735,"data":"\n"}
+,{"stream_name":"stderr","time":12.441674234,"data":"/tmp/ipykernel_16/22291554.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":12.44167891,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":12.448073372,"data":"4\n"}
+,{"stream_name":"stdout","time":12.448111309,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":12.448117077,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stdout","time":14.114856128,"data":"RUN cond-chikusei-x4-ng : python null_check.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model puformer --pad reflect --omc 1 --dstep kronlearn --mres 1 --sa 1 --ckpt /kaggle/input/notebooks/hruthwikch/puf-n20/out/cond-chikusei-x4-ng/best_ema.pt --out /kaggle/working/out/cond-chikusei-x4-ng \n"}
+,{"stream_name":"stdout","time":251.723697816,"data":"test images {'basis_roundtrip': 4.313055796956178e-07, 'null_leak_D': 5.944586600747925e-09, 'null_leak_R': 5.416818549264235e-09, 'idempotence': 4.1606145373407344e-07, 'symmetry': 5.8639891165057634e-08, 'pythagoras': 3.5408234122513704e-09, 'null_share': 0.006037494633346796}\n"}
+,{"stream_name":"stdout","time":251.929997504,"data":"test images {'basis_roundtrip': 4.313055796956178e-07, 'null_leak_D': 5.944586600747925e-09, 'null_leak_R': 5.416818549264235e-09, 'idempotence': 4.1606145373407344e-07, 'symmetry': 5.8639891165057634e-08, 'pythagoras': 3.5408234122513704e-09, 'null_share': 0.006037494633346796}\n"}
+,{"stream_name":"stdout","time":289.132338594,"data":"random images {'basis_roundtrip': 5.084382337372517e-07, 'null_leak_D': 3.318971764088019e-08, 'null_leak_R': 6.937302998721862e-08, 'idempotence': 3.7754429627057107e-07, 'symmetry': 0.0, 'pythagoras': 4.470018666324904e-08, 'null_share': 0.22243085503578186}\n"}
+,{"stream_name":"stdout","time":289.363785051,"data":"random images {'basis_roundtrip': 5.084382337372517e-07, 'null_leak_D': 3.318971764088019e-08, 'null_leak_R': 6.937302998721862e-08, 'idempotence': 3.7754429627057107e-07, 'symmetry': 0.0, 'pythagoras': 4.470018666324904e-08, 'null_share': 0.22243085503578186}\n"}
+,{"stream_name":"stdout","time":325.794641561,"data":"bicubic error {'basis_roundtrip': 5.339770154932921e-07, 'null_leak_D': 4.231816674860056e-08, 'null_leak_R': 2.0607782147408216e-08, 'idempotence': 5.13222289555415e-07, 'symmetry': 5.869920660650507e-10, 'pythagoras': 1.5426126154238773e-08, 'null_share': 0.08618121594190598}\n"}
+,{"stream_name":"stdout","time":325.999185852,"data":"bicubic error {'basis_roundtrip': 5.339770154932921e-07, 'null_leak_D': 4.231816674860056e-08, 'null_leak_R': 2.0607782147408216e-08, 'idempotence': 5.13222289555415e-07, 'symmetry': 5.869920660650507e-10, 'pythagoras': 1.5426126154238773e-08, 'null_share': 0.08618121594190598}\n"}
+,{"stream_name":"stdout","time":326.74902269,"data":"END cond-chikusei-x4-ng rc 0\n"}
+,{"stream_name":"stdout","time":327.183370168,"data":"RUN cond-pavia-x4-ng : python null_check.py --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat'  --dataset pavia --scale 4 --model puformer --pad reflect --omc 1 --dstep kronlearn --mres 1 --sa 1 --ckpt /kaggle/input/notebooks/hruthwikch/puf-n20/out/cond-pavia-x4-ng/best_ema.pt --out /kaggle/working/out/cond-pavia-x4-ng \n"}
+,{"stream_name":"stdout","time":344.627182742,"data":"test images {'basis_roundtrip': 5.12161761889729e-07, 'null_leak_D': 8.936758888467011e-09, 'null_leak_R': 4.627966010417595e-09, 'idempotence': 4.932349497721589e-07, 'symmetry': 0.0, 'pythagoras': 6.177867994949793e-09, 'null_share': 0.014688967727124691}\n"}
+,{"stream_name":"stdout","time":344.830496812,"data":"test images {'basis_roundtrip': 5.12161761889729e-07, 'null_leak_D': 8.936758888467011e-09, 'null_leak_R': 4.627966010417595e-09, 'idempotence': 4.932349497721589e-07, 'symmetry': 0.0, 'pythagoras': 6.177867994949793e-09, 'null_share': 0.014688967727124691}\n"}
+,{"stream_name":"stdout","time":354.904805215,"data":"random images {'basis_roundtrip': 4.916600460092013e-07, 'null_leak_D': 3.3569353519169454e-08, 'null_leak_R': 5.6030746264923437e-08, 'idempotence': 4.3012460082536563e-07, 'symmetry': 1.2457037712465535e-07, 'pythagoras': 1.5548488363492652e-07, 'null_share': 0.22731630504131317}\n"}
+,{"stream_name":"stdout","time":355.10826546,"data":"random images {'basis_roundtrip': 4.916600460092013e-07, 'null_leak_D': 3.3569353519169454e-08, 'null_leak_R': 5.6030746264923437e-08, 'idempotence': 4.3012460082536563e-07, 'symmetry': 1.2457037712465535e-07, 'pythagoras': 1.5548488363492652e-07, 'null_share': 0.22731630504131317}\n"}
+,{"stream_name":"stdout","time":365.264237085,"data":"bicubic error {'basis_roundtrip': 5.83292376177269e-07, 'null_leak_D': 4.5615148991373644e-08, 'null_leak_R': 1.3875226301252042e-08, 'idempotence': 5.602722694675322e-07, 'symmetry': 1.5745890147300656e-09, 'pythagoras': 7.801257595474453e-08, 'null_share': 0.11826760321855545}\n"}
+,{"stream_name":"stdout","time":365.470194647,"data":"bicubic error {'basis_roundtrip': 5.83292376177269e-07, 'null_leak_D': 4.5615148991373644e-08, 'null_leak_R': 1.3875226301252042e-08, 'idempotence': 5.602722694675322e-07, 'symmetry': 1.5745890147300656e-09, 'pythagoras': 7.801257595474453e-08, 'null_share': 0.11826760321855545}\n"}
+,{"stream_name":"stdout","time":365.918500678,"data":"END cond-pavia-x4-ng rc 0\n"}
+,{"stream_name":"stderr","time":369.636451821,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":369.636619859,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":369.877313141,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":369.877366973,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":370.797747662,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":370.914827101,"data":"[NbConvertApp] Writing 114634 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":374.144189001,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":374.810279911,"data":"[NbConvertApp] Writing 396062 bytes to __results__.html\n"}
+]
