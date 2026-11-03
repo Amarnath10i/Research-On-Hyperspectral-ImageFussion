@@ -393,6 +393,21 @@ def kron_prox_learned(deg, x, yh, ym, a, b, gain_spatial, gain_spectral, code):
 
 
 @torch.no_grad()
+def shift_image(x: torch.Tensor, pr: float, pc: float, sharp: bool = False, pad: int = 16) -> torch.Tensor:
+    """x shifted by pr pixels along rows and pc along columns, out(u) = x(u + p): band-limited (Fourier shift of the
+    reflect-padded image, as a sensor sampling a shifted scene records it) or bilinear (which also blurs it)."""
+    n, b, h, w = x.shape
+    if sharp:
+        xp = F.pad(x, (pad, pad, pad, pad), mode="reflect")
+        fr = torch.fft.fftfreq(h + 2 * pad, device=x.device, dtype=x.dtype)[:, None]
+        fc = torch.fft.fftfreq(w + 2 * pad, device=x.device, dtype=x.dtype)[None, :]
+        out = torch.fft.ifft2(torch.fft.fft2(xp) * torch.exp(2j * torch.pi * (fr * pr + fc * pc))).real
+        return out[..., pad:pad + h, pad:pad + w]
+    theta = torch.tensor([[1.0, 0.0, 2 * pc / (w - 1)], [0.0, 1.0, 2 * pr / (h - 1)]], dtype=x.dtype, device=x.device)
+    grid = F.affine_grid(theta.expand(n, 2, 3), list(x.shape), align_corners=True)
+    return F.grid_sample(x, grid, mode="bilinear", padding_mode="reflection", align_corners=True)
+
+
 def null_split(deg, e):
     """Energy of an error image e (N, B, H, W) in the observed subspace row(D) + row(R) and in the fusion null space
     N(D) cap N(R) = range((I - P_spec) (x) (I - P_rows (x) P_cols)); returns two (N,) tensors."""

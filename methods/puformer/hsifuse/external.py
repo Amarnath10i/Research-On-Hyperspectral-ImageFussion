@@ -14,6 +14,8 @@ adapters import the network classes from there. Only the band counts and the sca
     u2net      U2Net (Peng et al., ACM MM 2023)         PSRben/U2Net             model/u2net.py U2Net
     mimosst    MIMO-SST (Fang et al., TGRS 2024)        Freelancefangjian/MIMO-SST  Model.py Net
     caformer   CaFormer (Cao et al., PR 2026)           Caoxuheng/HIFtool        Networks/CaFormer/net.py
+    m2dtn      M2DTN (Dong et al., AAAI 2024)           Jiahuiqu/M2DTN           model.py Backbone (x4 only;
+               deformable alignment of the HR-MSI to the LR-HSI, for unregistered pairs)
 
 Every adapter maps (Y_H, Y_M) -> X like PUFormer, and `forward(..., return_all=True)` returns [X] so the
 training loop is shared. Fusformer attends over all pixels (quadratic memory), so it is evaluated on
@@ -44,6 +46,7 @@ REPOS = {
     "u2net": ("https://github.com/PSRben/U2Net", "U2Net"),
     "mimosst": ("https://github.com/Freelancefangjian/MIMO-SST", "MIMO-SST"),
     "caformer": ("https://github.com/Caoxuheng/HIFtool", "HIFtool"),
+    "m2dtn": ("https://github.com/Jiahuiqu/M2DTN", "M2DTN"),
 }
 # pipeline settings of the published networks (all with an L1 loss): their published learning rate, no weight
 # decay, no clipping. PSRT's own code adds AdamW decay 1e-4 and clipping at 10, and MIMFormer's uses batch 16 and
@@ -60,6 +63,7 @@ RECIPES = {
     "u2net": dict(lr=1e-3, wd=0.0, clip=0.0),         # train.py: Adam 1e-3, step
     "mimosst": dict(lr=1e-4, wd=0.0, clip=0.0),       # train.py: Adam 1e-4; three outputs + FFT loss there
     "caformer": dict(lr=1e-4, wd=0.0, clip=0.0),      # Network_training_RS.py: Adam 1e-4
+    "m2dtn": dict(lr=1e-3, wd=0.0, clip=0.0),         # main.py: Adam 1e-3, step decay
 }
 
 
@@ -233,6 +237,18 @@ def _build_external(name: str, bands: int, msi: int, scale: int) -> nn.Module:
         # operators (3x3 convolutions) and interpolation for the spatial ones; 3 stages as HIFTool's CaFormer_3
         m = _load(os.path.join(root, "Networks", "CaFormer", "net.py"), "caformer_net")
         net = m.CaFormer(sf=scale, in_c=bands, out_c=msi, n_feat=64, nums_stages=2, n_depth=3)
+        return External(net, lambda n, yh, ym: n(yh, ym), scale)
+    if name == "m2dtn":
+        # registration-aware fusion: deformable alignment of HR-MSI features to LR-HSI features at four scales; the
+        # two down / up stages fix x4. Its spatial transformer defaults to device 'cuda:0'.
+        if scale != 4:
+            raise ValueError("M2DTN's code is written for x4 only")
+        m = _load_src(os.path.join(root, "model.py"), "m2dtn_model", 'if __name__ == "__main__":')
+        net = m.Backbone(chanHS=bands, chanMS=msi)
+        dev = "cuda:0" if torch.cuda.is_available() else "cpu"
+        for mod in net.modules():
+            if isinstance(getattr(mod, "device", None), str):
+                mod.device = dev
         return External(net, lambda n, yh, ym: n(yh, ym), scale)
     if name == "mimosst":
         # Model.py imports a PixelUnshuffle module that is not in the repository; torch has the same function

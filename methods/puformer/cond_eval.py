@@ -232,6 +232,26 @@ def change_auroc(model, lr, ms, degs, masks):
 
 
 @torch.no_grad()
+def residual_auroc(lr, ms, degs, masks, scale):
+    """Model-free change detector: per low-resolution pixel the energy of D Y_M - R Y_H over the bands (estimated
+    operator, Theorem ident.(a)), normalized by its median per image; scored as is against the LR-HSI mask and
+    upsampled (nearest) against the HR-MSI mask."""
+    from sklearn.metrics import roc_auc_score
+    maps = []
+    for i in range(lr.shape[0]):
+        d = degs[i]
+        e = (d.D(ms[i:i + 1], pad_mode="reflect") - d.R(lr[i:i + 1])).pow(2).mean(1, keepdim=True)
+        maps.append(e / (e.median() + 1e-12))
+    e = torch.cat(maps)
+    out = {}
+    for key, sc, m in (("hsi", e, masks[0]), ("msi", torch.nn.functional.interpolate(e, scale_factor=scale), masks[1])):
+        y = m.flatten().cpu().numpy()
+        if 0 < y.mean() < 1:
+            out[key] = float(roc_auc_score(y, sc.flatten().cpu().numpy()))
+    return out
+
+
+@torch.no_grad()
 def run(model, lr, ms, degs=None):
     out = []
     for i in range(lr.shape[0]):
@@ -347,6 +367,8 @@ def evaluate_condition(idx, cond, a, gt, gtb, base, model, swappable, s0, sig_gr
         g = torch.Generator().manual_seed(1000 + idx)
         lr, ms = add_noise(lr, snr, g), add_noise(ms, snr, g)
     sig, sh = estimate(lr, ms, a, sig_grid, shift_grid, dev)
+    resid = (residual_auroc(lr, ms, [deg_at(a, float(sg), float(d)).to(dev) for sg, d in zip(sig, sh)], masks,
+                           a.scale) if masks is not None else None)
     ext = estimate_ext(lr, ms, a, sig_grid, shift_grid, sig, sh, dev) if swappable or msi_px else None
     gauss = kernel is None or kernel[0] == "corrupt"
     row = dict(sigma=f * s0 if gauss else None, shift_nm=shift, snr_db=snr, kernel=kernel, msi_px=msi_px,
@@ -398,6 +420,8 @@ def evaluate_condition(idx, cond, a, gt, gtb, base, model, swappable, s0, sig_gr
         if swappable:          # the offsets of the operator it fused with
             row["reg_out"] = score(gtb, register(run(model, lr, ms, [deg_of(a, t, dev) for t in ext]), ext))
             model.deg = base
+    if resid:
+        row["residual_auroc"] = resid
     res["conditions"][name] = row
     err = f"sigma_err {row['sigma_abs_err']:.3f}" if gauss else f"sigma_hat {np.mean(sig):.2f}"
     print(name, err, f"shift_err {row['shift_abs_err']:.2f}",

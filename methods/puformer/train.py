@@ -37,7 +37,7 @@ import torch.nn.functional as F
 from hsifuse import metrics
 from hsifuse.baselines import gsa
 from hsifuse.config import DATASETS, MODELS, add_ablation_args, blur_of, build_model, make_deg, set_metric_scale
-from hsifuse.ops import corrupt, dataset_wl, null_gate, random_srf
+from hsifuse.ops import corrupt, dataset_wl, null_gate, random_srf, shift_image
 from hsifuse.data import PatchSampler, load_dataset, make_pairs, split_pavia
 from hsifuse.evaluation import final_test, predict
 from hsifuse.losses import sam_loss, ssim_loss
@@ -116,6 +116,7 @@ def get_args():
                    "its own blur, blur_of); for scale-independent PUFormer")
     p.add_argument("--w_unc", type=float, default=0.01, help="weight of the Gaussian negative log-likelihood of the "
                    "null-space error for --unc models (the head sees detached features and errors)")
+    p.add_argument("--rand_msi_shift", type=float, default=0.0, help="HR-MSI misregistered against the LR-HSI and the reference in 3 of 4 batches, by a uniform shift in [-x, x] px per axis (half bilinear, half band-limited); trains registration-aware networks")
     p.add_argument("--rand_corrupt", type=float, default=0.0, help="probability per batch of corrupted observations: "
                    "local changes in the HR-MSI (patches from another scene) and dead or miscalibrated LR-HSI columns; "
                    "the reference stays clean (for --cwd models)")
@@ -369,6 +370,9 @@ def main():
                 model.deg = d_b
         else:
             lr_, ms_, gt_ = sampler(a.bs)
+        if a.rand_msi_shift and np.random.rand() < 0.75:
+            pr, pc = (float(v) for v in np.random.uniform(-a.rand_msi_shift, a.rand_msi_shift, 2))
+            ms_ = shift_image(ms_, pr, pc, sharp=bool(np.random.rand() < 0.5))
         if a.rand_corrupt and np.random.rand() < a.rand_corrupt:
             lr_, ms_ = corrupt(lr_, ms_, np.random)
         if a.rand_snr and np.random.rand() < a.noise_prob:

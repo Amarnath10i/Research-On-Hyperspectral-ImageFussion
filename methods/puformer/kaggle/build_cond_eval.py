@@ -42,7 +42,7 @@ for name, rargs, ds in JOBS:
     if not ck:
         print('no checkpoint for', name, flush=True); continue
     cache = f'--cache {{CACHE[ds]}}' if ds in CACHE else ''
-    out = f'{{OUT}}/{{name}}'
+    out = f'{{OUT}}/{{name}}{suffix}'
     extra = f'--train_dir {{os.path.dirname(ck)}}' if '{script}' == 'test.py' else ''
     cmd = f"python {script} --mat {{shlex.quote(DATA[ds])}} {{cache}} {{rargs}} --ckpt {{ck}} --out {{out}} {{extra}}"
     print('RUN', name, ':', cmd, flush=True)
@@ -61,6 +61,7 @@ def main():
                     help="test.py: score a checkpoint again (e.g. with new inference settings), with the training "
                     "summary from its history.json")
     ap.add_argument("--gpu", action="store_true")
+    ap.add_argument("--neon_site", default="", help="NEON jobs: test on another site (e.g. sjer, from puf-neon-fit-sjer); results go to <job>-<site>")
     ap.add_argument("--eval_args", default="", help="extra arguments of the evaluation script for every job, e.g. "
                     "'--only offset' (only the conditions whose names contain 'offset')")
     a = ap.parse_args()
@@ -73,12 +74,15 @@ def main():
     b64, sha = code_blob()
     out = os.path.join(HERE, "condeval", a.slug)
     os.makedirs(out, exist_ok=True)
-    cell = CELL.format(b64=b64, sha=sha, rev=git_rev(), jobs=repr(jobs), script=a.script)
+    cell = CELL.format(b64=b64, sha=sha, rev=git_rev(), jobs=repr(jobs), script=a.script,
+                       suffix=f"-{a.neon_site}" if a.neon_site else "")
     with open(os.path.join(out, f"{a.slug}.ipynb"), "w", newline="\n") as f:
         json.dump(notebook([cell]), f, indent=1)
     used = sorted({d for _, _, d in jobs})
     srcs = [f"{a.user}/{s}" for s in a.sources.split(",")]
-    if "neon" in used:
+    if "neon" in used and a.neon_site:
+        srcs += [f"{a.user}/puf-neon-fit-{a.neon_site}"]     # that site's tiles, response and split only
+    elif "neon" in used:
         srcs += [f"{a.user}/puf-neon-data", f"{a.user}/puf-neon-fit"]
     meta = dict(id=f"{a.user}/{a.slug}", title=a.slug, code_file=f"{a.slug}.ipynb", language="python",
                 kernel_type="notebook", is_private=True, enable_gpu=a.gpu, enable_internet=True,

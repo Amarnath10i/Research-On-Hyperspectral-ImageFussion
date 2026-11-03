@@ -6,7 +6,7 @@ from .ops import Degradation, LearnedDegradation, dataset_srf, dataset_wl, senso
 
 DATASETS = ["chikusei", "pavia", "cave", "harvard", "neon"]
 MODELS = ["puformer", "ssrnet", "psrt", "dct", "mimformer", "fusformer", "dhif", "smgu", "clsnet", "otpnet", "u2net", "mimosst",
-          "caformer"]
+          "caformer", "m2dtn"]
 
 
 def add_ablation_args(p):

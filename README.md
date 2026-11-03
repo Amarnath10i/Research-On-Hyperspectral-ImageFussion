@@ -115,6 +115,17 @@ Outside the family the method fails like the others: a half-pixel misregistratio
 method more than 15 dB. Registering the HR-MSI with the offset estimated from the pair before fusion recovers part
 of the loss (Pavia Centre, 1 px: 27.0 → 43.9 dB; GSA with the same registration 34.3 dB). With an anisotropic blur and 35 dB noise added, ExactFuse trained over the wider family (noise, anisotropic blur, grid offsets) reaches 45.72 dB on Chikusei against 45.49 dB for MIMFormer.
 
+**Blur of any shape.** The identifiability relation D·Y_M = R·Y_H is linear in the blur kernel, so a kernel of any
+shape (rotated anisotropic, defocus) is estimated by least squares in 5 ms. With it ExactFuse reaches 57.60 / 50.30 dB
+under blurs outside its training family (Chikusei / Pavia Centre), the same as with the true kernel (57.59 / 50.33)
+and ahead of MIMFormer trained on the same randomized data (56.43 / 49.32); at 30 dB SNR it costs 0.10–0.16 dB
+against the isotropic estimate.
+
+**Misregistration.** With a sharp half-pixel shift of the HR-MSI (as a sensor records it), registering the HR-MSI
+with the offset estimated from the pair brings ExactFuse to 54.56 dB on Chikusei (MIMFormer 54.05, GSA 43.06); with
+35 dB noise added, ExactFuse trained with noise and grid offsets reaches 51.57 dB (MIMFormer, trained without noise,
+49.98).
+
 **One network for any sensor.** ExactFuse trained only on random multispectral responses (3–10 bands of random
 position and width) and tested on seven real sensors it never saw is 9.9–13.5 dB (Chikusei) and 10.5–15.6 dB
 (Pavia Centre) above GSA and 3.2–11.3 dB (Chikusei) and 3.6–7.2 dB (Pavia Centre) above MIMFormer trained on the
@@ -142,6 +153,13 @@ the eight metrics and 10th on Q2n; in a single pass it reaches 58.18 dB, above t
 from other implementations of the protocol, and our retrained baselines exceed their reported values by up to
 3.6 dB. SSIM here is PSRT's definition (data range 1); the Q2n deficit comes from the ultraviolet bands 0–7, which
 the WorldView-2 MSI does not cover.
+
+## Statistics
+
+The 95% paired bootstrap interval of ExactFuse's per-image gain over the strongest retrained
+network excludes zero in every setting (smallest: Harvard ×4, 0.21 dB [0.11, 0.33]; pooled over 76 images: 1.09 dB
+[0.88, 1.31]). ExactFuse has the lower SAM and ERGAS on every test image of every setting and the higher PSNR on 75
+of 76. The four strongest baselines gain at most 0.11 dB in the last quarter of their 4 h budget.
 
 ## Theory
 
