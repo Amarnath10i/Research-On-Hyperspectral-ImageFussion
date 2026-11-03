@@ -57,7 +57,7 @@
 \draw[->] (ds.east) -- node[above, lab]{$\Z_k$} (4.25,-1.6) -- (ad.west);
 \draw[->] (ad) -- (xout);
 % the prior: a three-level U-Net of transformer blocks
-\draw[zoom, draw=orange!70!black] (3.25,-2.05) rectangle (10.8,-5.05);
+\draw[zoom, draw=orange!70!black] (3.25,-2.09) rectangle (10.8,-5.05);
 \node[lab, anchor=south east] at (10.7,-5.0) {\textbf{prior} $\mathcal{P}_k$};
 \node[ubx, minimum width=15mm] (ic) at (4.25,-2.45) {conv $3{\times}3$};
 \node[ub, minimum width=17mm] (e1) at (4.25,-3.3) {2 blocks, 48};
@@ -74,7 +74,7 @@
 \draw[->] (m.east) -| (d2.south);
 \draw[->] (d2.east) -| (d1.south);
 \draw[->] (d1) -- (oc);
-\draw[->] (oc) -- node[right, lab]{$\Delta_k$} (ad);
+\draw[->] (oc) -- node[right, lab, pos=0.8]{$\Delta_k$} (ad);
 \draw[->, black!50] (e1) -- node[above, lab]{skip} (d1);
 \draw[->, black!50] (e2) -- (d2);
 \draw[->, dashed, orange!70!black] (2.3,-3.3) node[left, lab]{memory $\mathbf{F}_{k-1}$} -- (e1.west);
@@ -87,17 +87,17 @@
 % ---------------------------------------------------------------- (c) one transformer block
 \draw[zoom] (12.1,-0.95) rectangle (16.6,-5.2);
 \node[lab, anchor=north] at (14.35,-1.0) {(c) one transformer block};
-\node[tb] (att) at (14.35,-2.05) {LN, transposed attention\\$\mathbf{A}=\mathrm{softmax}(\tau\hat{\mathbf{Q}}\hat{\mathbf{K}}^{\top})$, $C'{\times}C'$};
-\node[op] (r1) at (14.35,-2.9) {$+$};
-\node[tb] (ffn) at (14.35,-3.75) {LN, gated feed-forward\\GELU gate, depth-wise conv};
+\node[tb] (att) at (14.35,-2.17) {LN, transposed attention\\$\mathbf{A}=\mathrm{softmax}(\tau\hat{\mathbf{Q}}\hat{\mathbf{K}}^{\top})$, $C'{\times}C'$};
+\node[op] (r1) at (14.35,-2.97) {$+$};
+\node[tb] (ffn) at (14.35,-3.8) {LN, gated feed-forward\\GELU gate, depth-wise conv};
 \node[op] (r2) at (14.35,-4.6) {$+$};
-\draw[->] (14.35,-1.32) -- (att);
+\draw[->] (14.35,-1.47) -- (att);
 \draw[->] (att) -- (r1);
 \draw[->] (r1) -- (ffn);
 \draw[->] (ffn) -- (r2);
 \draw[->] (r2) -- (14.35,-5.1);
-\draw[->] (14.35,-1.45) -- (12.3,-1.45) |- (r1.west);
-\draw[->] (14.35,-3.15) -- (16.4,-3.15) |- (r2.east);
+\draw[->] (14.35,-1.58) -- (12.3,-1.58) |- (r1.west);
+\draw[->] (14.35,-3.2) -- (16.4,-3.2) |- (r2.east);
 \end{tikzpicture}}
 \caption{ExactFuse. (a)~The HQS iteration of Section~\ref{sec:hqs} unrolled for three stages. Once per image, the operator parameters and noise levels are given or estimated from the observation pair (Theorem~\ref{thm:ident}) and the exact operators and their eigenbasis are built (Theorem~\ref{thm:kron}); every stage passes its decoder features to the next (memory). (b)~Inside a stage, the data step (Fig.~\ref{fig:dstep}) makes the estimate agree with both observations, and the prior adds a residual~$\Delta_k$. The prior is a three-level U-Net (transformer blocks and channels per level; strided convolutions halve the resolution, transposed convolutions double it); all its inputs lie in the hyperspectral bands, and its last convolution starts at zero. (c)~Every block is a Restormer block~\cite{zamir2022restormer}: layer normalization (LN), transposed attention between the $C'$ channels of each head, whose cost is linear in the number of pixels, and a gated feed-forward network, each in a residual branch. The supplementary material lists every layer.}
 \label{fig:arch}
