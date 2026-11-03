@@ -1,5 +1,7 @@
 # Research on Hyperspectral Image Fusion
 
+Hruthwik, Amarnath M and Navadeep, mentored by Srilatha Chirbolu.
+
 Deep learning and theory for **hyperspectral–multispectral image fusion (HSI–MSI fusion)**: from a
 low-resolution hyperspectral image (LR-HSI) and a high-resolution multispectral image (HR-MSI),
 reconstruct a high-resolution hyperspectral image (HR-HSI).
@@ -319,7 +321,7 @@ the repository (see `.gitignore`).
 ```bibtex
 @misc{amarnath2026hsifusion,
   title  = {Research on Hyperspectral Image Fusion: Physics-Unfolded Fusion and Identifiability Theory},
-  author = {Amarnath M},
+  author = {Hruthwik and Amarnath M and Navadeep and Srilatha Chirbolu},
   year   = {2026},
   url    = {https://github.com/Amarnath10i/Research-On-Hyperspectral-ImageFussion}
 }

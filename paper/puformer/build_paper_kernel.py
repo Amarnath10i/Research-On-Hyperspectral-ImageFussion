@@ -21,7 +21,7 @@ import tarfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
 PAPER = ["paper/puformer/" + f for f in ("main.tex", "supplementary.tex", "preamble.tex", "references.bib", "fig_arch.tex",
-                                          "fig_style.tex", "fig_overview.tex", "fig_dstep.tex", "fig_prior.tex",
+                                          "fig_style.tex", "fig_overview.tex", "fig_overview_cvpr.tex", "fig_dstep.tex", "fig_prior.tex",
                                           "fig_block.tex", "fig_mdta.tex", "cvpr_main.tex", "cvpr_supp.tex", "cvpr_refs.py", "cvpr_preamble.tex",
                                           "cvpr.sty", "ieeenat_fullname.bst",
                                           "numbers.tex", "make_numbers.py",

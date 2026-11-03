@@ -13,7 +13,7 @@
 
 \title{ExactFuse: Closed-Form Unfolding with Exact Operators for Sensor-Independent Hyperspectral and Multispectral Image Fusion}
 
-\author{Anonymous CVPR submission}
+\author{\cvprauthors}   % hidden in review mode
 
 \begin{document}
 \maketitle
@@ -131,7 +131,7 @@ Unlike uniqueness on a finite grid, (b) is exact for continuous families, and (c
 \section{ExactFuse}
 \label{sec:method}
 \input{fig_style}
-\input{fig_overview}
+\input{fig_overview_cvpr}
 \input{fig_dstep}
 
 \paragraph{Stages.} ExactFuse (\cref{fig:arch}) unrolls HQS for $K=3$ stages from the bicubic upsampling $\X_0$ of $\YH$. Stage $k$ first takes a data step with the exact operators: the learned spectral step~\eqref{eq:klstep} below, or, for non-separable operators and in the base model of \cref{sec:ablation}, the linearized step
@@ -159,7 +159,7 @@ For any $u_k,v_k$: (a) with exact operators and noise-free data, $\X^*$ is a fix
 \end{proposition}
 The gain lies in $(\tfrac12,2)$ times the exact one, which keeps every factor of the step in $(-1,1]$ (\supp). The learned step can thus change how much the network trusts each observed component, but it cannot move a correct estimate or amplify errors.
 
-\paragraph{Prior.} Each prior is a three-level U-Net~\cite{ronneberger2015unet} (widths 48, 96, 192) of Restormer blocks~\cite{zamir2022restormer}, whose transposed attention forms a channel-by-channel attention map with a cost linear in the number of pixels. ExactFuse holds \qone{puformer-params}~M parameters for Chikusei, almost all in the three priors. Their design is not our contribution, and \cref{sec:ablation} shows that a convolutional mixer works about as well.
+\paragraph{Prior.} Each prior is a three-level U-Net~\cite{ronneberger2015unet} of Restormer blocks~\cite{zamir2022restormer} (\cref{fig:arch}b,c), whose transposed attention forms a channel-by-channel attention map with a cost linear in the number of pixels. ExactFuse holds \qone{puformer-params}~M parameters for Chikusei, almost all in the three priors. Their design is not our contribution, and \cref{sec:ablation} shows that a convolutional mixer works about as well.
 
 \paragraph{Training over a family of observation models.} A network trained with one operator pair on noise-free data adapts its priors to that blur, that response and no noise. Since the operators enter ExactFuse only through its data steps, we can instead draw for every batch a blur width $\sigma\sim\mathcal{U}[0.5,2]\sigma_0$, a spectral shift $\delta\sim\mathcal{U}[-12,12]$~nm and, with probability 0.5, noise at an SNR from $\mathcal{U}[30,50]$~dB, simulate the batch with $(\D_\sigma,\R_\delta)$, and use the same operators in the data steps. At test time the operators are given or estimated with~\eqref{eq:J}. As HQS suggests, we also condition on the noise: a code $\mathbf{c}=(\sigma/\sigma_0-1,\delta/12,\log_{10}n_{\mathrm{H}}+2,\log_{10}n_{\mathrm{M}}+2)$, with the relative noise levels $n$ estimated from each observation by the median absolute deviation of its second differences, sets the step sizes $\alpha_k=\mathrm{softplus}(a_k+\mathbf{u}_k^{\top}\mathbf{c})$, $\beta_k=\mathrm{softplus}(b_k+\mathbf{v}_k^{\top}\mathbf{c})$ and modulates the prior features (FiLM~\cite{perez2018film}), similar to the hyper-parameter module of USRNet~\cite{zhang2020usrnet}.
 

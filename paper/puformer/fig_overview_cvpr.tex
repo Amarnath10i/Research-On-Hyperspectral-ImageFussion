@@ -1,0 +1,104 @@
+%------------------------------------------------------------------------------------------------ 1. overview (CVPR)
+% The CVPR version of fig_overview.tex: the same overview, with the prior and its transformer block drawn inside
+% (the journal version gives them figures of their own, fig_prior, fig_block and fig_mdta)
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[font=\small,
+  ub/.style={blk, font=\footnotesize, minimum height=5.5mm, inner sep=2pt},
+  ubx/.style={bx, font=\footnotesize, minimum height=5.5mm, inner sep=2pt},
+  tb/.style={blk, font=\footnotesize, minimum width=35mm, inner sep=2pt}]
+% ---------------------------------------------------------------- (a) the unrolled iteration
+\node[lab, anchor=north west] at (-1.3,4.45) {(a)};
+\pic at (-0.55,3.2) {cube=0.42/0.42/0.75/blue};
+\node[lab, align=center] at (-0.1,2.8) {$\YH$: LR-HSI\\$B\times h\times w$};
+\pic at (-0.6,1.25) {cube=0.95/0.95/0.12/teal};
+\node[lab, align=center] at (-0.05,0.9) {$\YM$: HR-MSI\\$M\times H\times W$};
+% set-up, once per image
+\draw[zoom] (1.15,2.45) rectangle (16.6,4.45);
+\node[lab, anchor=north west] at (1.25,4.42) {set up once per image};
+\node[est, font=\footnotesize, minimum width=53mm] (a) at (4.05,3.35) {\textcircled{\scriptsize 1} estimate blur widths, grid offsets $\theta$,\\response shift $\phi$ (Thm.~\ref{thm:ident}), noise levels};
+\node[est, font=\footnotesize, minimum width=38mm] (b) at (9.3,3.35) {\textcircled{\scriptsize 2} exact operators $\D,\R$ and\\their eigenbasis (Thm.~\ref{thm:kron})};
+\node[est, font=\footnotesize, minimum width=30mm] (c) at (14.0,3.35) {\textcircled{\scriptsize 3} observation code $\mathbf{c}$\\(blur, shift, noise)};
+\draw[->] (0.62,3.55) -- ([yshift=2mm]a.west);
+\draw[->] (0.47,1.75) -- (0.95,1.75) |- ([yshift=-2mm]a.west);
+\draw[->] (a) -- (b);
+\draw[->] ([xshift=15mm]a.north) |- (14.0,4.12) -- (c.north);
+% shared bus
+\draw[black!55] (b.south) -- (9.3,1.85);
+\draw[black!55] (c.south) -- (14.0,1.85) -- (4.7,1.85);
+\node[lab, anchor=south] at (6.2,1.87) {shared by every stage: $\YH$, $\YM$, $\D,\R$, $\mathbf{c}$};
+% stages
+\node[io] (bic) at (2.0,0.35) {bicubic $\times s$};
+\draw[->] (-0.55,3.45) -- (-1.15,3.45) |- (bic.west);
+\foreach \i/\x in {1/4.7, 2/8.1, 3/11.5} {
+  \node[bx, minimum width=24mm, minimum height=10mm, fill=black!2, draw=black!60] (s\i) at (\x,0.35) {stage \i\\{\footnotesize data step + prior}};
+  \draw[->, black!55] (\x,1.85) -- (s\i.north);
+}
+\pic at (13.35,-0.1) {cube=0.8/0.8/0.6/blue};
+\node[lab, align=left, anchor=west] at (14.85,0.4) {$\hat{\X}$: HR-HSI\\$B\times H\times W$};
+\draw[->] (bic) -- node[above, lab]{$\X_0$} (s1);
+\draw[->] (s1) -- node[above, lab]{$\X_1$} (s2);
+\draw[->] (s2) -- node[above, lab]{$\X_2$} (s3);
+\draw[->] (s3) -- (13.3,0.35);
+\draw[->, dashed, orange!70!black] (s1.south) to[bend right=20] node[below, lab]{memory} (s2.south);
+\draw[->, dashed, orange!70!black] (s2.south) to[bend right=20] node[below, lab]{memory} (s3.south);
+% ---------------------------------------------------------------- (b) inside stage k
+\draw[zoom] (-1.3,-0.95) rectangle (11.9,-5.2);
+\draw[black!35, dashed] (s2.south west) -- (-1.3,-0.95);
+\draw[black!35, dashed] (s2.south east) -- (11.9,-0.95);
+\node[tns] (xin) at (-0.7,-1.6) {$\X_{k-1}$};
+\node[phys, minimum width=29mm] (ds) at (1.7,-1.6) {\textbf{data step}\\{\footnotesize closed form (Fig.~\ref{fig:dstep})}};
+\node[lab, anchor=north] (dsin) at (1.7,-2.45) {$\YH$, $\YM$, $\D$, $\R$, $\mathbf{c}$};
+\draw[->, black!55] (dsin.north) -- (ds.south);
+\node[op] (ad) at (9.75,-1.6) {$+$};
+\node[tns] (xout) at (11.0,-1.6) {$\X_k$};
+\draw[->] (xin) -- (ds);
+\draw[->] (ds.east) -- node[above, lab]{$\Z_k$} (4.25,-1.6) -- (ad.west);
+\draw[->] (ad) -- (xout);
+% the prior: a three-level U-Net of transformer blocks
+\draw[zoom, draw=orange!70!black] (3.25,-2.05) rectangle (10.8,-5.05);
+\node[lab, anchor=south east] at (10.7,-5.0) {\textbf{prior} $\mathcal{P}_k$};
+\node[ubx, minimum width=15mm] (ic) at (4.25,-2.45) {conv $3{\times}3$};
+\node[ub, minimum width=17mm] (e1) at (4.25,-3.3) {2 blocks, 48};
+\node[ub, minimum width=17mm] (e2) at (5.6,-3.95) {3 blocks, 96};
+\node[ub, minimum width=19mm] (m) at (7.0,-4.6) {4 blocks, 192};
+\node[ub, minimum width=17mm] (d2) at (8.4,-3.95) {3 blocks, 96};
+\node[ub, minimum width=17mm] (d1) at (9.75,-3.3) {4 blocks, 48};
+\node[ubx, minimum width=15mm] (oc) at (9.75,-2.45) {conv $3{\times}3$};
+\draw[->] (4.25,-1.6) -- (ic);
+\node[lab, anchor=west] at (4.35,-1.83) {$\R^{+}\YM$, both residuals};
+\draw[->] (ic) -- (e1);
+\draw[->] (e1.south) |- (e2.west);
+\draw[->] (e2.south) |- (m.west);
+\draw[->] (m.east) -| (d2.south);
+\draw[->] (d2.east) -| (d1.south);
+\draw[->] (d1) -- (oc);
+\draw[->] (oc) -- node[right, lab]{$\Delta_k$} (ad);
+\draw[->, black!50] (e1) -- node[above, lab]{skip} (d1);
+\draw[->, black!50] (e2) -- (d2);
+\draw[->, dashed, orange!70!black] (2.3,-3.3) node[left, lab]{memory $\mathbf{F}_{k-1}$} -- (e1.west);
+\draw[->, dashed, orange!70!black] (d1.east) -- (11.6,-3.3) node[below, lab]{$\mathbf{F}_k$};
+\node[film] at (e1.north east) {};
+\node[film] at (m.north west) {};
+\node[film] at (d1.north east) {};
+\node[lab, anchor=south west] at (-1.2,-4.75) {{\color{violet!75!black}$\bullet$} FiLM: features modulated by $\mathbf{c}$};
+\node[lab, anchor=south west] at (-1.2,-5.15) {(b) inside stage $k$};
+% ---------------------------------------------------------------- (c) one transformer block
+\draw[zoom] (12.1,-0.95) rectangle (16.6,-5.2);
+\node[lab, anchor=north] at (14.35,-1.0) {(c) one transformer block};
+\node[tb] (att) at (14.35,-2.05) {LN, transposed attention\\$\mathbf{A}=\mathrm{softmax}(\tau\hat{\mathbf{Q}}\hat{\mathbf{K}}^{\top})$, $C'{\times}C'$};
+\node[op] (r1) at (14.35,-2.9) {$+$};
+\node[tb] (ffn) at (14.35,-3.75) {LN, gated feed-forward\\GELU gate, depth-wise conv};
+\node[op] (r2) at (14.35,-4.6) {$+$};
+\draw[->] (14.35,-1.32) -- (att);
+\draw[->] (att) -- (r1);
+\draw[->] (r1) -- (ffn);
+\draw[->] (ffn) -- (r2);
+\draw[->] (r2) -- (14.35,-5.1);
+\draw[->] (14.35,-1.45) -- (12.3,-1.45) |- (r1.west);
+\draw[->] (14.35,-3.15) -- (16.4,-3.15) |- (r2.east);
+\end{tikzpicture}}
+\caption{ExactFuse. (a)~The HQS iteration of Section~\ref{sec:hqs} unrolled for three stages. Once per image, the operator parameters and noise levels are given or estimated from the observation pair (Theorem~\ref{thm:ident}) and the exact operators and their eigenbasis are built (Theorem~\ref{thm:kron}); every stage passes its decoder features to the next (memory). (b)~Inside a stage, the data step (Fig.~\ref{fig:dstep}) makes the estimate agree with both observations, and the prior adds a residual~$\Delta_k$. The prior is a three-level U-Net (transformer blocks and channels per level; strided convolutions halve the resolution, transposed convolutions double it); all its inputs lie in the hyperspectral bands, and its last convolution starts at zero. (c)~Every block is a Restormer block~\cite{zamir2022restormer}: layer normalization (LN), transposed attention between the $C'$ channels of each head, whose cost is linear in the number of pixels, and a gated feed-forward network, each in a residual branch. The supplementary material lists every layer.}
+\label{fig:arch}
+\end{figure*}

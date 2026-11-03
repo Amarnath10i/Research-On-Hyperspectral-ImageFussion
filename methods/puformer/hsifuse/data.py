@@ -187,6 +187,8 @@ def load_neon(root: str | None = None):
     for name in fit["test"]:
         c = tile(name)
         test += [c[:, r:r + 256, q:q + 256] for r in (244, 500) for q in (244, 500)]
+    if not val:                              # a test-only site (no training tiles): validation is not used
+        val = test[:1]
     return train, np.stack(test), np.stack(val), fit["norm"] * 1e4
 
 
