@@ -260,6 +260,8 @@ def all_jobs():
         # registration-aware baseline: trained normally (benchmark) and on misregistered HR-MSIs (registration)
         jobs[f"bench-{d}-x4-m2dtn"] = job(f"bench-{d}-x4-m2dtn", d, 4, "m2dtn")
         jobs[f"reg-{d}-x4-m2dtn"] = job(f"reg-{d}-x4-m2dtn", d, 4, "m2dtn", "--rand_msi_shift 1.0")
+        # ... and with the reference shifted with the HR-MSI, the frame M2DTN reconstructs in (it warps the LR-HSI)
+        jobs[f"regf-{d}-x4-m2dtn"] = job(f"regf-{d}-x4-m2dtn", d, 4, "m2dtn", "--rand_msi_shift 1.0 --msi_shift_target 1")
     return jobs
 
 
@@ -439,6 +441,7 @@ SESSIONS = {
     "puf-b16": (["bench-cave-x4-caformer"], ["bench-harvard-x4-caformer"]),
     "puf-m2a": (["bench-chikusei-x4-m2dtn"], ["bench-pavia-x4-m2dtn"]),
     "puf-m2b": (["reg-chikusei-x4-m2dtn"], ["reg-pavia-x4-m2dtn"]),
+    "puf-m2c": (["regf-chikusei-x4-m2dtn"], ["regf-pavia-x4-m2dtn"]),
 }
 # the adopted model in the robustness, recipe and uncertainty experiments
 for _i, _j in enumerate(("cond-{d}-x4-ng", "cond-{d}-x4-regng", "sa-{d}-x4-ng", "cond-{d}-x4-cwdng", "cond-{d}-x4-corng",

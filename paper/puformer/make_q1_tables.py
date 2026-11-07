@@ -33,7 +33,7 @@ CORE = ("ssrnet", "psrt", "dct", "mimformer", "dhif")           # retrained on e
 # further published networks, retrained at x4 only (CVPR version; table rows appear once their runs exist)
 NEW = [("u2net", "U2Net", "peng2023u2net"), ("mimosst", "MIMO-SST", "fang2024mimosst"),
        ("otpnet", "OTPNet", "yu2025otpnet"), ("smgu", "SMGU-Net", "yan2025smgu"), ("clsnet", "CLSNet", "yang2026clsnet"),
-       ("caformer", "CaFormer", "cao2026caformer")]
+       ("caformer", "CaFormer", "cao2026caformer"), ("m2dtn", "M2DTN", "dong2024m2dtn")]
 BASELINES = CORE + tuple(m for m, _, _ in NEW)                    # the retrained published networks
 ALL = METHODS[:-1] + NEW + METHODS[-1:]                          # ExactFuse last
 # (key, label, decimals, higher is better)
@@ -101,7 +101,7 @@ def load(job, name="results.json"):
             r["methods"].pop("puformer", None)
             if new and "puformer" in new.get("methods", {}):
                 r["methods"]["puformer"] = new["methods"]["puformer"]
-            for extra in ("-nb", "-nb2"):          # the networks added later (null-*-x4-nb*, run from their sessions)
+            for extra in ("-nb", "-nb2", "-nb3"):        # the networks added later (null-*-x4-nb*, run from their sessions)
                 more = _read(job + extra, name)
                 for m, v in (more or {}).get("methods", {}).items():
                     if m not in ("bicubic", "gsa", "puformer"):
@@ -1288,6 +1288,11 @@ def cvpr_ablation():
                 bodies[which].append("\\midrule")
             seps[which] = False
             bodies[which].append(f"{lab} & " + " & ".join(cells) + " \\\\")
+    # largest PSNR change of the small ExactFuse ablations (gains, residual input, back-projection, gradient step)
+    small = [abs(float(NUM[f"{k}-ng-{v}-vspf"])) for k in ("kcab", "cab") for v in ("kron", "grad", "nomres", "nosa")
+             if f"{k}-ng-{v}-vspf" in NUM]
+    if small:
+        NUM["ab-small-max"] = f"{max(small):.2f}"
     head = ["\\setlength{\\tabcolsep}{2.5pt}", "\\resizebox{\\columnwidth}{!}{%", "\\begin{tabular}{@{}lcccccc@{}}",
             "\\toprule", " & \\multicolumn{3}{c}{Chikusei} & \\multicolumn{3}{c}{Pavia Centre} \\\\",
             "\\cmidrule(lr){2-4}\\cmidrule(l){5-7}", "Variant & PSNR & Cons. & Swap & PSNR & Cons. & Swap \\\\", "\\midrule"]
@@ -1341,9 +1346,12 @@ def cvpr_cond():
     # HR-MSI registered by the estimated offset before fusion (reg_msi; GSA: gsa_reg), and ExactFuse's result
     # registered after fusing with that offset in its operator (reg_out)
     for d in sets:
-        for m in ("puformer", "mimformer", "regng"):        # regng: ExactFuse trained over the wider family
-            e = load(f"cond-{d}-x4-regng" if m == "regng" else f"bench-{d}-x4-{m}", "cond_eval.json")
-            for mode in ("fixed", "estimated", "reg_msi", "reg_out", "gsa_reg", "gsa_oracle"):
+        src = {"regng": "cond-{d}-x4-regng", "m2dtn": "reg-{d}-x4-m2dtn", "m2dtnf": "regf-{d}-x4-m2dtn"}
+        for m in ("puformer", "mimformer", "regng", "m2dtn", "m2dtnf"):   # regng: ExactFuse, wider family;
+            # M2DTN trained on HR-MSIs shifted by up to 1 px with the reference on the LR-HSI grid (m2dtn) or shifted
+            # with the HR-MSI (m2dtnf: the frame it reconstructs in, as it warps the LR-HSI onto the HR-MSI)
+            e = load(src.get(m, "bench-{d}-x4-" + m).format(d=d), "cond_eval.json")
+            for mode in ("fixed", "estimated", "reg_msi", "reg_out", "gsa_reg", "gsa_oracle", "msi_frame"):
                 v = _cond_value(e, mode, pick["misreg"])
                 if v is not None:
                     NUM[f"reg-{d}-{m}-{mode}"] = f"{v:.2f}"
@@ -1846,7 +1854,10 @@ def misreg_table():
     trained without and with noise and offsets, MIMFormer and GSA."""
     cols = [("puformer", "fixed", "ExactFuse, unreg."), ("puformer", "reg_msi", "ExactFuse"),
             ("regng", "reg_msi", "ExactFuse, wider family"), ("mimformer", "reg_msi", "MIMFormer"),
-            ("puformer", "gsa_reg", "GSA")]
+            ("puformer", "gsa_reg", "GSA"), ("m2dtnf", "msi_frame", "M2DTN, unreg.")]
+    cols = [c for c in cols if any(NUM.get(f"reg-{d}-{c[0]}-{c[1]}-{t}") is not None
+                                   for d in ("chikusei", "pavia") for t, _ in MISREG_ROWS)]
+    n = len(cols)
     body = []
     for tag, lab in MISREG_ROWS:
         cells, have = [], False
@@ -1868,11 +1879,15 @@ def misreg_table():
         "shifted back by the offset estimated from the pair before fusion (any method). Bilinear: the shift of the "
         "simulation also blurs the HR-MSI; sharp: band-limited shift, as a sensor sampling a shifted scene records it, "
         "registered with the same interpolation. ExactFuse is trained on noise-free data, the wider family adds noise, "
-        "anisotropic blurs and grid offsets; MIMFormer is trained on noise-free data. Best registered result in bold.}",
+        "anisotropic blurs and grid offsets; MIMFormer is trained on noise-free data. "
+        + ("M2DTN~\\cite{dong2024m2dtn}, a registration-aware network, warps the LR-HSI onto the HR-MSI; it is trained on "
+           "HR-MSIs shifted by up to 1~px with the reference shifted alike, and scored against the reference in the "
+           "HR-MSI's frame, without registration. Best result in bold.}" if any(c[0] == "m2dtnf" for c in cols)
+           else "Best registered result in bold.}"),
         "\\label{tab:misreg}", "\\setlength{\\tabcolsep}{3pt}", "\\resizebox{\\textwidth}{!}{%",
-        "\\begin{tabular}{@{}l" + "c" * 10 + "@{}}", "\\toprule",
-        " & \\multicolumn{5}{c}{Chikusei $\\times$4} & \\multicolumn{5}{c}{Pavia Centre $\\times$4} \\\\",
-        "\\cmidrule(lr){2-6}\\cmidrule(l){7-11}", f"Misregistration & {head} & {head} \\\\", "\\midrule", *body,
+        "\\begin{tabular}{@{}l" + "c" * (2 * n) + "@{}}", "\\toprule",
+        f" & \\multicolumn{{{n}}}{{c}}{{Chikusei $\\times$4}} & \\multicolumn{{{n}}}{{c}}{{Pavia Centre $\\times$4}} \\\\",
+        f"\\cmidrule(lr){{2-{n + 1}}}\\cmidrule(l){{{n + 2}-{2 * n + 1}}}", f"Misregistration & {head} & {head} \\\\", "\\midrule", *body,
         "\\bottomrule", "\\end{tabular}}", "\\end{table*}"])
 
 

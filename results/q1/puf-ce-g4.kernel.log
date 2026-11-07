@@ -1,0 +1,83 @@
+[{"stream_name":"stderr","time":8.455504203,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.455593179,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.45560599,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.455610073,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":9.099949874,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":9.099984149,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":9.09998921,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":9.099992961,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":10.337100582,"data":"code sha256 c6d25c8be9e08262c511ed5721a882c30f89c686f5ab28a47d1419cbd382f0a4 from git bcbbf53\n"}
+,{"stream_name":"stdout","time":10.340686426,"data":"4\n"}
+,{"stream_name":"stdout","time":10.357104669,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":10.357153307,"data":"Mem:              31           1          25           0           4          30\n"}
+,{"stream_name":"stderr","time":10.531674872,"data":"/tmp/ipykernel_23/292241037.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":10.531713417,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":10.53171904,"data":"\n"}
+,{"stream_name":"stderr","time":10.531722908999999,"data":"/tmp/ipykernel_23/292241037.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":10.531727494,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":10.536810371,"data":"4\n"}
+,{"stream_name":"stdout","time":10.536849403,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":10.536855673,"data":"Mem:              31           1          25           0           4          30\n"}
+,{"stream_name":"stdout","time":13.841576251,"data":"RUN cond-chikusei-x4-mimformer : python cond_eval.py --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --dataset chikusei --scale 4 --model mimformer --only 'MSI misregistered,MSI 0.5' --ckpt /kaggle/input/notebooks/hruthwikch/puf-r03/out/cond-chikusei-x4-mimformer/best_ema.pt --out /kaggle/working/out/cond-chikusei-x4-mimformer \n"}
+,{"stream_name":"stderr","time":186.673389938,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stderr","time":186.878813909,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stderr","time":186.878840654,"data":"\n"}
+,{"stream_name":"stderr","time":186.878844504,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stdout","time":187.387271404,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stdout","time":187.590101044,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stderr","time":198.488946744,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":198.488973723,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":198.691527123,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":198.691592353,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":198.691599429,"data":"\n"}
+,{"stream_name":"stderr","time":198.691603046,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":198.691607961,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stdout","time":225.583059402,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 0.00 {'gsa_oracle': 38.4753, 'fixed': 39.4145}\n"}
+,{"stream_name":"stdout","time":225.788918032,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 0.00 {'gsa_oracle': 38.4753, 'fixed': 39.4145}\n"}
+,{"stream_name":"stdout","time":244.812475444,"data":"MSI misregistered 1 px sigma_err 0.719 shift_err 0.12 {'gsa_oracle': 34.0338, 'fixed': 33.7135}\n"}
+,{"stream_name":"stdout","time":245.015542169,"data":"MSI misregistered 1 px sigma_err 0.719 shift_err 0.12 {'gsa_oracle': 34.0338, 'fixed': 33.7135}\n"}
+,{"stream_name":"stdout","time":263.797096134,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.11 shift_err 0.00 {'gsa_oracle': 38.2635, 'fixed': 39.2535}\n"}
+,{"stream_name":"stdout","time":264.003683355,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.11 shift_err 0.00 {'gsa_oracle': 38.2635, 'fixed': 39.2535}\n"}
+,{"stream_name":"stdout","time":282.852283806,"data":"MSI misregistered 0.5 px + snr 35 dB sigma_err 0.025 shift_err 0.00 {'gsa_oracle': 38.2883, 'fixed': 39.2537}\n"}
+,{"stream_name":"stdout","time":283.054837782,"data":"MSI misregistered 0.5 px + snr 35 dB sigma_err 0.025 shift_err 0.00 {'gsa_oracle': 38.2883, 'fixed': 39.2537}\n"}
+,{"stream_name":"stdout","time":301.832676543,"data":"MSI misregistered 1 px + snr 35 dB sigma_err 0.719 shift_err 0.12 {'gsa_oracle': 33.9343, 'fixed': 33.6726}\n"}
+,{"stream_name":"stdout","time":302.037610718,"data":"MSI misregistered 1 px + snr 35 dB sigma_err 0.719 shift_err 0.12 {'gsa_oracle': 33.9343, 'fixed': 33.6726}\n"}
+,{"stream_name":"stdout","time":322.356321241,"data":"MSI misregistered 0.5 px band-limited sigma_err 0.138 shift_err 0.00 {'gsa_oracle': 38.0435, 'fixed': 38.7671}\n"}
+,{"stream_name":"stdout","time":322.55890958,"data":"MSI misregistered 0.5 px band-limited sigma_err 0.138 shift_err 0.00 {'gsa_oracle': 38.0435, 'fixed': 38.7671}\n"}
+,{"stream_name":"stdout","time":341.56205639,"data":"MSI misregistered 0.5 px band-limited + snr 35 dB sigma_err 0.138 shift_err 0.00 {'gsa_oracle': 37.8877, 'fixed': 38.6304}\n"}
+,{"stream_name":"stdout","time":341.766599939,"data":"MSI misregistered 0.5 px band-limited + snr 35 dB sigma_err 0.138 shift_err 0.00 {'gsa_oracle': 37.8877, 'fixed': 38.6304}\n"}
+,{"stream_name":"stdout","time":347.037966873,"data":"END cond-chikusei-x4-mimformer rc 0\n"}
+,{"stream_name":"stdout","time":347.847974859,"data":"RUN cond-pavia-x4-mimformer : python cond_eval.py --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat'  --dataset pavia --scale 4 --model mimformer --only 'MSI misregistered,MSI 0.5' --ckpt /kaggle/input/notebooks/hruthwikch/puf-r04/out/cond-pavia-x4-mimformer/best_ema.pt --out /kaggle/working/out/cond-pavia-x4-mimformer \n"}
+,{"stream_name":"stdout","time":352.687916352,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stdout","time":352.890613657,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stderr","time":354.92597413,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":354.926010907,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":355.128353934,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":355.128393713,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":355.128398814,"data":"\n"}
+,{"stream_name":"stderr","time":355.128402328,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":355.128406341,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stdout","time":364.953991299,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 2.25 {'gsa_oracle': 30.1386, 'fixed': 31.1791}\n"}
+,{"stream_name":"stdout","time":365.156383801,"data":"MSI misregistered 0.5 px sigma_err 0.025 shift_err 2.25 {'gsa_oracle': 30.1386, 'fixed': 31.1791}\n"}
+,{"stream_name":"stdout","time":372.948423952,"data":"MSI misregistered 1 px sigma_err 0.850 shift_err 5.00 {'gsa_oracle': 26.012, 'fixed': 25.6919}\n"}
+,{"stream_name":"stdout","time":373.153318838,"data":"MSI misregistered 1 px sigma_err 0.850 shift_err 5.00 {'gsa_oracle': 26.012, 'fixed': 25.6919}\n"}
+,{"stream_name":"stdout","time":380.909380478,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.02 shift_err 1.75 {'gsa_oracle': 30.1118, 'fixed': 31.1124}\n"}
+,{"stream_name":"stdout","time":381.111846481,"data":"aniso blur, MSI 0.5 px, snr 35 dB sigma_hat 2.02 shift_err 1.75 {'gsa_oracle': 30.1118, 'fixed': 31.1124}\n"}
+,{"stream_name":"stdout","time":388.935276812,"data":"MSI misregistered 0.5 px + snr 35 dB sigma_err 0.025 shift_err 2.25 {'gsa_oracle': 30.0977, 'fixed': 31.1143}\n"}
+,{"stream_name":"stdout","time":389.137751875,"data":"MSI misregistered 0.5 px + snr 35 dB sigma_err 0.025 shift_err 2.25 {'gsa_oracle': 30.0977, 'fixed': 31.1143}\n"}
+,{"stream_name":"stdout","time":396.923136164,"data":"MSI misregistered 1 px + snr 35 dB sigma_err 0.863 shift_err 4.75 {'gsa_oracle': 25.9912, 'fixed': 25.6755}\n"}
+,{"stream_name":"stdout","time":397.125741473,"data":"MSI misregistered 1 px + snr 35 dB sigma_err 0.863 shift_err 4.75 {'gsa_oracle': 25.9912, 'fixed': 25.6755}\n"}
+,{"stream_name":"stdout","time":404.93424275899997,"data":"MSI misregistered 0.5 px band-limited sigma_err 0.125 shift_err 2.25 {'gsa_oracle': 29.6843, 'fixed': 30.445}\n"}
+,{"stream_name":"stdout","time":405.139143974,"data":"MSI misregistered 0.5 px band-limited sigma_err 0.125 shift_err 2.25 {'gsa_oracle': 29.6843, 'fixed': 30.445}\n"}
+,{"stream_name":"stdout","time":412.895934071,"data":"MSI misregistered 0.5 px band-limited + snr 35 dB sigma_err 0.137 shift_err 2.25 {'gsa_oracle': 29.6602, 'fixed': 30.3952}\n"}
+,{"stream_name":"stdout","time":413.09837135,"data":"MSI misregistered 0.5 px band-limited + snr 35 dB sigma_err 0.137 shift_err 2.25 {'gsa_oracle': 29.6602, 'fixed': 30.3952}\n"}
+,{"stream_name":"stdout","time":414.190425823,"data":"END cond-pavia-x4-mimformer rc 0\n"}
+,{"stream_name":"stderr","time":416.924845452,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":416.924876885,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":417.101684519,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":417.101712155,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":417.940782379,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":418.034238647,"data":"[NbConvertApp] Writing 115951 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":420.835925488,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":421.411453283,"data":"[NbConvertApp] Writing 397548 bytes to __results__.html\n"}
+]

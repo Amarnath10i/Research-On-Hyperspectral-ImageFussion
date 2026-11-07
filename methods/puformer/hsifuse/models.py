@@ -247,9 +247,14 @@ class EigenPrior(nn.Module):
 def msi_backproject(deg, ym):
     """R^+ Y_M: the minimum-norm spectra in the B hyperspectral bands that reproduce the HR-MSI exactly. A network
     that receives this instead of Y_M does not depend on the MSI sensor (number of bands or their responses)."""
-    srf = deg.srf.to(torch.float32)                                   # (B, M)
+    if hasattr(deg, "_r"):
+        # learned response (ablation): its own R, not the shape-only srf buffer; its columns start identical (rank
+        # one), so the inverse is ridge-regularized
+        srf, lam = deg._r(torch.float32), 1e-3
+    else:
+        srf, lam = deg.srf.to(torch.float32), 1e-8                     # (B, M)
     g = srf.T @ srf
-    w = srf @ torch.linalg.inv(g + 1e-8 * torch.trace(g) * torch.eye(g.shape[0], device=g.device))
+    w = srf @ torch.linalg.inv(g + lam * torch.trace(g) * torch.eye(g.shape[0], device=g.device))
     return torch.einsum("nmhw,bm->nbhw", ym.float(), w).to(ym.dtype)
 
 

@@ -1,0 +1,39 @@
+[{"stream_name":"stderr","time":7.796310511,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.796361791,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.796367789,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.796370712,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":8.518046582,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.51808306,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.518088537,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.518092763,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":9.83131396,"data":"code sha256 359e70f5834833a4708f84cc7e77575034d031620b5b2c3c65cb80712713bb34 from git 46afb72+local changes\n"}
+,{"stream_name":"stderr","time":10.024457284,"data":"/tmp/ipykernel_16/2157974040.py:6: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":10.024497045,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":10.024502733,"data":"\n"}
+,{"stream_name":"stderr","time":10.024506696,"data":"/tmp/ipykernel_16/2157974040.py:6: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":10.024511418,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":11.448204761,"data":"RUN python null_analysis.py --dataset chikusei --mat /kaggle/input/datasets/mingliu123/chikusei/HyperspecVNIR_Chikusei_20140729.mat --cache /tmp/chikusei.npy --alias m2dtn=bench-chikusei-x4-m2dtn --out /kaggle/working/out/null-chikusei-x4-nb3\n"}
+,{"stream_name":"stdout","time":211.236858301,"data":"bicubic    PSNR 33.63  null-space share of the error 8.6%  PSNR with an exact observed part 44.27\n"}
+,{"stream_name":"stdout","time":211.443619797,"data":"bicubic    PSNR 33.63  null-space share of the error 8.6%  PSNR with an exact observed part 44.27\n"}
+,{"stream_name":"stdout","time":214.431743661,"data":"gsa        PSNR 43.20  null-space share of the error 13.7%  PSNR with an exact observed part 51.92\n"}
+,{"stream_name":"stdout","time":214.634845117,"data":"gsa        PSNR 43.20  null-space share of the error 13.7%  PSNR with an exact observed part 51.92\n"}
+,{"stream_name":"stdout","time":217.593038826,"data":"m2dtn      PSNR 54.87  null-space share of the error 57.2%  PSNR with an exact observed part 57.32\n"}
+,{"stream_name":"stdout","time":217.795781967,"data":"m2dtn      PSNR 54.87  null-space share of the error 57.2%  PSNR with an exact observed part 57.32\n"}
+,{"stream_name":"stdout","time":218.161582062,"data":"END rc 0\n"}
+,{"stream_name":"stdout","time":218.1625257,"data":"RUN python null_analysis.py --dataset pavia --mat '/kaggle/input/datasets/mlxlx0000/paviadata/pavia centre/Pavia.mat' --alias m2dtn=bench-pavia-x4-m2dtn --out /kaggle/working/out/null-pavia-x4-nb3\n"}
+,{"stream_name":"stdout","time":229.115755239,"data":"bicubic    PSNR 25.52  null-space share of the error 11.5%  PSNR with an exact observed part 34.91\n"}
+,{"stream_name":"stdout","time":229.31885048,"data":"bicubic    PSNR 25.52  null-space share of the error 11.5%  PSNR with an exact observed part 34.91\n"}
+,{"stream_name":"stdout","time":230.316730843,"data":"gsa        PSNR 34.78  null-space share of the error 18.7%  PSNR with an exact observed part 42.39\n"}
+,{"stream_name":"stdout","time":230.519793284,"data":"gsa        PSNR 34.78  null-space share of the error 18.7%  PSNR with an exact observed part 42.39\n"}
+,{"stream_name":"stdout","time":231.701124244,"data":"m2dtn      PSNR 48.65  null-space share of the error 84.9%  PSNR with an exact observed part 49.36\n"}
+,{"stream_name":"stdout","time":231.904612046,"data":"m2dtn      PSNR 48.65  null-space share of the error 84.9%  PSNR with an exact observed part 49.36\n"}
+,{"stream_name":"stdout","time":232.204567186,"data":"END rc 0\n"}
+,{"stream_name":"stderr","time":241.937941209,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":241.937987464,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":242.142112027,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":242.142141518,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":243.043069823,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":243.13361967,"data":"[NbConvertApp] Writing 113942 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":246.260670912,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":246.874863793,"data":"[NbConvertApp] Writing 392666 bytes to __results__.html\n"}
+]

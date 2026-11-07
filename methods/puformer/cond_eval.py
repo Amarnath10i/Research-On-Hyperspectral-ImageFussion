@@ -386,7 +386,12 @@ def evaluate_condition(idx, cond, a, gt, gtb, base, model, swappable, s0, sig_gr
     row["gsa_oracle"] = score(gtb, gsa(lr, ms, true).clamp(0, 1))
     if swappable:
         model.deg = base
-    row["fixed"] = score(gtb, run(model, lr, ms))
+    out_fixed = run(model, lr, ms)
+    row["fixed"] = score(gtb, out_fixed)
+    if msi_px:
+        # the same output against the reference in the HR-MSI's frame: the target of networks that warp the LR-HSI
+        # onto the HR-MSI (M2DTN, trained with --msi_shift_target)
+        row["msi_frame"] = score(fshift(gtb, msi_px, msi_px), out_fixed)
     if swappable:
         if not msi_px:                                     # a misregistration has no operator to supply
             row["oracle"] = score(gtb, run(model, lr, ms, [true] * len(lr)))

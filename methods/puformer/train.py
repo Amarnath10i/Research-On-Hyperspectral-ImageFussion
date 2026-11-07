@@ -117,6 +117,9 @@ def get_args():
     p.add_argument("--w_unc", type=float, default=0.01, help="weight of the Gaussian negative log-likelihood of the "
                    "null-space error for --unc models (the head sees detached features and errors)")
     p.add_argument("--rand_msi_shift", type=float, default=0.0, help="HR-MSI misregistered against the LR-HSI and the reference in 3 of 4 batches, by a uniform shift in [-x, x] px per axis (half bilinear, half band-limited); trains registration-aware networks")
+    p.add_argument("--msi_shift_target", type=int, default=0, help="with --rand_msi_shift: shift the reference with the "
+                   "HR-MSI (band-limited), i.e. reconstruct in the HR-MSI's frame, as networks that warp the LR-HSI "
+                   "onto the HR-MSI (M2DTN) are designed to")
     p.add_argument("--rand_corrupt", type=float, default=0.0, help="probability per batch of corrupted observations: "
                    "local changes in the HR-MSI (patches from another scene) and dead or miscalibrated LR-HSI columns; "
                    "the reference stays clean (for --cwd models)")
@@ -373,6 +376,8 @@ def main():
         if a.rand_msi_shift and np.random.rand() < 0.75:
             pr, pc = (float(v) for v in np.random.uniform(-a.rand_msi_shift, a.rand_msi_shift, 2))
             ms_ = shift_image(ms_, pr, pc, sharp=bool(np.random.rand() < 0.5))
+            if a.msi_shift_target:       # the reference in the HR-MSI's frame (networks that warp the LR-HSI onto it)
+                gt_ = shift_image(gt_, pr, pc, sharp=True)
         if a.rand_corrupt and np.random.rand() < a.rand_corrupt:
             lr_, ms_ = corrupt(lr_, ms_, np.random)
         if a.rand_snr and np.random.rand() < a.noise_prob:

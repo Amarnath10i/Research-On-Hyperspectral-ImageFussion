@@ -1,0 +1,52 @@
+[{"stream_name":"stderr","time":11.122017406,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":11.122088088,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":11.122096097,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":11.122100029,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":11.87618803,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":11.876234572,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":11.876239387,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":11.876243989,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":13.316970154,"data":"code sha256 9b5eb4019e4d15075348e7760ab4bad8251fd35667fd3137b7fa6bf69d27d8e1 from git 46afb72\n"}
+,{"stream_name":"stdout","time":13.321741637,"data":"4\n"}
+,{"stream_name":"stdout","time":13.352228555,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":13.352255955,"data":"Mem:              31           1          25           0           4          30\n"}
+,{"stream_name":"stderr","time":13.511153383,"data":"/tmp/ipykernel_22/1705571464.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":13.51118787,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":13.511192499,"data":"\n"}
+,{"stream_name":"stderr","time":13.511206956,"data":"/tmp/ipykernel_22/1705571464.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":13.511212028,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":13.517347785,"data":"4\n"}
+,{"stream_name":"stdout","time":13.517372058,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":13.51737532,"data":"Mem:              31           1          25           0           4          30\n"}
+,{"stream_name":"stdout","time":15.012976604,"data":"RUN bench-neon-x4-mimformer : python test.py --mat /kaggle/input  --dataset neon --scale 4 --model mimformer --ckpt /kaggle/input/notebooks/amarnath10chinu/puf-n01/out/bench-neon-x4-mimformer/best_ema.pt --out /kaggle/working/out/bench-neon-x4-mimformer-sjer --train_dir /kaggle/input/notebooks/amarnath10chinu/puf-n01/out/bench-neon-x4-mimformer\n"}
+,{"stream_name":"stderr","time":45.388216262,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stderr","time":45.592672943,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stderr","time":45.592712356,"data":"\n"}
+,{"stream_name":"stderr","time":45.592717825,"data":"Cloning into '/kaggle/working/ext/MIMFormer'...\n"}
+,{"stream_name":"stdout","time":46.441758422,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stdout","time":46.643911865,"data":"[external] mimformer: https://github.com/meiruni/MIMFormer @ 0904158a8d53c590bcc497ad94b6fd4f6c167c19\n"}
+,{"stream_name":"stderr","time":57.844084213,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":57.844111628,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":58.04648121,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":58.046512773,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":58.046517303,"data":"\n"}
+,{"stream_name":"stderr","time":58.046520634,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":58.046525258,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stdout","time":157.092517057,"data":"VAL: {'PSNR': 32.5979, 'PSNR_psrt': 30.3404, 'MPSNR_peak1': 32.6715, 'SSIM': 0.8537, 'SSIM_psrt': 0.8849, 'SAM': 2.2198, 'ERGAS': 5.1308, 'RMSE_DN': 363.1688, 'CC': 0.9467, 'SCC': 0.8804}\n"}
+,{"stream_name":"stdout","time":157.092939909,"data":"TEST: {'PSNR': 35.7975, 'PSNR_psrt': 30.83, 'MPSNR_peak1': 38.8005, 'SSIM': 0.8786, 'SSIM_psrt': 0.9226, 'SAM': 1.667, 'ERGAS': 4.1488, 'RMSE_DN': 257.2715, 'CC': 0.9375, 'SCC': 0.9269, 'Q2n': 0.9052}\n"}
+,{"stream_name":"stdout","time":157.092963391,"data":"TEST (self-ensemble): {'PSNR': 35.8397, 'PSNR_psrt': 30.8722, 'MPSNR_peak1': 38.8416, 'SSIM': 0.8794, 'SSIM_psrt': 0.9231, 'SAM': 1.645, 'ERGAS': 4.126, 'RMSE_DN': 256.0318, 'CC': 0.9381, 'SCC': 0.9275, 'Q2n': 0.906}\n"}
+,{"stream_name":"stdout","time":157.092971036,"data":"consistency: {'cons_H_dB': 57.862308484021774, 'cons_M_dB': 38.259022134729655}\n"}
+,{"stream_name":"stdout","time":157.298003862,"data":"VAL: {'PSNR': 32.5979, 'PSNR_psrt': 30.3404, 'MPSNR_peak1': 32.6715, 'SSIM': 0.8537, 'SSIM_psrt': 0.8849, 'SAM': 2.2198, 'ERGAS': 5.1308, 'RMSE_DN': 363.1688, 'CC': 0.9467, 'SCC': 0.8804}\n"}
+,{"stream_name":"stdout","time":157.298062234,"data":"TEST: {'PSNR': 35.7975, 'PSNR_psrt': 30.83, 'MPSNR_peak1': 38.8005, 'SSIM': 0.8786, 'SSIM_psrt': 0.9226, 'SAM': 1.667, 'ERGAS': 4.1488, 'RMSE_DN': 257.2715, 'CC': 0.9375, 'SCC': 0.9269, 'Q2n': 0.9052}\n"}
+,{"stream_name":"stdout","time":157.298070371,"data":"TEST (self-ensemble): {'PSNR': 35.8397, 'PSNR_psrt': 30.8722, 'MPSNR_peak1': 38.8416, 'SSIM': 0.8794, 'SSIM_psrt': 0.9231, 'SAM': 1.645, 'ERGAS': 4.126, 'RMSE_DN': 256.0318, 'CC': 0.9381, 'SCC': 0.9275, 'Q2n': 0.906}\n"}
+,{"stream_name":"stdout","time":157.29807636,"data":"consistency: {'cons_H_dB': 57.862308484021774, 'cons_M_dB': 38.259022134729655}\n"}
+,{"stream_name":"stdout","time":167.943050713,"data":"END bench-neon-x4-mimformer rc 0\n"}
+,{"stream_name":"stderr","time":170.575947912,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":170.575975988,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":170.768670367,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":170.768699346,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":171.630249785,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":171.705840953,"data":"[NbConvertApp] Writing 115216 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":174.241567892,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":174.769023944,"data":"[NbConvertApp] Writing 396698 bytes to __results__.html\n"}
+]

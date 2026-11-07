@@ -12,11 +12,18 @@
 Variant & PSNR & Cons. & Swap & PSNR & Cons. & Swap \\
 \midrule
 ExactFuse & 58.05 & 93.4 & 57.93 & 50.63 & 82.5 & 50.57 \\
+\quad closed form without learned gains & 58.00 & 90.4 & 57.88 & 50.67 & 80.6 & 50.62 \\
 \quad gradient step instead of closed form & 58.03 & 86.7 & 57.84 & 50.63 & 79.5 & 50.56 \\
+\quad no HR-MSI residual input & 58.03 & 92.7 & 57.91 & 50.60 & 81.7 & 50.54 \\
+\quad $\YM$ instead of $\R^{+}\YM$ as input & 58.07 & 93.9 & 57.96 & 50.58 & 82.6 & 50.52 \\
 \quad no data steps & 57.42 & 67.5 & n/a & 50.30 & 68.1 & n/a \\
+\quad zero border & 57.88 & 80.9 & 57.60 & 50.56 & 75.2 & 50.41 \\
 \quad + null-space gate & 57.97 & 96.9 & 57.82 & 50.58 & 87.0 & 50.48 \\
 \quad + gate, EON prior instead of U-Net & 57.83 & 96.5 & 57.74 & 50.37 & 84.9 & 50.32 \\
 \quad + gate, transfer branch & 58.07 & 96.2 & 57.93 & 50.55 & 85.0 & 50.39 \\
+\midrule
+LR-HSI only (no HR-MSI) & 39.62 & 62.1 & n/a & 30.26 & 59.3 & n/a \\
+HR-MSI only (no LR-HSI) & 54.88 & 59.7 & n/a & 48.23 & 53.5 & n/a \\
 \midrule
 base model (gradient step, $\YM$ input) & 57.95 & 83.9 & 57.70 & 50.63 & 77.6 & 50.50 \\
 \quad + closed-form step, learned gains & 58.00 & 89.4 & 57.83 & 50.63 & 82.9 & 50.50 \\
