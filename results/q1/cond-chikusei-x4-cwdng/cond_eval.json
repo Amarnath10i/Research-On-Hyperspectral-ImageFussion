@@ -260,6 +260,9 @@
    },
    "change_auroc": {
     "msi": 0.9999111075888885
+   },
+   "residual_auroc": {
+    "msi": 0.9974502808414045
    }
   },
   "HSI stripes": {
@@ -390,6 +393,9 @@
     "RMSE_DN": 24.5462
    },
    "change_auroc": {
+    "hsi": 1.0
+   },
+   "residual_auroc": {
     "hsi": 1.0
    }
   },
@@ -523,6 +529,10 @@
    "change_auroc": {
     "hsi": 1.0,
     "msi": 0.9994948582645462
+   },
+   "residual_auroc": {
+    "hsi": 0.9904977707635787,
+    "msi": 0.9755308361080061
    }
   },
   "MSI locally misregistered": {
@@ -654,6 +664,9 @@
    },
    "change_auroc": {
     "msi": 0.8360357780808197
+   },
+   "residual_auroc": {
+    "msi": 0.9847696028997102
    }
   },
   "HSI band-dependent noise 25-45 dB": {
@@ -878,42 +891,45 @@
     }
    ],
    "gsa_oracle": {
-    "PSNR": 41.3944,
-    "SAM": 2.8956,
-    "ERGAS": 3.7048,
+    "PSNR": 41.3949,
+    "SAM": 2.8947,
+    "ERGAS": 3.7053,
     "SSIM": 0.9617,
-    "RMSE_DN": 132.2499
+    "RMSE_DN": 132.2392
    },
    "fixed": {
-    "PSNR": 50.3385,
-    "SAM": 1.1543,
-    "ERGAS": 1.8025,
+    "PSNR": 50.3379,
+    "SAM": 1.154,
+    "ERGAS": 1.803,
     "SSIM": 0.9912,
-    "RMSE_DN": 46.8883
+    "RMSE_DN": 46.9003
    },
    "oracle": {
-    "PSNR": 50.3385,
-    "SAM": 1.1543,
-    "ERGAS": 1.8025,
+    "PSNR": 50.3379,
+    "SAM": 1.154,
+    "ERGAS": 1.803,
     "SSIM": 0.9912,
-    "RMSE_DN": 46.8883
+    "RMSE_DN": 46.9003
    },
    "estimated": {
-    "PSNR": 50.3365,
-    "SAM": 1.1546,
-    "ERGAS": 1.8034,
+    "PSNR": 50.3363,
+    "SAM": 1.1543,
+    "ERGAS": 1.8039,
     "SSIM": 0.9912,
-    "RMSE_DN": 46.9028
+    "RMSE_DN": 46.9128
    },
    "estimated_ext": {
-    "PSNR": 49.0939,
-    "SAM": 1.2276,
-    "ERGAS": 1.9477,
+    "PSNR": 49.0899,
+    "SAM": 1.228,
+    "ERGAS": 1.9486,
     "SSIM": 0.9899,
-    "RMSE_DN": 54.7347
+    "RMSE_DN": 54.7855
    },
    "change_auroc": {
-    "msi": 0.8418666838670363
+    "msi": 0.8424225492665776
+   },
+   "residual_auroc": {
+    "msi": 0.955659794184531
    }
   },
   "sigma x2": {

@@ -1732,6 +1732,8 @@ def corruption_numbers():
                     NUM[f"corr-{d}-gsa-{tag}"] = f"{c['gsa_oracle']['PSNR']:.2f}"
                     for side, v in c.get("change_auroc", {}).items():
                         NUM[f"corr-{d}-auroc-{tag}-{side}"] = f"{v:.2f}"
+                    for side, v in c.get("residual_auroc", {}).items():   # model-free detector
+                        NUM[f"corr-{d}-rauroc-{tag}-{side}"] = f"{v:.3f}"
 
 
 CI_SETTINGS = [("chikusei", 4), ("pavia", 4), ("cave", 4), ("harvard", 4), ("cave", 8), ("chikusei", 8), ("pavia", 8),
@@ -1874,6 +1876,52 @@ def misreg_table():
         "\\bottomrule", "\\end{tabular}}", "\\end{table*}"])
 
 
+SJER_ROWS = [("bench-neon-x4-ssrnet", "SSR-NET", "zhang2021ssrnet"), ("bench-neon-x4-psrt", "PSRT", "deng2023psrt"),
+             ("bench-neon-x4-dct", "DCT", "ma2024reciprocal"), ("bench-neon-x4-mimformer", "MIMFormer", "li2024mimformer"),
+             ("bench-neon-x4-dhif", "DHIF-Net", "huang2022dhif"), ("bench-neon-x4-puformer", "ExactFuse", None),
+             ("cond-neon-x4-ng", "\\quad trained over the operator family", None)]
+
+
+def sjer_table():
+    """Networks trained on NEON SERC, tested on the second site SJER (results/q1/<job>-sjer): the camera response is
+    fitted on three SJER tiles, five other tiles are the test set."""
+    body, base = [], {}
+    for job, lab, cite in SJER_ROWS:
+        a, b = load(job), load(job + "-sjer")
+        if b is None:
+            continue
+        t = b["test"]
+        tag = "ng" if job.startswith("cond") else job.split("-")[-1]
+        NUM[f"sjer-{tag}-psnr"], NUM[f"sjer-{tag}-sam"] = f"{t['PSNR']:.2f}", f"{t['SAM']:.2f}"
+        if job.startswith("bench") and tag != "puformer":
+            base[lab] = t["PSNR"]
+        if tag == "puformer":
+            body.append("\\midrule")
+        name = lab + (f"~\\cite{{{cite}}}" if cite else "")
+        serc = "--" if a is None else f"{a['test']['PSNR']:.2f}"
+        body.append(f"{name} & {serc} & {t['PSNR']:.2f} & {t['SAM']:.2f} & {t['ERGAS']:.2f} \\\\")
+        NUM["sjer-n"] = str(len(b.get("test_per_image", [])))
+        NUM["sjer-bicubic-psnr"] = f"{b['bicubic_test']['PSNR']:.2f}"
+    p = load("bench-neon-x4-puformer-sjer")
+    if not body or p is None or not base:
+        return
+    best = max(base, key=base.get)
+    NUM["sjer-best"], NUM["sjer-best-psnr"] = best, f"{base[best]:.2f}"
+    NUM["sjer-gain"] = f"{p['test']['PSNR'] - base[best]:.2f}"
+    NUM["sjer-n-baselines"] = str(len(base))
+    write("cvpr_sjer.tex", [
+        "\\begin{table}[t]", "\\centering",
+        "\\caption{Second NEON site: networks trained on SERC (Maryland) and tested, without retraining, on SJER "
+        f"(California, 2019, {NUM['sjer-n']} test crops of five tiles; the camera response is fitted on three other "
+        "SJER tiles). PSNR in dB at reduced resolution, as in \\cref{tab:neon}.}",
+        "\\label{tab:sjer}", "\\setlength{\\tabcolsep}{4pt}", "\\footnotesize",
+        "\\begin{tabular}{@{}lcccc@{}}", "\\toprule",
+        " & SERC & \\multicolumn{3}{c}{SJER (unseen site)} \\\\", "\\cmidrule(lr){2-2}\\cmidrule(l){3-5}",
+        "Method & PSNR$\\uparrow$ & PSNR$\\uparrow$ & SAM$\\downarrow$ & ERGAS$\\downarrow$ \\\\", "\\midrule",
+        f"Bicubic & -- & {NUM['sjer-bicubic-psnr']} & -- & -- \\\\", *body,
+        "\\bottomrule", "\\end{tabular}", "\\end{table}"])
+
+
 def null_check_numbers():
     """Largest deviations of the null-space check (results/q1/cond-*-x4-ng/null_check.json)."""
     worst = {}
@@ -1930,6 +1978,7 @@ def main():
     curve_numbers()
     misreg_table()
     null_check_numbers()
+    sjer_table()
     write("q1_numbers.tex", [f"\\expandafter\\def\\csname qone@{k}\\endcsname{{{v}}}" for k, v in sorted(NUM.items())])
     print(f"{len(NUM)} numbers;", ", ".join(f"{k}={v}" for k, v in sorted(NUM.items())[:40]))
 

@@ -1,0 +1,12 @@
+chikusei x4: train (128, 1632, 2048) test (8, 128, 256, 256) val (64, 128, 64, 64), 1.0 = 15133 DN  (5s)
+[external] m2dtn: https://github.com/Jiahuiqu/M2DTN @ e50295ae03aeaf902732b3b05d8e527e8130aae1
+m2dtn (reflect borders): 23.79M params on 1 x cpu; batch 2 x 1; epoch = 408 iters; eval every 2 iters; deadline in inf h; schedule by time
+bicubic test: {'PSNR': 33.6333, 'PSNR_psrt': 28.199, 'MPSNR_peak1': 35.251, 'SSIM': 0.7404, 'SSIM_psrt': 0.85, 'SAM': 4.4061, 'ERGAS': 9.0115, 'RMSE_DN': 321.8118, 'CC': 0.8408, 'SCC': 0.7648}
+GSA test: {'PSNR': 43.1966, 'PSNR_psrt': 37.7622, 'MPSNR_peak1': 44.8193, 'SSIM': 0.9778, 'SSIM_psrt': 0.9859, 'SAM': 2.73, 'ERGAS': 3.2791, 'RMSE_DN': 107.6883, 'CC': 0.9905, 'SCC': 0.9922}
+  it 1 loss 0.10778 lr 1.00e-06 0.22 it/s (x2 patches) cosine end ~4 it, RSS 3.40 GB, host free 26.7 GB
+ep     0.0 it      2 loss 0.11352 lr 2.00e-06 val PSNR 19.831 SSIM 0.1814 SAM 61.455 | best val 19.831 (0.22 h)
+  it 3 loss 0.12370 lr 3.00e-06 0.03 it/s (x2 patches) cosine end ~4 it, RSS 3.89 GB, host free 26.4 GB
+ep     0.0 it      4 loss 0.11943 lr 4.00e-06 val PSNR 19.833 SSIM 0.1777 SAM 61.739 | best val 19.833 (0.24 h)
+TEST: {'PSNR': 19.7374, 'PSNR_psrt': 14.303, 'MPSNR_peak1': 23.6437, 'SSIM': 0.2162, 'SSIM_psrt': 0.2866, 'SAM': 61.4189, 'ERGAS': 28.5096, 'RMSE_DN': 1567.2409, 'CC': -0.0303, 'SCC': 0.298}
+TEST (self-ensemble): {'PSNR': 19.7369, 'PSNR_psrt': 14.3026, 'MPSNR_peak1': 23.6445, 'SSIM': 0.2165, 'SSIM_psrt': 0.2866, 'SAM': 61.4178, 'ERGAS': 28.5078, 'RMSE_DN': 1567.3147, 'CC': -0.0422, 'SCC': 0.2741}
+consistency: {'cons_H_dB': 19.959392465434963, 'cons_M_dB': 21.14174437576512} | self-ensemble: {'cons_H_dB': 19.95877733438956, 'cons_M_dB': 21.14116844746268}

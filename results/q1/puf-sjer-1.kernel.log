@@ -1,0 +1,137 @@
+[{"stream_name":"stderr","time":11.190523801,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":11.190579021,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":11.190583381,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":11.190585820999999,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":11.976865815,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":11.976896885,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":11.976900085,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":11.976902214999999,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":13.444997172,"data":"code sha256 42023334e8876dec81d158bf2529a201a0196a856063a88308fa177f6498d9c7 from git 7117d0e+local changes\n"}
+,{"stream_name":"stdout","time":13.449372239,"data":"4\n"}
+,{"stream_name":"stdout","time":13.471708099,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":13.471736779,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stderr","time":13.639036207,"data":"/tmp/ipykernel_16/32270236.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":13.639075447,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stderr","time":13.639079897,"data":"\n"}
+,{"stream_name":"stderr","time":13.639082777,"data":"/tmp/ipykernel_16/32270236.py:5: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.\n"}
+,{"stream_name":"stderr","time":13.639084977,"data":"  tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(CODE)\n"}
+,{"stream_name":"stdout","time":13.645507705,"data":"4\n"}
+,{"stream_name":"stdout","time":13.645545685,"data":"               total        used        free      shared  buff/cache   available\n"}
+,{"stream_name":"stdout","time":13.645550335,"data":"Mem:              31           1          26           0           4          30\n"}
+,{"stream_name":"stdout","time":19.171579206,"data":"RUN nb-nogate-neon-x4 : python test.py --mat /kaggle/input  --dataset neon --scale 4 --model puformer --pad reflect --dstep kronlearn --mres 1 --sa 1 --ckpt /kaggle/input/notebooks/amarnath10chinu/puf-n27/out/nb-nogate-neon-x4/best_ema.pt --out /kaggle/working/out/nb-nogate-neon-x4-sjer --train_dir /kaggle/input/notebooks/amarnath10chinu/puf-n27/out/nb-nogate-neon-x4\n"}
+,{"stream_name":"stdout","time":1910.387371243,"data":"VAL: {'PSNR': 33.7341, 'PSNR_psrt': 31.4766, 'MPSNR_peak1': 33.8225, 'SSIM': 0.888, 'SSIM_psrt': 0.9116, 'SAM': 1.9173, 'ERGAS': 4.4671, 'RMSE_DN': 318.6378, 'CC': 0.9591, 'SCC': 0.9145}\n"}
+,{"stream_name":"stdout","time":1910.387501313,"data":"TEST: {'PSNR': 36.6484, 'PSNR_psrt': 31.6808, 'MPSNR_peak1': 39.7635, 'SSIM': 0.9024, 'SSIM_psrt': 0.9379, 'SAM': 1.5011, 'ERGAS': 3.6513, 'RMSE_DN': 232.4714, 'CC': 0.9489, 'SCC': 0.9443, 'Q2n': 0.9255}\n"}
+,{"stream_name":"stdout","time":1910.387509973,"data":"TEST (self-ensemble): {'PSNR': 36.7609, 'PSNR_psrt': 31.7934, 'MPSNR_peak1': 39.8668, 'SSIM': 0.9044, 'SSIM_psrt': 0.9392, 'SAM': 1.4796, 'ERGAS': 3.61, 'RMSE_DN': 229.4818, 'CC': 0.9501, 'SCC': 0.9461, 'Q2n': 0.9271}\n"}
+,{"stream_name":"stdout","time":1910.387533142,"data":"consistency: {'cons_H_dB': 59.77973454201452, 'cons_M_dB': 37.53530302174245}\n"}
+,{"stream_name":"stdout","time":1910.600083344,"data":"VAL: {'PSNR': 33.7341, 'PSNR_psrt': 31.4766, 'MPSNR_peak1': 33.8225, 'SSIM': 0.888, 'SSIM_psrt': 0.9116, 'SAM': 1.9173, 'ERGAS': 4.4671, 'RMSE_DN': 318.6378, 'CC': 0.9591, 'SCC': 0.9145}\n"}
+,{"stream_name":"stdout","time":1910.600111874,"data":"TEST: {'PSNR': 36.6484, 'PSNR_psrt': 31.6808, 'MPSNR_peak1': 39.7635, 'SSIM': 0.9024, 'SSIM_psrt': 0.9379, 'SAM': 1.5011, 'ERGAS': 3.6513, 'RMSE_DN': 232.4714, 'CC': 0.9489, 'SCC': 0.9443, 'Q2n': 0.9255}\n"}
+,{"stream_name":"stdout","time":1910.600116644,"data":"TEST (self-ensemble): {'PSNR': 36.7609, 'PSNR_psrt': 31.7934, 'MPSNR_peak1': 39.8668, 'SSIM': 0.9044, 'SSIM_psrt': 0.9392, 'SAM': 1.4796, 'ERGAS': 3.61, 'RMSE_DN': 229.4818, 'CC': 0.9501, 'SCC': 0.9461, 'Q2n': 0.9271}\n"}
+,{"stream_name":"stdout","time":1910.600120594,"data":"consistency: {'cons_H_dB': 59.77973454201452, 'cons_M_dB': 37.53530302174245}\n"}
+,{"stream_name":"stdout","time":1911.074877107,"data":"END nb-nogate-neon-x4 rc 0\n"}
+,{"stream_name":"stdout","time":1912.148946478,"data":"RUN cond-neon-x4-ng : python test.py --mat /kaggle/input  --dataset neon --scale 4 --model puformer --pad reflect --dstep kronlearn --mres 1 --sa 1 --ckpt /kaggle/input/notebooks/amarnath10chinu/puf-n27/out/cond-neon-x4-ng/best_ema.pt --out /kaggle/working/out/cond-neon-x4-ng-sjer --train_dir /kaggle/input/notebooks/amarnath10chinu/puf-n27/out/cond-neon-x4-ng\n"}
+,{"stream_name":"stdout","time":5512.179100544,"data":"VAL: {'PSNR': 33.6959, 'PSNR_psrt': 31.4383, 'MPSNR_peak1': 33.7919, 'SSIM': 0.8895, 'SSIM_psrt': 0.913, 'SAM': 1.9284, 'ERGAS': 4.4701, 'RMSE_DN': 320.0439, 'CC': 0.9587, 'SCC': 0.9136}\n"}
+,{"stream_name":"stdout","time":5512.179445714,"data":"TEST: {'PSNR': 36.6619, 'PSNR_psrt': 31.6944, 'MPSNR_peak1': 39.7987, 'SSIM': 0.9042, 'SSIM_psrt': 0.9387, 'SAM': 1.5189, 'ERGAS': 3.6498, 'RMSE_DN': 232.312, 'CC': 0.9497, 'SCC': 0.9445, 'Q2n': 0.927}\n"}
+,{"stream_name":"stdout","time":5512.179458074,"data":"TEST (self-ensemble): {'PSNR': 36.7501, 'PSNR_psrt': 31.7826, 'MPSNR_peak1': 39.8855, 'SSIM': 0.9054, 'SSIM_psrt': 0.9396, 'SAM': 1.5031, 'ERGAS': 3.6143, 'RMSE_DN': 229.9259, 'CC': 0.9506, 'SCC': 0.9458, 'Q2n': 0.9281}\n"}
+,{"stream_name":"stdout","time":5512.179463644,"data":"consistency: {'cons_H_dB': 58.29870160064039, 'cons_M_dB': 37.57396170336922}\n"}
+,{"stream_name":"stdout","time":5512.388481788,"data":"VAL: {'PSNR': 33.6959, 'PSNR_psrt': 31.4383, 'MPSNR_peak1': 33.7919, 'SSIM': 0.8895, 'SSIM_psrt': 0.913, 'SAM': 1.9284, 'ERGAS': 4.4701, 'RMSE_DN': 320.0439, 'CC': 0.9587, 'SCC': 0.9136}\n"}
+,{"stream_name":"stdout","time":5512.388518418,"data":"TEST: {'PSNR': 36.6619, 'PSNR_psrt': 31.6944, 'MPSNR_peak1': 39.7987, 'SSIM': 0.9042, 'SSIM_psrt': 0.9387, 'SAM': 1.5189, 'ERGAS': 3.6498, 'RMSE_DN': 232.312, 'CC': 0.9497, 'SCC': 0.9445, 'Q2n': 0.927}\n"}
+,{"stream_name":"stdout","time":5512.388525118,"data":"TEST (self-ensemble): {'PSNR': 36.7501, 'PSNR_psrt': 31.7826, 'MPSNR_peak1': 39.8855, 'SSIM': 0.9054, 'SSIM_psrt': 0.9396, 'SAM': 1.5031, 'ERGAS': 3.6143, 'RMSE_DN': 229.9259, 'CC': 0.9506, 'SCC': 0.9458, 'Q2n': 0.9281}\n"}
+,{"stream_name":"stdout","time":5512.388530138,"data":"consistency: {'cons_H_dB': 58.29870160064039, 'cons_M_dB': 37.57396170336922}\n"}
+,{"stream_name":"stdout","time":5512.960307223,"data":"END cond-neon-x4-ng rc 0\n"}
+,{"stream_name":"stdout","time":5514.099744382,"data":"RUN bench-neon-x4-puformer : python test.py --mat /kaggle/input  --dataset neon --scale 4 --model puformer --pad reflect --ckpt /kaggle/input/notebooks/amarnath10chinu/puf-n01/out/bench-neon-x4-puformer/best_ema.pt --out /kaggle/working/out/bench-neon-x4-puformer-sjer --train_dir /kaggle/input/notebooks/amarnath10chinu/puf-n01/out/bench-neon-x4-puformer\n"}
+,{"stream_name":"stdout","time":7516.965763297,"data":"VAL: {'PSNR': 34.5034, 'PSNR_psrt': 32.2459, 'MPSNR_peak1': 34.6155, 'SSIM': 0.9029, 'SSIM_psrt': 0.9238, 'SAM': 1.8761, 'ERGAS': 4.0493, 'RMSE_DN': 291.6299, 'CC': 0.9659, 'SCC': 0.9303}\n"}
+,{"stream_name":"stdout","time":7516.965908767,"data":"TEST: {'PSNR': 36.9053, 'PSNR_psrt': 31.9378, 'MPSNR_peak1': 40.1779, 'SSIM': 0.908, 'SSIM_psrt': 0.9414, 'SAM': 1.4639, 'ERGAS': 3.4538, 'RMSE_DN': 225.2908, 'CC': 0.9538, 'SCC': 0.9483, 'Q2n': 0.932}\n"}
+,{"stream_name":"stdout","time":7516.965918217,"data":"TEST (self-ensemble): {'PSNR': 37.0137, 'PSNR_psrt': 32.0462, 'MPSNR_peak1': 40.2774, 'SSIM': 0.9096, 'SSIM_psrt': 0.9425, 'SAM': 1.4453, 'ERGAS': 3.4146, 'RMSE_DN': 222.5115, 'CC': 0.9548, 'SCC': 0.9497, 'Q2n': 0.9332}\n"}
+,{"stream_name":"stdout","time":7516.965924667,"data":"consistency: {'cons_H_dB': 60.967928684811156, 'cons_M_dB': 37.75545317435109}\n"}
+,{"stream_name":"stdout","time":7517.182287577,"data":"VAL: {'PSNR': 34.5034, 'PSNR_psrt': 32.2459, 'MPSNR_peak1': 34.6155, 'SSIM': 0.9029, 'SSIM_psrt': 0.9238, 'SAM': 1.8761, 'ERGAS': 4.0493, 'RMSE_DN': 291.6299, 'CC': 0.9659, 'SCC': 0.9303}\n"}
+,{"stream_name":"stdout","time":7517.182320767,"data":"TEST: {'PSNR': 36.9053, 'PSNR_psrt': 31.9378, 'MPSNR_peak1': 40.1779, 'SSIM': 0.908, 'SSIM_psrt': 0.9414, 'SAM': 1.4639, 'ERGAS': 3.4538, 'RMSE_DN': 225.2908, 'CC': 0.9538, 'SCC': 0.9483, 'Q2n': 0.932}\n"}
+,{"stream_name":"stdout","time":7517.182327317,"data":"TEST (self-ensemble): {'PSNR': 37.0137, 'PSNR_psrt': 32.0462, 'MPSNR_peak1': 40.2774, 'SSIM': 0.9096, 'SSIM_psrt': 0.9425, 'SAM': 1.4453, 'ERGAS': 3.4146, 'RMSE_DN': 222.5115, 'CC': 0.9548, 'SCC': 0.9497, 'Q2n': 0.9332}\n"}
+,{"stream_name":"stdout","time":7517.182331867,"data":"consistency: {'cons_H_dB': 60.967928684811156, 'cons_M_dB': 37.75545317435109}\n"}
+,{"stream_name":"stdout","time":7517.734965933,"data":"END bench-neon-x4-puformer rc 0\n"}
+,{"stream_name":"stdout","time":7519.076571791,"data":"RUN bench-neon-x4-psrt : python test.py --mat /kaggle/input  --dataset neon --scale 4 --model psrt --ckpt /kaggle/input/notebooks/amarnath10chinu/puf-n02/out/bench-neon-x4-psrt/best_ema.pt --out /kaggle/working/out/bench-neon-x4-psrt-sjer --train_dir /kaggle/input/notebooks/amarnath10chinu/puf-n02/out/bench-neon-x4-psrt\n"}
+,{"stream_name":"stderr","time":7526.469803925,"data":"Cloning into '/kaggle/working/ext/PSRT'...\n"}
+,{"stream_name":"stderr","time":7526.673914822,"data":"Cloning into '/kaggle/working/ext/PSRT'...\n"}
+,{"stream_name":"stderr","time":7526.673954312,"data":"\n"}
+,{"stream_name":"stderr","time":7526.673959852,"data":"Cloning into '/kaggle/working/ext/PSRT'...\n"}
+,{"stream_name":"stdout","time":7529.331839199,"data":"[external] psrt: https://github.com/Deng-shangqi/PSRT @ 9c2be904f901d4b6e2991413adea753d94be73fd\n"}
+,{"stream_name":"stdout","time":7529.534897906,"data":"[external] psrt: https://github.com/Deng-shangqi/PSRT @ 9c2be904f901d4b6e2991413adea753d94be73fd\n"}
+,{"stream_name":"stderr","time":7541.280533792,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":7541.280583302,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":7541.483445769,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":7541.483537189,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":7541.483626889,"data":"\n"}
+,{"stream_name":"stderr","time":7541.483632479,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":7541.483636949,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stdout","time":9084.530353451,"data":"VAL: {'PSNR': 32.8989, 'PSNR_psrt': 30.6414, 'MPSNR_peak1': 32.9639, 'SSIM': 0.8577, 'SSIM_psrt': 0.8887, 'SAM': 2.4713, 'ERGAS': 4.9825, 'RMSE_DN': 350.797, 'CC': 0.9524, 'SCC': 0.9043}\n"}
+,{"stream_name":"stdout","time":9084.53042847,"data":"TEST: {'PSNR': 35.5315, 'PSNR_psrt': 30.564, 'MPSNR_peak1': 38.5181, 'SSIM': 0.8716, 'SSIM_psrt': 0.9185, 'SAM': 1.8833, 'ERGAS': 4.3412, 'RMSE_DN': 264.6611, 'CC': 0.9356, 'SCC': 0.9239, 'Q2n': 0.8923}\n"}
+,{"stream_name":"stdout","time":9084.53043601,"data":"TEST (self-ensemble): {'PSNR': 35.5407, 'PSNR_psrt': 30.5732, 'MPSNR_peak1': 38.5278, 'SSIM': 0.8718, 'SSIM_psrt': 0.9187, 'SAM': 1.8765, 'ERGAS': 4.3351, 'RMSE_DN': 264.3473, 'CC': 0.9357, 'SCC': 0.9241, 'Q2n': 0.8925}\n"}
+,{"stream_name":"stdout","time":9084.530440961,"data":"consistency: {'cons_H_dB': 50.968351008791885, 'cons_M_dB': 38.63472259184992}\n"}
+,{"stream_name":"stdout","time":9084.745266556,"data":"VAL: {'PSNR': 32.8989, 'PSNR_psrt': 30.6414, 'MPSNR_peak1': 32.9639, 'SSIM': 0.8577, 'SSIM_psrt': 0.8887, 'SAM': 2.4713, 'ERGAS': 4.9825, 'RMSE_DN': 350.797, 'CC': 0.9524, 'SCC': 0.9043}\n"}
+,{"stream_name":"stdout","time":9084.745297576,"data":"TEST: {'PSNR': 35.5315, 'PSNR_psrt': 30.564, 'MPSNR_peak1': 38.5181, 'SSIM': 0.8716, 'SSIM_psrt': 0.9185, 'SAM': 1.8833, 'ERGAS': 4.3412, 'RMSE_DN': 264.6611, 'CC': 0.9356, 'SCC': 0.9239, 'Q2n': 0.8923}\n"}
+,{"stream_name":"stdout","time":9084.745301966,"data":"TEST (self-ensemble): {'PSNR': 35.5407, 'PSNR_psrt': 30.5732, 'MPSNR_peak1': 38.5278, 'SSIM': 0.8718, 'SSIM_psrt': 0.9187, 'SAM': 1.8765, 'ERGAS': 4.3351, 'RMSE_DN': 264.3473, 'CC': 0.9357, 'SCC': 0.9241, 'Q2n': 0.8925}\n"}
+,{"stream_name":"stdout","time":9084.745305326,"data":"consistency: {'cons_H_dB': 50.968351008791885, 'cons_M_dB': 38.63472259184992}\n"}
+,{"stream_name":"stdout","time":9086.138113911,"data":"END bench-neon-x4-psrt rc 0\n"}
+,{"stream_name":"stdout","time":9087.128366954,"data":"RUN bench-neon-x4-dct : python test.py --mat /kaggle/input  --dataset neon --scale 4 --model dct --ckpt /kaggle/input/notebooks/amarnath10chinu/puf-n02/out/bench-neon-x4-dct/best_ema.pt --out /kaggle/working/out/bench-neon-x4-dct-sjer --train_dir /kaggle/input/notebooks/amarnath10chinu/puf-n02/out/bench-neon-x4-dct\n"}
+,{"stream_name":"stderr","time":9094.352596562,"data":"Cloning into '/kaggle/working/ext/DCTransformer'...\n"}
+,{"stream_name":"stderr","time":9094.555660718,"data":"Cloning into '/kaggle/working/ext/DCTransformer'...\n"}
+,{"stream_name":"stderr","time":9094.555730658,"data":"\n"}
+,{"stream_name":"stderr","time":9094.555737948,"data":"Cloning into '/kaggle/working/ext/DCTransformer'...\n"}
+,{"stream_name":"stdout","time":9095.189340746,"data":"[external] dct: https://github.com/qingma2016/DCTransformer @ bd75b1576988ef46964966a111e9b9650b1101ee\n"}
+,{"stream_name":"stdout","time":9095.392672942,"data":"[external] dct: https://github.com/qingma2016/DCTransformer @ bd75b1576988ef46964966a111e9b9650b1101ee\n"}
+,{"stream_name":"stderr","time":9098.229639621,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":9098.229713371,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":9098.246236411,"data":"/usr/local/lib/python3.13/dist-packages/torch/functional.py:505: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /pytorch/aten/src/ATen/native/TensorShape.cpp:4381.)\n"}
+,{"stream_name":"stderr","time":9098.246288101,"data":"  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]\n"}
+,{"stream_name":"stderr","time":9098.43271973,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":9098.43276208,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":9098.432767,"data":"/usr/local/lib/python3.13/dist-packages/torch/functional.py:505: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /pytorch/aten/src/ATen/native/TensorShape.cpp:4381.)\n"}
+,{"stream_name":"stderr","time":9098.43277159,"data":"  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]\n"}
+,{"stream_name":"stderr","time":9098.43277481,"data":"\n"}
+,{"stream_name":"stderr","time":9098.43277807,"data":"/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers\n"}
+,{"stream_name":"stderr","time":9098.43278161,"data":"  warnings.warn(f\"Importing from {__name__} is deprecated, please import via timm.layers\", FutureWarning)\n"}
+,{"stream_name":"stderr","time":9098.43278548,"data":"/usr/local/lib/python3.13/dist-packages/torch/functional.py:505: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /pytorch/aten/src/ATen/native/TensorShape.cpp:4381.)\n"}
+,{"stream_name":"stderr","time":9098.43278915,"data":"  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]\n"}
+,{"stream_name":"stdout","time":15184.343915178,"data":"VAL: {'PSNR': 32.7109, 'PSNR_psrt': 30.4534, 'MPSNR_peak1': 32.7401, 'SSIM': 0.8602, 'SSIM_psrt': 0.8895, 'SAM': 2.7261, 'ERGAS': 5.2192, 'RMSE_DN': 358.4748, 'CC': 0.9514, 'SCC': 0.9045}\n"}
+,{"stream_name":"stdout","time":15184.344284508,"data":"TEST: {'PSNR': 35.3495, 'PSNR_psrt': 30.382, 'MPSNR_peak1': 38.3528, 'SSIM': 0.8668, 'SSIM_psrt': 0.9153, 'SAM': 1.998, 'ERGAS': 4.4381, 'RMSE_DN': 270.0843, 'CC': 0.9338, 'SCC': 0.9198, 'Q2n': 0.8905}\n"}
+,{"stream_name":"stdout","time":15184.344294398,"data":"TEST (self-ensemble): {'PSNR': 35.3635, 'PSNR_psrt': 30.396, 'MPSNR_peak1': 38.3739, 'SSIM': 0.8671, 'SSIM_psrt': 0.9155, 'SAM': 1.9592, 'ERGAS': 4.4277, 'RMSE_DN': 269.6333, 'CC': 0.9343, 'SCC': 0.9201, 'Q2n': 0.8911}\n"}
+,{"stream_name":"stdout","time":15184.344300128,"data":"consistency: {'cons_H_dB': 51.945596384055, 'cons_M_dB': 38.68282754341847}\n"}
+,{"stream_name":"stdout","time":15184.572754615,"data":"VAL: {'PSNR': 32.7109, 'PSNR_psrt': 30.4534, 'MPSNR_peak1': 32.7401, 'SSIM': 0.8602, 'SSIM_psrt': 0.8895, 'SAM': 2.7261, 'ERGAS': 5.2192, 'RMSE_DN': 358.4748, 'CC': 0.9514, 'SCC': 0.9045}\n"}
+,{"stream_name":"stdout","time":15184.572789865,"data":"TEST: {'PSNR': 35.3495, 'PSNR_psrt': 30.382, 'MPSNR_peak1': 38.3528, 'SSIM': 0.8668, 'SSIM_psrt': 0.9153, 'SAM': 1.998, 'ERGAS': 4.4381, 'RMSE_DN': 270.0843, 'CC': 0.9338, 'SCC': 0.9198, 'Q2n': 0.8905}\n"}
+,{"stream_name":"stdout","time":15184.572804795,"data":"TEST (self-ensemble): {'PSNR': 35.3635, 'PSNR_psrt': 30.396, 'MPSNR_peak1': 38.3739, 'SSIM': 0.8671, 'SSIM_psrt': 0.9155, 'SAM': 1.9592, 'ERGAS': 4.4277, 'RMSE_DN': 269.6333, 'CC': 0.9343, 'SCC': 0.9201, 'Q2n': 0.8911}\n"}
+,{"stream_name":"stdout","time":15184.572820695,"data":"consistency: {'cons_H_dB': 51.945596384055, 'cons_M_dB': 38.68282754341847}\n"}
+,{"stream_name":"stdout","time":15186.60864337,"data":"END bench-neon-x4-dct rc 0\n"}
+,{"stream_name":"stdout","time":15187.50451852,"data":"RUN bench-neon-x4-dhif : python test.py --mat /kaggle/input  --dataset neon --scale 4 --model dhif --ckpt /kaggle/input/notebooks/amarnath10chinu/puf-n03/out/bench-neon-x4-dhif/best_ema.pt --out /kaggle/working/out/bench-neon-x4-dhif-sjer --train_dir /kaggle/input/notebooks/amarnath10chinu/puf-n03/out/bench-neon-x4-dhif\n"}
+,{"stream_name":"stderr","time":15194.860130661,"data":"Cloning into '/kaggle/working/ext/DHIF-Net'...\n"}
+,{"stream_name":"stderr","time":15195.064203899,"data":"Cloning into '/kaggle/working/ext/DHIF-Net'...\n"}
+,{"stream_name":"stderr","time":15195.064244919,"data":"\n"}
+,{"stream_name":"stderr","time":15195.064248249,"data":"Cloning into '/kaggle/working/ext/DHIF-Net'...\n"}
+,{"stream_name":"stdout","time":15196.114972686,"data":"[external] dhif: https://github.com/TaoHuang95/DHIF-Net @ 643436658109f65a78ee01191163eec88a6b4407\n"}
+,{"stream_name":"stdout","time":15196.318284813,"data":"[external] dhif: https://github.com/TaoHuang95/DHIF-Net @ 643436658109f65a78ee01191163eec88a6b4407\n"}
+,{"stream_name":"stdout","time":25250.410106555,"data":"VAL: {'PSNR': 33.6511, 'PSNR_psrt': 31.3936, 'MPSNR_peak1': 33.7568, 'SSIM': 0.871, 'SSIM_psrt': 0.8992, 'SAM': 2.348, 'ERGAS': 4.4853, 'RMSE_DN': 321.6962, 'CC': 0.9591, 'SCC': 0.9152}\n"}
+,{"stream_name":"stdout","time":25250.410537936,"data":"TEST: {'PSNR': 35.7076, 'PSNR_psrt': 30.7401, 'MPSNR_peak1': 38.9813, 'SSIM': 0.8744, 'SSIM_psrt': 0.9199, 'SAM': 1.8027, 'ERGAS': 3.9813, 'RMSE_DN': 258.7261, 'CC': 0.9401, 'SCC': 0.9241, 'Q2n': 0.9047}\n"}
+,{"stream_name":"stdout","time":25250.410548256,"data":"TEST (self-ensemble): {'PSNR': 35.7383, 'PSNR_psrt': 30.7708, 'MPSNR_peak1': 39.0168, 'SSIM': 0.875, 'SSIM_psrt': 0.9204, 'SAM': 1.7543, 'ERGAS': 3.9633, 'RMSE_DN': 257.7582, 'CC': 0.9406, 'SCC': 0.9246, 'Q2n': 0.9053}\n"}
+,{"stream_name":"stdout","time":25250.410553396,"data":"consistency: {'cons_H_dB': 56.917930328108994, 'cons_M_dB': 38.566702809794336}\n"}
+,{"stream_name":"stdout","time":25250.657957108,"data":"VAL: {'PSNR': 33.6511, 'PSNR_psrt': 31.3936, 'MPSNR_peak1': 33.7568, 'SSIM': 0.871, 'SSIM_psrt': 0.8992, 'SAM': 2.348, 'ERGAS': 4.4853, 'RMSE_DN': 321.6962, 'CC': 0.9591, 'SCC': 0.9152}\n"}
+,{"stream_name":"stdout","time":25250.657996529,"data":"TEST: {'PSNR': 35.7076, 'PSNR_psrt': 30.7401, 'MPSNR_peak1': 38.9813, 'SSIM': 0.8744, 'SSIM_psrt': 0.9199, 'SAM': 1.8027, 'ERGAS': 3.9813, 'RMSE_DN': 258.7261, 'CC': 0.9401, 'SCC': 0.9241, 'Q2n': 0.9047}\n"}
+,{"stream_name":"stdout","time":25250.658004239,"data":"TEST (self-ensemble): {'PSNR': 35.7383, 'PSNR_psrt': 30.7708, 'MPSNR_peak1': 39.0168, 'SSIM': 0.875, 'SSIM_psrt': 0.9204, 'SAM': 1.7543, 'ERGAS': 3.9633, 'RMSE_DN': 257.7582, 'CC': 0.9406, 'SCC': 0.9246, 'Q2n': 0.9053}\n"}
+,{"stream_name":"stdout","time":25250.658009269,"data":"consistency: {'cons_H_dB': 56.917930328108994, 'cons_M_dB': 38.566702809794336}\n"}
+,{"stream_name":"stdout","time":25251.789640492,"data":"END bench-neon-x4-dhif rc 0\n"}
+,{"stream_name":"stdout","time":25252.70979066,"data":"RUN bench-neon-x4-ssrnet : python test.py --mat /kaggle/input  --dataset neon --scale 4 --model ssrnet --ckpt /kaggle/input/notebooks/amarnath10chinu/puf-n05/out/bench-neon-x4-ssrnet/best_ema.pt --out /kaggle/working/out/bench-neon-x4-ssrnet-sjer --train_dir /kaggle/input/notebooks/amarnath10chinu/puf-n05/out/bench-neon-x4-ssrnet\n"}
+,{"stream_name":"stdout","time":28740.974912019,"data":"VAL: {'PSNR': 31.4463, 'PSNR_psrt': 29.1888, 'MPSNR_peak1': 31.5516, 'SSIM': 0.834, 'SSIM_psrt': 0.8683, 'SAM': 2.9308, 'ERGAS': 5.8089, 'RMSE_DN': 414.6565, 'CC': 0.934, 'SCC': 0.8614}\n"}
+,{"stream_name":"stdout","time":28740.974998059,"data":"TEST: {'PSNR': 34.6031, 'PSNR_psrt': 29.6356, 'MPSNR_peak1': 37.6218, 'SSIM': 0.8503, 'SSIM_psrt': 0.9029, 'SAM': 2.3898, 'ERGAS': 4.7901, 'RMSE_DN': 295.2177, 'CC': 0.9253, 'SCC': 0.9026, 'Q2n': 0.8699}\n"}
+,{"stream_name":"stdout","time":28740.975005309,"data":"TEST (self-ensemble): {'PSNR': 34.6275, 'PSNR_psrt': 29.66, 'MPSNR_peak1': 37.6469, 'SSIM': 0.8508, 'SSIM_psrt': 0.9033, 'SAM': 2.3624, 'ERGAS': 4.7794, 'RMSE_DN': 294.3313, 'CC': 0.926, 'SCC': 0.9035, 'Q2n': 0.8705}\n"}
+,{"stream_name":"stdout","time":28740.975009099,"data":"consistency: {'cons_H_dB': 47.21450459273333, 'cons_M_dB': 38.52436481896431}\n"}
+,{"stream_name":"stdout","time":28741.184843682,"data":"VAL: {'PSNR': 31.4463, 'PSNR_psrt': 29.1888, 'MPSNR_peak1': 31.5516, 'SSIM': 0.834, 'SSIM_psrt': 0.8683, 'SAM': 2.9308, 'ERGAS': 5.8089, 'RMSE_DN': 414.6565, 'CC': 0.934, 'SCC': 0.8614}\n"}
+,{"stream_name":"stdout","time":28741.184876242,"data":"TEST: {'PSNR': 34.6031, 'PSNR_psrt': 29.6356, 'MPSNR_peak1': 37.6218, 'SSIM': 0.8503, 'SSIM_psrt': 0.9029, 'SAM': 2.3898, 'ERGAS': 4.7901, 'RMSE_DN': 295.2177, 'CC': 0.9253, 'SCC': 0.9026, 'Q2n': 0.8699}\n"}
+,{"stream_name":"stdout","time":28741.184881592,"data":"TEST (self-ensemble): {'PSNR': 34.6275, 'PSNR_psrt': 29.66, 'MPSNR_peak1': 37.6469, 'SSIM': 0.8508, 'SSIM_psrt': 0.9033, 'SAM': 2.3624, 'ERGAS': 4.7794, 'RMSE_DN': 294.3313, 'CC': 0.926, 'SCC': 0.9035, 'Q2n': 0.8705}\n"}
+,{"stream_name":"stdout","time":28741.184884902,"data":"consistency: {'cons_H_dB': 47.21450459273333, 'cons_M_dB': 38.52436481896431}\n"}
+,{"stream_name":"stdout","time":28741.620237285,"data":"END bench-neon-x4-ssrnet rc 0\n"}
+,{"stream_name":"stderr","time":28746.103522567,"data":"/usr/local/lib/python3.13/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":28746.103569057,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":28746.369471543,"data":"/usr/local/lib/python3.13/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":28746.369513453,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":28747.318893088,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":28747.396793487,"data":"[NbConvertApp] Writing 124013 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":28750.222211794,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":28750.877491744,"data":"[NbConvertApp] Writing 408059 bytes to __results__.html\n"}
+]

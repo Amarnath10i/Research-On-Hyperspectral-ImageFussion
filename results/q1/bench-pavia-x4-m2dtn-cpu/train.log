@@ -1,0 +1,12 @@
+pavia x4: train [(92, 424, 715), (92, 512, 187)] test (4, 92, 256, 256) val (63, 92, 64, 64), 1.0 = 8000 DN  (3s)
+[external] m2dtn: https://github.com/Jiahuiqu/M2DTN @ e50295ae03aeaf902732b3b05d8e527e8130aae1
+m2dtn (reflect borders): 15.41M params on 1 x cpu; batch 2 x 1; epoch = 48 iters; eval every 2 iters; deadline in inf h; schedule by time
+bicubic test: {'PSNR': 25.5166, 'PSNR_psrt': 25.1078, 'MPSNR_peak1': 25.8716, 'SSIM': 0.6282, 'SSIM_psrt': 0.6427, 'SAM': 6.5539, 'ERGAS': 9.8525, 'RMSE_DN': 436.3207, 'CC': 0.8174, 'SCC': 0.7526}
+GSA test: {'PSNR': 34.7757, 'PSNR_psrt': 34.3668, 'MPSNR_peak1': 35.1931, 'SSIM': 0.9438, 'SSIM_psrt': 0.945, 'SAM': 5.2291, 'ERGAS': 3.4939, 'RMSE_DN': 157.9259, 'CC': 0.9958, 'SCC': 0.9922}
+  it 1 loss 0.17492 lr 1.00e-06 0.30 it/s (x2 patches) cosine end ~4 it, RSS 1.31 GB, host free 28.9 GB
+ep     0.0 it      2 loss 0.17633 lr 2.00e-06 val PSNR 14.581 SSIM 0.0733 SAM 60.828 | best val 14.581 (0.09 h)
+  it 3 loss 0.12165 lr 3.00e-06 0.04 it/s (x2 patches) cosine end ~4 it, RSS 1.85 GB, host free 28.4 GB
+ep     0.1 it      4 loss 0.14749 lr 4.00e-06 val PSNR 14.582 SSIM 0.0721 SAM 60.948 | best val 14.582 (0.10 h)
+TEST: {'PSNR': 15.4009, 'PSNR_psrt': 14.992, 'MPSNR_peak1': 16.2134, 'SSIM': 0.1345, 'SSIM_psrt': 0.1404, 'SAM': 61.2581, 'ERGAS': 30.1321, 'RMSE_DN': 1372.5485, 'CC': 0.0126, 'SCC': 0.277}
+TEST (self-ensemble): {'PSNR': 15.4004, 'PSNR_psrt': 14.9915, 'MPSNR_peak1': 16.2129, 'SSIM': 0.1344, 'SSIM_psrt': 0.1404, 'SAM': 61.2722, 'ERGAS': 30.1344, 'RMSE_DN': 1372.6277, 'CC': 0.0037, 'SCC': 0.2508}
+consistency: {'cons_H_dB': 15.866508103440971, 'cons_M_dB': 16.122288300215814} | self-ensemble: {'cons_H_dB': 15.865932016461521, 'cons_M_dB': 16.121613162958507}
