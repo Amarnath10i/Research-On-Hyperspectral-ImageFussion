@@ -62,9 +62,9 @@ def rank(ours, tip, d, hi):
     return 1 + sum((round(t, d) > o) if hi else (round(t, d) < o) for t in tip)
 
 
-def pavia_compare(res, tip):
-    rows = [(f"{LABEL.get(r['method'], r['method'])}~\\cite{{{CITE[r['method']]}}}", [float(r[c]) for c, *_ in COLS])
-            for r in tip]
+def pavia_compare(res, tip, cite=True, fname="pavia_compare.tex"):
+    rows = [(f"{LABEL.get(r['method'], r['method'])}~\\cite{{{CITE[r['method']]}}}" if cite
+             else LABEL.get(r['method'], r['method']), [float(r[c]) for c, *_ in COLS]) for r in tip]
     rows += [("Base model (single pass)", [res["test"][k] for _, k, *_ in COLS]),
              ("Base model (self-ensemble)", [res["test_tta"][k] for _, k, *_ in COLS])]
     best = [(max if hi else min)(round(r[1][j], d) for r in rows) for j, (_, _, d, hi) in enumerate(COLS)]
@@ -75,7 +75,7 @@ def pavia_compare(res, tip):
         cells = [("\\best{%s}" if round(v, d) == best[j] else "%s") % fmt(v, d) for j, (v, (_, _, d, _)) in enumerate(zip(vals, COLS))]
         body.append(f"{name} & " + " & ".join(cells) + " \\\\")
     s, e = res["test"]["SSIM"], res["test_tta"]["SSIM"]
-    write("pavia_compare.tex", [
+    write(fname, [
         "\\begin{table*}[t]", "\\centering",
         "\\caption{Pavia Centre $\\times$4 comparison. All rows except the base model are reported in~\\cite{chen2026twostage} "
         "on the benchmark data released with PSRT~\\cite{deng2023psrt}; the base model is evaluated on our simulation of the "
@@ -229,6 +229,7 @@ def main():
     s = os.path.join(PAV, "sam_analysis", "sam.json")
     tip = tip_rows()
     pavia_compare(pav, tip)
+    pavia_compare(pav, tip, cite=False, fname="pavia_compare_nocite.tex")   # journal: the rows are cited in its supplement
     ours_table(chi, chi_first, chi_gaps, ssrnet, pav)
     perimage_table(chi, pav)
     robust_table(chi_gaps, pav_gaps)

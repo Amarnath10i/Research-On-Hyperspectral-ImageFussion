@@ -262,6 +262,16 @@ def all_jobs():
         jobs[f"reg-{d}-x4-m2dtn"] = job(f"reg-{d}-x4-m2dtn", d, 4, "m2dtn", "--rand_msi_shift 1.0")
         # ... and with the reference shifted with the HR-MSI, the frame M2DTN reconstructs in (it warps the LR-HSI)
         jobs[f"regf-{d}-x4-m2dtn"] = job(f"regf-{d}-x4-m2dtn", d, 4, "m2dtn", "--rand_msi_shift 1.0 --msi_shift_target 1")
+    # the remaining cells of the extended comparison: the newer networks at CAVE/Harvard x8 and Chikusei x16 (SMGU-Net
+    # is written for x4 only). Chikusei x16 (128 bands, 128x128 patches) does not fit a 16 GB T4 at batch 4 for most
+    # networks, so the batch is split into micro-batches whose gradients are added (--accum; same update)
+    for m in [x for x in NEW_METHODS if x != "smgu"] + ["caformer"]:
+        for d in ("cave", "harvard"):
+            jobs[f"bench-{d}-x8-{m}"] = job(f"bench-{d}-x8-{m}", d, 8, m)
+    jobs["bench-chikusei-x8-caformer"] = job("bench-chikusei-x8-caformer", "chikusei", 8, "caformer")
+    for m in ["dct", "dhif", "caformer"] + [x for x in NEW_METHODS if x != "smgu"]:
+        jobs[f"bench-chikusei-x16-{m}"] = job(f"bench-chikusei-x16-{m}", "chikusei", 16, m,
+                                              "--accum 4" if m == "u2net" else "--accum 2")
     return jobs
 
 
@@ -442,6 +452,16 @@ SESSIONS = {
     "puf-m2a": (["bench-chikusei-x4-m2dtn"], ["bench-pavia-x4-m2dtn"]),
     "puf-m2b": (["reg-chikusei-x4-m2dtn"], ["reg-pavia-x4-m2dtn"]),
     "puf-m2c": (["regf-chikusei-x4-m2dtn"], ["regf-pavia-x4-m2dtn"]),
+    # remaining cells of the extended comparison (CAVE/Harvard x8, Chikusei x8/x16)
+    "puf-x01": (["bench-cave-x8-mimosst"], ["bench-harvard-x8-mimosst"]),
+    "puf-x02": (["bench-cave-x8-otpnet"], ["bench-harvard-x8-otpnet"]),
+    "puf-x03": (["bench-chikusei-x16-mimosst"], ["bench-chikusei-x16-otpnet"]),
+    "puf-x04": (["bench-cave-x8-clsnet"], ["bench-harvard-x8-clsnet"]),
+    "puf-x05": (["bench-cave-x8-u2net"], ["bench-harvard-x8-u2net"]),
+    "puf-x06": (["bench-cave-x8-caformer"], ["bench-harvard-x8-caformer"]),
+    "puf-x07": (["bench-chikusei-x16-dct"], ["bench-chikusei-x16-dhif"]),
+    "puf-x08": (["bench-chikusei-x16-clsnet"], ["bench-chikusei-x16-caformer"]),
+    "puf-x09": (["bench-chikusei-x16-u2net"], ["bench-chikusei-x8-caformer"]),
 }
 # the adopted model in the robustness, recipe and uncertainty experiments
 for _i, _j in enumerate(("cond-{d}-x4-ng", "cond-{d}-x4-regng", "sa-{d}-x4-ng", "cond-{d}-x4-cwdng", "cond-{d}-x4-corng",

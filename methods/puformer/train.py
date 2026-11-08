@@ -63,6 +63,7 @@ def get_args():
     p.add_argument("--clip", type=float, default=None, help="gradient-norm clip, 0 = off (default 0.1, or the baseline's)")
     p.add_argument("--w_deep", type=float, default=0.1, help="weight of the intermediate-stage L1 terms")
     p.add_argument("--bs", type=int, default=8, help="batch size per process (GPU)")
+    p.add_argument("--accum", type=int, default=1, help="split each batch into this many equal micro-batches and add their gradients (same update, less GPU memory)")
     p.add_argument("--patch", type=int, default=64)
     p.add_argument("--lr", type=float, default=None, help="peak learning rate (default 3e-4, or the baseline's)")
     p.add_argument("--warmup", type=int, default=1000)
@@ -383,20 +384,25 @@ def main():
         if a.rand_snr and np.random.rand() < a.noise_prob:
             snr = float(np.random.uniform(snr_lo, snr_hi))
             lr_, ms_ = add_noise(lr_, snr), add_noise(ms_, snr)
-        outs = net(lr_, ms_, return_all=True)
-        loss = F.l1_loss(outs[-1], gt_) + a.w_deep * sum(F.l1_loss(o, gt_) for o in outs[:-1])
-        if a.w_sam:
-            loss = loss + a.w_sam * sam_loss(outs[-1], gt_)
-        if a.w_ssim:
-            loss = loss + a.w_ssim * ssim_loss(outs[-1], gt_)
-        if getattr(model, "unc", False) and model.last_logvar is not None and a.w_unc:
-            err = (outs[-1] - gt_).detach()
-            dg = model.deg
-            en = null_gate(dg, err, 0.0) if getattr(dg, "gaussian", False) else err   # the unobservable part
-            s = model.last_logvar
-            loss = loss + a.w_unc * (en.pow(2) * torch.exp(-s) + s).mean()
         opt.zero_grad(set_to_none=True)
-        scaler.scale(loss).backward()
+        k = max(1, a.accum)
+        loss_sum = 0.0
+        for lr_c, ms_c, gt_c in zip(lr_.chunk(k), ms_.chunk(k), gt_.chunk(k)):
+            outs = net(lr_c, ms_c, return_all=True)
+            loss = F.l1_loss(outs[-1], gt_c) + a.w_deep * sum(F.l1_loss(o, gt_c) for o in outs[:-1])
+            if a.w_sam:
+                loss = loss + a.w_sam * sam_loss(outs[-1], gt_c)
+            if a.w_ssim:
+                loss = loss + a.w_ssim * ssim_loss(outs[-1], gt_c)
+            if getattr(model, "unc", False) and model.last_logvar is not None and a.w_unc:
+                err = (outs[-1] - gt_c).detach()
+                dg = model.deg
+                en = null_gate(dg, err, 0.0) if getattr(dg, "gaussian", False) else err   # the unobservable part
+                s = model.last_logvar
+                loss = loss + a.w_unc * (en.pow(2) * torch.exp(-s) + s).mean()
+            scaler.scale(loss / k).backward()
+            loss_sum = loss_sum + loss.detach() / k
+        loss = loss_sum
         scaler.unscale_(opt)
         if a.clip:
             torch.nn.utils.clip_grad_norm_(model.parameters(), a.clip)

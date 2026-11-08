@@ -1297,6 +1297,9 @@ def cvpr_ablation():
             if f"{k}-ng-{v}-vspf" in NUM]
     if len(arch) == 6:
         NUM["ab-arch-max"] = f"{max(arch):.2f}"
+    # Chikusei x16 runs of networks trained with micro-batches (--accum): the protocol note appears once one exists
+    if any(load(f"bench-chikusei-x16-{m}") for m in ("dct", "dhif", "clsnet", "otpnet", "u2net", "mimosst", "caformer")):
+        NUM["accum-x16"] = "yes"
     head = ["\\setlength{\\tabcolsep}{2.5pt}", "\\resizebox{\\columnwidth}{!}{%", "\\begin{tabular}{@{}lcccccc@{}}",
             "\\toprule", " & \\multicolumn{3}{c}{Chikusei} & \\multicolumn{3}{c}{Pavia Centre} \\\\",
             "\\cmidrule(lr){2-4}\\cmidrule(l){5-7}", "Variant & PSNR & Cons. & Swap & PSNR & Cons. & Swap \\\\", "\\midrule"]

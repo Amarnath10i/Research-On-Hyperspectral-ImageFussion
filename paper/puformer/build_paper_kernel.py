@@ -71,11 +71,16 @@ if {generate}:
     sh(f'Q1_PREDS={{pdir}} python make_q1_figures.py')
 os.makedirs('/kaggle/working/bin', exist_ok=True)
 # the statically linked (musl) build: the glibc build needs a newer libc than Kaggle's image has
-for v in ['0.15.0', '0.14.1']:
-    url = (f'https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%40{{v}}/'
-           f'tectonic-{{v}}-x86_64-unknown-linux-musl.tar.gz')
-    if subprocess.run(f'curl -fsSL {{url}} | tar xz', shell=True, cwd='/kaggle/working/bin').returncode == 0:
+import time
+for attempt in range(20):           # GitHub release downloads sometimes return 504 for a while: retry
+    for v in ['0.15.0', '0.14.1']:
+        url = (f'https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%40{{v}}/'
+               f'tectonic-{{v}}-x86_64-unknown-linux-musl.tar.gz')
+        if subprocess.run(f'curl -fsSL --retry 3 {{url}} | tar xz', shell=True, cwd='/kaggle/working/bin').returncode == 0:
+            break
+    if os.path.exists('/kaggle/working/bin/tectonic'):
         break
+    time.sleep(60)
 sh('./tectonic --version', cwd='/kaggle/working/bin')
 sh('/kaggle/working/bin/tectonic -X compile main.tex')
 sh('/kaggle/working/bin/tectonic -X compile supplementary.tex')
