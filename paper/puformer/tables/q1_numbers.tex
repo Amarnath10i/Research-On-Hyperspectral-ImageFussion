@@ -185,6 +185,7 @@
 \expandafter\def\csname qone@abl-zeros-std\endcsname{0.03}
 \expandafter\def\csname qone@abl-zeros-swap\endcsname{49.64}
 \expandafter\def\csname qone@abl-zeros-swaploss\endcsname{0.88}
+\expandafter\def\csname qone@accum-x16\endcsname{yes}
 \expandafter\def\csname qone@altloss-max\endcsname{3.4}
 \expandafter\def\csname qone@altloss-min\endcsname{0.9}
 \expandafter\def\csname qone@blind-chikusei-grid\endcsname{0.05}
@@ -546,8 +547,10 @@
 \expandafter\def\csname qone@cave8-best-other\endcsname{MIMFormer}
 \expandafter\def\csname qone@cave8-gain\endcsname{2.29}
 \expandafter\def\csname qone@cave8-psnr\endcsname{50.39}
-\expandafter\def\csname qone@chikusei16-best-other\endcsname{MIMFormer}
-\expandafter\def\csname qone@chikusei16-gain\endcsname{1.90}
+\expandafter\def\csname qone@chikusei16-best-other\endcsname{MIMO-SST}
+\expandafter\def\csname qone@chikusei16-dct-iters\endcsname{2{,}150}
+\expandafter\def\csname qone@chikusei16-dhif-iters\endcsname{1{,}050}
+\expandafter\def\csname qone@chikusei16-gain\endcsname{1.64}
 \expandafter\def\csname qone@chikusei16-psnr\endcsname{56.11}
 \expandafter\def\csname qone@chikusei4-allwin\endcsname{all}
 \expandafter\def\csname qone@chikusei4-best-other\endcsname{MIMO-SST}
@@ -624,9 +627,9 @@
 \expandafter\def\csname qone@ci-cave8-wins-ergas\endcsname{12/12}
 \expandafter\def\csname qone@ci-cave8-wins-psnr\endcsname{12/12}
 \expandafter\def\csname qone@ci-cave8-wins-sam\endcsname{12/12}
-\expandafter\def\csname qone@ci-chikusei16-gain\endcsname{1.90}
-\expandafter\def\csname qone@ci-chikusei16-hi\endcsname{2.74}
-\expandafter\def\csname qone@ci-chikusei16-lo\endcsname{1.18}
+\expandafter\def\csname qone@ci-chikusei16-gain\endcsname{1.64}
+\expandafter\def\csname qone@ci-chikusei16-hi\endcsname{2.41}
+\expandafter\def\csname qone@ci-chikusei16-lo\endcsname{0.98}
 \expandafter\def\csname qone@ci-chikusei16-wins-ergas\endcsname{8/8}
 \expandafter\def\csname qone@ci-chikusei16-wins-psnr\endcsname{8/8}
 \expandafter\def\csname qone@ci-chikusei16-wins-sam\endcsname{8/8}
@@ -672,9 +675,9 @@
 \expandafter\def\csname qone@ci-pavia8-wins-ergas\endcsname{4/4}
 \expandafter\def\csname qone@ci-pavia8-wins-psnr\endcsname{4/4}
 \expandafter\def\csname qone@ci-pavia8-wins-sam\endcsname{4/4}
-\expandafter\def\csname qone@ci-pooled-gain\endcsname{0.94}
-\expandafter\def\csname qone@ci-pooled-hi\endcsname{1.12}
-\expandafter\def\csname qone@ci-pooled-lo\endcsname{0.77}
+\expandafter\def\csname qone@ci-pooled-gain\endcsname{0.92}
+\expandafter\def\csname qone@ci-pooled-hi\endcsname{1.10}
+\expandafter\def\csname qone@ci-pooled-lo\endcsname{0.75}
 \expandafter\def\csname qone@cond-chikusei-bandnoise-bench-mimformer-fixed\endcsname{39.17}
 \expandafter\def\csname qone@cond-chikusei-bandnoise-bench-puformer-estimated\endcsname{44.40}
 \expandafter\def\csname qone@cond-chikusei-bandnoise-bench-puformer-fixed\endcsname{44.43}
@@ -2652,8 +2655,8 @@
 \expandafter\def\csname qone@reg-pavia-regng-reg_out-sharpnoise05\endcsname{36.78}
 \expandafter\def\csname qone@retrained-list\endcsname{SSR-NET~\cite{zhang2021ssrnet}, PSRT~\cite{deng2023psrt}, DCT~\cite{ma2024reciprocal}, MIMFormer~\cite{li2024mimformer}, DHIF-Net~\cite{huang2022dhif}, U2Net~\cite{peng2023u2net}, MIMO-SST~\cite{fang2024mimosst}, OTPNet~\cite{yu2025otpnet}, SMGU-Net~\cite{yan2025smgu}, CLSNet~\cite{yang2026clsnet}, CaFormer~\cite{cao2026caformer} and M2DTN~\cite{dong2024m2dtn}}
 \expandafter\def\csname qone@scl-chikusei-cost-max\endcsname{0.14}
-\expandafter\def\csname qone@scl-chikusei-x16-best\endcsname{54.21}
-\expandafter\def\csname qone@scl-chikusei-x16-gain\endcsname{1.76}
+\expandafter\def\csname qone@scl-chikusei-x16-best\endcsname{54.48}
+\expandafter\def\csname qone@scl-chikusei-x16-gain\endcsname{1.49}
 \expandafter\def\csname qone@scl-chikusei-x16-gsa\endcsname{35.20}
 \expandafter\def\csname qone@scl-chikusei-x16-one\endcsname{55.97}
 \expandafter\def\csname qone@scl-chikusei-x16-spec\endcsname{56.11}
