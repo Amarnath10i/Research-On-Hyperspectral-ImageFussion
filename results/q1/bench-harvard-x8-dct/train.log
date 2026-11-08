@@ -1,0 +1,20 @@
+harvard x8: train 60 regions, e.g. [(31, 896, 1392), (31, 896, 1392)] test (20, 31, 512, 512) val (60, 31, 64, 64), 1.0 = 255 DN  (0s)
+/kaggle/working/code/train.py:213: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /pytorch/torch/csrc/utils/tensor_numpy.cpp:213.)
+  test = make_pairs(torch.from_numpy(te).to(dev), deg) if main_proc else None
+[external] dct: https://github.com/qingma2016/DCTransformer @ bd75b1576988ef46964966a111e9b9650b1101ee
+/usr/local/lib/python3.13/dist-packages/timm/models/layers/__init__.py:49: FutureWarning: Importing from timm.models.layers is deprecated, please import via timm.layers
+  warnings.warn(f"Importing from {__name__} is deprecated, please import via timm.layers", FutureWarning)
+/usr/local/lib/python3.13/dist-packages/torch/functional.py:505: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /pytorch/aten/src/ATen/native/TensorShape.cpp:4381.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+dct (reflect borders): 8.15M params on 1 x cuda; batch 8 x 1; epoch = 1306 iters; eval every 1000 iters; deadline in 3.99 h; schedule by time
+bicubic test: {'PSNR': 32.1432, 'PSNR_psrt': 28.9856, 'MPSNR_peak1': 34.6135, 'SSIM': 0.8039, 'SSIM_psrt': 0.8667, 'SAM': 3.0717, 'ERGAS': 3.2806, 'RMSE_DN': 6.8687, 'CC': 0.8864, 'SCC': 0.6741, 'Q2n': 0.4674}
+GSA test: {'PSNR': 43.1294, 'PSNR_psrt': 39.9718, 'MPSNR_peak1': 44.7909, 'SSIM': 0.9698, 'SSIM_psrt': 0.9821, 'SAM': 2.6998, 'ERGAS': 1.1104, 'RMSE_DN': 1.9441, 'CC': 0.9904, 'SCC': 0.9854, 'Q2n': 0.8333}
+ep     0.8 it   1000 loss 0.02167 lr 1.00e-04 val PSNR 41.481 SSIM 0.9064 SAM 3.722 | best val 41.481 (0.91 h)
+ep     1.5 it   2000 loss 0.00740 lr 5.76e-05 val PSNR 44.656 SSIM 0.9280 SAM 2.926 | best val 44.656 (1.81 h)
+ep     2.3 it   3000 loss 0.00501 lr 2.35e-05 val PSNR 45.817 SSIM 0.9337 SAM 2.711 | best val 45.817 (2.72 h)
+ep     3.1 it   4000 loss 0.00394 lr 2.29e-06 val PSNR 46.354 SSIM 0.9359 SAM 2.608 | best val 46.354 (3.62 h)
+ep     3.4 it   4450 loss 0.00366 lr 1.00e-07 val PSNR 46.437 SSIM 0.9362 SAM 2.593 | best val 46.437 (4.02 h)
+time budget reached at it 4450 (epoch 3.4); continue with --resume <out>/last.pt
+TEST: {'PSNR': 47.853, 'PSNR_psrt': 44.6954, 'MPSNR_peak1': 48.9104, 'SSIM': 0.9791, 'SSIM_psrt': 0.989, 'SAM': 2.4096, 'ERGAS': 0.7834, 'RMSE_DN': 1.135, 'CC': 0.9906, 'SCC': 0.9894, 'Q2n': 0.8809}
+TEST (self-ensemble): {'PSNR': 47.9259, 'PSNR_psrt': 44.7683, 'MPSNR_peak1': 48.9986, 'SSIM': 0.9793, 'SSIM_psrt': 0.9891, 'SAM': 2.3944, 'ERGAS': 0.7738, 'RMSE_DN': 1.1262, 'CC': 0.9908, 'SCC': 0.9895, 'Q2n': 0.8817}
+consistency: {'cons_H_dB': 58.38115482294019, 'cons_M_dB': 60.52988503502968} | self-ensemble: {'cons_H_dB': 58.4264987659022, 'cons_M_dB': 61.02058336306857}

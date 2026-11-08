@@ -45,7 +45,7 @@ B64 = '{b64}'
 raw = base64.b64decode(B64)
 assert hashlib.sha256(raw).hexdigest() == '{sha}'
 REPO, OUT = '/kaggle/working/repo', '/kaggle/working/paper'
-tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz').extractall(REPO)
+tarfile.open(fileobj=io.BytesIO(raw), mode='r:*').extractall(REPO)
 print('paper sources sha256 {sha} from git {rev}')
 P = REPO + '/paper/puformer'
 
@@ -123,7 +123,7 @@ def compact_json(data):
 
 
 def blob(test):
-    """tar.gz of the paper sources and result files, working tree or (test) HEAD."""
+    """tar.xz of the paper sources and result files, working tree or (test) HEAD."""
     if test:
         names = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", "HEAD", "paper/puformer"],
                                         cwd=REPO, text=True).split()
@@ -134,7 +134,7 @@ def blob(test):
                                 for pat in RESULTS for p in glob.glob(os.path.join(REPO, pat))})
         read = lambda n: open(os.path.join(REPO, n), "rb").read()
     buf = io.BytesIO()
-    with tarfile.open(fileobj=buf, mode="w:gz") as tar:
+    with tarfile.open(fileobj=buf, mode="w:xz", preset=9) as tar:
         for n in names:
             data = read(n)
             data = data if n.endswith(".pdf") else data.replace(b"\r\n", b"\n")

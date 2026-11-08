@@ -1,0 +1,31 @@
+harvard x8: train 60 regions, e.g. [(31, 896, 1392), (31, 896, 1392)] test (20, 31, 512, 512) val (60, 31, 64, 64), 1.0 = 255 DN  (0s)
+/kaggle/working/code/train.py:213: UserWarning: The given NumPy array is not writable, and PyTorch does not support non-writable tensors. This means writing to this tensor will result in undefined behavior. You may want to copy the array to protect its data or make it writable before converting it to a tensor. This type of warning will be suppressed for the rest of this program. (Triggered internally at /pytorch/torch/csrc/utils/tensor_numpy.cpp:213.)
+  test = make_pairs(torch.from_numpy(te).to(dev), deg) if main_proc else None
+[external] dhif: https://github.com/TaoHuang95/DHIF-Net @ 643436658109f65a78ee01191163eec88a6b4407
+dhif (reflect borders): 22.67M params on 1 x cuda; batch 8 x 1; epoch = 1306 iters; eval every 1000 iters; deadline in 4.00 h; schedule by time
+bicubic test: {'PSNR': 32.1432, 'PSNR_psrt': 28.9856, 'MPSNR_peak1': 34.6135, 'SSIM': 0.8039, 'SSIM_psrt': 0.8667, 'SAM': 3.0717, 'ERGAS': 3.2806, 'RMSE_DN': 6.8687, 'CC': 0.8864, 'SCC': 0.6741, 'Q2n': 0.4674}
+GSA test: {'PSNR': 43.1294, 'PSNR_psrt': 39.9718, 'MPSNR_peak1': 44.7909, 'SSIM': 0.9698, 'SSIM_psrt': 0.9821, 'SAM': 2.6998, 'ERGAS': 1.1104, 'RMSE_DN': 1.9441, 'CC': 0.9904, 'SCC': 0.9854, 'Q2n': 0.8333}
+ep     0.8 it   1000 loss 0.01424 lr 3.00e-04 val PSNR 41.961 SSIM 0.8856 SAM 3.239 | best val 41.961 (0.22 h)
+ep     1.5 it   2000 loss 0.00556 lr 2.92e-04 val PSNR 45.707 SSIM 0.9264 SAM 2.700 | best val 45.707 (0.42 h)
+ep     2.3 it   3000 loss 0.00425 lr 2.83e-04 val PSNR 46.526 SSIM 0.9321 SAM 2.559 | best val 46.526 (0.63 h)
+ep     3.1 it   4000 loss 0.00396 lr 2.70e-04 val PSNR 46.916 SSIM 0.9344 SAM 2.474 | best val 46.916 (0.83 h)
+ep     3.8 it   5000 loss 0.00370 lr 2.53e-04 val PSNR 47.214 SSIM 0.9362 SAM 2.406 | best val 47.214 (1.04 h)
+ep     4.6 it   6000 loss 0.00355 lr 2.35e-04 val PSNR 47.504 SSIM 0.9378 SAM 2.343 | best val 47.504 (1.24 h)
+ep     5.4 it   7000 loss 0.00345 lr 2.14e-04 val PSNR 47.688 SSIM 0.9389 SAM 2.302 | best val 47.688 (1.45 h)
+ep     6.1 it   8000 loss 0.00332 lr 1.91e-04 val PSNR 47.754 SSIM 0.9398 SAM 2.272 | best val 47.754 (1.65 h)
+ep     6.9 it   9000 loss 0.00326 lr 1.67e-04 val PSNR 47.900 SSIM 0.9404 SAM 2.251 | best val 47.900 (1.86 h)
+ep     7.7 it  10000 loss 0.00322 lr 1.43e-04 val PSNR 47.988 SSIM 0.9409 SAM 2.232 | best val 47.988 (2.06 h)
+ep     8.4 it  11000 loss 0.00316 lr 1.19e-04 val PSNR 48.047 SSIM 0.9412 SAM 2.218 | best val 48.047 (2.27 h)
+ep     9.2 it  12000 loss 0.00312 lr 9.61e-05 val PSNR 48.061 SSIM 0.9415 SAM 2.208 | best val 48.061 (2.47 h)
+ep    10.0 it  13000 loss 0.00308 lr 7.44e-05 val PSNR 48.132 SSIM 0.9416 SAM 2.200 | best val 48.132 (2.67 h)
+ep    10.7 it  14000 loss 0.00308 lr 5.46e-05 val PSNR 48.179 SSIM 0.9417 SAM 2.193 | best val 48.179 (2.88 h)
+ep    11.5 it  15000 loss 0.00302 lr 3.73e-05 val PSNR 48.206 SSIM 0.9418 SAM 2.189 | best val 48.206 (3.08 h)
+ep    12.3 it  16000 loss 0.00307 lr 2.28e-05 val PSNR 48.223 SSIM 0.9418 SAM 2.186 | best val 48.223 (3.29 h)
+ep    13.0 it  17000 loss 0.00304 lr 1.17e-05 val PSNR 48.234 SSIM 0.9419 SAM 2.184 | best val 48.234 (3.49 h)
+ep    13.8 it  18000 loss 0.00301 lr 4.16e-06 val PSNR 48.242 SSIM 0.9419 SAM 2.182 | best val 48.242 (3.70 h)
+ep    14.5 it  19000 loss 0.00300 lr 4.21e-07 val PSNR 48.250 SSIM 0.9419 SAM 2.180 | best val 48.250 (3.90 h)
+ep    14.9 it  19500 loss 0.00299 lr 3.00e-07 val PSNR 48.251 SSIM 0.9419 SAM 2.180 | best val 48.251 (4.01 h)
+time budget reached at it 19500 (epoch 14.9); continue with --resume <out>/last.pt
+TEST: {'PSNR': 49.0746, 'PSNR_psrt': 45.917, 'MPSNR_peak1': 50.0599, 'SSIM': 0.981, 'SSIM_psrt': 0.9904, 'SAM': 2.1766, 'ERGAS': 0.6823, 'RMSE_DN': 0.9721, 'CC': 0.9922, 'SCC': 0.991, 'Q2n': 0.89}
+TEST (self-ensemble): {'PSNR': 49.1041, 'PSNR_psrt': 45.9465, 'MPSNR_peak1': 50.0881, 'SSIM': 0.981, 'SSIM_psrt': 0.9904, 'SAM': 2.171, 'ERGAS': 0.6805, 'RMSE_DN': 0.9686, 'CC': 0.9923, 'SCC': 0.9911, 'Q2n': 0.8901}
+consistency: {'cons_H_dB': 66.0160015206493, 'cons_M_dB': 71.0554491115216} | self-ensemble: {'cons_H_dB': 66.1642337537126, 'cons_M_dB': 72.00207496611401}

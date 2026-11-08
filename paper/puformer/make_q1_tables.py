@@ -1293,6 +1293,10 @@ def cvpr_ablation():
              if f"{k}-ng-{v}-vspf" in NUM]
     if small:
         NUM["ab-small-max"] = f"{max(small):.2f}"
+    arch = [abs(float(NUM[f"{k}-ng-{v}-vspf"])) for k in ("kcab", "cab") for v in ("k1", "conv", "nomem")
+            if f"{k}-ng-{v}-vspf" in NUM]
+    if len(arch) == 6:
+        NUM["ab-arch-max"] = f"{max(arch):.2f}"
     head = ["\\setlength{\\tabcolsep}{2.5pt}", "\\resizebox{\\columnwidth}{!}{%", "\\begin{tabular}{@{}lcccccc@{}}",
             "\\toprule", " & \\multicolumn{3}{c}{Chikusei} & \\multicolumn{3}{c}{Pavia Centre} \\\\",
             "\\cmidrule(lr){2-4}\\cmidrule(l){5-7}", "Variant & PSNR & Cons. & Swap & PSNR & Cons. & Swap \\\\", "\\midrule"]

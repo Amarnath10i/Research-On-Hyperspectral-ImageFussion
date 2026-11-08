@@ -24,6 +24,7 @@
 \IfFileExists{tables/q1_numbers.tex}{\input{tables/q1_numbers.tex}}{}
 \newcommand{\qone}[1]{\ifcsname qone@#1\endcsname\csname qone@#1\endcsname\else\textbf{??}\fi}
 \newcommand{\qoneif}[2]{\ifcsname qone@#1\endcsname#2\fi}   % text only if the result exists
+\newcommand{\qoneelse}[2]{\ifcsname qone@#1\endcsname\else#2\fi}   % text only while it does not
 % authors (mentor last); cvpr.sty prints them only with the [final] option, 'Anonymous CVPR submission' otherwise
 \newcommand{\cvprauthors}{Hruthwik \and Amarnath M \and Navadeep \and Srilatha Chirbolu}
 \newcommand{\qtab}[1]{\IfFileExists{tables/#1.tex}{\input{tables/#1.tex}}{}}

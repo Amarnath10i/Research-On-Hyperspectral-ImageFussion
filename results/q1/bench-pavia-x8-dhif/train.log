@@ -1,0 +1,15 @@
+pavia x8: train [(92, 424, 715), (92, 512, 187)] test (4, 92, 256, 256) val (63, 92, 64, 64), 1.0 = 8000 DN  (7s)
+[external] dhif: https://github.com/TaoHuang95/DHIF-Net @ 643436658109f65a78ee01191163eec88a6b4407
+dhif (reflect borders): 37.38M params on 1 x cuda; batch 8 x 1; epoch = 12 iters; eval every 1000 iters; deadline in 4.00 h; schedule by time
+bicubic test: {'PSNR': 23.07, 'PSNR_psrt': 22.6611, 'MPSNR_peak1': 23.4254, 'SSIM': 0.4775, 'SSIM_psrt': 0.4964, 'SAM': 8.4992, 'ERGAS': 6.5409, 'RMSE_DN': 575.3901, 'CC': 0.6499, 'SCC': 0.602, 'Q2n': 0.406}
+GSA test: {'PSNR': 30.2353, 'PSNR_psrt': 29.8264, 'MPSNR_peak1': 30.5581, 'SSIM': 0.8731, 'SSIM_psrt': 0.8758, 'SAM': 7.1627, 'ERGAS': 2.9596, 'RMSE_DN': 269.2206, 'CC': 0.9927, 'SCC': 0.9841, 'Q2n': 0.8416}
+ep    83.3 it   1000 loss 0.01729 lr 3.00e-04 val PSNR 37.454 SSIM 0.9733 SAM 3.580 | best val 37.454 (0.75 h)
+ep   166.7 it   2000 loss 0.00542 lr 2.11e-04 val PSNR 42.365 SSIM 0.9901 SAM 2.450 | best val 42.365 (1.48 h)
+ep   250.0 it   3000 loss 0.00374 lr 1.27e-04 val PSNR 44.043 SSIM 0.9930 SAM 2.109 | best val 44.043 (2.20 h)
+ep   333.3 it   4000 loss 0.00303 lr 5.00e-05 val PSNR 44.887 SSIM 0.9940 SAM 1.945 | best val 44.887 (2.93 h)
+ep   416.7 it   5000 loss 0.00274 lr 5.33e-06 val PSNR 45.293 SSIM 0.9945 SAM 1.867 | best val 45.293 (3.66 h)
+ep   458.3 it   5500 loss 0.00267 lr 3.00e-07 val PSNR 45.371 SSIM 0.9946 SAM 1.852 | best val 45.371 (4.03 h)
+time budget reached at it 5500 (epoch 458.3); continue with --resume <out>/last.pt
+TEST: {'PSNR': 47.3285, 'PSNR_psrt': 46.9197, 'MPSNR_peak1': 47.888, 'SSIM': 0.9952, 'SSIM_psrt': 0.9957, 'SAM': 2.351, 'ERGAS': 0.4303, 'RMSE_DN': 34.7596, 'CC': 0.9988, 'SCC': 0.9988, 'Q2n': 0.9705}
+TEST (self-ensemble): {'PSNR': 47.5935, 'PSNR_psrt': 47.1846, 'MPSNR_peak1': 48.1831, 'SSIM': 0.9954, 'SSIM_psrt': 0.9959, 'SAM': 2.2821, 'ERGAS': 0.4175, 'RMSE_DN': 33.7109, 'CC': 0.9989, 'SCC': 0.9988, 'Q2n': 0.9707}
+consistency: {'cons_H_dB': 62.68250213240117, 'cons_M_dB': 55.07811474125331} | self-ensemble: {'cons_H_dB': 63.101877189890985, 'cons_M_dB': 55.89888928131251}
