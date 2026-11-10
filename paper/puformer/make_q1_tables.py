@@ -1300,10 +1300,10 @@ def cvpr_ablation():
     # Chikusei x16 runs of networks trained with micro-batches (--accum): the protocol note appears once one exists
     if any(load(f"bench-chikusei-x16-{m}") for m in ("dct", "dhif", "clsnet", "otpnet", "u2net", "mimosst", "caformer")):
         NUM["accum-x16"] = "yes"
-    for m in ("dct", "dhif"):        # far from converged at Chikusei x16 within the 4 h budget
-        r = load(f"bench-chikusei-x16-{m}")
+    for d, m in (("chikusei", "dct"), ("chikusei", "dhif"), ("pavia", "dct"), ("pavia", "dhif"), ("pavia", "u2net")):
+        r = load(f"bench-{d}-x16-{m}")                   # far from converged at x16 within the 4 h budget
         if r and r.get("iters"):
-            NUM[f"chikusei16-{m}-iters"] = f"{r['iters']:,}".replace(",", "{,}")
+            NUM[f"{d}16-{m}-iters"] = f"{r['iters']:,}".replace(",", "{,}")
     head = ["\\setlength{\\tabcolsep}{2.5pt}", "\\resizebox{\\columnwidth}{!}{%", "\\begin{tabular}{@{}lcccccc@{}}",
             "\\toprule", " & \\multicolumn{3}{c}{Chikusei} & \\multicolumn{3}{c}{Pavia Centre} \\\\",
             "\\cmidrule(lr){2-4}\\cmidrule(l){5-7}", "Variant & PSNR & Cons. & Swap & PSNR & Cons. & Swap \\\\", "\\midrule"]

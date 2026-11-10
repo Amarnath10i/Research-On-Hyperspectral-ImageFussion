@@ -1,0 +1,33 @@
+pavia x16: train [(92, 424, 715), (92, 512, 187)] test (4, 92, 256, 256) val (63, 92, 64, 64), 1.0 = 8000 DN  (4s)
+[external] clsnet: https://github.com/HengYang01/CLSNet @ 6b13371297a78922c1d7fd3096fdf1e51f5f7192
+clsnet (reflect borders): 4.13M params on 1 x cuda; batch 4 x 1; epoch = 6 iters; eval every 1000 iters; deadline in 4.00 h; schedule by time
+bicubic test: {'PSNR': 21.816, 'PSNR_psrt': 21.4071, 'MPSNR_peak1': 22.1463, 'SSIM': 0.4273, 'SSIM_psrt': 0.4463, 'SAM': 10.4597, 'ERGAS': 3.8138, 'RMSE_DN': 659.9311, 'CC': 0.4917, 'SCC': 0.424, 'Q2n': 0.1912}
+GSA test: {'PSNR': 27.069, 'PSNR_psrt': 26.6601, 'MPSNR_peak1': 27.3086, 'SSIM': 0.7779, 'SSIM_psrt': 0.7828, 'SAM': 8.9604, 'ERGAS': 2.1351, 'RMSE_DN': 381.6035, 'CC': 0.9888, 'SCC': 0.963, 'Q2n': 0.7057}
+ep   166.7 it   1000 loss 0.02996 lr 2.00e-04 val PSNR 34.065 SSIM 0.9636 SAM 4.650 | best val 34.065 (0.18 h)
+ep   333.3 it   2000 loss 0.00626 lr 1.97e-04 val PSNR 39.195 SSIM 0.9869 SAM 3.093 | best val 39.195 (0.34 h)
+ep   500.0 it   3000 loss 0.00460 lr 1.92e-04 val PSNR 41.503 SSIM 0.9912 SAM 2.586 | best val 41.503 (0.51 h)
+ep   666.7 it   4000 loss 0.00394 lr 1.86e-04 val PSNR 42.612 SSIM 0.9926 SAM 2.355 | best val 42.612 (0.68 h)
+ep   833.3 it   5000 loss 0.00364 lr 1.79e-04 val PSNR 43.308 SSIM 0.9933 SAM 2.204 | best val 43.308 (0.85 h)
+ep  1000.0 it   6000 loss 0.00338 lr 1.70e-04 val PSNR 43.757 SSIM 0.9937 SAM 2.114 | best val 43.757 (1.01 h)
+ep  1166.7 it   7000 loss 0.00323 lr 1.60e-04 val PSNR 44.170 SSIM 0.9941 SAM 2.033 | best val 44.170 (1.18 h)
+ep  1333.3 it   8000 loss 0.00308 lr 1.49e-04 val PSNR 44.507 SSIM 0.9944 SAM 1.973 | best val 44.507 (1.35 h)
+ep  1500.0 it   9000 loss 0.00296 lr 1.37e-04 val PSNR 44.791 SSIM 0.9947 SAM 1.922 | best val 44.791 (1.52 h)
+ep  1666.7 it  10000 loss 0.00289 lr 1.25e-04 val PSNR 45.016 SSIM 0.9948 SAM 1.882 | best val 45.016 (1.68 h)
+ep  1833.3 it  11000 loss 0.00282 lr 1.12e-04 val PSNR 45.183 SSIM 0.9950 SAM 1.855 | best val 45.183 (1.85 h)
+ep  2000.0 it  12000 loss 0.00275 lr 9.87e-05 val PSNR 45.332 SSIM 0.9951 SAM 1.829 | best val 45.332 (2.02 h)
+ep  2166.7 it  13000 loss 0.00271 lr 8.55e-05 val PSNR 45.437 SSIM 0.9951 SAM 1.812 | best val 45.437 (2.19 h)
+ep  2333.3 it  14000 loss 0.00268 lr 7.27e-05 val PSNR 45.513 SSIM 0.9952 SAM 1.799 | best val 45.513 (2.35 h)
+ep  2500.0 it  15000 loss 0.00263 lr 6.03e-05 val PSNR 45.576 SSIM 0.9952 SAM 1.787 | best val 45.576 (2.52 h)
+ep  2666.7 it  16000 loss 0.00261 lr 4.86e-05 val PSNR 45.631 SSIM 0.9952 SAM 1.773 | best val 45.631 (2.69 h)
+ep  2833.3 it  17000 loss 0.00259 lr 3.78e-05 val PSNR 45.680 SSIM 0.9953 SAM 1.760 | best val 45.680 (2.86 h)
+ep  3000.0 it  18000 loss 0.00256 lr 2.80e-05 val PSNR 45.726 SSIM 0.9953 SAM 1.748 | best val 45.726 (3.02 h)
+ep  3166.7 it  19000 loss 0.00255 lr 1.95e-05 val PSNR 45.759 SSIM 0.9953 SAM 1.741 | best val 45.759 (3.19 h)
+ep  3333.3 it  20000 loss 0.00253 lr 1.24e-05 val PSNR 45.779 SSIM 0.9953 SAM 1.737 | best val 45.779 (3.36 h)
+ep  3500.0 it  21000 loss 0.00253 lr 6.81e-06 val PSNR 45.805 SSIM 0.9953 SAM 1.731 | best val 45.805 (3.53 h)
+ep  3666.7 it  22000 loss 0.00252 lr 2.84e-06 val PSNR 45.827 SSIM 0.9953 SAM 1.727 | best val 45.827 (3.70 h)
+ep  3833.3 it  23000 loss 0.00252 lr 5.71e-07 val PSNR 45.837 SSIM 0.9953 SAM 1.725 | best val 45.837 (3.86 h)
+ep  3975.0 it  23850 loss 0.00252 lr 2.00e-07 val PSNR 45.840 SSIM 0.9953 SAM 1.725 | best val 45.840 (4.01 h)
+time budget reached at it 23850 (epoch 3975.0); continue with --resume <out>/last.pt
+TEST: {'PSNR': 48.0084, 'PSNR_psrt': 47.5995, 'MPSNR_peak1': 48.8154, 'SSIM': 0.996, 'SSIM_psrt': 0.9965, 'SAM': 2.2221, 'ERGAS': 0.195, 'RMSE_DN': 32.0846, 'CC': 0.999, 'SCC': 0.9991, 'Q2n': 0.9721}
+TEST (self-ensemble): {'PSNR': 48.0443, 'PSNR_psrt': 47.6354, 'MPSNR_peak1': 48.8565, 'SSIM': 0.996, 'SSIM_psrt': 0.9965, 'SAM': 2.2098, 'ERGAS': 0.1941, 'RMSE_DN': 31.9555, 'CC': 0.9991, 'SCC': 0.9991, 'Q2n': 0.9721}
+consistency: {'cons_H_dB': 62.26592316716588, 'cons_M_dB': 68.13094894622344} | self-ensemble: {'cons_H_dB': 62.29192887279996, 'cons_M_dB': 69.03212822480097}

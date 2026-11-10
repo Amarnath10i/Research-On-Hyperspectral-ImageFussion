@@ -1,0 +1,16 @@
+pavia x16: train [(92, 424, 715), (92, 512, 187)] test (4, 92, 256, 256) val (63, 92, 64, 64), 1.0 = 8000 DN  (3s)
+[external] u2net: https://github.com/PSRben/U2Net @ 32e214c19b4b1dea72258b4da3157258f67612b9
+u2net (reflect borders): 20.18M params on 1 x cuda; batch 4 x 1; epoch = 6 iters; eval every 1000 iters; deadline in 4.00 h; schedule by time
+bicubic test: {'PSNR': 21.816, 'PSNR_psrt': 21.4071, 'MPSNR_peak1': 22.1463, 'SSIM': 0.4273, 'SSIM_psrt': 0.4463, 'SAM': 10.4597, 'ERGAS': 3.8138, 'RMSE_DN': 659.9311, 'CC': 0.4917, 'SCC': 0.424, 'Q2n': 0.1912}
+GSA test: {'PSNR': 27.069, 'PSNR_psrt': 26.6601, 'MPSNR_peak1': 27.3086, 'SSIM': 0.7779, 'SSIM_psrt': 0.7828, 'SAM': 8.9604, 'ERGAS': 2.1351, 'RMSE_DN': 381.6035, 'CC': 0.9888, 'SCC': 0.963, 'Q2n': 0.7057}
+ep   166.7 it   1000 loss 0.05390 lr 1.00e-03 val PSNR 31.042 SSIM 0.8962 SAM 7.058 | best val 31.042 (0.66 h)
+ep   333.3 it   2000 loss 0.01306 lr 7.56e-04 val PSNR 35.504 SSIM 0.9586 SAM 4.830 | best val 35.504 (1.32 h)
+ep   500.0 it   3000 loss 0.00884 lr 5.10e-04 val PSNR 37.751 SSIM 0.9733 SAM 4.020 | best val 37.751 (1.98 h)
+ep   666.7 it   4000 loss 0.00629 lr 2.62e-04 val PSNR 39.073 SSIM 0.9804 SAM 3.505 | best val 39.073 (2.63 h)
+ep   833.3 it   5000 loss 0.00515 lr 7.62e-05 val PSNR 39.826 SSIM 0.9832 SAM 3.275 | best val 39.826 (3.29 h)
+ep  1000.0 it   6000 loss 0.00468 lr 1.00e-06 val PSNR 40.184 SSIM 0.9844 SAM 3.175 | best val 40.184 (3.94 h)
+ep  1016.7 it   6100 loss 0.00461 lr 1.00e-06 val PSNR 40.201 SSIM 0.9844 SAM 3.171 | best val 40.201 (4.01 h)
+time budget reached at it 6100 (epoch 1016.7); continue with --resume <out>/last.pt
+TEST: {'PSNR': 42.2558, 'PSNR_psrt': 41.847, 'MPSNR_peak1': 42.6397, 'SSIM': 0.9867, 'SSIM_psrt': 0.9876, 'SAM': 3.7442, 'ERGAS': 0.4068, 'RMSE_DN': 62.4454, 'CC': 0.9961, 'SCC': 0.9964, 'Q2n': 0.9564}
+TEST (self-ensemble): {'PSNR': 42.7064, 'PSNR_psrt': 42.2976, 'MPSNR_peak1': 43.1612, 'SSIM': 0.9881, 'SSIM_psrt': 0.9889, 'SAM': 3.5012, 'ERGAS': 0.3879, 'RMSE_DN': 59.3086, 'CC': 0.9965, 'SCC': 0.9967, 'Q2n': 0.9599}
+consistency: {'cons_H_dB': 55.63820590136182, 'cons_M_dB': 44.95297430833806} | self-ensemble: {'cons_H_dB': 55.674486689061226, 'cons_M_dB': 45.235179281176734}

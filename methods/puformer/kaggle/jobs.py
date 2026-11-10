@@ -272,6 +272,11 @@ def all_jobs():
     for m in ["dct", "dhif", "caformer"] + [x for x in NEW_METHODS if x != "smgu"]:
         jobs[f"bench-chikusei-x16-{m}"] = job(f"bench-chikusei-x16-{m}", "chikusei", 16, m,
                                               "--accum 4" if m == "u2net" else "--accum 2")
+    # the same networks at Pavia Centre x16, and the one Pavia x8 cell still missing
+    for m in [x for x in NEW_METHODS if x != "smgu"] + ["caformer"]:
+        jobs[f"bench-pavia-x16-{m}"] = job(f"bench-pavia-x16-{m}", "pavia", 16, m,
+                                           "--accum 4" if m == "u2net" else "--accum 2")
+    jobs["bench-pavia-x8-caformer"] = job("bench-pavia-x8-caformer", "pavia", 8, "caformer")
     return jobs
 
 
@@ -462,6 +467,9 @@ SESSIONS = {
     "puf-x07": (["bench-chikusei-x16-dct"], ["bench-chikusei-x16-dhif"]),
     "puf-x08": (["bench-chikusei-x16-clsnet"], ["bench-chikusei-x16-caformer"]),
     "puf-x09": (["bench-chikusei-x16-u2net"], ["bench-chikusei-x8-caformer"]),
+    "puf-y01": (["bench-pavia-x16-mimosst"], ["bench-pavia-x16-otpnet"]),
+    "puf-y02": (["bench-pavia-x16-clsnet"], ["bench-pavia-x16-caformer"]),
+    "puf-y03": (["bench-pavia-x16-u2net"], ["bench-pavia-x8-caformer"]),
 }
 # the adopted model in the robustness, recipe and uncertainty experiments
 for _i, _j in enumerate(("cond-{d}-x4-ng", "cond-{d}-x4-regng", "sa-{d}-x4-ng", "cond-{d}-x4-cwdng", "cond-{d}-x4-corng",
