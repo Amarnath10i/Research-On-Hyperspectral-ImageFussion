@@ -57,6 +57,9 @@ def main():
         m, job = al.split("=", 1)
         hits = sorted(glob.glob(os.path.join(a.preds, "**", job.format(dataset=a.dataset), "test_pred_f16.npy"),
                                 recursive=True))
+        # test.py (a re-test from a checkpoint) writes test_pred.npy in float32
+        hits = hits or sorted(glob.glob(os.path.join(a.preds, "**", job.format(dataset=a.dataset), "test_pred.npy"),
+                                        recursive=True))
         if hits:
             preds[m] = torch.from_numpy(np.load(hits[0]).astype(np.float32)).to(dev)
         else:

@@ -101,7 +101,7 @@ def load(job, name="results.json"):
             r["methods"].pop("puformer", None)
             if new and "puformer" in new.get("methods", {}):
                 r["methods"]["puformer"] = new["methods"]["puformer"]
-            for extra in ("-nb", "-nb2", "-nb3"):        # the networks added later (null-*-x4-nb*, run from their sessions)
+            for extra in ("-nb", "-nb2", "-nb3", "-nb4"):        # the networks added later (null-*-x4-nb*, run from their sessions)
                 more = _read(job + extra, name)
                 for m, v in (more or {}).get("methods", {}).items():
                     if m not in ("bicubic", "gsa", "puformer"):
