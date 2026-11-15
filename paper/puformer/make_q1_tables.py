@@ -1345,8 +1345,7 @@ def cvpr_cond():
         for d in sets:
             e = load(job.format(d=d), "cond_eval.json")
             for g in CV_GROUPS:
-                v = _cond_value(e, mode, pick[g]) if mode != "estimated_np" or g in ("nominal", "kernel") \
-                    else None                              # evaluated on these conditions only
+                v = _cond_value(e, mode, pick[g])          # estimated_np: every condition since puf-ce-k3
                 any_v |= v is not None
                 vals[(job, mode, d, g)] = v
                 if v is not None:
