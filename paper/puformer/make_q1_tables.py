@@ -1172,7 +1172,8 @@ def cvpr_general():
     write("cvpr_general.tex", [
         "\\begin{table}[t]", "\\centering",
         "\\caption{PSNR (dB) on CAVE and Harvard (unseen test scenes) and at larger scale factors, same protocol and "
-        "budget as Tab.~\\ref{tab:bench}. --: not run (SMGU-Net's code supports $\\times$4 only).}",
+        "budget as Tab.~\\ref{tab:bench}. --: no result (SMGU-Net's code supports $\\times$4 only; U2Net does not fit "
+        "into the memory of a T4 at Chikusei $\\times$16).}",
         "\\label{tab:general}", "\\setlength{\\tabcolsep}{2.6pt}", "\\resizebox{\\columnwidth}{!}{%",
         f"\\begin{{tabular}}{{@{{}}l{'c' * len(sets)}@{{}}}}", "\\toprule", f"Method & {head} \\\\", "\\midrule",
         *body, "\\bottomrule", "\\end{tabular}}", "\\end{table}"])
