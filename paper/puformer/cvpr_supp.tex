@@ -2,7 +2,7 @@
 % run cvpr_refs.py: references to the main paper (\mref{label}) are read from cvpr_mainrefs.tex.
 \documentclass[10pt,twocolumn,letterpaper]{article}
 
-\usepackage[review]{cvpr}
+\ifdefined\cvprfinalcopy\usepackage[final]{cvpr}\else\usepackage[review]{cvpr}\fi  % review: anonymous, line numbers; final (exactfuse_paper.tex): author names
 
 \input{cvpr_preamble}
 \IfFileExists{cvpr_mainrefs.tex}{\input{cvpr_mainrefs.tex}}{}
