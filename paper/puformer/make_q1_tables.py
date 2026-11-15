@@ -1152,7 +1152,8 @@ def cvpr_general():
     """PSNR on the other datasets and scale factors where ExactFuse has run (every metric is in the supplement)."""
     per = {(d, s): {m: method_metrics(d, s, m) for m, *_ in ALL} for d, s in GENERAL}
     sets = [k for k in GENERAL if per[k]["puformer"]]
-    rows = [x for x in ALL if x[0] != "bicubic" and any(per[k][x[0]] for k in sets)]
+    # rows with results in at most two of the settings (SMGU-Net, x4 only) are left to the supplement
+    rows = [x for x in ALL if x[0] != "bicubic" and sum(bool(per[k][x[0]]) for k in sets) > 2]
     learned = BASELINES + ("puformer",)
     best = {k: best_marks([per[k][m] for m in learned if per[k][m]], GEN_COLS[:1]) for k in sets}
     body = []
@@ -1172,8 +1173,8 @@ def cvpr_general():
     write("cvpr_general.tex", [
         "\\begin{table}[t]", "\\centering",
         "\\caption{PSNR (dB) on CAVE and Harvard (unseen test scenes) and at larger scale factors, same protocol and "
-        "budget as Tab.~\\ref{tab:bench}. --: no result (SMGU-Net's code supports $\\times$4 only; U2Net does not fit "
-        "into the memory of a T4 at Chikusei $\\times$16).}",
+        "budget as Tab.~\\ref{tab:bench}. SMGU-Net, whose code supports $\\times$4 only, is listed in \\supp. --: U2Net "
+        "does not fit into the memory of a T4 at Chikusei $\\times$16.}",
         "\\label{tab:general}", "\\setlength{\\tabcolsep}{2.6pt}", "\\resizebox{\\columnwidth}{!}{%",
         f"\\begin{{tabular}}{{@{{}}l{'c' * len(sets)}@{{}}}}", "\\toprule", f"Method & {head} \\\\", "\\midrule",
         *body, "\\bottomrule", "\\end{tabular}}", "\\end{table}"])
