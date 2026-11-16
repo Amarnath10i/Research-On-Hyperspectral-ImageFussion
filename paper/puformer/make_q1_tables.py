@@ -31,9 +31,9 @@ METHODS = [("bicubic", "Bicubic", None), ("gsa", "GSA", "aiazzi2007gsa"), ("ssrn
            ("puformer", "ExactFuse", None)]
 CORE = ("ssrnet", "psrt", "dct", "mimformer", "dhif")           # retrained on every dataset and scale factor
 # further published networks, retrained at x4 only (CVPR version; table rows appear once their runs exist)
-NEW = [("u2net", "U2Net", "peng2023u2net"), ("mimosst", "MIMO-SST", "fang2024mimosst"),
-       ("otpnet", "OTPNet", "yu2025otpnet"), ("smgu", "SMGU-Net", "yan2025smgu"), ("clsnet", "CLSNet", "yang2026clsnet"),
-       ("caformer", "CaFormer", "cao2026caformer"), ("m2dtn", "M2DTN", "dong2024m2dtn")]
+# compared methods: GSA and nine networks (SMGU-Net, U2Net and CaFormer, also retrained, are left out of the papers)
+NEW = [("mimosst", "MIMO-SST", "fang2024mimosst"), ("otpnet", "OTPNet", "yu2025otpnet"),
+       ("clsnet", "CLSNet", "yang2026clsnet"), ("m2dtn", "M2DTN", "dong2024m2dtn")]
 BASELINES = CORE + tuple(m for m, _, _ in NEW)                    # the retrained published networks
 ALL = METHODS[:-1] + NEW + METHODS[-1:]                          # ExactFuse last
 # (key, label, decimals, higher is better)
@@ -1173,8 +1173,7 @@ def cvpr_general():
     write("cvpr_general.tex", [
         "\\begin{table}[t]", "\\centering",
         "\\caption{PSNR (dB) on CAVE and Harvard (unseen test scenes) and at larger scale factors, same protocol and "
-        "budget as Tab.~\\ref{tab:bench}. SMGU-Net, whose code supports $\\times$4 only, is listed in \\supp. --: U2Net "
-        "does not fit into the memory of a T4 at Chikusei $\\times$16.}",
+        "budget as Tab.~\\ref{tab:bench}.}",
         "\\label{tab:general}", "\\setlength{\\tabcolsep}{2.6pt}", "\\resizebox{\\columnwidth}{!}{%",
         f"\\begin{{tabular}}{{@{{}}l{'c' * len(sets)}@{{}}}}", "\\toprule", f"Method & {head} \\\\", "\\midrule",
         *body, "\\bottomrule", "\\end{tabular}}", "\\end{table}"])
