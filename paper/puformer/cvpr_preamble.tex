@@ -26,7 +26,12 @@
 \newcommand{\qoneif}[2]{\ifcsname qone@#1\endcsname#2\fi}   % text only if the result exists
 \newcommand{\qoneelse}[2]{\ifcsname qone@#1\endcsname\else#2\fi}   % text only while it does not
 % authors (mentor last); cvpr.sty prints them only with the [final] option, 'Anonymous CVPR submission' otherwise
-\newcommand{\cvprauthors}{Challa Surya Jayanth Hruthwik \and M.~Amarnath \and Tummapudi Navadeep \and Srilatha Chebrolu \and C.~Krishna Mohan}
+\newcommand{\cvprauthors}{Challa Surya Jayanth Hruthwik$^{1}$\quad M.~Amarnath$^{1}$\quad Tummapudi Navadeep$^{1}$\\
+Srilatha Chebrolu$^{1}$\quad C.~Krishna Mohan$^{2}$\\[4pt]
+{\normalsize $^{1}$Dept.\ of Computer Science and Engineering, National Institute of Technology Andhra Pradesh, Tadepalligudem, India}\\
+{\normalsize $^{2}$Dept.\ of Computer Science and Engineering, Indian Institute of Technology Hyderabad, Hyderabad, India}\\[2pt]
+{\tt\small hruthwik2006@gmail.com, amarnath10chinu@gmail.com,}\\
+{\tt\small navadeeptummapudi080@gmail.com, srilatha.chebrolu@nitandhra.ac.in}}
 \newcommand{\qtab}[1]{\IfFileExists{tables/#1.tex}{\input{tables/#1.tex}}{}}
 
 \newtheorem{theorem}{Theorem}
