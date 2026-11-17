@@ -11,8 +11,7 @@ Two versions are built from the same results and generated tables:
   Operators*: the same theory in short form, Tables 1–5 (benchmark, other datasets and scales, where the margin
   comes from, ablation, one network for a family of observation models) and the limitations. The supplement holds
   the proofs, data and baseline details, the full metric tables, the architecture property table, the comparison
-  with the 17 reported methods, NEON and future directions. Its LLM-usage statement is a placeholder that the
-  authors must complete.
+  with the 17 reported methods, NEON and future directions.
 
 Both cover:
 

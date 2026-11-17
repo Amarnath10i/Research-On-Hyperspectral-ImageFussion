@@ -26,7 +26,9 @@ PAPER = ["paper/puformer/" + f for f in ("main.tex", "supplementary.tex", "pream
                                           "cvpr.sty", "ieeenat_fullname.bst",
                                           "numbers.tex", "make_numbers.py",
                                           "make_tables.py", "make_figures.py", "make_q1_tables.py",
-                                          "make_q1_figures.py", "novelty_check.py")]
+                                          "make_q1_figures.py", "novelty_check.py",
+                                          # Figures 1 and 2 of the 8-page paper, exported from their draw.io sources
+                                          "figures/exactfuse_overview.pdf", "figures/exactfuse_dstep.pdf")]
 PAPER += ["methods/puformer/hsifuse/" + f for f in sorted(os.listdir(os.path.join(REPO, "methods", "puformer", "hsifuse")))
           if f.endswith(".py")]
 RESULTS = ["results/puformer_chikusei_x4/puformer/*.json", "results/puformer_chikusei_x4/ssrnet/*.json",
